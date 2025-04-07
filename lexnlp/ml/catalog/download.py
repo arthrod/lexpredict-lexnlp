@@ -1,5 +1,6 @@
 """
 """
+from security import safe_requests
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -19,7 +20,7 @@ from typing import Any, Dict, Generator, Iterator, Union
 
 # third-party libraries
 from tqdm import tqdm
-from requests import get, Response
+from requests import Response
 from requests.structures import CaseInsensitiveDict
 
 # LexNLP
@@ -51,7 +52,7 @@ class GitHubReleaseDownloader:
 
     @staticmethod
     def get_tag(tag: str) -> Response:
-        response: Response = get(
+        response: Response = safe_requests.get(
             url=f'{MODELS_REPO}{tag}',
             headers={
                 'Accept': 'application/vnd.github.v3+json',
@@ -119,7 +120,7 @@ class GitHubReleaseDownloader:
         References:
             https://docs.github.com/en/rest/reference/releases#get-a-release-asset
         """
-        response: Response = get(
+        response: Response = safe_requests.get(
             url=asset['url'],
             stream=True,
             headers={
