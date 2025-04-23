@@ -1,6 +1,7 @@
 """
 Features extraction for addresses detecting classifier.
 """
+import fickling
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -21,7 +22,6 @@ from typing import List
 import nltk
 import pycountry
 from dateutil import parser as dateparser
-import pickle
 
 
 cwd = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
@@ -126,7 +126,7 @@ def build_provinces_words():
 
 def _pickle_load(fn: str):
     with open(fn, 'rb') as f:
-        return pickle.load(f)
+        return fickling.load(f)
 
 
 POS_TAG_SET_INDEX_FN = os.path.join(cwd, 'nltk_pos_tag_indexes.json')

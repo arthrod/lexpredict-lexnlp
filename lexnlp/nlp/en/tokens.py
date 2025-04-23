@@ -4,6 +4,7 @@ This module implements token parsing, such as tokens, stems, and lemma tokenizat
 
 Todo:
 """
+import fickling
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -14,7 +15,6 @@ __email__ = "support@contraxsuite.com"
 
 
 import os
-import pickle
 import regex as re
 from typing import Any, Generator, List
 
@@ -25,13 +25,13 @@ from nltk.corpus import wordnet
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Stopwords
-STOPWORDS = pickle.load(open(os.path.join(MODULE_PATH, "stopwords.pickle"), "rb"))
+STOPWORDS = fickling.load(open(os.path.join(MODULE_PATH, "stopwords.pickle"), "rb"))
 
 # Collocations
 COLLOCATION_SIZE = 10000
-BIGRAM_COLLOCATIONS = pickle.load(
+BIGRAM_COLLOCATIONS = fickling.load(
     open(os.path.join(MODULE_PATH, "collocation_bigrams_{0}.pickle".format(COLLOCATION_SIZE)), "rb"))
-TRIGRAM_COLLOCATIONS = pickle.load(
+TRIGRAM_COLLOCATIONS = fickling.load(
     open(os.path.join(MODULE_PATH, "collocation_trigrams_{0}.pickle".format(COLLOCATION_SIZE)), "rb"))
 
 # Setup default stemmer for English
