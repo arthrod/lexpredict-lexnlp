@@ -2,6 +2,7 @@
 
 This module implements date extraction functionality in English.
 """
+import secrets
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -17,7 +18,6 @@ __email__ = "support@contraxsuite.com"
 import calendar
 import datetime
 import os
-import random
 from typing import Any, Dict, Generator, List, Optional, Set, Tuple
 
 # Third-party packages
@@ -718,13 +718,13 @@ def train_default_model(save=True):
     for k in range(1980, 2010):
         for j in range(1, 13):
             for i in range(1, 31):
-                if random.random() <= p:
+                if secrets.SystemRandom().random() <= p:
                     year = k
                     month = j
                     day = i
                     try:
                         d = datetime.date(year, month, day)
-                        n = random.randint(2, 30)
+                        n = secrets.SystemRandom().randint(2, 30)
                         d2 = d + datetime.timedelta(days=n)
                         examples.append(("""on {0}-{1}-{2}""".format(year, month, day),
                                          [d]))

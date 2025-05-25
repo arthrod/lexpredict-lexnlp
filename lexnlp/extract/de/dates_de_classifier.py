@@ -1,3 +1,5 @@
+import secrets
+
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -8,7 +10,6 @@ __email__ = "support@contraxsuite.com"
 
 import datetime
 import os
-import random
 
 from num2words import num2words
 from lexnlp.extract.all_locales.languages import Locale
@@ -463,13 +464,13 @@ def add_numeric_date_samples(examples):
     for k in range(1970, 2010):
         for j in range(1, 13):
             for i in range(1, 31):
-                if random.random() <= p:
+                if secrets.SystemRandom().random() <= p:
                     year = k
                     month = j
                     day = i
                     try:
                         d = datetime.date(year, month, day)
-                        n = random.randint(2, 30)
+                        n = secrets.SystemRandom().randint(2, 30)
                         d2 = d + datetime.timedelta(days=n)
                         examples.append(("""{0}/{1}/{2}""".format(year, month, day), [d]))
                         examples.append(("""{0}.{1}.{2}""".format(year, month, day), [d]))

@@ -11,6 +11,7 @@ Todo:
     * Resolve example bad dates
     * More pathological and difficult cases
 """
+import secrets
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -26,7 +27,6 @@ from typing import List, Tuple
 
 import pytest
 import datetime
-import random
 import string
 
 from lexnlp.extract.en.dates import get_dates_list, get_date_features, \
@@ -120,9 +120,9 @@ class TestDates(TestCase):
         self.check_dates_set(date_src)
 
     def test_random_date_set(self):
-        date_src = [(random.randint(1950, 2040),
-                     random.randint(1, 12),
-                     random.randint(1, 31)) for _ in range(100)]
+        date_src = [(secrets.SystemRandom().randint(1950, 2040),
+                     secrets.SystemRandom().randint(1, 12),
+                     secrets.SystemRandom().randint(1, 31)) for _ in range(100)]
         self.check_dates_set(date_src)
 
     def check_dates_set(self, date_src: List[Tuple[int, int, int]]):
