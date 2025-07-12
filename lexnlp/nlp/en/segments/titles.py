@@ -3,6 +3,7 @@
 This module implements title segmentation/location in English using simple
 machine learning classifiers.
 """
+from security import safe_requests
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -20,7 +21,6 @@ from typing import Generator
 import joblib
 import numpy
 import pandas
-import requests
 import sklearn.ensemble
 
 # Project
@@ -175,7 +175,7 @@ def build_model(training_file_path):
         # Download file
         file_url = row["File"].replace("https://github.com/", "https://raw.githubusercontent.com/").replace("/blob/",
                                                                                                             "/")
-        file_text = requests.get(file_url).text
+        file_text = safe_requests.get(file_url).text
         file_lines = file_text.splitlines()
 
         # Get features and target for model
