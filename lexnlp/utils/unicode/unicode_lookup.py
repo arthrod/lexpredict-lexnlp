@@ -1,3 +1,5 @@
+import fickling
+
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -21,7 +23,7 @@ _FN_UNICODE_CHAR_TOP_CATEGORY_MAPPING = os.path.join(_MODULE_PATH, 'unicode_char
 def _load_table(fn: str, ignore_error: bool):
     try:
         with open(fn, 'rb') as f:
-            return pickle.load(f)
+            return fickling.load(f)
     except IOError as e:
         print('Unable to load unicode lookup table: {0}'.format(fn))
         if ignore_error:

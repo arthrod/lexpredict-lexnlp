@@ -1,3 +1,5 @@
+import fickling
+
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -22,11 +24,11 @@ class BaseTokenSequenceClassifierModel:
     Base classifier class for generic text sequence objects.
     """
 
-    unicode_character_categories = pickle.load(
+    unicode_character_categories = fickling.load(
         open(os.path.join(MODULE_PATH, 'data/unicode_character_categories.pickle'), 'rb'))
-    unicode_character_category_mapping = pickle.load(
+    unicode_character_category_mapping = fickling.load(
         open(os.path.join(MODULE_PATH, 'data/unicode_character_category_mapping.pickle'), 'rb'))
-    unicode_character_top_category_mapping = pickle.load(
+    unicode_character_top_category_mapping = fickling.load(
         open(os.path.join(MODULE_PATH, 'data/unicode_character_top_category_mapping.pickle'), 'rb'))
     unicode_top_category_set = set(unicode_character_top_category_mapping.values())
     unicode_category_set = set(unicode_character_category_mapping.values())
@@ -88,12 +90,12 @@ class BaseTokenSequenceClassifierModel:
     @staticmethod
     def load_from_file_compressed(save_path: str):
         with gzip.GzipFile(save_path, 'r') as fr:
-            model = pickle.load(fr)
+            model = fickling.load(fr)
         return model
 
     @staticmethod
     def load_from_stream(stream: Any):
-        model = pickle.load(stream)
+        model = fickling.load(stream)
         return model
 
     @abstractmethod

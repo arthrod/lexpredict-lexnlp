@@ -112,7 +112,8 @@ setup(
         'tqdm==4.64.1',
         'Unidecode==1.3.6',
         'us==2.0.2',
-        'zahlwort2num==0.4.2'
+        'zahlwort2num==0.4.2',
+        "fickling>=0.1.3,~=0.1.0",
     ],
 
     # Install any data files from packages.
