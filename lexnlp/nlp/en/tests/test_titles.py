@@ -29,7 +29,7 @@ class TestTitles(TestCase):
               "construction/1000694_2002-03-15_AGREEMENT%20OF%20LEASE-W.M.RICKMAN%20CONSTRUCTION%20CO..txt"
 
         # Download file
-        file_text = requests.get(url).text
+        file_text = requests.get(url, timeout=60).text
 
         self.assertEqual(['LEASE AGREEMENT'], list(get_titles(file_text)))
 

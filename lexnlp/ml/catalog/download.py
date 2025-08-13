@@ -56,7 +56,7 @@ class GitHubReleaseDownloader:
             headers={
                 'Accept': 'application/vnd.github.v3+json',
             },
-        )
+        timeout=60)
         return response
 
     @staticmethod
@@ -125,7 +125,7 @@ class GitHubReleaseDownloader:
             headers={
                 'Accept': 'application/octet-stream',
             },
-        )
+        timeout=60)
         headers: CaseInsensitiveDict[str, Any] = response.headers
         name: str = asset.get('name')
         content_length: int = int(headers.get('Content-Length', asset.get('size', 0)))
