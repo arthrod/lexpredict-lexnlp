@@ -10,6 +10,8 @@ __email__ = "support@contraxsuite.com"
 
 
 # standard library
+import logging
+import pickle
 from typing import Iterable, Tuple, Union
 
 # third-party imports
@@ -18,6 +20,9 @@ from pandas import Series
 
 # LexNLP
 from lexnlp.ml.predictor import ProbabilityPredictor
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ProbabilityPredictorIsContract(ProbabilityPredictor):
@@ -85,11 +90,27 @@ class ProbabilityPredictorContractType(ProbabilityPredictor):
     def get_default_pipeline(cls):
         try:
             return super().get_default_pipeline()
-        except Exception:
+        except (
+            FileNotFoundError,
+            EOFError,
+            ImportError,
+            AttributeError,
+            TypeError,
+            ValueError,
+            pickle.UnpicklingError,
+        ) as exc:
             # Respect explicit env override failures and only auto-fallback for
             # the legacy default model tag.
             if cls.get_default_pipeline_tag() != cls._DEFAULT_PIPELINE:
                 raise
+
+            LOGGER.warning(
+                "Failed to load legacy contract-type model tag=%s; falling back to runtime tag=%s. error=%s",
+                cls._DEFAULT_PIPELINE,
+                cls._RUNTIME_FALLBACK_PIPELINE,
+                exc,
+                exc_info=True,
+            )
 
             from lexnlp.extract.en.contracts.runtime_model import (
                 ensure_runtime_contract_type_model,

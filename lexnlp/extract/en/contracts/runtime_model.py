@@ -11,6 +11,7 @@ __email__ = "support@contraxsuite.com"
 
 
 # standard library
+import logging
 import pickle
 import tarfile
 from collections import defaultdict
@@ -23,6 +24,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
+
+LOGGER = logging.getLogger(__name__)
 
 LEGACY_CONTRACT_TYPE_TAG = "pipeline/contract-type/0.1"
 RUNTIME_CONTRACT_TYPE_TAG = "pipeline/contract-type/0.2-runtime"
@@ -37,6 +40,7 @@ def ensure_tag_downloaded(tag: str) -> Path:
     try:
         return get_path_from_catalog(tag)
     except FileNotFoundError:
+        LOGGER.info("Catalog tag missing; downloading release tag=%s", tag)
         download_github_release(tag, prompt_user=False)
         return get_path_from_catalog(tag)
 
@@ -181,7 +185,13 @@ def ensure_runtime_contract_type_model(
     # to avoid retraining in CI environments.
     try:
         return ensure_tag_downloaded(target_tag)
-    except Exception:
+    except Exception as exc:
+        LOGGER.warning(
+            "Unable to download runtime contract-type model tag=%s; falling back to training. error=%s",
+            target_tag,
+            exc,
+            exc_info=True,
+        )
         pass
 
     corpus_archive = ensure_tag_downloaded(CONTRACT_TYPE_CORPUS_TAG)
