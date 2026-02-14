@@ -127,7 +127,10 @@ Migration and troubleshooting details are in `MIGRATION_RUNBOOK.md`.
 - Fix failing behavior or document a real external blocker; never mask regressions by changing skip behavior.
 - Any `skip`/`skipif`/`xfail` that is genuinely required (e.g., external dependency outage) must include an inline annotation:
   - `skip-audit: issue=<link-or-id> expires=YYYY-MM-DD`
-  - CI enforces this via `ci/skip_audit.py`. Prefer inline annotations; `ci/skip_audit_allowlist.txt` is reserved for rare cases where annotation is not feasible.
+  - CI enforces this via `ci/skip_audit.py`.
+  - Prefer inline annotations; `ci/skip_audit_allowlist.txt` is reserved for rare cases where annotation is not feasible:
+    - Use stable allowlist keys (not line-number based)
+    - Generate keys with: `python ci/skip_audit.py --print-markers`
 - Validation target is **100% pass** for required suites.
 
 ## Full Validation Commands (100% pass target)

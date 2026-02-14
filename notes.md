@@ -39,7 +39,7 @@ Modernize dependency and test tooling so LexNLP is reproducible with `uv`, Pytho
 
 ### 5) Skips/xfails could hide regressions
 - Problem: policy needed to prevent making builds green by bypassing tests.
-- Fix: added `ci/skip_audit.py` and `ci/skip_audit_allowlist.txt`, wired into CI to fail on unapproved new skip/xfail markers.
+- Fix: added `ci/skip_audit.py`, wired into CI to enforce inline `skip-audit:` annotations on any `skip`/`skipif`/`xfail`. `ci/skip_audit_allowlist.txt` remains available for rare cases, and now supports stable (non-line-number-based) keys.
 
 ### 6) Packaging artifacts included unwanted content risk
 - Problem: release artifacts could unintentionally include local runtime blobs (`libs/stanford_nlp`), bytecode caches, and deprecated manifest files.
@@ -54,11 +54,11 @@ Modernize dependency and test tooling so LexNLP is reproducible with `uv`, Pytho
 
 ## Final validation results
 
-- Skip audit: `skip-audit: OK (markers=11, allowlisted=11, annotated_new=0)`
-- Base suite (`./.venv/bin/pytest -q`): `505 passed, 11 skipped, 0 failed`
+- Skip audit: `skip-audit: OK (markers=11, allowlisted=0, annotated_new=11)`
+- Base suite (no Stanford assets provisioned): `511 passed, 11 skipped, 0 failed`
 - Stanford-gated suite (`LEXNLP_USE_STANFORD=true` targeted files): `11 passed, 0 failed`
 - Skipped tests in base suite were exclusively Stanford-gated tests (`Stanford is disabled.`).
-- Net demonstrated pass count (two-phase, fully provisioned): `516/516`
+- Net demonstrated pass count (two-phase, fully provisioned): `522/522`
 - Packaging:
   - `uv build` succeeds
   - `python3 ci/check_dist_contents.py` succeeds

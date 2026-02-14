@@ -236,6 +236,9 @@ the current runtime and re-run targeted tests:
 - Skip-audit failure:
   - Remove the marker, or add annotation:
     - `# skip-audit: issue=<ticket> expires=YYYY-MM-DD`
-  - For approved legacy skips only, update `ci/skip_audit_allowlist.txt`
+  - In rare cases where annotation is not feasible, allowlist the marker:
+    - Use the stable key format (not line-number based)
+    - Generate keys with: `python ci/skip_audit.py --print-markers`
+    - Add the stable key to `ci/skip_audit_allowlist.txt`
 - Packaging smoke failure:
   - Ensure build artifacts are generated with `uv build` and install into a clean venv
