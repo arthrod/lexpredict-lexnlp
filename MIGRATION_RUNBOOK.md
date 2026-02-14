@@ -23,9 +23,12 @@ uv venv --python 3.11 .venv
 uv sync --frozen --python .venv/bin/python --extra dev --extra test
 ```
 
-Optional (editable install for development tooling outside the repo root):
+Notes:
+- `uv sync` installs the project editable by default (good for local development).
+- If you want a non-editable install (closer to a wheel install), add `--no-editable`.
 
 ```bash
+# Only needed if you used --no-install-project above:
 uv pip install --python .venv/bin/python -e ".[dev,test]"
 ```
 

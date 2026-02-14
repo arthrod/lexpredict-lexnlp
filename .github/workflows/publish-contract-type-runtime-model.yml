@@ -12,6 +12,9 @@ permissions:
 
 env:
   PYTHON_VERSION: "3.11"
+  # Ensure publish workflows work on forks even if the fork does not host the
+  # upstream model/corpus release tags needed for training.
+  LEXNLP_MODELS_REPO_SLUG: "LexPredict/lexpredict-lexnlp"
   MODEL_TAG: "pipeline/contract-type/0.2-runtime"
   BASELINE_METRICS: "test_data/model_quality/contract_type_baseline_metrics.json"
 

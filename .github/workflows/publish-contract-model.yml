@@ -12,6 +12,9 @@ permissions:
 
 env:
   PYTHON_VERSION: "3.11"
+  # Ensure publish workflows work on forks even if the fork does not host the
+  # upstream model/corpus release tags needed for training/re-export.
+  LEXNLP_MODELS_REPO_SLUG: "LexPredict/lexpredict-lexnlp"
   SOURCE_TAG: "pipeline/is-contract/0.1"
   MODEL_TAG: "pipeline/is-contract/0.2"
   BASELINE_METRICS: "test_data/model_quality/is_contract_baseline_metrics.json"
@@ -106,4 +109,3 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "${MODEL_TAG}" "${{ steps.locate.outputs.model_path }}" --clobber
-
