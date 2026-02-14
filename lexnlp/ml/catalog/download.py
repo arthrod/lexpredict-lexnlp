@@ -24,7 +24,7 @@ from requests import get, Response
 from requests.structures import CaseInsensitiveDict
 
 # LexNLP
-from lexnlp import MODELS_REPO
+from lexnlp import get_models_repo
 from lexnlp.ml.catalog import CATALOG
 
 
@@ -63,8 +63,9 @@ class GitHubReleaseDownloader:
 
     @staticmethod
     def get_tag(tag: str) -> Response:
+        models_repo = get_models_repo()
         response: Response = get(
-            url=f'{MODELS_REPO}{tag}',
+            url=f'{models_repo}{tag}',
             headers=_build_github_headers({
                 'Accept': 'application/vnd.github.v3+json',
             }),
@@ -236,7 +237,8 @@ def download_github_release(tag: str, prompt_user: bool = True) -> None:
         return '{:3.2f} {}B'.format(value, ('', 'Ki', 'Mi', 'Gi')[magnitude])
 
     if prompt_user:
-        answer_download = _input_yes_no(f'Download `{tag}` from {MODELS_REPO}? [Y/n]')
+        models_repo = get_models_repo()
+        answer_download = _input_yes_no(f'Download `{tag}` from {models_repo}? [Y/n]')
         if answer_download:
             asset: Dict[str, Any] = _get_asset()
             try:

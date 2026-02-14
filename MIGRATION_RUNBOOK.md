@@ -147,6 +147,21 @@ export LEXNLP_IS_CONTRACT_MODEL_TAG="pipeline/is-contract/0.2"
 export LEXNLP_CONTRACT_TYPE_MODEL_TAG="pipeline/contract-type/0.2-runtime"
 ```
 
+### Models repo override (advanced)
+
+By default, model/corpus tags are downloaded from the upstream LexPredict
+repository via the GitHub API (`lexnlp.DEFAULT_MODELS_REPO`).
+
+For forks or air-gapped mirrors, you can redirect downloads:
+
+```bash
+# Option A: set a full GitHub API base URL (must point at `/releases/tags/`)
+export LEXNLP_MODELS_REPO="https://api.github.com/repos/<owner>/<repo>/releases/tags/"
+
+# Option B: set the slug (LexNLP constructs the GitHub API tags endpoint)
+export LEXNLP_MODELS_REPO_SLUG="<owner>/<repo>"
+```
+
 ### Contract-type runtime fallback model
 
 The legacy `pipeline/contract-type/0.1` artifact may fail to unpickle on modern

@@ -70,6 +70,16 @@ Use the bootstrap script for deterministic setup:
 ./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model --contract-type-model
 ```
 
+Advanced: redirect model downloads to a different GitHub repository:
+
+```bash
+# full GitHub API base URL (must point at `/releases/tags/`)
+export LEXNLP_MODELS_REPO="https://api.github.com/repos/<owner>/<repo>/releases/tags/"
+
+# or: slug form (LexNLP constructs the API URL)
+export LEXNLP_MODELS_REPO_SLUG="<owner>/<repo>"
+```
+
 Optional assets:
 
 ```bash
