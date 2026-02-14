@@ -11,6 +11,7 @@ __email__ = "support@contraxsuite.com"
 
 # standard library
 import logging
+import os
 from pathlib import Path
 from hashlib import md5
 from base64 import b64encode
@@ -38,6 +39,17 @@ class ChecksumError(Exception):
     pass
 
 
+def _build_github_headers(headers: Dict[str, str]) -> Dict[str, str]:
+    """
+    Augment request headers with an optional GitHub token for higher API limits.
+    """
+    token: str = (os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN") or "").strip()
+    merged_headers: Dict[str, str] = dict(headers)
+    if token:
+        merged_headers["Authorization"] = f"Bearer {token}"
+    return merged_headers
+
+
 class GitHubReleaseDownloader:
     """
     """
@@ -53,9 +65,9 @@ class GitHubReleaseDownloader:
     def get_tag(tag: str) -> Response:
         response: Response = get(
             url=f'{MODELS_REPO}{tag}',
-            headers={
+            headers=_build_github_headers({
                 'Accept': 'application/vnd.github.v3+json',
-            },
+            }),
         )
         return response
 
@@ -122,9 +134,9 @@ class GitHubReleaseDownloader:
         response: Response = get(
             url=asset['url'],
             stream=True,
-            headers={
+            headers=_build_github_headers({
                 'Accept': 'application/octet-stream',
-            },
+            }),
         )
         headers: CaseInsensitiveDict[str, Any] = response.headers
         name: str = asset.get('name')
