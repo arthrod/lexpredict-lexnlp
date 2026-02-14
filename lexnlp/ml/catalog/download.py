@@ -28,11 +28,19 @@ from lexnlp import get_models_repo
 from lexnlp.ml.catalog import CATALOG
 
 
-logging.basicConfig(
-    format='[LexNLP][%(asctime)s][%(levelname)s]: %(message)s',
-    level=logging.INFO
-)
-LOGGER: logging.Logger = logging.getLogger()
+LOGGER: logging.Logger = logging.getLogger(__name__)
+
+DEFAULT_GITHUB_TIMEOUT_SECONDS = 60.0
+
+
+def _get_github_timeout_seconds() -> float:
+    raw = (os.getenv("LEXNLP_GITHUB_TIMEOUT") or "").strip()
+    if not raw:
+        return DEFAULT_GITHUB_TIMEOUT_SECONDS
+    try:
+        return float(raw)
+    except ValueError:
+        return DEFAULT_GITHUB_TIMEOUT_SECONDS
 
 
 class ChecksumError(Exception):
@@ -69,7 +77,9 @@ class GitHubReleaseDownloader:
             headers=_build_github_headers({
                 'Accept': 'application/vnd.github.v3+json',
             }),
+            timeout=_get_github_timeout_seconds(),
         )
+        response.raise_for_status()
         return response
 
     @staticmethod
@@ -138,7 +148,9 @@ class GitHubReleaseDownloader:
             headers=_build_github_headers({
                 'Accept': 'application/octet-stream',
             }),
+            timeout=_get_github_timeout_seconds(),
         )
+        response.raise_for_status()
         headers: CaseInsensitiveDict[str, Any] = response.headers
         name: str = asset.get('name')
         content_length: int = int(headers.get('Content-Length', asset.get('size', 0)))

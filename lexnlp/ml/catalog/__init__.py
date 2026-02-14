@@ -63,6 +63,8 @@ def _resolve_catalog_dir() -> Path:
 
 CATALOG: Path = _resolve_catalog_dir()
 
+_TAG_DICT_CACHE: Optional[Dict[str, Path]] = None
+
 
 def _build_tag_dict() -> Dict[str, Path]:
     """
@@ -81,6 +83,25 @@ def _build_tag_dict() -> Dict[str, Path]:
     }
 
 
+def invalidate_catalog_cache() -> None:
+    """
+    Clear the in-process catalog index.
+
+    LexNLP downloads new tags at runtime. Most processes benefit from caching
+    catalog lookups, but callers that add/remove assets can invalidate the cache
+    explicitly (or rely on miss-based refresh in `get_path_from_catalog`).
+    """
+    global _TAG_DICT_CACHE
+    _TAG_DICT_CACHE = None
+
+
+def _get_tag_dict_cached() -> Dict[str, Path]:
+    global _TAG_DICT_CACHE
+    if _TAG_DICT_CACHE is None:
+        _TAG_DICT_CACHE = _build_tag_dict()
+    return _TAG_DICT_CACHE
+
+
 def get_path_from_catalog(tag: str) -> Path:
     """
     Args:
@@ -89,8 +110,21 @@ def get_path_from_catalog(tag: str) -> Path:
     Returns:
         A file path.
     """
-    d: Dict[str, Path] = _build_tag_dict()
+    d: Dict[str, Path] = _get_tag_dict_cached()
     path: Optional[Path] = d.get(tag)
+
+    # If a tag was downloaded after the cache was built, refresh on miss.
+    if path is None:
+        invalidate_catalog_cache()
+        d = _get_tag_dict_cached()
+        path = d.get(tag)
+
+    # If the cached path was removed/overwritten, refresh once before failing.
+    if path is not None and not path.exists():
+        invalidate_catalog_cache()
+        d = _get_tag_dict_cached()
+        path = d.get(tag)
+
     if path is None:
         raise FileNotFoundError(
             f'Could not find tag={tag} in CATALOG={CATALOG}. '

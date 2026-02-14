@@ -36,7 +36,7 @@ def resolve_contract_model_tag() -> str:
     return (
         os.getenv("LEXNLP_CONTRACT_MODEL_TAG")
         or os.getenv("LEXNLP_IS_CONTRACT_MODEL_TAG")
-        or "pipeline/is-contract/0.1"
+        or "pipeline/is-contract/0.2"
     ).strip()
 
 
@@ -314,7 +314,28 @@ def bootstrap_contract_model(*, dry_run: bool, tag: str) -> None:
         ) from error
 
     LOGGER.info("Downloading LexNLP contract model: %s", tag)
-    download_github_release(tag, prompt_user=False)
+    try:
+        download_github_release(tag, prompt_user=False)
+        return
+    except Exception as exc:
+        # The default tag may not exist yet in the configured models repo.
+        # Only fall back when the tag was not explicitly set by the user.
+        explicit = bool(
+            (os.getenv("LEXNLP_CONTRACT_MODEL_TAG") or "").strip()
+            or (os.getenv("LEXNLP_IS_CONTRACT_MODEL_TAG") or "").strip()
+        )
+        status_code = getattr(getattr(exc, "response", None), "status_code", None)
+        legacy_tag = "pipeline/is-contract/0.1"
+
+        if not explicit and tag == "pipeline/is-contract/0.2" and status_code == 404:
+            LOGGER.warning(
+                "Contract model tag=%s not found (HTTP 404); falling back to legacy tag=%s",
+                tag,
+                legacy_tag,
+            )
+            download_github_release(legacy_tag, prompt_user=False)
+            return
+        raise
 
 
 def bootstrap_contract_type_model(*, dry_run: bool, tag: str) -> None:
