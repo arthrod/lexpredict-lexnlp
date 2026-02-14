@@ -148,6 +148,12 @@ python3 ci/check_dist_contents.py
   --candidate-tag pipeline/is-contract/0.1 \
   --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
 
+# create a re-exported candidate model tag and validate it
+./.venv/bin/python scripts/reexport_contract_model.py \
+  --source-tag pipeline/is-contract/0.1 \
+  --target-tag pipeline/is-contract/0.2 \
+  --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
+
 # run one file
 ./.venv/bin/pytest lexnlp/extract/en/tests/test_dates.py
 

@@ -71,6 +71,16 @@ Modernize dependency and test tooling so LexNLP is reproducible with `uv`, Pytho
   - `.github/workflows/ci.yml`
   - This runs the contract-model quality gate and uploads the JSON result as an artifact.
 
+## Follow-up completed (model artifact refresh workflow)
+
+- Added `scripts/reexport_contract_model.py` to support deterministic re-serialization
+  of `pipeline/is-contract/0.1` into a new local catalog tag (for example
+  `pipeline/is-contract/0.2`) under the current runtime.
+- The script writes per-tag metadata JSON and runs `scripts/model_quality_gate.py`
+  automatically unless `--skip-quality-gate` is passed.
+- The script also compares legacy sklearn warning counts between source and
+  candidate artifacts to ensure warning behavior does not regress.
+
 ## Operational guidance
 
 Reliable full-validation flow on this machine:

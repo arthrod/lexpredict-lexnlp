@@ -76,6 +76,19 @@ Use the quality gate script before adopting a new contract-model artifact.
 The committed baseline metrics file is:
 - `test_data/model_quality/is_contract_baseline_metrics.json`
 
+To create a modern candidate artifact by re-serializing the baseline model
+under the current runtime (Python/scikit-learn), use:
+
+```bash
+./.venv/bin/python scripts/reexport_contract_model.py \
+  --source-tag pipeline/is-contract/0.1 \
+  --target-tag pipeline/is-contract/0.2 \
+  --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
+```
+
+This writes model-export metadata to
+`artifacts/model_reexports/pipeline__is-contract__0.2.metadata.json` by default.
+
 Candidate evaluation command:
 
 ```bash
