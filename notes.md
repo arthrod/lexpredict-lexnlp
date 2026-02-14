@@ -184,6 +184,10 @@ python3 ci/check_dist_contents.py
     - Fixture: `test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_contract_type.csv`
     - Baseline: `test_data/model_quality/contract_type_baseline_metrics.json`
     - Gate: `scripts/contract_type_quality_gate.py`
+  - Note: because the runtime tag is currently trained from corpora when the
+    GitHub Release asset is missing, Linux vs macOS training can yield slightly
+    different scores on the small fixture. The committed baseline metrics file
+    is intentionally conservative so the gate remains stable across runners.
   - Added a GitHub Actions workflow to publish the runtime artifact as a GitHub
     Release asset:
     - `.github/workflows/publish-contract-type-runtime-model.yml`
