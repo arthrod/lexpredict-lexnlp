@@ -71,17 +71,36 @@ uv pip install --python .venv-smoke/bin/python dist/*.whl
 
 ## 7) Model Upgrade Quality Gate
 
-Use the quality gate script before adopting a new contract-model artifact:
+Use the quality gate script before adopting a new contract-model artifact.
+
+The committed baseline metrics file is:
+- `test_data/model_quality/is_contract_baseline_metrics.json`
+
+Candidate evaluation command:
 
 ```bash
 ./.venv/bin/python scripts/model_quality_gate.py \
+  --baseline-tag pipeline/is-contract/0.1 \
   --candidate-tag pipeline/is-contract/0.2 \
+  --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json \
   --fixture test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv \
   --max-f1-regression 0.0 \
   --max-accuracy-regression 0.0
 ```
 
-Default policy is non-regression against the baseline model (`pipeline/is-contract/0.1`).
+Default policy is non-regression against baseline metrics from
+`pipeline/is-contract/0.1` on the fixed fixture above.
+
+If baseline-tag model behavior is intentionally changed, regenerate and review
+the baseline metrics file in the same PR:
+
+```bash
+./.venv/bin/python scripts/model_quality_gate.py \
+  --baseline-tag pipeline/is-contract/0.1 \
+  --candidate-tag pipeline/is-contract/0.1 \
+  --fixture test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv \
+  --write-baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
+```
 
 ## 8) Failure Triage
 

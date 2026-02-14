@@ -57,7 +57,19 @@ Modernize dependency and test tooling so LexNLP is reproducible with `uv`, Pytho
 - Packaging:
   - `uv build` succeeds
   - `python3 ci/check_dist_contents.py` succeeds
-  - wheel install smoke test succeeds and imports `lexnlp==2.3.0`
+- wheel install smoke test succeeds and imports `lexnlp==2.3.0`
+
+## Follow-up completed (quality gate in CI)
+
+- Added committed baseline metrics fixture:
+  - `test_data/model_quality/is_contract_baseline_metrics.json`
+- Extended `scripts/model_quality_gate.py` to:
+  - consume baseline metrics JSON directly
+  - validate fixture/min-probability alignment
+  - optionally write canonical baseline metrics JSON
+- Added a dedicated GitHub Actions job `model-quality` in
+  - `.github/workflows/ci.yml`
+  - This runs the contract-model quality gate and uploads the JSON result as an artifact.
 
 ## Operational guidance
 

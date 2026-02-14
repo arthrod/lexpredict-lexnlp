@@ -142,6 +142,12 @@ Note: a single monolithic `LEXNLP_USE_STANFORD=true` run can occasionally hang i
 # packaging content sanity
 python3 ci/check_dist_contents.py
 
+# contract model quality gate (baseline metrics)
+./.venv/bin/python scripts/model_quality_gate.py \
+  --baseline-tag pipeline/is-contract/0.1 \
+  --candidate-tag pipeline/is-contract/0.1 \
+  --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
+
 # run one file
 ./.venv/bin/pytest lexnlp/extract/en/tests/test_dates.py
 
@@ -163,5 +169,6 @@ python3 ci/check_dist_contents.py
 - Targeted tests for changed modules pass.
 - Full base run (`pytest lexnlp`) passes.
 - If Stanford assets are enabled, Stanford-only suite with `LEXNLP_USE_STANFORD=true` passes.
+- Contract model quality gate passes against `test_data/model_quality/is_contract_baseline_metrics.json`.
 - No `skip`/`skipif`/`xfail` policy bypasses were introduced.
 - Document any required asset downloads (NLTK, pipeline models, Stanford, Tika) in PR notes.

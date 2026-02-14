@@ -8,12 +8,13 @@ import csv
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Sequence, Tuple
+from typing import Any, Dict, List, Sequence, Tuple
 
 
 DEFAULT_FIXTURE = Path(
     "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv"
 )
+REQUIRED_METRIC_KEYS = ("accuracy", "f1", "precision", "recall")
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
@@ -24,6 +25,21 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         "--baseline-tag",
         default="pipeline/is-contract/0.1",
         help="Catalog tag used as baseline model.",
+    )
+    parser.add_argument(
+        "--baseline-metrics-json",
+        type=Path,
+        help=(
+            "Optional path to committed baseline metrics JSON. "
+            "When provided, baseline metrics are loaded from this file "
+            "instead of executing the baseline model."
+        ),
+    )
+    parser.add_argument(
+        "--baseline-metrics-tolerance",
+        type=float,
+        default=1e-9,
+        help="Tolerance for fixture/probability checks when baseline metrics JSON is used.",
     )
     parser.add_argument(
         "--candidate-tag",
@@ -64,6 +80,14 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         "--output-json",
         type=Path,
         help="Optional path to write JSON results.",
+    )
+    parser.add_argument(
+        "--write-baseline-metrics-json",
+        type=Path,
+        help=(
+            "Optional path to write canonical baseline metrics JSON "
+            "(baseline_tag, fixture, min_probability, metrics)."
+        ),
     )
     return parser.parse_args(argv)
 
@@ -126,16 +150,89 @@ def score_pipeline(pipeline, texts: List[str], labels: List[bool], min_probabili
     }
 
 
+def parse_metrics(raw: Dict[str, Any], source: str) -> Dict[str, float]:
+    missing = [key for key in REQUIRED_METRIC_KEYS if key not in raw]
+    if missing:
+        raise ValueError(f"Missing metric keys in {source}: {', '.join(missing)}")
+
+    return {
+        key: float(raw[key])
+        for key in REQUIRED_METRIC_KEYS
+    }
+
+
+def load_baseline_metrics(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        raise FileNotFoundError(f"Baseline metrics file not found: {path}")
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("Baseline metrics JSON must be an object")
+
+    # Accept either a dedicated "metrics" object or the full quality-gate output shape.
+    if "metrics" in payload:
+        metrics = parse_metrics(payload["metrics"], f"{path}::metrics")
+    elif "baseline" in payload:
+        metrics = parse_metrics(payload["baseline"], f"{path}::baseline")
+    else:
+        raise ValueError(
+            f"Baseline metrics JSON must contain either 'metrics' or 'baseline': {path}"
+        )
+
+    return {
+        "metrics": metrics,
+        "baseline_tag": payload.get("baseline_tag"),
+        "fixture": payload.get("fixture"),
+        "min_probability": payload.get("min_probability"),
+        "raw": payload,
+    }
+
+
 def main(argv: Sequence[str]) -> int:
     args = parse_args(argv)
     texts, labels = load_fixture(args.fixture)
 
-    baseline_metrics = score_pipeline(
-        load_pipeline_for_tag(args.baseline_tag),
-        texts,
-        labels,
-        args.min_probability,
-    )
+    baseline_source = "tag"
+    baseline_metrics_source = None
+    baseline_metrics_file: Dict[str, Any] | None = None
+
+    if args.baseline_metrics_json:
+        baseline_source = "metrics-json"
+        baseline_metrics_source = str(args.baseline_metrics_json)
+        baseline_metrics_file = load_baseline_metrics(args.baseline_metrics_json)
+        baseline_metrics = baseline_metrics_file["metrics"]
+
+        file_baseline_tag = baseline_metrics_file.get("baseline_tag")
+        if file_baseline_tag and file_baseline_tag != args.baseline_tag:
+            raise ValueError(
+                "Baseline tag mismatch between --baseline-tag and --baseline-metrics-json: "
+                f"{args.baseline_tag!r} != {file_baseline_tag!r}"
+            )
+
+        file_fixture = baseline_metrics_file.get("fixture")
+        if file_fixture:
+            expected_fixture = str(args.fixture)
+            if file_fixture != expected_fixture:
+                raise ValueError(
+                    "Fixture mismatch between --fixture and --baseline-metrics-json: "
+                    f"{expected_fixture!r} != {file_fixture!r}"
+                )
+
+        file_min_probability = baseline_metrics_file.get("min_probability")
+        if file_min_probability is not None:
+            if abs(float(file_min_probability) - args.min_probability) > args.baseline_metrics_tolerance:
+                raise ValueError(
+                    "min_probability mismatch between CLI and baseline metrics JSON: "
+                    f"{args.min_probability} != {file_min_probability}"
+                )
+    else:
+        baseline_metrics = score_pipeline(
+            load_pipeline_for_tag(args.baseline_tag),
+            texts,
+            labels,
+            args.min_probability,
+        )
+
     candidate_metrics = score_pipeline(
         load_pipeline_for_tag(args.candidate_tag),
         texts,
@@ -148,6 +245,8 @@ def main(argv: Sequence[str]) -> int:
         "candidate_tag": args.candidate_tag,
         "fixture": str(args.fixture),
         "min_probability": args.min_probability,
+        "baseline_source": baseline_source,
+        "baseline_metrics_json": baseline_metrics_source,
         "baseline": baseline_metrics,
         "candidate": candidate_metrics,
     }
@@ -176,6 +275,19 @@ def main(argv: Sequence[str]) -> int:
     if args.output_json:
         args.output_json.parent.mkdir(parents=True, exist_ok=True)
         args.output_json.write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
+
+    if args.write_baseline_metrics_json:
+        baseline_payload = {
+            "baseline_tag": args.baseline_tag,
+            "fixture": str(args.fixture),
+            "metrics": baseline_metrics,
+            "min_probability": args.min_probability,
+        }
+        args.write_baseline_metrics_json.parent.mkdir(parents=True, exist_ok=True)
+        args.write_baseline_metrics_json.write_text(
+            json.dumps(baseline_payload, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
 
     if violations:
         for violation in violations:
