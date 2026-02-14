@@ -17,7 +17,34 @@ from typing import Dict, Optional
 import nltk.data
 
 
-CATALOG: Path = Path(nltk.data.find('')) / 'lexpredict-lexnlp'
+def _resolve_nltk_data_dir() -> Path:
+    """
+    Resolve a writable NLTK data directory for LexNLP assets.
+
+    Historically LexNLP used ``nltk.data.find('')`` to discover the root of the
+    NLTK data path. On fresh environments (e.g., CI runners), NLTK's internal
+    implementation can raise when no candidate directories exist yet.
+
+    This resolver prefers the first non-empty entry in ``nltk.data.path`` and
+    creates it if needed. If none are usable, it falls back to ``~/nltk_data``.
+    """
+    candidates = [Path(p).expanduser() for p in nltk.data.path if p]
+    candidates.append(Path.home() / "nltk_data")
+
+    for candidate in candidates:
+        try:
+            candidate.mkdir(parents=True, exist_ok=True)
+            return candidate
+        except PermissionError:
+            continue
+
+    # Last resort: current working directory.
+    fallback = Path.cwd() / "nltk_data"
+    fallback.mkdir(parents=True, exist_ok=True)
+    return fallback
+
+
+CATALOG: Path = _resolve_nltk_data_dir() / 'lexpredict-lexnlp'
 
 
 def _build_tag_dict() -> Dict[str, Path]:
