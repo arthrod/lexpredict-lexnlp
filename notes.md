@@ -150,3 +150,22 @@ python3 ci/skip_audit.py
 uv build
 python3 ci/check_dist_contents.py
 ```
+
+## Follow-up completed (contract-type runtime compatibility)
+
+- Problem: legacy `pipeline/contract-type/0.1` could fail to unpickle on Python
+  3.11 (`TypeError: code() argument 13 must be str, not int`), making
+  contract-type prediction unreliable on modern runtimes.
+- Fix:
+  - Added runtime model utilities in
+    `/Users/jackeames/Downloads/LexNLP/lexnlp/extract/en/contracts/runtime_model.py`
+    to train/store a deterministic fallback model from
+    `corpus/contract-types/0.1`.
+  - Added
+    `/Users/jackeames/Downloads/LexNLP/scripts/train_contract_type_model.py`
+    for explicit training/report generation.
+  - Updated `ProbabilityPredictorContractType` to auto-fallback to
+    `pipeline/contract-type/0.2-runtime` when legacy default loading fails and
+    no explicit override is configured.
+  - Extended bootstrap workflow with `--contract-type-model`.
+  - Added CI `Contract Type Smoke` job to ensure this path remains working.

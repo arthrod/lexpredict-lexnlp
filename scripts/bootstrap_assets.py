@@ -40,6 +40,16 @@ def resolve_contract_model_tag() -> str:
     ).strip()
 
 
+def resolve_contract_type_model_tag() -> str:
+    """
+    Resolve the contract-type model tag from env overrides.
+    """
+    return (
+        os.getenv("LEXNLP_CONTRACT_TYPE_MODEL_TAG")
+        or "pipeline/contract-type/0.2-runtime"
+    ).strip()
+
+
 CONTRACT_MODEL_TAG = resolve_contract_model_tag()
 
 STANFORD_DOWNLOADS: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
@@ -97,6 +107,14 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--contract-type-model",
+        action="store_true",
+        help=(
+            "Build or reuse a Python-runtime-compatible contract-type model "
+            "from corpora. Respects LEXNLP_CONTRACT_TYPE_MODEL_TAG."
+        ),
+    )
+    parser.add_argument(
         "--stanford",
         action="store_true",
         help="Download Stanford POS tagger and NER ZIP artifacts.",
@@ -137,8 +155,20 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
 
     args = parser.parse_args(argv)
 
-    if not any((args.nltk, args.contract_model, args.stanford, args.tika, args.all)):
-        parser.error("Select at least one task: --nltk, --contract-model, --stanford, --tika, or --all")
+    if not any(
+        (
+            args.nltk,
+            args.contract_model,
+            args.contract_type_model,
+            args.stanford,
+            args.tika,
+            args.all,
+        )
+    ):
+        parser.error(
+            "Select at least one task: --nltk, --contract-model, --contract-type-model, "
+            "--stanford, --tika, or --all"
+        )
 
     if args.timeout <= 0:
         parser.error("--timeout must be a positive integer")
@@ -287,9 +317,30 @@ def bootstrap_contract_model(*, dry_run: bool, tag: str) -> None:
     download_github_release(tag, prompt_user=False)
 
 
+def bootstrap_contract_type_model(*, dry_run: bool, tag: str) -> None:
+    if dry_run:
+        LOGGER.info(
+            "DRY RUN: would build/reuse runtime-compatible contract-type model tag %s",
+            tag,
+        )
+        return
+
+    try:
+        from lexnlp.extract.en.contracts.runtime_model import ensure_runtime_contract_type_model
+    except ImportError as error:
+        raise RuntimeError(
+            "Unable to import contract-type runtime model builder. "
+            "Ensure dependencies and editable install are in place."
+        ) from error
+
+    LOGGER.info("Ensuring runtime-compatible contract-type model: %s", tag)
+    ensure_runtime_contract_type_model(target_tag=tag)
+
+
 def run_selected_tasks(args: argparse.Namespace) -> None:
     run_nltk = args.all or args.nltk
     run_contract_model = args.all or args.contract_model
+    run_contract_type_model = args.all or args.contract_type_model
     run_stanford = args.all or args.stanford
     run_tika = args.all or args.tika
 
@@ -304,6 +355,17 @@ def run_selected_tasks(args: argparse.Namespace) -> None:
                 lambda: bootstrap_contract_model(
                     dry_run=args.dry_run,
                     tag=contract_model_tag,
+                ),
+            )
+        )
+    if run_contract_type_model:
+        contract_type_model_tag = resolve_contract_type_model_tag()
+        tasks.append(
+            (
+                "contract-type-model",
+                lambda: bootstrap_contract_type_model(
+                    dry_run=args.dry_run,
+                    tag=contract_type_model_tag,
                 ),
             )
         )

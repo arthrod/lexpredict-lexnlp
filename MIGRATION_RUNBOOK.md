@@ -26,8 +26,8 @@ uv pip install --python .venv/bin/python -e ".[dev,test]"
 ## 3) Bootstrap Required Assets
 
 ```bash
-# NLTK + required model artifact
-./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
+# NLTK + required model artifacts
+./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model --contract-type-model
 
 # Optional: Stanford assets for Stanford-gated tests
 ./.venv/bin/python scripts/bootstrap_assets.py --stanford
@@ -140,6 +140,31 @@ export LEXNLP_IS_CONTRACT_MODEL_TAG="pipeline/is-contract/0.2"
 # contract-type classifier
 export LEXNLP_CONTRACT_TYPE_MODEL_TAG="pipeline/contract-type/0.2"
 ```
+
+### Contract-type runtime fallback model
+
+The legacy `pipeline/contract-type/0.1` artifact may fail to unpickle on modern
+Python runtimes. LexNLP now supports a deterministic runtime-compatible fallback
+artifact (`pipeline/contract-type/0.2-runtime`) trained from
+`corpus/contract-types/0.1`.
+
+Build/rebuild it explicitly:
+
+```bash
+./.venv/bin/python scripts/bootstrap_assets.py --contract-type-model
+```
+
+Or run full training with report output:
+
+```bash
+./.venv/bin/python scripts/train_contract_type_model.py \
+  --target-tag pipeline/contract-type/0.2-runtime \
+  --output-json artifacts/model_training/contract_type_model_training_report.json
+```
+
+On first use of `ProbabilityPredictorContractType`, if legacy default loading
+fails and no env override is set, LexNLP automatically builds/loads this runtime
+fallback tag.
 
 If baseline-tag model behavior is intentionally changed, regenerate and review
 the baseline metrics file in the same PR:

@@ -74,11 +74,36 @@ class ProbabilityPredictorContractType(ProbabilityPredictor):
 
     _DEFAULT_PIPELINE: str = 'pipeline/contract-type/0.1'
     _DEFAULT_PIPELINE_ENV_VAR: str = 'LEXNLP_CONTRACT_TYPE_MODEL_TAG'
+    _RUNTIME_FALLBACK_PIPELINE: str = 'pipeline/contract-type/0.2-runtime'
 
     def _sanity_check(self) -> None:
         """
         Does nothing. No sanity check required.
         """
+
+    @classmethod
+    def get_default_pipeline(cls):
+        try:
+            return super().get_default_pipeline()
+        except Exception:
+            # Respect explicit env override failures and only auto-fallback for
+            # the legacy default model tag.
+            if cls.get_default_pipeline_tag() != cls._DEFAULT_PIPELINE:
+                raise
+
+            from lexnlp.extract.en.contracts.runtime_model import (
+                ensure_runtime_contract_type_model,
+                load_pipeline_for_tag,
+            )
+
+            ensure_runtime_contract_type_model(target_tag=cls._RUNTIME_FALLBACK_PIPELINE)
+            try:
+                return load_pipeline_for_tag(cls._RUNTIME_FALLBACK_PIPELINE)
+            except Exception as fallback_error:
+                raise RuntimeError(
+                    "Failed to load legacy contract-type model and runtime fallback model. "
+                    "Run `python scripts/bootstrap_assets.py --contract-type-model` and retry."
+                ) from fallback_error
 
     def make_predictions(
         self,

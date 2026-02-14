@@ -61,7 +61,7 @@ uv pip install --python .venv/bin/python -e ".[dev,test]"
 Use the bootstrap script for deterministic setup:
 
 ```bash
-./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
+./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model --contract-type-model
 ```
 
 Optional assets:
@@ -148,6 +148,10 @@ python3 ci/check_dist_contents.py
   --candidate-tag pipeline/is-contract/0.1 \
   --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
 
+# build a runtime-compatible contract-type model artifact
+./.venv/bin/python scripts/train_contract_type_model.py \
+  --target-tag pipeline/contract-type/0.2-runtime
+
 # create a re-exported candidate model tag and validate it
 ./.venv/bin/python scripts/reexport_contract_model.py \
   --source-tag pipeline/is-contract/0.1 \
@@ -176,5 +180,6 @@ python3 ci/check_dist_contents.py
 - Full base run (`pytest lexnlp`) passes.
 - If Stanford assets are enabled, Stanford-only suite with `LEXNLP_USE_STANFORD=true` passes.
 - Contract model quality gate passes against `test_data/model_quality/is_contract_baseline_metrics.json`.
+- Contract-type smoke flow works (`scripts/bootstrap_assets.py --contract-type-model` + predictor instantiation).
 - No `skip`/`skipif`/`xfail` policy bypasses were introduced.
 - Document any required asset downloads (NLTK, pipeline models, Stanford, Tika) in PR notes.
