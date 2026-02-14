@@ -81,6 +81,15 @@ Modernize dependency and test tooling so LexNLP is reproducible with `uv`, Pytho
 - The script also compares legacy sklearn warning counts between source and
   candidate artifacts to ensure warning behavior does not regress.
 
+## Follow-up completed (bundled date-model refresh)
+
+- Re-serialized `/Users/jackeames/Downloads/LexNLP/lexnlp/extract/en/date_model.pickle`
+  on Python 3.11 / sklearn 1.2 runtime.
+- Result: legacy sklearn unpickle warnings from the date model dropped to zero.
+- Targeted validation after refresh:
+  - `pytest lexnlp/extract/en/tests/test_dates.py lexnlp/extract/en/contracts/tests/test_contracts.py`
+  - `11 passed` with reduced warning set.
+
 ## Operational guidance
 
 Reliable full-validation flow on this machine:

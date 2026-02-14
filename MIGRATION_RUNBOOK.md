@@ -115,6 +115,18 @@ the baseline metrics file in the same PR:
   --write-baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
 ```
 
+### Refresh bundled sklearn artifacts
+
+If bundled sklearn artifacts emit legacy-version warnings, re-serialize them on
+the current runtime and re-run targeted tests. Example for date parser model:
+
+```bash
+./.venv/bin/python - <<'PY'
+import joblib
+joblib.dump(joblib.load("lexnlp/extract/en/date_model.pickle"), "lexnlp/extract/en/date_model.pickle", compress=3)
+PY
+```
+
 ## 8) Failure Triage
 
 - `LookupError` for NLTK resources:
