@@ -52,6 +52,12 @@ uv venv --python 3.11 .venv
 uv sync --frozen --python .venv/bin/python --extra dev --extra test
 ```
 
+Optional (editable install for development tooling outside the repo root):
+
+```bash
+uv pip install --python .venv/bin/python -e ".[dev,test]"
+```
+
 ### Deprecated setup variants
 
 `Pipfile`, `python-requirements.txt`, and `python-requirements-dev.txt` are deprecated. Use `uv` with `pyproject.toml` for all new local setup and CI updates.

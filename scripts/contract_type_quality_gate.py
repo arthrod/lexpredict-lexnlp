@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Sequence, Tuple
 DEFAULT_FIXTURE = Path(
     "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_contract_type.csv"
 )
-REQUIRED_METRIC_KEYS = ("accuracy_top1", "accuracy_top3", "f1_macro", "f1_weighted")
+REQUIRED_METRIC_KEYS = ("accuracy_top1", "accuracy_topn", "f1_macro", "f1_weighted")
 
 
 def resolve_contract_type_model_tag() -> str:
@@ -69,8 +69,15 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument(
         "--max-accuracy-top3-regression",
         type=float,
+        dest="max_accuracy_topn_regression",
+        default=None,
+        help="Deprecated alias for --max-accuracy-topn-regression (when --top-n=3).",
+    )
+    parser.add_argument(
+        "--max-accuracy-topn-regression",
+        type=float,
         default=0.0,
-        help="Maximum allowed candidate top-3 accuracy drop vs baseline.",
+        help="Maximum allowed candidate top-N accuracy drop vs baseline.",
     )
     parser.add_argument(
         "--max-f1-macro-regression",
@@ -174,17 +181,22 @@ def score_pipeline(pipeline, texts: List[str], labels: List[str], *, top_n: int)
     for truth, indices in zip(labels, top_indices):
         if truth in set(classes[indices].tolist()):
             hits += 1
-    accuracy_top3 = float(hits / len(labels))
+    accuracy_topn = float(hits / len(labels))
 
     return {
         "accuracy_top1": accuracy_top1,
-        "accuracy_top3": accuracy_top3,
+        "accuracy_topn": accuracy_topn,
         "f1_macro": f1_macro,
         "f1_weighted": f1_weighted,
     }
 
 
 def parse_metrics(raw: Dict[str, Any], source: str) -> Dict[str, float]:
+    raw = dict(raw)
+    # Backward compatibility: older baseline JSON used accuracy_top3.
+    if "accuracy_topn" not in raw and "accuracy_top3" in raw:
+        raw["accuracy_topn"] = raw["accuracy_top3"]
+
     missing = [key for key in REQUIRED_METRIC_KEYS if key not in raw]
     if missing:
         raise ValueError(f"Missing metric keys in {source}: {', '.join(missing)}")
@@ -303,7 +315,7 @@ def main(argv: Sequence[str]) -> int:
         result["passed"] = bool(result["passed"] and passed)
 
     require("accuracy_top1", args.max_accuracy_top1_regression)
-    require("accuracy_top3", args.max_accuracy_top3_regression)
+    require("accuracy_topn", args.max_accuracy_topn_regression)
     require("f1_macro", args.max_f1_macro_regression)
     require("f1_weighted", args.max_f1_weighted_regression)
 
@@ -344,4 +356,3 @@ def main(argv: Sequence[str]) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
-

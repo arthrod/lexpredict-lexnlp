@@ -3,6 +3,10 @@ name: Publish Contract-Type Runtime Model
 on:
   workflow_dispatch:
 
+# Note: this workflow publishes a GitHub Release asset in the repository where it
+# runs (i.e., `github.repository`). LexNLP downloads release tags from the
+# repository configured in `lexnlp.MODELS_REPO`.
+
 permissions:
   contents: write
 
@@ -54,7 +58,7 @@ jobs:
             --baseline-metrics-json "${BASELINE_METRICS}" \
             --output-json artifacts/contract_type_quality_gate.json \
             --max-accuracy-top1-regression 0.0 \
-            --max-accuracy-top3-regression 0.0 \
+            --max-accuracy-topn-regression 0.0 \
             --max-f1-macro-regression 0.0 \
             --max-f1-weighted-regression 0.0
 
@@ -65,11 +69,12 @@ jobs:
             .venv/bin/python - <<'PY'
           from lexnlp.extract.en.contracts.runtime_model import (
               CONTRACT_TYPE_MODEL_FILENAME,
-              RUNTIME_CONTRACT_TYPE_TAG,
           )
           from lexnlp.ml.catalog import CATALOG
+          import os
 
-          path = CATALOG / RUNTIME_CONTRACT_TYPE_TAG / CONTRACT_TYPE_MODEL_FILENAME
+          tag = (os.getenv("MODEL_TAG") or "").strip() or "pipeline/contract-type/0.2-runtime"
+          path = CATALOG / tag / CONTRACT_TYPE_MODEL_FILENAME
           print(path)
           PY
           )"
@@ -100,4 +105,3 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "${MODEL_TAG}" "${{ steps.locate.outputs.model_path }}" --clobber
-

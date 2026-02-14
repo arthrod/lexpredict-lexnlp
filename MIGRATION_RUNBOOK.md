@@ -23,6 +23,12 @@ uv venv --python 3.11 .venv
 uv sync --frozen --python .venv/bin/python --extra dev --extra test
 ```
 
+Optional (editable install for development tooling outside the repo root):
+
+```bash
+uv pip install --python .venv/bin/python -e ".[dev,test]"
+```
+
 ## 3) Bootstrap Required Assets
 
 ```bash
@@ -161,7 +167,7 @@ Run the contract-type quality gate:
   --baseline-metrics-json test_data/model_quality/contract_type_baseline_metrics.json \
   --output-json artifacts/contract_type_quality_gate.json \
   --max-accuracy-top1-regression 0.0 \
-  --max-accuracy-top3-regression 0.0 \
+  --max-accuracy-topn-regression 0.0 \
   --max-f1-macro-regression 0.0 \
   --max-f1-weighted-regression 0.0
 ```

@@ -214,7 +214,7 @@ jobs:
             --baseline-metrics-json "${CONTRACT_TYPE_MODEL_BASELINE_METRICS}" \
             --output-json artifacts/contract_type_quality_gate.json \
             --max-accuracy-top1-regression 0.0 \
-            --max-accuracy-top3-regression 0.0 \
+            --max-accuracy-topn-regression 0.0 \
             --max-f1-macro-regression 0.0 \
             --max-f1-weighted-regression 0.0
 
