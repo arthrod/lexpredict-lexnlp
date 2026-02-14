@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  base-tests:
+    name: Base Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: |
+          uv venv .venv --python "${PYTHON_VERSION}"
+          uv sync --frozen --python .venv/bin/python --extra dev --extra test
+
+      - name: Bootstrap required assets
+        run: .venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
+
+      - name: Enforce skip-audit policy
+        run: .venv/bin/python ci/skip_audit.py
+
+      - name: Run base suite
+        run: .venv/bin/pytest lexnlp
+
+  stanford-tests:
+    name: Stanford Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "11"
+
+      - name: Install dependencies
+        run: |
+          uv venv .venv --python "${PYTHON_VERSION}"
+          uv sync --frozen --python .venv/bin/python --extra dev --extra test
+
+      - name: Bootstrap required assets (including Stanford)
+        run: .venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model --stanford
+
+      - name: Run Stanford suite
+        env:
+          LEXNLP_USE_STANFORD: "true"
+        run: |
+          .venv/bin/pytest \
+            lexnlp/nlp/en/tests/test_stanford.py \
+            lexnlp/extract/en/entities/tests/test_stanford_ner.py
+
+  packaging-smoke:
+    name: Packaging Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Build source and wheel artifacts
+        run: |
+          uv venv .venv-build --python "${PYTHON_VERSION}"
+          uv build
+
+      - name: Install wheel in clean env
+        run: |
+          uv venv .venv-smoke --python "${PYTHON_VERSION}"
+          uv pip install --python .venv-smoke/bin/python dist/*.whl
+          .venv-smoke/bin/python - <<'PY'
+          import lexnlp
+          print(getattr(lexnlp, "__version__", "unknown"))
+          PY

@@ -84,11 +84,31 @@ class ProbabilityPredictor(ABC):
                 f'does not follow the `ScikitLearnHasPredictProba` protocol.'
             )
 
+        self._patch_legacy_estimator_attributes()
+
         # Fix AttributeError: 'MinMaxScaler' object has no attribute 'clip'
         for _, name, transform in self.pipeline._iter(with_final=False):
             transform.clip = hasattr(transform, 'clip') and transform.clip
 
         self._sanity_check()
+
+    def _patch_legacy_estimator_attributes(self) -> None:
+        """
+        Patch known attribute-renames for old serialized Scikit-Learn estimators.
+
+        LexNLP bundles model artifacts trained on older Scikit-Learn versions.
+        Newer runtimes may rename fitted attributes and break inference unless
+        we provide compatible aliases.
+        """
+        estimator = self.pipeline._final_estimator
+
+        # sklearn.naive_bayes.GaussianNB previously persisted `sigma_` and now
+        # expects `var_`/`variance_` in prediction paths.
+        if hasattr(estimator, "sigma_"):
+            if not hasattr(estimator, "var_"):
+                estimator.var_ = estimator.sigma_
+            if not hasattr(estimator, "variance_"):
+                estimator.variance_ = estimator.var_
 
     @abstractmethod
     def _sanity_check(self) -> None:
