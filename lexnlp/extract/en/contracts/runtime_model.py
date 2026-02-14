@@ -75,7 +75,11 @@ def collect_contract_type_samples(
     counts: Dict[str, int] = defaultdict(int)
 
     with tarfile.open(archive_path, mode="r:*") as archive:
-        members: Iterable[tarfile.TarInfo] = archive
+        # Sort member names for deterministic sampling across environments.
+        members: Iterable[tarfile.TarInfo] = sorted(
+            archive.getmembers(),
+            key=lambda item: item.name,
+        )
         for member in members:
             if not member.isfile() or not member.name.lower().endswith(".txt"):
                 continue
@@ -181,18 +185,18 @@ def ensure_runtime_contract_type_model(
         except FileNotFoundError:
             pass
 
-    # Prefer downloading a published runtime-compatible artifact when available
-    # to avoid retraining in CI environments.
-    try:
-        return ensure_tag_downloaded(target_tag)
-    except Exception as exc:
-        LOGGER.warning(
-            "Unable to download runtime contract-type model tag=%s; falling back to training. error=%s",
-            target_tag,
-            exc,
-            exc_info=True,
-        )
-        pass
+        # Prefer downloading a published runtime-compatible artifact when
+        # available to avoid retraining in CI environments.
+        try:
+            return ensure_tag_downloaded(target_tag)
+        except Exception as exc:
+            LOGGER.warning(
+                "Unable to download runtime contract-type model tag=%s; falling back to training. error=%s",
+                target_tag,
+                exc,
+                exc_info=True,
+            )
+            pass
 
     corpus_archive = ensure_tag_downloaded(CONTRACT_TYPE_CORPUS_TAG)
     texts, labels, _counts = collect_contract_type_samples(
@@ -201,4 +205,10 @@ def ensure_runtime_contract_type_model(
         head_character_n=head_character_n,
     )
     pipeline = train_contract_type_pipeline(texts, labels, random_state=random_state)
-    return write_pipeline_to_catalog(pipeline=pipeline, target_tag=target_tag, force=True)
+    destination_path = write_pipeline_to_catalog(
+        pipeline=pipeline,
+        target_tag=target_tag,
+        force=True,
+    )
+    LOGGER.info("Trained runtime contract-type model tag=%s at %s", target_tag, destination_path)
+    return destination_path
