@@ -48,12 +48,17 @@ Modernize dependency and test tooling so LexNLP is reproducible with `uv`, Pytho
   - added `ci/check_dist_contents.py`
   - enforced artifact content audit in CI packaging job
 
+### 7) Legacy `nose` usage in tests
+- Problem: a handful of tests depended on `nose.tools`, pulling in an obsolete dependency.
+- Fix: migrated assertions to `pytest`/plain `assert` and removed `nose` from dependency groups.
+
 ## Final validation results
 
 - Skip audit: `skip-audit: OK (markers=11, allowlisted=11, annotated_new=0)`
-- Base suite (`./.venv311/bin/python -m pytest -q`): `497 passed, 11 skipped, 0 failed`
+- Base suite (`./.venv/bin/pytest -q`): `505 passed, 11 skipped, 0 failed`
 - Stanford-gated suite (`LEXNLP_USE_STANFORD=true` targeted files): `11 passed, 0 failed`
-- Net demonstrated pass count: `508/508`
+- Skipped tests in base suite were exclusively Stanford-gated tests (`Stanford is disabled.`).
+- Net demonstrated pass count (two-phase, fully provisioned): `516/516`
 - Packaging:
   - `uv build` succeeds
   - `python3 ci/check_dist_contents.py` succeeds
@@ -81,14 +86,19 @@ Modernize dependency and test tooling so LexNLP is reproducible with `uv`, Pytho
 - The script also compares legacy sklearn warning counts between source and
   candidate artifacts to ensure warning behavior does not regress.
 
-## Follow-up completed (bundled date-model refresh)
+## Follow-up completed (bundled sklearn artifact refresh)
 
-- Re-serialized `/Users/jackeames/Downloads/LexNLP/lexnlp/extract/en/date_model.pickle`
-  on Python 3.11 / sklearn 1.2 runtime.
-- Result: legacy sklearn unpickle warnings from the date model dropped to zero.
-- Targeted validation after refresh:
-  - `pytest lexnlp/extract/en/tests/test_dates.py lexnlp/extract/en/contracts/tests/test_contracts.py`
-  - `11 passed` with reduced warning set.
+- Added `scripts/reexport_bundled_sklearn_models.py` and re-exported bundled
+  sklearn/joblib artifacts under Python 3.11 + sklearn 1.2 runtime to eliminate
+  legacy unpickle warnings for packaged models.
+- Notable refreshed artifacts include:
+  - `lexnlp/extract/de/date_model.pickle`
+  - `lexnlp/extract/de/model.pickle`
+  - `lexnlp/extract/en/addresses/addresses_clf.pickle` (kept plain pickle for `renamed_load`)
+  - `lexnlp/nlp/en/segments/page_segmenter.pickle`
+  - `lexnlp/nlp/en/segments/paragraph_segmenter.pickle`
+  - `lexnlp/nlp/en/segments/section_segmenter.pickle`
+  - `lexnlp/nlp/en/segments/title_locator.pickle`
 
 ## Final CI stabilization (post-migration)
 
@@ -128,20 +138,20 @@ Reliable full-validation flow on this machine:
 cd /Users/jackeames/Downloads/LexNLP
 
 # env
-uv venv --python 3.11 .venv311
-uv sync --frozen --python .venv311/bin/python --extra dev --extra test
+uv venv --python 3.11 .venv
+uv sync --frozen --python .venv/bin/python --extra dev --extra test
 
 # assets
-./.venv311/bin/python scripts/bootstrap_assets.py --nltk --contract-model
-./.venv311/bin/python scripts/bootstrap_assets.py --stanford
+./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
+./.venv/bin/python scripts/bootstrap_assets.py --stanford
 
 # base tests
-./.venv311/bin/python -m pytest -q
+./.venv/bin/pytest -q
 
 # stanford-only tests
-PATH=/opt/homebrew/opt/openjdk/bin:$PATH \
+PATH=/opt/homebrew/opt/openjdk@11/bin:$PATH \
 LEXNLP_USE_STANFORD=true \
-./.venv311/bin/python -m pytest -q \
+./.venv/bin/pytest -q \
   lexnlp/nlp/en/tests/test_stanford.py \
   lexnlp/extract/en/entities/tests/test_stanford_ner.py
 
@@ -169,6 +179,14 @@ python3 ci/check_dist_contents.py
     no explicit override is configured.
   - Extended bootstrap workflow with `--contract-type-model`.
   - Added CI `Contract Type Smoke` job to ensure this path remains working.
+  - Added a fixed contract-type fixture + baseline metrics file and a dedicated
+    quality gate script:
+    - Fixture: `test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_contract_type.csv`
+    - Baseline: `test_data/model_quality/contract_type_baseline_metrics.json`
+    - Gate: `scripts/contract_type_quality_gate.py`
+  - Added a GitHub Actions workflow to publish the runtime artifact as a GitHub
+    Release asset:
+    - `.github/workflows/publish-contract-type-runtime-model.yml`
 
 ## Follow-up completed (catalog path robustness)
 
@@ -177,3 +195,5 @@ python3 ci/check_dist_contents.py
   directories, this could raise during import and break bootstrap/model tasks.
 - Fix: `lexnlp.ml.catalog` now resolves a writable directory from
   `nltk.data.path` (creating it if needed) and falls back to `~/nltk_data`.
+  The resolved `CATALOG` directory is now created on import, so catalog scans
+  are safe on fresh environments.

@@ -177,6 +177,13 @@ def ensure_runtime_contract_type_model(
         except FileNotFoundError:
             pass
 
+    # Prefer downloading a published runtime-compatible artifact when available
+    # to avoid retraining in CI environments.
+    try:
+        return ensure_tag_downloaded(target_tag)
+    except Exception:
+        pass
+
     corpus_archive = ensure_tag_downloaded(CONTRACT_TYPE_CORPUS_TAG)
     texts, labels, _counts = collect_contract_type_samples(
         corpus_archive,

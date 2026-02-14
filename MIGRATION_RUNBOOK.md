@@ -20,7 +20,7 @@ Legacy files are retained for historical reproduction only:
 cd /Users/jackeames/Downloads/LexNLP
 uv python install 3.11
 uv venv --python 3.11 .venv
-uv pip install --python .venv/bin/python -e ".[dev,test]"
+uv sync --frozen --python .venv/bin/python --extra dev --extra test
 ```
 
 ## 3) Bootstrap Required Assets
@@ -50,7 +50,7 @@ uv pip install --python .venv/bin/python -e ".[dev,test]"
 ./.venv/bin/pytest lexnlp
 
 # Stanford-only suite (requires Stanford assets + Java)
-PATH=/opt/homebrew/opt/openjdk/bin:$PATH \
+PATH=/opt/homebrew/opt/openjdk@11/bin:$PATH \
 LEXNLP_USE_STANFORD=true \
 ./.venv/bin/pytest \
   lexnlp/nlp/en/tests/test_stanford.py \
@@ -148,6 +148,24 @@ Python runtimes. LexNLP now supports a deterministic runtime-compatible fallback
 artifact (`pipeline/contract-type/0.2-runtime`) trained from
 `corpus/contract-types/0.1`.
 
+The committed contract-type fixture and baseline metrics file are:
+- Fixture: `test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_contract_type.csv`
+- Baseline: `test_data/model_quality/contract_type_baseline_metrics.json`
+
+Run the contract-type quality gate:
+
+```bash
+./.venv/bin/python scripts/contract_type_quality_gate.py \
+  --baseline-tag pipeline/contract-type/0.2-runtime \
+  --candidate-tag pipeline/contract-type/0.2-runtime \
+  --baseline-metrics-json test_data/model_quality/contract_type_baseline_metrics.json \
+  --output-json artifacts/contract_type_quality_gate.json \
+  --max-accuracy-top1-regression 0.0 \
+  --max-accuracy-top3-regression 0.0 \
+  --max-f1-macro-regression 0.0 \
+  --max-f1-weighted-regression 0.0
+```
+
 Build/rebuild it explicitly:
 
 ```bash
@@ -180,13 +198,10 @@ the baseline metrics file in the same PR:
 ### Refresh bundled sklearn artifacts
 
 If bundled sklearn artifacts emit legacy-version warnings, re-serialize them on
-the current runtime and re-run targeted tests. Example for date parser model:
+the current runtime and re-run targeted tests:
 
 ```bash
-./.venv/bin/python - <<'PY'
-import joblib
-joblib.dump(joblib.load("lexnlp/extract/en/date_model.pickle"), "lexnlp/extract/en/date_model.pickle", compress=3)
-PY
+./.venv/bin/python scripts/reexport_bundled_sklearn_models.py
 ```
 
 ## 8) Failure Triage

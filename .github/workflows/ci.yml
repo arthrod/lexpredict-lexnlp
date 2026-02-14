@@ -13,6 +13,7 @@ env:
   CONTRACT_MODEL_CANDIDATE_TAG: "pipeline/is-contract/0.1"
   CONTRACT_MODEL_BASELINE_METRICS: "test_data/model_quality/is_contract_baseline_metrics.json"
   LEXNLP_CONTRACT_TYPE_MODEL_TAG: "pipeline/contract-type/0.2-runtime"
+  CONTRACT_TYPE_MODEL_BASELINE_METRICS: "test_data/model_quality/contract_type_baseline_metrics.json"
 
 jobs:
   base-tests:
@@ -30,6 +31,15 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
+
+      - name: Cache NLTK data
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/nltk_data
+          key: nltk-data-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            nltk-data-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
 
       - name: Install dependencies
         run: |
@@ -62,6 +72,15 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
+
+      - name: Cache NLTK data
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/nltk_data
+          key: nltk-data-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            nltk-data-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -102,6 +121,15 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
+
+      - name: Cache NLTK data
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/nltk_data
+          key: nltk-data-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            nltk-data-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
 
       - name: Install dependencies
         run: |
@@ -146,6 +174,15 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
 
+      - name: Cache NLTK data
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/nltk_data
+          key: nltk-data-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            nltk-data-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+
       - name: Install dependencies
         run: |
           uv venv .venv --python "${PYTHON_VERSION}"
@@ -168,6 +205,25 @@ jobs:
           assert len(predictions) > 0
           print(predictions.to_dict())
           PY
+
+      - name: Run contract-type quality gate
+        run: |
+          .venv/bin/python scripts/contract_type_quality_gate.py \
+            --baseline-tag "${LEXNLP_CONTRACT_TYPE_MODEL_TAG}" \
+            --candidate-tag "${LEXNLP_CONTRACT_TYPE_MODEL_TAG}" \
+            --baseline-metrics-json "${CONTRACT_TYPE_MODEL_BASELINE_METRICS}" \
+            --output-json artifacts/contract_type_quality_gate.json \
+            --max-accuracy-top1-regression 0.0 \
+            --max-accuracy-top3-regression 0.0 \
+            --max-f1-macro-regression 0.0 \
+            --max-f1-weighted-regression 0.0
+
+      - name: Upload contract-type quality-gate result
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-type-quality-gate
+          path: artifacts/contract_type_quality_gate.json
+          if-no-files-found: error
 
   packaging-smoke:
     name: Packaging Smoke

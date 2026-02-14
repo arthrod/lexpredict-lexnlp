@@ -49,7 +49,7 @@ Use Python 3.11 in a local `.venv`.
 cd /Users/jackeames/Downloads/LexNLP
 uv python install 3.11
 uv venv --python 3.11 .venv
-uv pip install --python .venv/bin/python -e ".[dev,test]"
+uv sync --frozen --python .venv/bin/python --extra dev --extra test
 ```
 
 ### Deprecated setup variants
@@ -80,12 +80,12 @@ Stanford tests are gated by `LEXNLP_USE_STANFORD=true`.
 
 1. Install Java:
 ```bash
-brew install openjdk
+brew install openjdk@11
 ```
 
 2. Ensure Java is on path for test commands:
 ```bash
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 ```
 
 3. Download Stanford assets to `libs/stanford_nlp`:
@@ -122,7 +122,7 @@ Run in two phases:
 
 2. Stanford-only suite:
 ```bash
-PATH=/opt/homebrew/opt/openjdk/bin:$PATH \
+PATH=/opt/homebrew/opt/openjdk@11/bin:$PATH \
 LEXNLP_USE_STANFORD=true \
 ./.venv/bin/pytest \
   lexnlp/nlp/en/tests/test_stanford.py \
@@ -148,6 +148,12 @@ python3 ci/check_dist_contents.py
   --candidate-tag pipeline/is-contract/0.1 \
   --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
 
+# contract-type model quality gate (baseline metrics)
+./.venv/bin/python scripts/contract_type_quality_gate.py \
+  --baseline-tag pipeline/contract-type/0.2-runtime \
+  --candidate-tag pipeline/contract-type/0.2-runtime \
+  --baseline-metrics-json test_data/model_quality/contract_type_baseline_metrics.json
+
 # build a runtime-compatible contract-type model artifact
 ./.venv/bin/python scripts/train_contract_type_model.py \
   --target-tag pipeline/contract-type/0.2-runtime
@@ -157,6 +163,9 @@ python3 ci/check_dist_contents.py
   --source-tag pipeline/is-contract/0.1 \
   --target-tag pipeline/is-contract/0.2 \
   --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
+
+# refresh bundled sklearn artifacts under the current runtime
+./.venv/bin/python scripts/reexport_bundled_sklearn_models.py
 
 # run one file
 ./.venv/bin/pytest lexnlp/extract/en/tests/test_dates.py
