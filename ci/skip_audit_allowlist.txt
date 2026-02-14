@@ -1,13 +1,7 @@
-# Grandfathered Stanford skip markers.
+# Grandfathered skip markers for pytest.
 # Format: path:line:marker
-lexnlp/extract/en/entities/tests/test_stanford_ner.py:27:skipif
-lexnlp/extract/en/entities/tests/test_stanford_ner.py:35:skipif
-lexnlp/extract/en/entities/tests/test_stanford_ner.py:43:skipif
-lexnlp/nlp/en/tests/test_stanford.py:35:skipif
-lexnlp/nlp/en/tests/test_stanford.py:41:skipif
-lexnlp/nlp/en/tests/test_stanford.py:47:skipif
-lexnlp/nlp/en/tests/test_stanford.py:53:skipif
-lexnlp/nlp/en/tests/test_stanford.py:59:skipif
-lexnlp/nlp/en/tests/test_stanford.py:65:skipif
-lexnlp/nlp/en/tests/test_stanford.py:71:skipif
-lexnlp/nlp/en/tests/test_stanford.py:77:skipif
+#
+# Prefer annotations near the marker:
+#   skip-audit: issue=<link-or-id> expires=YYYY-MM-DD
+#
+# This file is reserved for rare cases where annotation is not feasible.
