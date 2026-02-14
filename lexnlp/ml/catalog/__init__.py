@@ -44,7 +44,25 @@ def _resolve_nltk_data_dir() -> Path:
     return fallback
 
 
-CATALOG: Path = _resolve_nltk_data_dir() / 'lexpredict-lexnlp'
+def _resolve_catalog_dir() -> Path:
+    """
+    Resolve and create the LexNLP catalog directory where model/data assets live.
+
+    This directory is expected to exist for callers that scan the catalog.
+    """
+    root = _resolve_nltk_data_dir()
+    catalog = root / "lexpredict-lexnlp"
+    try:
+        catalog.mkdir(parents=True, exist_ok=True)
+        return catalog
+    except PermissionError:
+        # Fallback to a best-effort writable path.
+        fallback = Path.cwd() / "nltk_data" / "lexpredict-lexnlp"
+        fallback.mkdir(parents=True, exist_ok=True)
+        return fallback
+
+
+CATALOG: Path = _resolve_catalog_dir()
 
 
 def _build_tag_dict() -> Dict[str, Path]:
