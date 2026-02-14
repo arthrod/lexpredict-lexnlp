@@ -329,11 +329,46 @@ def bootstrap_contract_model(*, dry_run: bool, tag: str) -> None:
 
         if not explicit and tag == "pipeline/is-contract/0.2" and status_code == 404:
             LOGGER.warning(
-                "Contract model tag=%s not found (HTTP 404); falling back to legacy tag=%s",
+                "Contract model tag=%s not found (HTTP 404); bootstrapping legacy tag=%s and generating runtime tag=%s",
                 tag,
                 legacy_tag,
+                tag,
             )
+
+            # Ensure the baseline tag is available locally.
             download_github_release(legacy_tag, prompt_user=False)
+
+            # Re-export legacy artifact into the requested tag so modern defaults
+            # work even before a Release asset exists for `pipeline/is-contract/0.2`.
+            try:
+                from cloudpickle import load
+
+                from lexnlp.extract.en.contracts.predictors import ProbabilityPredictorIsContract
+                from lexnlp.ml.catalog import CATALOG, get_path_from_catalog
+
+                source_path = get_path_from_catalog(legacy_tag)
+                destination_dir = CATALOG / tag
+                destination_path = destination_dir / source_path.name
+                destination_dir.mkdir(parents=True, exist_ok=True)
+
+                with source_path.open("rb") as source_file:
+                    pipeline = load(source_file)
+
+                # Validate and apply runtime compatibility patches before dumping.
+                ProbabilityPredictorIsContract(pipeline=pipeline)
+
+                import pickle
+
+                with destination_path.open("wb") as destination_file:
+                    pickle.dump(pipeline, destination_file, protocol=pickle.HIGHEST_PROTOCOL)
+
+                LOGGER.info("Generated contract model tag=%s at %s", tag, destination_path)
+            except Exception:
+                LOGGER.exception(
+                    "Failed to generate contract model tag=%s from legacy tag=%s; continuing with legacy only",
+                    tag,
+                    legacy_tag,
+                )
             return
         raise
 
