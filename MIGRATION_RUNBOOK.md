@@ -89,6 +89,31 @@ under the current runtime (Python/scikit-learn), use:
 This writes model-export metadata to
 `artifacts/model_reexports/pipeline__is-contract__0.2.metadata.json` by default.
 
+### Retrain candidate classifier from corpora (phase 2 path)
+
+For a fuller upgrade than pure re-serialization, train a new classifier while
+reusing LexNLP baseline preprocessing/vectorization steps:
+
+```bash
+./.venv/bin/python scripts/train_contract_model.py \
+  --baseline-tag pipeline/is-contract/0.1 \
+  --candidate-tag pipeline/is-contract/0.2 \
+  --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json \
+  --max-f1-regression 0.0 \
+  --max-accuracy-regression 0.0 \
+  --force
+```
+
+Training report output:
+- `artifacts/model_training/contract_model_training_report.json`
+
+The script automatically:
+- downloads configured corpora tags if missing,
+- trains multiple estimator candidates,
+- selects best by validation metrics (F1 first),
+- writes candidate artifact to catalog,
+- runs `scripts/model_quality_gate.py` unless skipped.
+
 Candidate evaluation command:
 
 ```bash
@@ -103,6 +128,18 @@ Candidate evaluation command:
 
 Default policy is non-regression against baseline metrics from
 `pipeline/is-contract/0.1` on the fixed fixture above.
+
+### Runtime model-tag overrides
+
+Predictors can select newer validated tags without API/signature changes:
+
+```bash
+# is-contract classifier
+export LEXNLP_IS_CONTRACT_MODEL_TAG="pipeline/is-contract/0.2"
+
+# contract-type classifier
+export LEXNLP_CONTRACT_TYPE_MODEL_TAG="pipeline/contract-type/0.2"
+```
 
 If baseline-tag model behavior is intentionally changed, regenerate and review
 the baseline metrics file in the same PR:

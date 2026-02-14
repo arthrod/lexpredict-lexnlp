@@ -26,6 +26,7 @@ class ProbabilityPredictorIsContract(ProbabilityPredictor):
     """
 
     _DEFAULT_PIPELINE: str = 'pipeline/is-contract/0.1'
+    _DEFAULT_PIPELINE_ENV_VAR: str = 'LEXNLP_IS_CONTRACT_MODEL_TAG'
 
     def _sanity_check(self) -> None:
         """
@@ -72,6 +73,7 @@ class ProbabilityPredictorContractType(ProbabilityPredictor):
     """
 
     _DEFAULT_PIPELINE: str = 'pipeline/contract-type/0.1'
+    _DEFAULT_PIPELINE_ENV_VAR: str = 'LEXNLP_CONTRACT_TYPE_MODEL_TAG'
 
     def _sanity_check(self) -> None:
         """

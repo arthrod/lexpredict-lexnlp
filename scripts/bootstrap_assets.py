@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 import zipfile
 from pathlib import Path
@@ -27,7 +28,19 @@ NLTK_RESOURCES = (
 )
 OPTIONAL_NLTK_RESOURCES = ("punkt_tab",)
 
-CONTRACT_MODEL_TAG = "pipeline/is-contract/0.1"
+
+def resolve_contract_model_tag() -> str:
+    """
+    Resolve the contract-model tag from env overrides with backward compatibility.
+    """
+    return (
+        os.getenv("LEXNLP_CONTRACT_MODEL_TAG")
+        or os.getenv("LEXNLP_IS_CONTRACT_MODEL_TAG")
+        or "pipeline/is-contract/0.1"
+    ).strip()
+
+
+CONTRACT_MODEL_TAG = resolve_contract_model_tag()
 
 STANFORD_DOWNLOADS: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
     (
@@ -77,7 +90,11 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument(
         "--contract-model",
         action="store_true",
-        help="Download LexNLP contract model release pipeline/is-contract/0.1.",
+        help=(
+            "Download LexNLP contract model release. "
+            "Respects env overrides LEXNLP_CONTRACT_MODEL_TAG / "
+            "LEXNLP_IS_CONTRACT_MODEL_TAG."
+        ),
     )
     parser.add_argument(
         "--stanford",
@@ -254,9 +271,9 @@ def bootstrap_nltk(*, dry_run: bool) -> None:
             LOGGER.warning("Optional NLTK resource unavailable: %s", resource)
 
 
-def bootstrap_contract_model(*, dry_run: bool) -> None:
+def bootstrap_contract_model(*, dry_run: bool, tag: str) -> None:
     if dry_run:
-        LOGGER.info("DRY RUN: would download LexNLP model tag %s", CONTRACT_MODEL_TAG)
+        LOGGER.info("DRY RUN: would download LexNLP model tag %s", tag)
         return
 
     try:
@@ -266,8 +283,8 @@ def bootstrap_contract_model(*, dry_run: bool) -> None:
             "Unable to import LexNLP catalog downloader. Ensure dependencies and editable install are in place."
         ) from error
 
-    LOGGER.info("Downloading LexNLP contract model: %s", CONTRACT_MODEL_TAG)
-    download_github_release(CONTRACT_MODEL_TAG, prompt_user=False)
+    LOGGER.info("Downloading LexNLP contract model: %s", tag)
+    download_github_release(tag, prompt_user=False)
 
 
 def run_selected_tasks(args: argparse.Namespace) -> None:
@@ -280,7 +297,16 @@ def run_selected_tasks(args: argparse.Namespace) -> None:
     if run_nltk:
         tasks.append(("nltk", lambda: bootstrap_nltk(dry_run=args.dry_run)))
     if run_contract_model:
-        tasks.append(("contract-model", lambda: bootstrap_contract_model(dry_run=args.dry_run)))
+        contract_model_tag = resolve_contract_model_tag()
+        tasks.append(
+            (
+                "contract-model",
+                lambda: bootstrap_contract_model(
+                    dry_run=args.dry_run,
+                    tag=contract_model_tag,
+                ),
+            )
+        )
     if run_stanford:
         stanford_dir = Path(args.stanford_dir).expanduser().resolve()
         tasks.append(

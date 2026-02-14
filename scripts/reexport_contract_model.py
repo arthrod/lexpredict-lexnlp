@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pickle
 import subprocess
 import sys
@@ -24,6 +25,14 @@ DEFAULT_BASELINE_METRICS = Path(
 LEGACY_WARNING_TOKEN = "Trying to unpickle estimator"
 
 
+def resolve_contract_model_tag() -> str:
+    return (
+        os.getenv("LEXNLP_CONTRACT_MODEL_TAG")
+        or os.getenv("LEXNLP_IS_CONTRACT_MODEL_TAG")
+        or "pipeline/is-contract/0.1"
+    ).strip()
+
+
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -33,7 +42,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--source-tag",
-        default="pipeline/is-contract/0.1",
+        default=resolve_contract_model_tag(),
         help="Source model tag to load from LexNLP catalog.",
     )
     parser.add_argument(

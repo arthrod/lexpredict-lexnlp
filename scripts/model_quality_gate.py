@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
@@ -17,13 +18,21 @@ DEFAULT_FIXTURE = Path(
 REQUIRED_METRIC_KEYS = ("accuracy", "f1", "precision", "recall")
 
 
+def resolve_contract_model_tag() -> str:
+    return (
+        os.getenv("LEXNLP_CONTRACT_MODEL_TAG")
+        or os.getenv("LEXNLP_IS_CONTRACT_MODEL_TAG")
+        or "pipeline/is-contract/0.1"
+    ).strip()
+
+
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Compare baseline and candidate contract models on a labeled fixture.",
     )
     parser.add_argument(
         "--baseline-tag",
-        default="pipeline/is-contract/0.1",
+        default=resolve_contract_model_tag(),
         help="Catalog tag used as baseline model.",
     )
     parser.add_argument(

@@ -10,6 +10,7 @@ __email__ = "support@contraxsuite.com"
 
 
 # standard library
+import os
 from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Protocol, runtime_checkable
@@ -56,6 +57,7 @@ class ProbabilityPredictor(ABC):
     """
 
     _DEFAULT_PIPELINE: str = NotImplemented
+    _DEFAULT_PIPELINE_ENV_VAR: Optional[str] = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -118,6 +120,21 @@ class ProbabilityPredictor(ABC):
         raise NotImplementedError
 
     @classmethod
+    def get_default_pipeline_tag(cls) -> str:
+        """
+        Resolve the pipeline tag for this predictor class.
+
+        Returns:
+            Pipeline catalog tag, optionally overridden by an environment variable.
+        """
+        env_var = cls._DEFAULT_PIPELINE_ENV_VAR
+        if env_var:
+            value = os.getenv(env_var, "").strip()
+            if value:
+                return value
+        return cls._DEFAULT_PIPELINE
+
+    @classmethod
     def get_default_pipeline(cls) -> Pipeline:
         """
         Gets the default Scikit-Learn Pipeline for usage with this ProbabilityPredictor.
@@ -125,6 +142,6 @@ class ProbabilityPredictor(ABC):
         Returns:
             A default Scikit-Learn Pipeline for usage with this ProbabilityPredictor.
         """
-        path: Path = get_path_from_catalog(cls._DEFAULT_PIPELINE)
+        path: Path = get_path_from_catalog(cls.get_default_pipeline_tag())
         with open(path, 'rb') as f:
             return load(f)
