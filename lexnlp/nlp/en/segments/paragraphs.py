@@ -241,7 +241,8 @@ def get_paragraph_spans(
     feature_df: DataFrame = DataFrame(feature_data, columns=column_names).fillna(-1).astype(int)
 
     try:
-        predicted_lines = PARAGRAPH_SEGMENTER_MODEL.predict_proba(feature_df)
+        # Avoid pandas dtype deprecation noise in sklearn validation by passing a numpy array.
+        predicted_lines = PARAGRAPH_SEGMENTER_MODEL.predict_proba(feature_df.to_numpy())
         predicted_df: DataFrame = DataFrame(predicted_lines, columns=["prob_false", "prob_true"])
         paragraph_breaks = predicted_df.loc[predicted_df["prob_true"] >= score_threshold, :].index.tolist()
 
