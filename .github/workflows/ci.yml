@@ -12,7 +12,7 @@ env:
   CONTRACT_MODEL_BASELINE_TAG: "pipeline/is-contract/0.1"
   CONTRACT_MODEL_CANDIDATE_TAG: "pipeline/is-contract/0.1"
   CONTRACT_MODEL_BASELINE_METRICS: "test_data/model_quality/is_contract_baseline_metrics.json"
-  CONTRACT_TYPE_MODEL_TAG: "pipeline/contract-type/0.2-runtime"
+  LEXNLP_CONTRACT_TYPE_MODEL_TAG: "pipeline/contract-type/0.2-runtime"
 
 jobs:
   base-tests:
@@ -134,8 +134,6 @@ jobs:
     name: Contract Type Smoke
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      LEXNLP_CONTRACT_TYPE_MODEL_TAG: ${{ env.CONTRACT_TYPE_MODEL_TAG }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
