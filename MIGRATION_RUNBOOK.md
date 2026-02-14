@@ -138,7 +138,7 @@ Predictors can select newer validated tags without API/signature changes:
 export LEXNLP_IS_CONTRACT_MODEL_TAG="pipeline/is-contract/0.2"
 
 # contract-type classifier
-export LEXNLP_CONTRACT_TYPE_MODEL_TAG="pipeline/contract-type/0.2"
+export LEXNLP_CONTRACT_TYPE_MODEL_TAG="pipeline/contract-type/0.2-runtime"
 ```
 
 ### Contract-type runtime fallback model

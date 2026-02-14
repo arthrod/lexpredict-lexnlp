@@ -169,3 +169,11 @@ python3 ci/check_dist_contents.py
     no explicit override is configured.
   - Extended bootstrap workflow with `--contract-type-model`.
   - Added CI `Contract Type Smoke` job to ensure this path remains working.
+
+## Follow-up completed (catalog path robustness)
+
+- Problem: `lexnlp.ml.catalog` historically used `nltk.data.find('')` to locate
+  the NLTK data root. On fresh CI runners with no existing NLTK data
+  directories, this could raise during import and break bootstrap/model tasks.
+- Fix: `lexnlp.ml.catalog` now resolves a writable directory from
+  `nltk.data.path` (creating it if needed) and falls back to `~/nltk_data`.
