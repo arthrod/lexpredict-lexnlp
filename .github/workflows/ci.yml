@@ -110,7 +110,7 @@ jobs:
       - name: Bootstrap contract-model asset
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: .venv/bin/python scripts/bootstrap_assets.py --contract-model
+        run: .venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
 
       - name: Run contract model quality gate
         run: |
