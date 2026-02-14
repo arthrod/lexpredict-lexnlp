@@ -139,6 +139,9 @@ Note: a single monolithic `LEXNLP_USE_STANFORD=true` run can occasionally hang i
 # quick dependency sanity
 ./.venv/bin/pip check
 
+# packaging content sanity
+python3 ci/check_dist_contents.py
+
 # run one file
 ./.venv/bin/pytest lexnlp/extract/en/tests/test_dates.py
 

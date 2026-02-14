@@ -97,8 +97,10 @@ jobs:
 
       - name: Build source and wheel artifacts
         run: |
-          uv venv .venv-build --python "${PYTHON_VERSION}"
           uv build
+
+      - name: Validate artifact contents
+        run: python3 ci/check_dist_contents.py
 
       - name: Install wheel in clean env
         run: |

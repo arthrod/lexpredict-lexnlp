@@ -63,6 +63,7 @@ Passing both commands is the required 100% result for a fully provisioned enviro
 
 ```bash
 uv build
+python3 ci/check_dist_contents.py
 uv venv --python 3.11 .venv-smoke
 uv pip install --python .venv-smoke/bin/python dist/*.whl
 .venv-smoke/bin/python -c "import lexnlp; print(lexnlp.__version__)"
