@@ -161,7 +161,8 @@ def splitlines_with_spans(text: str) -> Tuple[List[str], List[Tuple[int, int]]]:
     spans: List[Tuple[int, int]] = []
     if text is None:
         return lines, spans
-    last_line_end = -1
+    # Start from offset 0 so single-line inputs without newlines keep full text.
+    last_line_end = 0
     for m in RE_NEW_LINE.finditer(text):
         line = m.group('line')
         span = m.span()
