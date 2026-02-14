@@ -616,7 +616,6 @@ dependencies = [
 dev = [
     { name = "build" },
     { name = "memory-profiler" },
-    { name = "nose" },
     { name = "pylint" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -627,7 +626,6 @@ dev = [
     { name = "twine" },
 ]
 test = [
-    { name = "nose" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-xdist" },
@@ -649,8 +647,6 @@ requires-dist = [
     { name = "lxml", specifier = ">=4.9.1,<6" },
     { name = "memory-profiler", marker = "extra == 'dev'", specifier = ">=0.61.0" },
     { name = "nltk", specifier = ">=3.8.1,<3.9" },
-    { name = "nose", marker = "extra == 'dev'", specifier = ">=1.3.7,<2" },
-    { name = "nose", marker = "extra == 'test'", specifier = ">=1.3.7,<2" },
     { name = "num2words", specifier = ">=0.5.12,<1" },
     { name = "numpy", specifier = ">=1.24.0,<2" },
     { name = "pandas", specifier = ">=1.5.3,<2" },
@@ -881,15 +877,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/57/49/51af17a2b0d850578d0022408802aa452644d40281a6c6e82f7cb0235ddb/nltk-3.8.1.zip", hash = "sha256:1834da3d0682cba4f2cede2f9aad6b0fafb6461ba451db0efb6f9c39798d64d3", size = 4620388, upload-time = "2023-01-02T15:37:09.89Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a6/0a/0d20d2c0f16be91b9fa32a77b76c60f9baf6eba419e5ef5deca17af9c582/nltk-3.8.1-py3-none-any.whl", hash = "sha256:fd5c9109f976fa86bcadba8f91e47f5e9293bd034474752e92a520f81c93dda5", size = 1510663, upload-time = "2023-01-02T15:37:07.414Z" },
-]
-
-[[package]]
-name = "nose"
-version = "1.3.7"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/58/a5/0dc93c3ec33f4e281849523a5a913fa1eea9a3068acfa754d44d88107a44/nose-1.3.7.tar.gz", hash = "sha256:f1bffef9cbc82628f6e7d7b40d7e255aefaa1adb6a1b1d26c69a8b79e6208a98", size = 280488, upload-time = "2015-06-02T09:12:32.961Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/d8/dd071918c040f50fa1cf80da16423af51ff8ce4a0f2399b7bf8de45ac3d9/nose-1.3.7-py3-none-any.whl", hash = "sha256:9ff7c6cc443f8c51994b34a667bbcf45afd6d945be7477b52e97516fd17c53ac", size = 154731, upload-time = "2015-06-02T09:12:40.57Z" },
 ]
 
 [[package]]
