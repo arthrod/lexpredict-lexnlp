@@ -169,6 +169,14 @@ def infer_delimiters(
         group_delimiter: str = locale_conventions['thousands_sep']
         grouping: List[int] = locale_conventions['grouping']
 
+    # Some runners do not have locale packs (e.g., de_DE.UTF-8) installed and
+    # silently fall back to "C"/"POSIX" numeric conventions. This breaks
+    # delimiter inference for values like "10.800" in German contexts.
+    if _locale.lower().startswith('de') and decimal_delimiter == '.' and not group_delimiter:
+        decimal_delimiter = ','
+        group_delimiter = '.'
+        grouping = [3, 3, 0]
+
     delimiters, blocks = get_delimited_blocks(text)
     len_delimiters: int = len(delimiters)
 
