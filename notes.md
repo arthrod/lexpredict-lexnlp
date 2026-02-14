@@ -90,6 +90,36 @@ Modernize dependency and test tooling so LexNLP is reproducible with `uv`, Pytho
   - `pytest lexnlp/extract/en/tests/test_dates.py lexnlp/extract/en/contracts/tests/test_contracts.py`
   - `11 passed` with reduced warning set.
 
+## Final CI stabilization (post-migration)
+
+While validating the migrated stack on GitHub Actions, one base-suite run still failed
+with two environment-sensitive issues. Both were fixed without adding skips/xfails.
+
+### 1) German money parsing on locale-limited runners
+- Symptom: `lexnlp/extract/de/tests/test_money.py::TestMoneyPlain::test_symmetrical_money`
+  returned `Decimal('10.800')` instead of `Decimal('10800')` in CI.
+- Root cause: `de_DE.UTF-8` was not always available; locale resolution could fall back
+  to non-German numeric conventions.
+- Fix: hardened `lexnlp/utils/amount_delimiting.py` to enforce canonical `de_DE`
+  delimiters when locale resolution does not match `de_DE` conventions.
+
+### 2) Paragraph segmentation edge case for single-line input
+- Symptom: `lexnlp/nlp/en/tests/test_paragraphs.py::TestParagraphs::test_date_text`
+  intermittently returned `'6'` instead of the full timestamp text.
+- Root cause: `splitlines_with_spans()` initialized `last_line_end` to `-1`, so
+  no-newline input could be sliced from the final character depending on model output.
+- Fix: updated `lexnlp/nlp/en/segments/paragraphs.py` to initialize `last_line_end`
+  at `0`, preserving full single-line input spans.
+
+### CI verification after these fixes
+- Commit: `b07b9b6`
+- Run: `https://github.com/5pence5/lexpredict-lexnlp_fixed/actions/runs/22010774834`
+- Result: all jobs green
+  - `Base Tests`
+  - `Stanford Tests`
+  - `Model Quality Gate`
+  - `Packaging Smoke`
+
 ## Operational guidance
 
 Reliable full-validation flow on this machine:
