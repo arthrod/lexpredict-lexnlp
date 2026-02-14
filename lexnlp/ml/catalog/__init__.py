@@ -10,6 +10,7 @@ __email__ = "support@contraxsuite.com"
 
 
 # standard library
+import os
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -25,41 +26,39 @@ def _resolve_nltk_data_dir() -> Path:
     NLTK data path. On fresh environments (e.g., CI runners), NLTK's internal
     implementation can raise when no candidate directories exist yet.
 
-    This resolver prefers the first non-empty entry in ``nltk.data.path`` and
-    creates it if needed. If none are usable, it falls back to ``~/nltk_data``.
+    This resolver prefers the first usable entry in ``nltk.data.path``. If none
+    are usable, it falls back to ``~/nltk_data``.
     """
     candidates = [Path(p).expanduser() for p in nltk.data.path if p]
     candidates.append(Path.home() / "nltk_data")
 
     for candidate in candidates:
-        try:
-            candidate.mkdir(parents=True, exist_ok=True)
-            return candidate
-        except PermissionError:
+        if candidate.exists():
+            if candidate.is_dir() and os.access(candidate, os.W_OK):
+                return candidate
             continue
 
+        # Candidate does not exist yet. Prefer a path whose nearest existing
+        # parent is writable so downstream tasks can create directories.
+        parent = candidate
+        while not parent.exists() and parent.parent != parent:
+            parent = parent.parent
+        if parent.exists() and parent.is_dir() and os.access(parent, os.W_OK):
+            return candidate
+
     # Last resort: current working directory.
-    fallback = Path.cwd() / "nltk_data"
-    fallback.mkdir(parents=True, exist_ok=True)
-    return fallback
+    return Path.cwd() / "nltk_data"
 
 
 def _resolve_catalog_dir() -> Path:
     """
-    Resolve and create the LexNLP catalog directory where model/data assets live.
+    Resolve the LexNLP catalog directory where model/data assets live.
 
-    This directory is expected to exist for callers that scan the catalog.
+    This function does not create directories on import; callers that write into
+    the catalog must create parent directories as needed.
     """
     root = _resolve_nltk_data_dir()
-    catalog = root / "lexpredict-lexnlp"
-    try:
-        catalog.mkdir(parents=True, exist_ok=True)
-        return catalog
-    except PermissionError:
-        # Fallback to a best-effort writable path.
-        fallback = Path.cwd() / "nltk_data" / "lexpredict-lexnlp"
-        fallback.mkdir(parents=True, exist_ok=True)
-        return fallback
+    return root / "lexpredict-lexnlp"
 
 
 CATALOG: Path = _resolve_catalog_dir()

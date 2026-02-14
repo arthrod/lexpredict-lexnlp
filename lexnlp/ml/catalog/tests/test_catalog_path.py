@@ -13,7 +13,7 @@ def test_catalog_path_resolves_on_fresh_environment(tmp_path):
         importlib.reload(catalog)
 
         assert catalog.CATALOG == candidate_root / "lexpredict-lexnlp"
-        assert catalog.CATALOG.exists()
+        assert not catalog.CATALOG.exists()
     finally:
         nltk.data.path = original_paths
         importlib.reload(catalog)
@@ -33,7 +33,7 @@ def test_catalog_path_falls_back_to_home_when_nltk_path_empty(tmp_path, monkeypa
 
         assert str(catalog.CATALOG).startswith(str(fake_home))
         assert catalog.CATALOG.name == "lexpredict-lexnlp"
-        assert catalog.CATALOG.exists()
+        assert not catalog.CATALOG.exists()
     finally:
         nltk.data.path = original_paths
         monkeypatch.setenv("HOME", str(original_home))
