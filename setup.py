@@ -42,7 +42,7 @@ setup(
     license='AGPL',
 
     # version ranges for supported Python distributions
-    python_requires='~=3.6',
+    python_requires='>=3.9',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -64,7 +64,11 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
 
         # Topics
         'Natural Language :: English',
@@ -89,29 +93,29 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'beautifulsoup4==4.11.1',
-        'cloudpickle==2.2.0',
-        'dateparser==1.1.3',
-        'elasticsearch==8.5.0',
-        'gensim==4.1.2',
-        'importlib-metadata==5.0.0',
-        'joblib==1.2.0',
-        'lxml==4.9.1',
-        'nltk==3.7',
-        'num2words==0.5.12',
-        'numpy==1.23.4',
-        'pandas==1.5.1',
-        'psutil==5.9.4',
-        'pycountry==22.3.5',
-        'python-dateutil==2.8.2',
-        'regex==2022.3.2',
-        'reporters-db==3.2.32',
-        'requests==2.28.1',
-        'scikit-learn==0.24',
-        'scipy==1.9.3',
-        'tqdm==4.64.1',
-        'Unidecode==1.3.6',
-        'us==2.0.2',
+        'beautifulsoup4==4.14.2',
+        'cloudpickle==3.1.1',
+        'dateparser==1.2.2',
+        'elasticsearch==9.1.1',
+        'gensim==4.3.3',
+        'importlib-metadata==8.7.0',
+        'joblib==1.5.2',
+        'lxml==6.0.2',
+        'nltk==3.9.2',
+        'num2words==0.5.14',
+        'numpy==1.26.4',
+        'pandas==2.3.3',
+        'psutil==7.1.0',
+        'pycountry==24.6.1',
+        'python-dateutil==2.9.0.post0',
+        'regex==2025.9.18',
+        'reporters-db==3.2.58',
+        'requests==2.32.5',
+        'scikit-learn==1.3.2',
+        'scipy==1.13.1',
+        'tqdm==4.67.1',
+        'Unidecode==1.4.0',
+        'us==3.2.0',
         'zahlwort2num==0.4.2'
     ],
 
@@ -124,9 +128,9 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7', 'nose', 'memory-profiler', 'psutil', 'matplotlib',
-                'Sphinx>=5.3.0'],
-        'test': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7', 'nose', 'memory-profiler', 'psutil', 'Sphinx>=5.3.0'],
+        'dev': ['pytest>=8.4.2', 'mock', 'pytz>=2015.7', 'nose', 'memory-profiler>=0.61.0', 'psutil>=7.1.0', 'matplotlib',
+                'Sphinx>=8.2.3'],
+        'test': ['pytest>=8.4.2', 'mock', 'pytz>=2015.7', 'nose', 'memory-profiler>=0.61.0', 'psutil>=7.1.0', 'Sphinx>=8.2.3'],
     },
 
     # If there are data files included in your packages that need to be
