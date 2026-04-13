@@ -176,7 +176,11 @@ def infer_delimiters(
     # whenever locale resolution does not match those conventions.
     if (
         _locale.lower().startswith('de_de')
-        and (decimal_delimiter != ',' or group_delimiter != '.')
+        and (
+            decimal_delimiter != ','
+            or group_delimiter != '.'
+            or grouping != [3, 3, 0]
+        )
     ):
         decimal_delimiter = ','
         group_delimiter = '.'

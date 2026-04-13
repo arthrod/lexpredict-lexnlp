@@ -1,7 +1,7 @@
 # LexNLP Dependency Modernization Notes
 
 Date: February 14, 2026
-Repo: `/Users/jackeames/Downloads/LexNLP`
+Repo: `/path/to/LexNLP`
 
 ## Objective
 
@@ -135,7 +135,7 @@ with two environment-sensitive issues. Both were fixed without adding skips/xfai
 Reliable full-validation flow on this machine:
 
 ```bash
-cd /Users/jackeames/Downloads/LexNLP
+cd /path/to/LexNLP
 
 # env
 uv venv --python 3.11 .venv
@@ -168,11 +168,11 @@ python3 ci/check_dist_contents.py
   contract-type prediction unreliable on modern runtimes.
 - Fix:
   - Added runtime model utilities in
-    `/Users/jackeames/Downloads/LexNLP/lexnlp/extract/en/contracts/runtime_model.py`
+    `/path/to/LexNLP/lexnlp/extract/en/contracts/runtime_model.py`
     to train/store a deterministic fallback model from
     `corpus/contract-types/0.1`.
   - Added
-    `/Users/jackeames/Downloads/LexNLP/scripts/train_contract_type_model.py`
+    `/path/to/LexNLP/scripts/train_contract_type_model.py`
     for explicit training/report generation.
   - Updated `ProbabilityPredictorContractType` to auto-fallback to
     `pipeline/contract-type/0.2-runtime` when legacy default loading fails and

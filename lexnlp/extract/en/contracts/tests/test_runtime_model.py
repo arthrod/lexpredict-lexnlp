@@ -33,7 +33,7 @@ def test_ensure_runtime_contract_type_model_force_trains(monkeypatch, tmp_path):
         calls.append(("write_pipeline_to_catalog", target_tag, force))
         destination = tmp_path / "pipeline_contract_type_classifier.cloudpickle"
         destination.write_bytes(b"dummy")
-        return destination
+        return destination, True
 
     monkeypatch.setattr(runtime_model, "ensure_tag_downloaded", ensure_tag_downloaded)
     monkeypatch.setattr(runtime_model, "collect_contract_type_samples", collect_samples)

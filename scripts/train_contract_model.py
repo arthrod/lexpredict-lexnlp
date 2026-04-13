@@ -191,14 +191,17 @@ def ensure_tag_downloaded(tag: str) -> Path:
 
 
 def patch_legacy_estimator_attributes(pipeline: Pipeline) -> None:
-    estimator = pipeline._final_estimator
+    # Use public APIs to access the final estimator and intermediate transforms.
+    estimator = pipeline.steps[-1][1]
     if hasattr(estimator, "sigma_"):
         if not hasattr(estimator, "var_"):
             estimator.var_ = estimator.sigma_
         if not hasattr(estimator, "variance_"):
             estimator.variance_ = estimator.var_
 
-    for _, _, transform in pipeline._iter(with_final=False):
+    for _, transform in pipeline.steps[:-1]:
+        if transform is None or transform == "passthrough":
+            continue
         transform.clip = hasattr(transform, "clip") and transform.clip
 
 
@@ -277,7 +280,13 @@ def make_estimator(name: str, *, random_state: int, max_workers: int):
     raise ValueError(f"Unsupported estimator: {name}")
 
 
-def build_candidate_pipeline(feature_steps: Sequence[Tuple[str, object]], estimator_name: str, *, random_state: int, max_workers: int) -> Pipeline:
+def build_candidate_pipeline(
+    feature_steps: Sequence[Tuple[str, object]],
+    estimator_name: str,
+    *,
+    random_state: int,
+    max_workers: int,
+) -> Pipeline:
     steps = [(name, copy.deepcopy(step)) for name, step in feature_steps]
     steps.append((estimator_name, make_estimator(estimator_name, random_state=random_state, max_workers=max_workers)))
     return Pipeline(steps=steps)
@@ -368,7 +377,7 @@ def run_quality_gate(
     if baseline_metrics_json.exists():
         cmd.extend(["--baseline-metrics-json", str(baseline_metrics_json)])
 
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, capture_output=True, text=True)
 
 
 def main(argv: Sequence[str]) -> int:
@@ -490,8 +499,24 @@ def main(argv: Sequence[str]) -> int:
                 max_f1_regression=args.max_f1_regression,
             )
             report["quality_gate"]["status"] = "passed"
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as exc:
             report["quality_gate"]["status"] = "failed"
+            report["quality_gate"]["returncode"] = str(exc.returncode)
+
+            def _decode(stream: object) -> str:
+                if stream is None:
+                    return ""
+                if isinstance(stream, bytes):
+                    return stream.decode("utf-8", errors="replace")
+                return str(stream)
+
+            stdout_text = _decode(getattr(exc, "stdout", None) or getattr(exc, "output", None))
+            stderr_text = _decode(getattr(exc, "stderr", None))
+            if stdout_text:
+                report["quality_gate"]["stdout"] = stdout_text
+            if stderr_text:
+                report["quality_gate"]["stderr"] = stderr_text
+                print(stderr_text, file=sys.stderr)
             if not args.keep_candidate_on_failure and candidate_model_path.exists():
                 candidate_model_path.unlink()
                 report["quality_gate"]["candidate_removed"] = True

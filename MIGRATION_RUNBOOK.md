@@ -17,7 +17,7 @@ Legacy files are retained for historical reproduction only:
 ## 2) Fresh Setup
 
 ```bash
-cd /Users/jackeames/Downloads/LexNLP
+cd /path/to/LexNLP
 uv python install 3.11
 uv venv --python 3.11 .venv
 uv sync --frozen --python .venv/bin/python --extra dev --extra test

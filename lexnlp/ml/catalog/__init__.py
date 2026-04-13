@@ -11,6 +11,7 @@ __email__ = "support@contraxsuite.com"
 
 # standard library
 import os
+import threading
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -64,6 +65,7 @@ def _resolve_catalog_dir() -> Path:
 CATALOG: Path = _resolve_catalog_dir()
 
 _TAG_DICT_CACHE: Optional[Dict[str, Path]] = None
+_TAG_DICT_LOCK = threading.Lock()
 
 
 def _build_tag_dict() -> Dict[str, Path]:
@@ -98,7 +100,9 @@ def invalidate_catalog_cache() -> None:
 def _get_tag_dict_cached() -> Dict[str, Path]:
     global _TAG_DICT_CACHE
     if _TAG_DICT_CACHE is None:
-        _TAG_DICT_CACHE = _build_tag_dict()
+        with _TAG_DICT_LOCK:
+            if _TAG_DICT_CACHE is None:
+                _TAG_DICT_CACHE = _build_tag_dict()
     return _TAG_DICT_CACHE
 
 

@@ -67,17 +67,17 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         help="Maximum allowed candidate top-1 accuracy drop vs baseline.",
     )
     parser.add_argument(
-        "--max-accuracy-top3-regression",
-        type=float,
-        dest="max_accuracy_topn_regression",
-        default=None,
-        help="Deprecated alias for --max-accuracy-topn-regression (when --top-n=3).",
-    )
-    parser.add_argument(
         "--max-accuracy-topn-regression",
         type=float,
         default=0.0,
         help="Maximum allowed candidate top-N accuracy drop vs baseline.",
+    )
+    parser.add_argument(
+        "--max-accuracy-top3-regression",
+        type=float,
+        dest="max_accuracy_topn_regression",
+        default=0.0,
+        help="Deprecated alias for --max-accuracy-topn-regression (when --top-n=3).",
     )
     parser.add_argument(
         "--max-f1-macro-regression",
@@ -178,7 +178,7 @@ def score_pipeline(pipeline, texts: List[str], labels: List[str], *, top_n: int)
     classes = np.asarray(classes)
     top_indices = np.argsort(probas, axis=1)[:, -top_n:]
     hits = 0
-    for truth, indices in zip(labels, top_indices):
+    for truth, indices in zip(labels, top_indices, strict=True):
         if truth in set(classes[indices].tolist()):
             hits += 1
     accuracy_topn = float(hits / len(labels))

@@ -1,5 +1,4 @@
 import importlib
-from pathlib import Path
 
 
 def test_catalog_path_resolves_on_fresh_environment(tmp_path):
@@ -24,7 +23,6 @@ def test_catalog_path_falls_back_to_home_when_nltk_path_empty(tmp_path, monkeypa
     import lexnlp.ml.catalog as catalog
 
     original_paths = list(nltk.data.path)
-    original_home = Path.home()
     try:
         fake_home = tmp_path / "home"
         monkeypatch.setenv("HOME", str(fake_home))
@@ -36,5 +34,4 @@ def test_catalog_path_falls_back_to_home_when_nltk_path_empty(tmp_path, monkeypa
         assert not catalog.CATALOG.exists()
     finally:
         nltk.data.path = original_paths
-        monkeypatch.setenv("HOME", str(original_home))
         importlib.reload(catalog)

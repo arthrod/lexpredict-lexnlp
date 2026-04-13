@@ -154,7 +154,13 @@ def write_pipeline_to_catalog(
     pipeline: Pipeline,
     target_tag: str,
     force: bool,
-) -> Path:
+) -> Tuple[Path, bool]:
+    """
+    Returns:
+        A ``(destination_path, wrote)`` tuple where ``wrote`` is ``True`` when
+        the pipeline was serialized to disk (i.e., either ``force`` was set or
+        the destination did not already exist).
+    """
     from lexnlp.ml.catalog import CATALOG
 
     destination_dir = CATALOG / target_tag
@@ -162,11 +168,15 @@ def write_pipeline_to_catalog(
     destination_path = destination_dir / CONTRACT_TYPE_MODEL_FILENAME
 
     if destination_path.exists() and not force:
-        return destination_path
+        LOGGER.debug(
+            "Artifact already exists, skipping write (force=False): %s",
+            destination_path,
+        )
+        return destination_path, False
 
     with destination_path.open("wb") as model_file:
         pickle.dump(pipeline, model_file)
-    return destination_path
+    return destination_path, True
 
 
 def ensure_runtime_contract_type_model(
@@ -196,7 +206,6 @@ def ensure_runtime_contract_type_model(
                 exc,
                 exc_info=True,
             )
-            pass
 
     corpus_archive = ensure_tag_downloaded(CONTRACT_TYPE_CORPUS_TAG)
     texts, labels, _counts = collect_contract_type_samples(
@@ -205,7 +214,7 @@ def ensure_runtime_contract_type_model(
         head_character_n=head_character_n,
     )
     pipeline = train_contract_type_pipeline(texts, labels, random_state=random_state)
-    destination_path = write_pipeline_to_catalog(
+    destination_path, _wrote = write_pipeline_to_catalog(
         pipeline=pipeline,
         target_tag=target_tag,
         force=True,
