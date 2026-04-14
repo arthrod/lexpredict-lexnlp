@@ -55,3 +55,148 @@ def test_ensure_runtime_contract_type_model_force_trains(monkeypatch, tmp_path):
     assert result == tmp_path / "pipeline_contract_type_classifier.cloudpickle"
     assert ("write_pipeline_to_catalog", runtime_model.RUNTIME_CONTRACT_TYPE_TAG, True) in calls
 
+
+# ---------------------------------------------------------------------------
+# write_pipeline_to_catalog – returns Tuple[Path, bool]
+# ---------------------------------------------------------------------------
+
+
+def test_write_pipeline_to_catalog_returns_path_and_true_when_new(monkeypatch, tmp_path):
+    """
+    When the destination does not yet exist, write_pipeline_to_catalog must
+    serialize the pipeline and return (path, True).
+    """
+    import pickle
+    from lexnlp.extract.en.contracts import runtime_model
+
+    monkeypatch.setattr(runtime_model, "CATALOG", tmp_path, raising=False)
+
+    # Patch the CATALOG import inside write_pipeline_to_catalog
+    import lexnlp.ml.catalog as catalog_mod
+    monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
+
+    # Use a simple picklable object as the "pipeline".
+    dummy_pipeline = {"weights": [1, 2, 3]}
+
+    destination, wrote = runtime_model.write_pipeline_to_catalog(
+        pipeline=dummy_pipeline,
+        target_tag="pipeline/test/0.1",
+        force=False,
+    )
+
+    assert wrote is True
+    assert destination.exists()
+    assert destination.name == runtime_model.CONTRACT_TYPE_MODEL_FILENAME
+    # Verify the content is the serialized pipeline.
+    with destination.open("rb") as f:
+        loaded = pickle.load(f)
+    assert loaded == dummy_pipeline
+
+
+def test_write_pipeline_to_catalog_returns_false_when_artifact_exists(monkeypatch, tmp_path):
+    """
+    When the destination already exists and force=False, the function must
+    NOT overwrite it and must return (path, False).
+    """
+    from lexnlp.extract.en.contracts import runtime_model
+
+    import lexnlp.ml.catalog as catalog_mod
+    monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
+
+    # Pre-create the destination file.
+    target_dir = tmp_path / "pipeline" / "test" / "0.1"
+    target_dir.mkdir(parents=True)
+    existing_file = target_dir / runtime_model.CONTRACT_TYPE_MODEL_FILENAME
+    existing_file.write_bytes(b"original content")
+
+    dummy_pipeline = {"weights": [9, 9, 9]}
+
+    destination, wrote = runtime_model.write_pipeline_to_catalog(
+        pipeline=dummy_pipeline,
+        target_tag="pipeline/test/0.1",
+        force=False,
+    )
+
+    assert wrote is False
+    assert destination == existing_file
+    # Content must be unchanged.
+    assert destination.read_bytes() == b"original content"
+
+
+def test_write_pipeline_to_catalog_force_overwrites_existing(monkeypatch, tmp_path):
+    """
+    When force=True, an existing artifact must be overwritten and (path, True)
+    must be returned.
+    """
+    import pickle
+    from lexnlp.extract.en.contracts import runtime_model
+
+    import lexnlp.ml.catalog as catalog_mod
+    monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
+
+    target_dir = tmp_path / "pipeline" / "test" / "0.2"
+    target_dir.mkdir(parents=True)
+    existing_file = target_dir / runtime_model.CONTRACT_TYPE_MODEL_FILENAME
+    existing_file.write_bytes(b"old content")
+
+    new_pipeline = {"version": 2}
+
+    destination, wrote = runtime_model.write_pipeline_to_catalog(
+        pipeline=new_pipeline,
+        target_tag="pipeline/test/0.2",
+        force=True,
+    )
+
+    assert wrote is True
+    assert destination == existing_file
+    with destination.open("rb") as f:
+        loaded = pickle.load(f)
+    assert loaded == new_pipeline
+
+
+def test_write_pipeline_to_catalog_creates_parent_directories(monkeypatch, tmp_path):
+    """
+    The function must create any missing parent directories for the destination.
+    """
+    from lexnlp.extract.en.contracts import runtime_model
+
+    import lexnlp.ml.catalog as catalog_mod
+    monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
+
+    # Ensure the nested tag directories do not exist yet.
+    deep_tag = "pipeline/deep/nested/tag/0.1"
+    destination, wrote = runtime_model.write_pipeline_to_catalog(
+        pipeline={"x": 1},
+        target_tag=deep_tag,
+        force=False,
+    )
+
+    assert wrote is True
+    assert destination.parent.is_dir()
+
+
+def test_ensure_runtime_contract_type_model_no_force_returns_cached(monkeypatch, tmp_path):
+    """
+    When force=False and the catalog already has the target tag, the existing
+    path is returned immediately without retraining.
+    """
+    from lexnlp.extract.en.contracts import runtime_model
+
+    existing_path = tmp_path / "model.cloudpickle"
+    existing_path.write_bytes(b"cached")
+
+    import lexnlp.ml.catalog as catalog_mod
+
+    def fake_get_path(tag: str) -> object:
+        if tag == runtime_model.RUNTIME_CONTRACT_TYPE_TAG:
+            return existing_path
+        raise FileNotFoundError(tag)
+
+    monkeypatch.setattr(catalog_mod, "get_path_from_catalog", fake_get_path)
+
+    result = runtime_model.ensure_runtime_contract_type_model(
+        target_tag=runtime_model.RUNTIME_CONTRACT_TYPE_TAG,
+        force=False,
+    )
+
+    assert result == existing_path
