@@ -175,7 +175,7 @@ def build_model(training_file_path):
         # Download file
         file_url = row["File"].replace("https://github.com/", "https://raw.githubusercontent.com/").replace("/blob/",
                                                                                                             "/")
-        file_text = requests.get(file_url).text
+        file_text = requests.get(file_url, timeout=60).text
         file_lines = file_text.splitlines()
 
         # Get features and target for model
