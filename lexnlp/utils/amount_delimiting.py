@@ -22,8 +22,8 @@ DELIMITERS: FrozenSet = frozenset((
     '\u002C',  # U+002C , COMMA (HTML &#44; · &comma;)
     '\u002E',  # U+002E . FULL STOP (HTML &#46; · &period;) - Full stop punctuation mark.
     '\u00B7',  # U+00B7 · MIDDLE DOT (HTML &#183; · &middot;, &CenterDot;, &centerdot;)
-    '\u2009',  # U+2009   THIN SPACE (HTML &#8201; · &thinsp;, &ThinSpace;)
-    '\u202F',  # U+202F   NARROW NO-BREAK SPACE (HTML &#8239;)
+    '\u2009',  # U+2009 THIN SPACE (HTML &#8201; · &thinsp;, &ThinSpace;)
+    '\u202F',  # U+202F NARROW NO-BREAK SPACE (HTML &#8239;)
     '\u02D9',  # U+02D9 ˙ DOT ABOVE (HTML &#729; · &DiacriticalDot;, &dot;)
 ))
 

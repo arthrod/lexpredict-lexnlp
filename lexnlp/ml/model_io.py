@@ -76,10 +76,11 @@ def _load_legacy(path: Path) -> Any:
         import joblib
 
         return joblib.load(path)
-    # Unknown suffix: try pickle as a best effort. ``pickle.load`` will
-    # raise if the file is not actually a pickle.
-    with path.open("rb") as file:
-        return pickle.load(file)
+    # Reject unknown suffixes instead of attempting unsafe deserialization
+    raise ValueError(
+        f"Unsupported file suffix '{suffix}' for legacy model loading. "
+        f"Expected one of: {', '.join(sorted(_LEGACY_SUFFIXES))}"
+    )
 
 
 def load_model(path: Path, *, trusted: bool = False) -> Any:
