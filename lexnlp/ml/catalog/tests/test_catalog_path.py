@@ -113,6 +113,47 @@ def test_get_tag_dict_cached_thread_safety(tmp_path, monkeypatch):
     assert len(build_count) == 1
 
 
+def test_invalidate_catalog_cache_is_thread_safe(tmp_path, monkeypatch):
+    """
+    Concurrent calls to invalidate_catalog_cache must not race with
+    _get_tag_dict_cached: after all threads finish, the cache is either
+    None (invalidated) or a fresh dict (rebuilt), never a stale/corrupt value.
+    """
+    import threading
+    import lexnlp.ml.catalog as catalog
+
+    monkeypatch.setattr(catalog, "CATALOG", tmp_path)
+    catalog.invalidate_catalog_cache()
+
+    errors: list[Exception] = []
+
+    def do_invalidate():
+        try:
+            catalog.invalidate_catalog_cache()
+        except Exception as exc:
+            errors.append(exc)
+
+    def do_read():
+        try:
+            catalog._get_tag_dict_cached()
+        except Exception as exc:
+            errors.append(exc)
+
+    threads = (
+        [threading.Thread(target=do_invalidate) for _ in range(5)]
+        + [threading.Thread(target=do_read) for _ in range(5)]
+    )
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert not errors, f"Thread errors: {errors}"
+    # After all operations the cache is in a defined state: None or a dict.
+    assert catalog._TAG_DICT_CACHE is None or isinstance(catalog._TAG_DICT_CACHE, dict)
+    catalog.invalidate_catalog_cache()
+
+
 def test_invalidate_catalog_cache_clears_cache(tmp_path):
     """
     invalidate_catalog_cache must reset _TAG_DICT_CACHE so the next call to
