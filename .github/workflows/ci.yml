@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 env:
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.13"
   CONTRACT_MODEL_BASELINE_TAG: "pipeline/is-contract/0.1"
   CONTRACT_MODEL_CANDIDATE_TAG: "pipeline/is-contract/0.1"
   CONTRACT_MODEL_BASELINE_METRICS: "test_data/model_quality/is_contract_baseline_metrics.json"

@@ -69,7 +69,7 @@ def test_get_tag_dict_cached_builds_cache_once(tmp_path):
         catalog.invalidate_catalog_cache()
 
 
-def test_get_tag_dict_cached_thread_safety(tmp_path):
+def test_get_tag_dict_cached_thread_safety(tmp_path, monkeypatch):
     """
     Concurrent calls to _get_tag_dict_cached must not build the cache more
     than once (double-checked locking correctness).
@@ -84,10 +84,8 @@ def test_get_tag_dict_cached_thread_safety(tmp_path):
         return original_build()
 
     catalog.invalidate_catalog_cache()
-    catalog._build_tag_dict = counting_build  # type: ignore[assignment]
-
-    original_catalog = catalog.CATALOG
-    catalog.CATALOG = tmp_path
+    monkeypatch.setattr(catalog, "_build_tag_dict", counting_build)
+    monkeypatch.setattr(catalog, "CATALOG", tmp_path)
 
     errors: list[Exception] = []
     results: list[object] = []
@@ -104,8 +102,6 @@ def test_get_tag_dict_cached_thread_safety(tmp_path):
     for t in threads:
         t.join()
 
-    catalog._build_tag_dict = original_build  # type: ignore[assignment]
-    catalog.CATALOG = original_catalog
     catalog.invalidate_catalog_cache()
 
     assert not errors, f"Thread errors: {errors}"
@@ -113,8 +109,8 @@ def test_get_tag_dict_cached_thread_safety(tmp_path):
     # All threads must receive the same dict object.
     first = results[0]
     assert all(r is first for r in results)
-    # _build_tag_dict must have been called at most once.
-    assert len(build_count) <= 1
+    # _build_tag_dict must have been called exactly once.
+    assert len(build_count) == 1
 
 
 def test_invalidate_catalog_cache_clears_cache(tmp_path):

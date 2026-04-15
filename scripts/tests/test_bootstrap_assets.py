@@ -40,13 +40,8 @@ class TestDownloadFileSchemeValidation:
         """http:// URLs must pass the scheme check and attempt an actual download."""
         destination = tmp_path / "out.zip"
         with patch("bootstrap_assets.urlopen") as mock_urlopen:
-            mock_response = io.BytesIO(b"data")
-            mock_response.__enter__ = lambda s: s  # type: ignore[attr-defined]
-            mock_response.__exit__ = lambda *a: None  # type: ignore[attr-defined]
-            mock_urlopen.return_value = mock_response
-            # Should not raise; urlopen is expected to be called.
-            # We can't easily let the full flow complete without network, so
-            # we patch urlopen to raise a controlled error after the check.
+            # Patch urlopen to raise a controlled OSError after the scheme
+            # check passes, proving we reached the network call.
             mock_urlopen.side_effect = OSError("no network")
             with pytest.raises(OSError, match="no network"):
                 bootstrap_assets.download_file(
@@ -75,38 +70,44 @@ class TestDownloadFileSchemeValidation:
     def test_ftp_scheme_raises_value_error(self, tmp_path: Path) -> None:
         """ftp:// URLs must be rejected before any network call."""
         destination = tmp_path / "out.zip"
-        with pytest.raises(ValueError, match="unsupported scheme"):
-            bootstrap_assets.download_file(
-                "ftp://example.com/file.zip",
-                destination,
-                force=True,
-                dry_run=False,
-                timeout=5,
-            )
+        with patch("bootstrap_assets.urlopen") as mock_urlopen:
+            with pytest.raises(ValueError, match="unsupported scheme"):
+                bootstrap_assets.download_file(
+                    "ftp://example.com/file.zip",
+                    destination,
+                    force=True,
+                    dry_run=False,
+                    timeout=5,
+                )
+            mock_urlopen.assert_not_called()
 
     def test_file_scheme_raises_value_error(self, tmp_path: Path) -> None:
         """file:// URLs must be rejected."""
         destination = tmp_path / "out.zip"
-        with pytest.raises(ValueError, match="unsupported scheme"):
-            bootstrap_assets.download_file(
-                "file:///etc/passwd",
-                destination,
-                force=True,
-                dry_run=False,
-                timeout=5,
-            )
+        with patch("bootstrap_assets.urlopen") as mock_urlopen:
+            with pytest.raises(ValueError, match="unsupported scheme"):
+                bootstrap_assets.download_file(
+                    "file:///etc/passwd",
+                    destination,
+                    force=True,
+                    dry_run=False,
+                    timeout=5,
+                )
+            mock_urlopen.assert_not_called()
 
     def test_scheme_error_message_contains_scheme_and_url(self, tmp_path: Path) -> None:
         """ValueError message should name the offending scheme."""
         destination = tmp_path / "out.zip"
-        with pytest.raises(ValueError, match="'ftp'"):
-            bootstrap_assets.download_file(
-                "ftp://example.com/resource",
-                destination,
-                force=True,
-                dry_run=False,
-                timeout=5,
-            )
+        with patch("bootstrap_assets.urlopen") as mock_urlopen:
+            with pytest.raises(ValueError, match="'ftp'"):
+                bootstrap_assets.download_file(
+                    "ftp://example.com/resource",
+                    destination,
+                    force=True,
+                    dry_run=False,
+                    timeout=5,
+                )
+            mock_urlopen.assert_not_called()
 
     def test_dry_run_skips_scheme_check(self, tmp_path: Path) -> None:
         """In dry-run mode the scheme check is not reached; no error expected."""
@@ -179,6 +180,8 @@ class TestExtractZipSlipProtection:
 
         with pytest.raises(RuntimeError, match="unsafe path"):
             bootstrap_assets.extract_zip(archive_path, dest, dry_run=False)
+        # The escaping file must not have been written outside `dest`.
+        assert not (tmp_path / "escape.txt").exists()
 
     def test_absolute_path_member_raises_runtime_error(self, tmp_path: Path) -> None:
         """Absolute-path member names that resolve outside the destination are rejected."""

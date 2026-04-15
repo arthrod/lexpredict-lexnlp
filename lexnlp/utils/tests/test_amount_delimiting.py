@@ -93,6 +93,7 @@ class TestDeDEGroupingFix:
             result = infer_delimiters("10.800", "de_DE")
         # "10.800" in German: '.' is a thousands separator, no decimal part.
         assert result is not None
+        assert result["decimal_delimiter"] == ","
         assert result["group_delimiter"] == "."
 
     def test_wrong_grouping_triggers_de_de_fix(self):
@@ -109,6 +110,7 @@ class TestDeDEGroupingFix:
             result = infer_delimiters("10.800", "de_DE")
         # After the fix the canonical grouping [3,3,0] is enforced.
         assert result is not None
+        assert result["decimal_delimiter"] == ","
         assert result["group_delimiter"] == "."
 
     def test_wrong_decimal_delimiter_triggers_fix(self):
@@ -191,6 +193,8 @@ class TestDeDEGroupingFix:
         # The function should infer the two delimiters from the text, not the
         # de_DE override path.
         assert result is not None
+        assert result["decimal_delimiter"] == "."
+        assert result["group_delimiter"] == ","
 
 
 # ---------------------------------------------------------------------------

@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 env:
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.13"
   # Ensure publish workflows work on forks even if the fork does not host the
   # upstream model/corpus release tags needed for training/re-export.
   LEXNLP_MODELS_REPO_SLUG: "LexPredict/lexpredict-lexnlp"
