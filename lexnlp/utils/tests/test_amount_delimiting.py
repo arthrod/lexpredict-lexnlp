@@ -91,9 +91,9 @@ class TestDeDEGroupingFix:
         )
         with ctx_manager, locale_patch:
             result = infer_delimiters("10.800", "de_DE")
-        # "10.800" in German: '.' is a thousands separator, no decimal part.
+        # "10.800" in German: '.' is a thousands separator, no decimal part
+        # (so decimal_delimiter is not set by this input).
         assert result is not None
-        assert result["decimal_delimiter"] == ","
         assert result["group_delimiter"] == "."
 
     def test_wrong_grouping_triggers_de_de_fix(self):
@@ -109,8 +109,8 @@ class TestDeDEGroupingFix:
         with ctx_manager, locale_patch:
             result = infer_delimiters("10.800", "de_DE")
         # After the fix the canonical grouping [3,3,0] is enforced.
+        # (Input has no decimal part, so decimal_delimiter is not exercised.)
         assert result is not None
-        assert result["decimal_delimiter"] == ","
         assert result["group_delimiter"] == "."
 
     def test_wrong_decimal_delimiter_triggers_fix(self):

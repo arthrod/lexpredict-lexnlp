@@ -185,6 +185,20 @@ def infer_delimiters(
         decimal_delimiter = ','
         group_delimiter = '.'
         grouping = [3, 3, 0]
+    elif _locale.lower().startswith('en_us') and (
+        decimal_delimiter != '.' or group_delimiter != ',' or grouping != [3, 3, 0]
+    ):
+        # Runners without the en_US.UTF-8 locale pack fall back to the "C"
+        # locale where ``grouping`` is ``[]`` and ``thousands_sep`` is empty.
+        # Enforce the canonical en_US conventions the extractors rely on.
+        decimal_delimiter = '.'
+        group_delimiter = ','
+        grouping = [3, 3, 0]
+    elif not grouping:
+        # Generic fallback: any locale that resolved to ``C`` lacks grouping
+        # information. Assume the common "groups of three" convention so
+        # downstream lookups like ``grouping[0]`` do not crash.
+        grouping = [3, 3, 0]
 
     delimiters, blocks = get_delimited_blocks(text)
     len_delimiters: int = len(delimiters)

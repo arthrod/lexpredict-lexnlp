@@ -12,17 +12,17 @@ __email__ = "support@contraxsuite.com"
 
 # standard library
 import logging
-import pickle
 import tarfile
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Tuple
 
 # third-party imports
-from cloudpickle import load
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
+
+from lexnlp.ml.model_io import dump_model, load_model
 
 
 LOGGER = logging.getLogger(__name__)
@@ -30,7 +30,10 @@ LOGGER = logging.getLogger(__name__)
 LEGACY_CONTRACT_TYPE_TAG = "pipeline/contract-type/0.1"
 RUNTIME_CONTRACT_TYPE_TAG = "pipeline/contract-type/0.2-runtime"
 CONTRACT_TYPE_CORPUS_TAG = "corpus/contract-types/0.1"
-CONTRACT_TYPE_MODEL_FILENAME = "pipeline_contract_type_classifier.cloudpickle"
+CONTRACT_TYPE_MODEL_FILENAME = "pipeline_contract_type_classifier.skops"
+# Legacy filename kept for backwards-compatible catalog lookups of
+# pre-skops artifacts shipped with earlier releases.
+LEGACY_CONTRACT_TYPE_MODEL_FILENAME = "pipeline_contract_type_classifier.cloudpickle"
 
 
 def ensure_tag_downloaded(tag: str) -> Path:
@@ -47,8 +50,9 @@ def ensure_tag_downloaded(tag: str) -> Path:
 
 def load_pipeline_for_tag(tag: str) -> Pipeline:
     path = ensure_tag_downloaded(tag)
-    with path.open("rb") as model_file:
-        return load(model_file)
+    # ``trusted=True`` because this path loads artifacts this project
+    # produced itself (training pipelines pinned to sklearn estimators).
+    return load_model(path, trusted=True)
 
 
 def _extract_label(member_name: str) -> str:
@@ -166,17 +170,18 @@ def write_pipeline_to_catalog(
     destination_dir = CATALOG / target_tag
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination_path = destination_dir / CONTRACT_TYPE_MODEL_FILENAME
+    legacy_destination_path = destination_dir / LEGACY_CONTRACT_TYPE_MODEL_FILENAME
 
-    if destination_path.exists() and not force:
+    if not force and (destination_path.exists() or legacy_destination_path.exists()):
+        existing = destination_path if destination_path.exists() else legacy_destination_path
         LOGGER.debug(
             "Artifact already exists, skipping write (force=False): %s",
-            destination_path,
+            existing,
         )
-        return destination_path, False
+        return existing, False
 
-    with destination_path.open("wb") as model_file:
-        pickle.dump(pipeline, model_file)
-    return destination_path, True
+    written = dump_model(pipeline, destination_path)
+    return written, True
 
 
 def ensure_runtime_contract_type_model(

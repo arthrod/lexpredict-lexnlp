@@ -66,8 +66,8 @@ def test_write_pipeline_to_catalog_returns_path_and_true_when_new(monkeypatch, t
     When the destination does not yet exist, write_pipeline_to_catalog must
     serialize the pipeline and return (path, True).
     """
-    import pickle
     from lexnlp.extract.en.contracts import runtime_model
+    from lexnlp.ml.model_io import load_model
 
     monkeypatch.setattr(runtime_model, "CATALOG", tmp_path, raising=False)
 
@@ -88,8 +88,7 @@ def test_write_pipeline_to_catalog_returns_path_and_true_when_new(monkeypatch, t
     assert destination.exists()
     assert destination.name == runtime_model.CONTRACT_TYPE_MODEL_FILENAME
     # Verify the content is the serialized pipeline.
-    with destination.open("rb") as f:
-        loaded = pickle.load(f)
+    loaded = load_model(destination, trusted=True)
     assert loaded == dummy_pipeline
 
 
@@ -128,8 +127,8 @@ def test_write_pipeline_to_catalog_force_overwrites_existing(monkeypatch, tmp_pa
     When force=True, an existing artifact must be overwritten and (path, True)
     must be returned.
     """
-    import pickle
     from lexnlp.extract.en.contracts import runtime_model
+    from lexnlp.ml.model_io import load_model
 
     import lexnlp.ml.catalog as catalog_mod
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
@@ -149,8 +148,7 @@ def test_write_pipeline_to_catalog_force_overwrites_existing(monkeypatch, tmp_pa
 
     assert wrote is True
     assert destination == existing_file
-    with destination.open("rb") as f:
-        loaded = pickle.load(f)
+    loaded = load_model(destination, trusted=True)
     assert loaded == new_pipeline
 
 

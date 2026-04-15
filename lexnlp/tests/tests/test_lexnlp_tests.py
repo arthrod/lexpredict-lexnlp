@@ -30,8 +30,13 @@ class Test(TestCase):
         file_name = None
         try:
             file_name = lexnlp_tests.write_test_data_text_and_tuple(texts, values, column_names)
-            actual = [(i, text, input_args, expected)
-                      for i, text, input_args, expected in lexnlp_tests.iter_test_data_text_and_tuple(call_stack_offset=1)]
+            # Python 3.12 inlined list comprehensions (PEP 709), removing the
+            # hidden ``<listcomp>`` frame this helper used to skip over. Build
+            # the list via an explicit loop so ``iter_test_data_text_and_tuple``
+            # sees this test as its direct caller.
+            actual = []
+            for i, text, input_args, expected in lexnlp_tests.iter_test_data_text_and_tuple():
+                actual.append((i, text, input_args, expected))
             a2 = actual[0]
             e2 = (2, 'text2', {'text_languages': 'l2', 'arg': True, 'int1': 22}, [('e21', 'e22')])
             print('Actual: {0}'.format(a2))

@@ -52,6 +52,7 @@ dependencies = [
   "requests>=2.32,<3",
   "scikit-learn>=1.5,<2",
   "scipy>=1.11.0,<2",
+  "skops>=0.11,<1",
   "tqdm>=4.67,<5",
   "Unidecode>=1.4,<2",
   "us>=2.0.2,<3",
