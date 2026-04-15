@@ -538,6 +538,11 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+tika = [
+    { name = "tika" },
+]
+
+[package.dev-dependencies]
 dev = [
     { name = "build" },
     { name = "memory-profiler" },
@@ -553,34 +558,22 @@ test = [
     { name = "pytest-cov" },
     { name = "pytest-xdist" },
 ]
-tika = [
-    { name = "tika" },
-]
 
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.12,<5" },
-    { name = "build", marker = "extra == 'dev'", specifier = ">=1.2.2" },
     { name = "cloudpickle", specifier = ">=3.0,<4" },
     { name = "dateparser", specifier = ">=1.2,<2" },
     { name = "elasticsearch", specifier = ">=8.15,<10" },
     { name = "gensim", specifier = ">=4.3.3,<5" },
     { name = "joblib", specifier = ">=1.4,<2" },
     { name = "lxml", specifier = ">=5.3,<7" },
-    { name = "memory-profiler", marker = "extra == 'dev'", specifier = ">=0.61.0" },
     { name = "nltk", specifier = ">=3.9,<4" },
     { name = "num2words", specifier = ">=0.5.13,<1" },
     { name = "numpy", specifier = ">=1.26,<3" },
     { name = "pandas", specifier = ">=2.2.0,<3" },
     { name = "psutil", specifier = ">=6,<8" },
     { name = "pycountry", specifier = ">=23,<26" },
-    { name = "pylint", marker = "extra == 'dev'", specifier = ">=3.3.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.0" },
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5.0.0" },
-    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=5.0.0" },
-    { name = "pytest-xdist", marker = "extra == 'dev'", specifier = ">=3.6.0" },
-    { name = "pytest-xdist", marker = "extra == 'test'", specifier = ">=3.6.0" },
     { name = "python-dateutil", specifier = ">=2.9,<3" },
     { name = "regex", specifier = ">=2024.0,<2026" },
     { name = "reporters-db", specifier = ">=3.2.61,<4" },
@@ -588,15 +581,30 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.5,<2" },
     { name = "scipy", specifier = ">=1.11.0,<2" },
     { name = "skops", specifier = ">=0.11,<1" },
-    { name = "sphinx", marker = "extra == 'dev'", specifier = ">=7.4.0" },
     { name = "tika", marker = "extra == 'tika'", specifier = ">=2.6.0" },
     { name = "tqdm", specifier = ">=4.67,<5" },
-    { name = "twine", marker = "extra == 'dev'", specifier = ">=5.1.1" },
     { name = "unidecode", specifier = ">=1.4,<2" },
     { name = "us", specifier = ">=2.0.2,<3" },
     { name = "zahlwort2num", specifier = ">=0.4.3,<1" },
 ]
-provides-extras = ["dev", "test", "stanford", "tika"]
+provides-extras = ["stanford", "tika"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "build", specifier = ">=1.2.2" },
+    { name = "memory-profiler", specifier = ">=0.61.0" },
+    { name = "pylint", specifier = ">=3.3.0" },
+    { name = "pytest", specifier = ">=8.3.0" },
+    { name = "pytest-cov", specifier = ">=5.0.0" },
+    { name = "pytest-xdist", specifier = ">=3.6.0" },
+    { name = "sphinx", specifier = ">=7.4.0" },
+    { name = "twine", specifier = ">=5.1.1" },
+]
+test = [
+    { name = "pytest", specifier = ">=8.3.0" },
+    { name = "pytest-cov", specifier = ">=5.0.0" },
+    { name = "pytest-xdist", specifier = ">=3.6.0" },
+]
 
 [[package]]
 name = "lxml"

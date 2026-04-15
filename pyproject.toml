@@ -60,26 +60,32 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-  "build>=1.2.2",
-  "memory-profiler>=0.61.0",
-  "pylint>=3.3.0",
-  "pytest>=8.3.0",
-  "pytest-cov>=5.0.0",
-  "pytest-xdist>=3.6.0",
-  "sphinx>=7.4.0",
-  "twine>=5.1.1"
-]
-test = [
-  "pytest>=8.3.0",
-  "pytest-cov>=5.0.0",
-  "pytest-xdist>=3.6.0"
-]
 stanford = []
 tika = ["tika>=2.6.0"]
 
+# PEP 735 dependency groups (uv/pip install --group). Keep the
+# runtime-only extras above so ``pip install lexnlp[tika]`` still
+# works for downstream consumers.
+[dependency-groups]
+test = [
+  "pytest>=8.3.0",
+  "pytest-cov>=5.0.0",
+  "pytest-xdist>=3.6.0",
+]
+dev = [
+  {include-group = "test"},
+  "build>=1.2.2",
+  "memory-profiler>=0.61.0",
+  "pylint>=3.3.0",
+  "sphinx>=7.4.0",
+  "twine>=5.1.1",
+]
+
 [tool.setuptools]
 include-package-data = true
+
+[tool.setuptools.package-data]
+lexnlp = ["py.typed"]
 
 [tool.setuptools.packages.find]
 exclude = ["*tests*"]
