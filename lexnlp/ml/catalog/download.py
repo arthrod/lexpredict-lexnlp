@@ -234,7 +234,6 @@ def download_github_release(tag: str, prompt_user: bool = True) -> None:
 
     def _get_asset() -> Dict[str, Any]:
         response: Response = GitHubReleaseDownloader.get_tag(tag)
-        response.raise_for_status()
         return GitHubReleaseDownloader.get_asset(response)
 
     def _download_asset() -> None:

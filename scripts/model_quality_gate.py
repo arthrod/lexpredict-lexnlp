@@ -22,7 +22,7 @@ def resolve_contract_model_tag() -> str:
     return (
         os.getenv("LEXNLP_CONTRACT_MODEL_TAG")
         or os.getenv("LEXNLP_IS_CONTRACT_MODEL_TAG")
-        or "pipeline/is-contract/0.1"
+        or "pipeline/is-contract/0.2"
     ).strip()
 
 

@@ -47,7 +47,7 @@ by contacting ContraxSuite Licensing at <<license@contraxsuite.com>>.
 
 ## Quick Setup (uv + pyproject)
 ```bash
-cd /Users/jackeames/Downloads/LexNLP
+cd /path/to/LexNLP
 uv python install 3.11
 uv venv --python 3.11 .venv
 uv pip install --python .venv/bin/python -e ".[dev,test]"

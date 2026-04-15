@@ -155,7 +155,16 @@ def run_quality_gate(
     if baseline_metrics_json.exists():
         cmd.extend(["--baseline-metrics-json", str(baseline_metrics_json)])
 
-    subprocess.run(cmd, check=True)
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as exc:
+        stderr_text = exc.stderr or ""
+        stdout_text = exc.stdout or ""
+        if stdout_text:
+            sys.stdout.write(stdout_text)
+        if stderr_text:
+            sys.stderr.write(stderr_text)
+        raise
 
 
 def get_legacy_warning_messages(model_path: Path) -> list[str]:
@@ -164,21 +173,26 @@ import json
 import sys
 import warnings
 from pathlib import Path
-from cloudpickle import load
 
 token = sys.argv[2]
 path = Path(sys.argv[1])
-with warnings.catch_warnings(record=True) as captured:
-    warnings.simplefilter("always")
-    with path.open("rb") as model_file:
-        load(model_file)
+try:
+    from cloudpickle import load
 
-messages = [
-    str(item.message).splitlines()[0]
-    for item in captured
-    if token in str(item.message)
-]
-print(json.dumps(messages))
+    with warnings.catch_warnings(record=True) as captured:
+        warnings.simplefilter("always")
+        with path.open("rb") as model_file:
+            load(model_file)
+
+    messages = [
+        str(item.message).splitlines()[0]
+        for item in captured
+        if token in str(item.message)
+    ]
+    print(json.dumps(messages))
+except Exception as exc:  # noqa: BLE001
+    print(json.dumps({"error": f"{type(exc).__name__}: {exc}"}))
+    sys.exit(1)
 """
     result = subprocess.run(
         [sys.executable, "-c", probe_code, str(model_path), LEGACY_WARNING_TOKEN],

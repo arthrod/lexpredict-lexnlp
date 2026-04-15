@@ -99,14 +99,28 @@ def main(argv: Sequence[str]) -> int:
     label_counts = Counter(labels)
     can_stratify = min(label_counts.values()) >= 2
 
-    x_train, x_val, y_train, y_val = train_test_split(
-        texts,
-        labels,
-        test_size=args.validation_size,
-        random_state=args.random_state,
-        stratify=labels if can_stratify else None,
-        shuffle=True,
-    )
+    try:
+        x_train, x_val, y_train, y_val = train_test_split(
+            texts,
+            labels,
+            test_size=args.validation_size,
+            random_state=args.random_state,
+            stratify=labels if can_stratify else None,
+            shuffle=True,
+        )
+    except ValueError:
+        # train_test_split raises when the requested split cannot satisfy the
+        # stratification constraint (e.g., fewer samples in a class than the
+        # number of classes required per split). Retry without stratification.
+        can_stratify = False
+        x_train, x_val, y_train, y_val = train_test_split(
+            texts,
+            labels,
+            test_size=args.validation_size,
+            random_state=args.random_state,
+            stratify=None,
+            shuffle=True,
+        )
 
     validation_pipeline = train_contract_type_pipeline(
         x_train,
@@ -121,7 +135,7 @@ def main(argv: Sequence[str]) -> int:
         labels,
         random_state=args.random_state,
     )
-    destination = write_pipeline_to_catalog(
+    destination, wrote = write_pipeline_to_catalog(
         pipeline=final_pipeline,
         target_tag=args.target_tag,
         force=args.force,
@@ -130,6 +144,7 @@ def main(argv: Sequence[str]) -> int:
     report = {
         "target_tag": args.target_tag,
         "target_model_path": str(destination),
+        "wrote_artifact": wrote,
         "corpus_tag": args.corpus_tag,
         "corpus_path": str(corpus_archive),
         "dataset": {
@@ -148,6 +163,14 @@ def main(argv: Sequence[str]) -> int:
     args.output_json.parent.mkdir(parents=True, exist_ok=True)
     args.output_json.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
     print(json.dumps(report, indent=2, sort_keys=True))
+
+    if not wrote:
+        print(
+            f"Skipped writing artifact for target_tag={args.target_tag!r}; "
+            "catalog entry already exists (use --force to overwrite).",
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 

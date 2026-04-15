@@ -89,7 +89,7 @@ class ProbabilityPredictor(ABC):
         self._patch_legacy_estimator_attributes()
 
         # Fix AttributeError: 'MinMaxScaler' object has no attribute 'clip'
-        for _, name, transform in self.pipeline._iter(with_final=False):
+        for _, _name, transform in self.pipeline._iter(with_final=False):
             transform.clip = hasattr(transform, 'clip') and transform.clip
 
         self._sanity_check()

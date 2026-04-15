@@ -10,6 +10,7 @@ import sys
 import zipfile
 from pathlib import Path
 from typing import Iterable, List, Sequence, Tuple
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 LOGGER = logging.getLogger("lexnlp.bootstrap")
@@ -201,6 +202,12 @@ def download_file(
         LOGGER.info("DRY RUN: would download %s -> %s", url, destination)
         return
 
+    parsed_url = urlparse(url)
+    if parsed_url.scheme not in ("http", "https"):
+        raise ValueError(
+            f"Refusing to fetch URL with unsupported scheme {parsed_url.scheme!r}: {url}"
+        )
+
     tmp_destination = destination.with_name(destination.name + ".part")
     if tmp_destination.exists():
         tmp_destination.unlink()
@@ -242,8 +249,30 @@ def extract_zip(archive_path: Path, destination_dir: Path, *, dry_run: bool) -> 
         LOGGER.info("DRY RUN: would extract %s -> %s", archive_path, destination_dir)
         return
     LOGGER.info("Extracting %s", archive_path)
+    destination_root = destination_dir.resolve()
+    destination_root.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(archive_path) as archive:
-        archive.extractall(destination_dir)
+        for member in archive.infolist():
+            member_path = (destination_root / member.filename).resolve()
+            # Protect against zip-slip: the resolved path must remain under
+            # the destination directory.
+            if (
+                member_path != destination_root
+                and destination_root not in member_path.parents
+            ):
+                raise RuntimeError(
+                    f"Refusing to extract zip member with unsafe path: {member.filename!r}"
+                )
+            if member.is_dir():
+                member_path.mkdir(parents=True, exist_ok=True)
+                continue
+            member_path.parent.mkdir(parents=True, exist_ok=True)
+            with archive.open(member) as source, member_path.open("wb") as target:
+                while True:
+                    chunk = source.read(64 * 1024)
+                    if not chunk:
+                        break
+                    target.write(chunk)
 
 
 def bootstrap_stanford_assets(
@@ -408,9 +437,9 @@ def run_selected_tasks(args: argparse.Namespace) -> None:
         tasks.append(
             (
                 "contract-model",
-                lambda: bootstrap_contract_model(
+                lambda tag=contract_model_tag: bootstrap_contract_model(
                     dry_run=args.dry_run,
-                    tag=contract_model_tag,
+                    tag=tag,
                 ),
             )
         )
@@ -419,9 +448,9 @@ def run_selected_tasks(args: argparse.Namespace) -> None:
         tasks.append(
             (
                 "contract-type-model",
-                lambda: bootstrap_contract_type_model(
+                lambda tag=contract_type_model_tag: bootstrap_contract_type_model(
                     dry_run=args.dry_run,
-                    tag=contract_type_model_tag,
+                    tag=tag,
                 ),
             )
         )

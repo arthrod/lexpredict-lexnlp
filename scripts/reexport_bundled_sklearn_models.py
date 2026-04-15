@@ -67,7 +67,7 @@ def load_model(path: Path):
         with path.open("rb") as f:
             try:
                 return renamed_load(f)
-            except Exception:
+            except (pickle.UnpicklingError, ValueError, KeyError):
                 # If the file was previously dumped with joblib, fall back so we
                 # can re-export it into a plain pickle again.
                 return joblib.load(path)
@@ -91,13 +91,18 @@ def reexport_layered_definition_models(path: Path) -> None:
     if tmp_path.exists():
         tmp_path.unlink()
 
-    with ZipFile(tmp_path, mode="w", compression=ZIP_STORED) as archive:
-        for name in ("term.pickle", "definition.pickle"):
-            archive.writestr(
-                name,
-                pickle.dumps(payload[name], protocol=pickle.HIGHEST_PROTOCOL),
-            )
-    tmp_path.replace(path)
+    try:
+        with ZipFile(tmp_path, mode="w", compression=ZIP_STORED) as archive:
+            for name in ("term.pickle", "definition.pickle"):
+                archive.writestr(
+                    name,
+                    pickle.dumps(payload[name], protocol=pickle.HIGHEST_PROTOCOL),
+                )
+        tmp_path.replace(path)
+    except Exception:
+        if tmp_path.exists():
+            tmp_path.unlink()
+        raise
 
 
 def legacy_warning_count_for_load(path: Path) -> int:

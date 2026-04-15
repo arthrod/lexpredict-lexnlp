@@ -108,7 +108,9 @@ def main(argv: Sequence[str]) -> int:
             else:
                 path = get_path_from_catalog(tag)
         except Exception as exc:
-            failures.append(f"{tag}: missing/unreadable ({exc})")
+            failures.append(
+                f"{tag}: missing/unreadable ({exc.__class__.__name__}: {exc})"
+            )
             continue
 
         if path.name != expected_name:
@@ -127,7 +129,7 @@ def main(argv: Sequence[str]) -> int:
                 continue
 
         actual_sha = sha256_file(path)
-        if actual_sha.lower() != expected_sha:
+        if actual_sha != expected_sha:
             failures.append(f"{tag}: sha256 mismatch {actual_sha} != {expected_sha}")
             continue
 
