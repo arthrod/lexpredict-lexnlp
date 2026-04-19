@@ -66,8 +66,8 @@ def test_write_pipeline_to_catalog_returns_path_and_true_when_new(monkeypatch, t
     When the destination does not yet exist, write_pipeline_to_catalog must
     serialize the pipeline and return (path, True).
     """
-    import pickle
     from lexnlp.extract.en.contracts import runtime_model
+    from lexnlp.ml.model_io import load_model
 
     monkeypatch.setattr(runtime_model, "CATALOG", tmp_path, raising=False)
 
@@ -88,8 +88,7 @@ def test_write_pipeline_to_catalog_returns_path_and_true_when_new(monkeypatch, t
     assert destination.exists()
     assert destination.name == runtime_model.CONTRACT_TYPE_MODEL_FILENAME
     # Verify the content is the serialized pipeline.
-    with destination.open("rb") as f:
-        loaded = pickle.load(f)
+    loaded = load_model(destination, trusted=True)
     assert loaded == dummy_pipeline
 
 
@@ -128,8 +127,8 @@ def test_write_pipeline_to_catalog_force_overwrites_existing(monkeypatch, tmp_pa
     When force=True, an existing artifact must be overwritten and (path, True)
     must be returned.
     """
-    import pickle
     from lexnlp.extract.en.contracts import runtime_model
+    from lexnlp.ml.model_io import load_model
 
     import lexnlp.ml.catalog as catalog_mod
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
@@ -149,8 +148,7 @@ def test_write_pipeline_to_catalog_force_overwrites_existing(monkeypatch, tmp_pa
 
     assert wrote is True
     assert destination == existing_file
-    with destination.open("rb") as f:
-        loaded = pickle.load(f)
+    loaded = load_model(destination, trusted=True)
     assert loaded == new_pipeline
 
 
@@ -173,6 +171,91 @@ def test_write_pipeline_to_catalog_creates_parent_directories(monkeypatch, tmp_p
 
     assert wrote is True
     assert destination.parent.is_dir()
+
+
+def test_write_pipeline_to_catalog_skips_when_legacy_file_exists(monkeypatch, tmp_path):
+    """
+    PR change: the no-overwrite check was updated from checking only the new
+    .skops path to also checking for the legacy .cloudpickle file.
+    When force=False and the legacy artifact exists, the function must
+    return (legacy_path, False) without writing a new file.
+    """
+    from lexnlp.extract.en.contracts import runtime_model
+
+    import lexnlp.ml.catalog as catalog_mod
+    monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
+
+    # Pre-create a legacy .cloudpickle artifact (not the new .skops filename).
+    target_dir = tmp_path / "pipeline" / "test" / "0.1"
+    target_dir.mkdir(parents=True)
+    legacy_file = target_dir / runtime_model.LEGACY_CONTRACT_TYPE_MODEL_FILENAME
+    legacy_file.write_bytes(b"legacy content")
+
+    dummy_pipeline = {"weights": [1, 2, 3]}
+
+    destination, wrote = runtime_model.write_pipeline_to_catalog(
+        pipeline=dummy_pipeline,
+        target_tag="pipeline/test/0.1",
+        force=False,
+    )
+
+    assert wrote is False
+    assert destination == legacy_file
+    # The legacy file must be untouched.
+    assert destination.read_bytes() == b"legacy content"
+    # The new .skops file must NOT have been created.
+    skops_file = target_dir / runtime_model.CONTRACT_TYPE_MODEL_FILENAME
+    assert not skops_file.exists()
+
+
+def test_write_pipeline_to_catalog_force_true_overwrites_even_with_legacy(monkeypatch, tmp_path):
+    """
+    When force=True, even a legacy artifact must be overwritten with a new
+    .skops file and (path, True) returned.
+    """
+    from lexnlp.extract.en.contracts import runtime_model
+    from lexnlp.ml.model_io import load_model
+
+    import lexnlp.ml.catalog as catalog_mod
+    monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
+
+    target_dir = tmp_path / "pipeline" / "test" / "force"
+    target_dir.mkdir(parents=True)
+    # Pre-create a legacy .cloudpickle to simulate an old catalog entry.
+    legacy_file = target_dir / runtime_model.LEGACY_CONTRACT_TYPE_MODEL_FILENAME
+    legacy_file.write_bytes(b"old legacy content")
+
+    new_pipeline = {"version": "new"}
+
+    destination, wrote = runtime_model.write_pipeline_to_catalog(
+        pipeline=new_pipeline,
+        target_tag="pipeline/test/force",
+        force=True,
+    )
+
+    assert wrote is True
+    # The new artifact must use the .skops name.
+    assert destination.name == runtime_model.CONTRACT_TYPE_MODEL_FILENAME
+    loaded = load_model(destination, trusted=True)
+    assert loaded == new_pipeline
+
+
+def test_write_pipeline_to_catalog_contract_type_model_filename_is_skops():
+    """
+    Regression: CONTRACT_TYPE_MODEL_FILENAME must use .skops extension now.
+    """
+    from lexnlp.extract.en.contracts.runtime_model import CONTRACT_TYPE_MODEL_FILENAME
+
+    assert CONTRACT_TYPE_MODEL_FILENAME.endswith(".skops")
+
+
+def test_write_pipeline_to_catalog_legacy_filename_is_cloudpickle():
+    """
+    LEGACY_CONTRACT_TYPE_MODEL_FILENAME must reference the old .cloudpickle file.
+    """
+    from lexnlp.extract.en.contracts.runtime_model import LEGACY_CONTRACT_TYPE_MODEL_FILENAME
+
+    assert LEGACY_CONTRACT_TYPE_MODEL_FILENAME.endswith(".cloudpickle")
 
 
 def test_ensure_runtime_contract_type_model_no_force_returns_cached(monkeypatch, tmp_path):

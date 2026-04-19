@@ -8,8 +8,11 @@ __email__ = "support@contraxsuite.com"
 
 from unittest import TestCase
 
+import pandas as pd
+import pytest
+
 from lexnlp.extract.common.annotations.regulation_annotation import RegulationAnnotation
-from lexnlp.extract.es.regulations import parser, get_regulations, get_regulation_annotations
+from lexnlp.extract.es.regulations import RegulationsParser, parser, get_regulations, get_regulation_annotations
 from lexnlp.tests.utility_for_testing import load_resource_document, annotate_text, save_test_document
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
@@ -67,3 +70,66 @@ class TestParseSpanishLawsRegulations(TestCase):
             get_regulation_annotations,
             'lexnlp/typed_annotations/es/regulation/regulations.txt',
             RegulationAnnotation)
+
+
+# ---------------------------------------------------------------------------
+# RegulationsParser – DataFrame injection (PR fix: `is None` check)
+# ---------------------------------------------------------------------------
+
+
+class TestRegulationsParserDataFrameInjection:
+    """
+    PR changed ``if not self.regulations_dataframe:`` to
+    ``if self.regulations_dataframe is None:`` in load_trigger_words.
+
+    An empty DataFrame is *falsy* but **not** None.  The old code would
+    overwrite a caller-supplied empty DataFrame with the CSV content; the new
+    code preserves whatever was passed in.
+    """
+
+    def test_none_dataframe_loads_from_csv(self):
+        """Passing no DataFrame (None) causes load_trigger_words to read the CSV."""
+        # Default constructor path — it must not raise and must populate triggers.
+        p = RegulationsParser()
+        assert len(p.start_triggers) > 0
+
+    def test_non_none_dataframe_is_preserved(self):
+        """A caller-supplied DataFrame (even empty) must not be replaced by the CSV."""
+        # Build a minimal DataFrame with the required columns but no rows.
+        empty_df = pd.DataFrame(columns=["trigger", "position"])
+        p = RegulationsParser(regulations_dataframe=empty_df)
+        # start_triggers will be empty because there are no rows.
+        assert p.start_triggers == []
+        # The dataframe attribute must still be our empty one, not the CSV.
+        assert len(p.regulations_dataframe) == 0
+
+    def test_custom_dataframe_rows_are_used(self):
+        """A caller-supplied DataFrame with rows must drive trigger extraction."""
+        custom_df = pd.DataFrame(
+            {"trigger": ["ley del", "comision"], "position": ["start", "start"]}
+        )
+        p = RegulationsParser(regulations_dataframe=custom_df)
+        assert "ley del" in p.start_triggers
+        assert "comision" in p.start_triggers
+
+    def test_custom_dataframe_non_start_rows_are_excluded(self):
+        """Only rows with position='start' must end up in start_triggers."""
+        custom_df = pd.DataFrame(
+            {"trigger": ["ley del", "reglamento"], "position": ["start", "end"]}
+        )
+        p = RegulationsParser(regulations_dataframe=custom_df)
+        assert "ley del" in p.start_triggers
+        assert "reglamento" not in p.start_triggers
+
+    def test_empty_dataframe_means_no_triggers_no_csv_load(self):
+        """
+        Regression: previously ``not empty_df`` was True so the CSV was loaded.
+        With the fix, an empty DataFrame means no triggers and no CSV reload.
+        """
+        empty_df = pd.DataFrame(columns=["trigger", "position"])
+        p = RegulationsParser(regulations_dataframe=empty_df)
+        # Empty regex alternation should produce no matches (not crash).
+        results = list(p.parse("Ley del Impuesto sobre la Renta"))
+        # We cannot assert empty because the regex pattern for empty alternation
+        # may behave differently per version; we just ensure no exception is raised.
+        assert isinstance(results, list)

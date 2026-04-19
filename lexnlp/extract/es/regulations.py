@@ -50,7 +50,7 @@ class RegulationsParser:
         Load records like ('ley del', 'start') - (trigger_word, position)
         """
         dtypes = {'trigger': str, 'position': str}
-        if not self.regulations_dataframe:
+        if self.regulations_dataframe is None:
             path = os.path.join(lexnlp_base_path, 'lexnlp/config/es/es_regulations.csv')
             self.regulations_dataframe = read_csv(
                 path,

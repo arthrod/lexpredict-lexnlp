@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 env:
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.13"
   # Ensure publish workflows work on forks even if the fork does not host the
   # upstream model/corpus release tags needed for training.
   LEXNLP_MODELS_REPO_SLUG: "LexPredict/lexpredict-lexnlp"
@@ -67,16 +67,22 @@ jobs:
 
       - name: Locate model file
         id: locate
+        env:
+          MODEL_TAG: ${{ env.MODEL_TAG }}
         run: |
           MODEL_PATH="$(
             .venv/bin/python - <<'PY'
+          import os
+          import sys
+
           from lexnlp.extract.en.contracts.runtime_model import (
               CONTRACT_TYPE_MODEL_FILENAME,
           )
           from lexnlp.ml.catalog import CATALOG
-          import os
 
-          tag = os.environ["MODEL_TAG"]
+          tag = os.getenv("MODEL_TAG")
+          if not tag:
+              sys.exit("MODEL_TAG env var is required to locate the model file")
           path = CATALOG / tag / CONTRACT_TYPE_MODEL_FILENAME
           print(path)
           PY

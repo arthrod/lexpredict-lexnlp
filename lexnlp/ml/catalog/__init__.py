@@ -94,7 +94,8 @@ def invalidate_catalog_cache() -> None:
     explicitly (or rely on miss-based refresh in `get_path_from_catalog`).
     """
     global _TAG_DICT_CACHE
-    _TAG_DICT_CACHE = None
+    with _TAG_DICT_LOCK:
+        _TAG_DICT_CACHE = None
 
 
 def _get_tag_dict_cached() -> Dict[str, Path]:

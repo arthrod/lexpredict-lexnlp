@@ -501,7 +501,7 @@ def main(argv: Sequence[str]) -> int:
             report["quality_gate"]["status"] = "passed"
         except subprocess.CalledProcessError as exc:
             report["quality_gate"]["status"] = "failed"
-            report["quality_gate"]["returncode"] = str(exc.returncode)
+            report["quality_gate"]["returncode"] = exc.returncode
 
             def _decode(stream: object) -> str:
                 if stream is None:

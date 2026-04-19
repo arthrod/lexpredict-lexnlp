@@ -190,7 +190,7 @@ try:
         if token in str(item.message)
     ]
     print(json.dumps(messages))
-except Exception as exc:  # noqa: BLE001
+except Exception as exc:  # noqa: BLE001 - catch all errors during model probe for structured reporting
     print(json.dumps({"error": f"{type(exc).__name__}: {exc}"}))
     sys.exit(1)
 """

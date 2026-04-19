@@ -22,7 +22,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-import asset_drift_check  # noqa: E402
+import asset_drift_check  # noqa: E402  # imported after sys.path mutation above for test-only script import
 
 
 # ---------------------------------------------------------------------------
@@ -91,8 +91,9 @@ class TestErrorMessageFormat:
 
         assert rc == 1
         stderr_out = stderr_capture.getvalue()
-        # The failure message must include the exception class name.
-        assert "FileNotFoundError" in stderr_out or "Error" in stderr_out
+        # The failure message must include the exception class name and tag.
+        assert "FileNotFoundError" in stderr_out
+        assert "pipeline/missing/0.1: missing/unreadable" in stderr_out
 
     def test_error_message_includes_class_name_directly(self) -> None:
         """
@@ -244,7 +245,7 @@ class TestSha256Comparison:
 
 
 # ---------------------------------------------------------------------------
-# load_manifest – basic validation
+# load_manifest - basic validation
 # ---------------------------------------------------------------------------
 
 

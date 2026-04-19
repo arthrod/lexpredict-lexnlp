@@ -9,7 +9,7 @@ __email__ = "support@contraxsuite.com"
 import argparse
 import csv
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Callable, List, Dict
 
 from elasticsearch import Elasticsearch, helpers
@@ -105,7 +105,7 @@ def build_index_name(index_prefix: str, d: datetime.date) -> str:
 if __name__ == "__main__":
 
     cmd_args = parse_args(sys.argv[1:])
-    index_name = build_index_name(cmd_args.index_prefix, datetime.utcnow().date())
+    index_name = build_index_name(cmd_args.index_prefix, datetime.now(UTC).date())
 
     es = Elasticsearch(hosts=[cmd_args.url],
                        http_auth=(cmd_args.username, cmd_args.password) if cmd_args.username else None,
