@@ -119,36 +119,25 @@ def test_invalidate_catalog_cache_is_thread_safe(tmp_path, monkeypatch):
     _get_tag_dict_cached: after all threads finish, the cache is either
     None (invalidated) or a fresh dict (rebuilt), never a stale/corrupt value.
     """
-    import threading
+    from concurrent.futures import ThreadPoolExecutor
     import lexnlp.ml.catalog as catalog
 
     monkeypatch.setattr(catalog, "CATALOG", tmp_path)
     catalog.invalidate_catalog_cache()
 
-    errors: list[Exception] = []
+    def do_invalidate() -> None:
+        catalog.invalidate_catalog_cache()
 
-    def do_invalidate():
-        try:
-            catalog.invalidate_catalog_cache()
-        except Exception as exc:
-            errors.append(exc)
+    def do_read() -> None:
+        catalog._get_tag_dict_cached()
 
-    def do_read():
-        try:
-            catalog._get_tag_dict_cached()
-        except Exception as exc:
-            errors.append(exc)
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        futures = [pool.submit(do_invalidate) for _ in range(5)] + [
+            pool.submit(do_read) for _ in range(5)
+        ]
+        for future in futures:
+            future.result()
 
-    threads = (
-        [threading.Thread(target=do_invalidate) for _ in range(5)]
-        + [threading.Thread(target=do_read) for _ in range(5)]
-    )
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
-
-    assert not errors, f"Thread errors: {errors}"
     # After all operations the cache is in a defined state: None or a dict.
     assert catalog._TAG_DICT_CACHE is None or isinstance(catalog._TAG_DICT_CACHE, dict)
     catalog.invalidate_catalog_cache()

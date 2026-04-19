@@ -9,7 +9,6 @@ __email__ = "support@contraxsuite.com"
 from unittest import TestCase
 
 import pandas as pd
-import pytest
 
 from lexnlp.extract.common.annotations.regulation_annotation import RegulationAnnotation
 from lexnlp.extract.es.regulations import RegulationsParser, parser, get_regulations, get_regulation_annotations
@@ -73,7 +72,7 @@ class TestParseSpanishLawsRegulations(TestCase):
 
 
 # ---------------------------------------------------------------------------
-# RegulationsParser – DataFrame injection (PR fix: `is None` check)
+# RegulationsParser - DataFrame injection (PR fix: `is None` check)
 # ---------------------------------------------------------------------------
 
 

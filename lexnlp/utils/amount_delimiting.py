@@ -9,7 +9,8 @@ __email__ = "support@contraxsuite.com"
 # -*- coding: utf-8 -*-
 
 import locale
-from typing import Dict, FrozenSet, List, NamedTuple, Optional, Tuple, Set
+from typing import Dict, FrozenSet, List, NamedTuple, Optional, Set, Tuple
+
 from lexnlp.extract.all_locales.languages import LocaleContextManager
 
 

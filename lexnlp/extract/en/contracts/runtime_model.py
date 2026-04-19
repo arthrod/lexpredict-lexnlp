@@ -1,5 +1,5 @@
 """
-Utilities to build and load a Python 3.11-compatible contract-type classifier.
+Utilities to build and load a Python 3.13+ compatible contract-type classifier.
 """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
