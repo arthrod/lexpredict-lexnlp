@@ -20,7 +20,7 @@ __email__ = "support@contraxsuite.com"
 import regex as re
 import unidecode
 from collections import Counter
-from typing import Pattern, List, Tuple, Set
+from re import Pattern
 
 from lexnlp.extract.common.annotations.phrase_position_finder import PhrasePositionFinder
 from lexnlp.extract.common.text_beautifier import TextBeautifier
@@ -39,7 +39,7 @@ class DefinitionCaught:
     """
     __slots__ = ['name', 'text', 'coords']
 
-    def __init__(self, name: str, text: str, coords: Tuple[int, int]):
+    def __init__(self, name: str, text: str, coords: tuple[int, int]):
         self.name = name
         self.text = text
         self.coords = coords
@@ -104,12 +104,10 @@ word_processor = LineProcessor()
 # and has item from TRIGGER_LIST after itself.
 # Fetch term along with quotes to be able to extract multiple terms,
 # e.g.: the words "person" and "whoever" include
-TRIGGER_WORDS_PTN = r"""
+TRIGGER_WORDS_PTN = rf"""
 (?:(?:word|term|phrase)s?\s+|[:,\.]\s*|^)
-['"“].{{1,{max_term_chars}}}['"”]\w{{0,2}}\s*
-(?:{trigger_list})[\s,]""".format(
-    max_term_chars=MAX_TERM_CHARS,
-    trigger_list=join_collection(ALL_TRIGGER_LIST))
+['"“].{{1,{MAX_TERM_CHARS}}}['"”]\w{{0,2}}\s*
+(?:{join_collection(ALL_TRIGGER_LIST)})[\s,]"""
 TRIGGER_WORDS_PTN_RE = re.compile(TRIGGER_WORDS_PTN, re.IGNORECASE | re.UNICODE | re.DOTALL | re.MULTILINE | re.VERBOSE)
 
 EXTRACT_PTN = r"""
@@ -122,26 +120,26 @@ EXTRACT_PTN_RE = re.compile(EXTRACT_PTN, re.UNICODE | re.DOTALL | re.MULTILINE |
 ARTICLES = ['the', 'a', 'an']
 
 # Case 2. Term inside quotes and brackets (the "Term") or ("Term")
-PAREN_QUOTE_PTN = r"""\((?:each(?:,)?\s+)?(?:(?:{articles})\s+)?['"“](.{{1,{max_term_chars}}}?)\.?['"”]\)""" \
-    .format(articles=join_collection(ARTICLES), max_term_chars=MAX_TERM_CHARS)
+PAREN_QUOTE_PTN = rf"""\((?:each(?:,)?\s+)?(?:(?:{join_collection(ARTICLES)})\s+)?['"“](.{{1,{MAX_TERM_CHARS}}}?)\.?['"”]\)""" \
+    
 PAREN_QUOTE_PTN_RE_OPTIONS = re.IGNORECASE | re.UNICODE | re.DOTALL | re.MULTILINE | re.VERBOSE
 
 # Case 2.5. Term inside brackets (TERM) or (Term), starts with uppercase
-PAREN_PTN = r"""\((?:E|each(?:,)?\s+)?(?:(?:{articles})\s+)?([A-Z][^\)]{{1,{max_term_chars}}}?)\.?\)""" \
-    .format(articles=join_collection(ARTICLES), max_term_chars=MAX_TERM_CHARS)
+PAREN_PTN = rf"""\((?:E|each(?:,)?\s+)?(?:(?:{join_collection(ARTICLES)})\s+)?([A-Z][^\)]{{1,{MAX_TERM_CHARS}}}?)\.?\)""" \
+    
 PAREN_PTN_RE_OPTIONS = re.UNICODE | re.DOTALL | re.MULTILINE | re.VERBOSE
 
 # Case 3. Term is without quotes, is preceded by word|term|phrase or :,.^
 # and has TRIGGER_LIST item after itself.
 # e.g.: "Revolving Loan Commitment means…"; "LIBOR Rate shall mean…"
 # false positive: "This Borrower Joiner Agreement to the extent signed signed and delivered by means of a facsimile..."
-NOUN_PTN_BASE = r"""
+NOUN_PTN_BASE = rf"""
 (
-    (?:[A-Z][-A-Za-z']*+(?:\s*[A-Z][-A-Za-z']*){{0,{max_term_tokens}}})
+    (?:[A-Z][-A-Za-z']*+(?:\s*[A-Z][-A-Za-z']*){{0,{MAX_TERM_TOKENS}}})
     |
     (?:[A-Z][-A-Za-z'])
 )
-""".format(max_term_tokens=MAX_TERM_TOKENS)
+"""
 # NB: we use possessive quantifier (*+) here because this group
 # ([A-Z][-A-Za-z']*) check shouldn't fail and track back
 
@@ -167,10 +165,10 @@ NOUN_ANTI_PTN_RE = re.compile(NOUN_ANTI_PTN, re.IGNORECASE | re.UNICODE | re.DOT
 # Case 4: Term inside quotes is preceded by word|term|phrase or :,.^
 # and has a colon after itself.
 # e.g.: "'Term': definition"
-COLON_PTN = r"""((['](.{{1,{max_term_chars}}})['])|""" \
-            r"""(["](.{{1,{max_term_chars}}})["])|""" \
-            r"""([“](.{{1,{max_term_chars}}})[”]))""" \
-            r""":[\s]""".format(max_term_chars=MAX_TERM_CHARS)
+COLON_PTN = rf"""((['](.{{1,{MAX_TERM_CHARS}}})['])|""" \
+            rf"""(["](.{{1,{MAX_TERM_CHARS}}})["])|""" \
+            rf"""([“](.{{1,{MAX_TERM_CHARS}}})[”]))""" \
+            r""":[\s]"""
 
 COLON_PTN_RE_OPTIONS = re.UNICODE | re.DOTALL | re.MULTILINE
 
@@ -181,21 +179,21 @@ ANCHOR = ['called', 'herein', 'herein as', 'collectively(?:,)?', 'collectively a
           'known as', 'designated as', 'hereinafter', 'hereinafter as', 'hereafter', 'hereafter as', 'its', 'our',
           'your', 'any of the foregoing,', 'in such capacity,', 'in this section,', 'in this paragraph,',
           r'in this \(noun\),', 'each such', 'this']
-ANCHOR_QUOTES_PTN = r"""(?:(?:{anchor})\s+)(?:(?:{articles})\s+)?['"“](.{{1,{max_term_chars}}}?)['"”]""" \
-    .format(anchor=join_collection(ANCHOR), articles=join_collection(ARTICLES), max_term_chars=MAX_TERM_CHARS)
+ANCHOR_QUOTES_PTN = rf"""(?:(?:{join_collection(ANCHOR)})\s+)(?:(?:{join_collection(ARTICLES)})\s+)?['"“](.{{1,{MAX_TERM_CHARS}}}?)['"”]""" \
+    
 ANCHOR_QUOTE_RE_OPTIONS = re.IGNORECASE | re.UNICODE | re.DOTALL | re.MULTILINE | re.VERBOSE
 
 # Case 6: phrase such|any such|together + subject + term in quotes
 # e.g.: such earlier date, the "End Date", any such event, an "Event of Default"
 ANCHOR = ['such', 'any such', 'together']
-ANCHOR_SUBJECT_QUOTES_PTN = r"(?:(?:{anchor})\s+?)(?:.{{1,{max_term_chars}}}\s+?)(?:(?:{articles})\s+)?" \
-                            r"(('(.{{1,{max_term_chars}}}?)')|" \
-                            r"(\"(.{{1,{max_term_chars}}}?)\")|" \
-                            r"(“(.{{1,{max_term_chars}}}?)”))" \
-    .format(anchor=join_collection(ANCHOR), articles=join_collection(ARTICLES), max_term_chars=MAX_TERM_CHARS)
+ANCHOR_SUBJECT_QUOTES_PTN = rf"(?:(?:{join_collection(ANCHOR)})\s+?)(?:.{{1,{MAX_TERM_CHARS}}}\s+?)(?:(?:{join_collection(ARTICLES)})\s+)?" \
+                            rf"(('(.{{1,{MAX_TERM_CHARS}}}?)')|" \
+                            rf"(\"(.{{1,{MAX_TERM_CHARS}}}?)\")|" \
+                            rf"(“(.{{1,{MAX_TERM_CHARS}}}?)”))" \
+    
 ANCHOR_SUBJECT_QUOTES_RE_OPTIONS = re.IGNORECASE | re.UNICODE | re.DOTALL | re.MULTILINE | re.VERBOSE
 
-TRIGGER_QUOTED_DEFINITION_PATTERN = r"""['"“][^'"“]{{1,{max_term_chars}}}['"”]""".format(max_term_chars=MAX_TERM_CHARS)
+TRIGGER_QUOTED_DEFINITION_PATTERN = rf"""['"“][^'"“]{{1,{MAX_TERM_CHARS}}}['"”]"""
 TRIGGER_QUOTED_DEFINITION_RE = re.compile(TRIGGER_QUOTED_DEFINITION_PATTERN, re.DOTALL)
 
 QUOTED_DEFINITION_RE_PARAMS = [
@@ -244,21 +242,20 @@ ABBREVIATION_PTRN = '|'.join([a.replace('.', '\\.') for a
 ABBREVIATION_ENDING_RE = re.compile(f'({ABBREVIATION_PTRN})$')
 
 # split one phrase containing several definitions into definitions
-SPLIT_SUBDEFINITIONS_PTRN = r'''["“](?:[^"“]{{1,{max_term_chars}}})["“]'''.format(
-    max_term_chars=MAX_TERM_CHARS)
+SPLIT_SUBDEFINITIONS_PTRN = rf'''["“](?:[^"“]{{1,{MAX_TERM_CHARS}}})["“]'''
 
 SPLIT_SUBDEFINITIONS_RE = re.compile(SPLIT_SUBDEFINITIONS_PTRN, re.DOTALL)
 
 
-def get_definition_list_in_sentence(sentence_coords: Tuple[int, int, str],
-                                    decode_unicode=True) -> List[DefinitionCaught]:
+def get_definition_list_in_sentence(sentence_coords: tuple[int, int, str],
+                                    decode_unicode=True) -> list[DefinitionCaught]:
     """
         Find possible definitions in natural language in a single sentence.
         :param sentence_coords: sentence, sentence start, end
         :param decode_unicode:
         :return:
         """
-    definitions: List[DefinitionCaught] = []
+    definitions: list[DefinitionCaught] = []
     sentence = sentence_coords[2]
     # unify quotes and braces
     # replace excess braces with ' ' so the str length will remain the same
@@ -344,9 +341,9 @@ def get_definition_list_in_sentence(sentence_coords: Tuple[int, int, str],
 
 
 def split_definitions_inside_term(term: str,
-                                  src_with_coords: Tuple[int, int, str],
+                                  src_with_coords: tuple[int, int, str],
                                   term_start: int,
-                                  term_end: int) -> List[Tuple[str, int, int]]:
+                                  term_end: int) -> list[tuple[str, int, int]]:
     """
     The whole phrase can be considered definition ("MSRB", "we", "us" or "our"),
     but in fact the phrase can be a collection of definitions.
@@ -378,7 +375,7 @@ def split_definitions_inside_term(term: str,
     return match_coords
 
 
-def does_term_are_service_words(term_pos: List[Tuple[str, str, int, int]]) -> bool:
+def does_term_are_service_words(term_pos: list[tuple[str, str, int, int]]) -> bool:
     """
     Does term consist of service words only?
     """
@@ -389,7 +386,7 @@ def does_term_are_service_words(term_pos: List[Tuple[str, str, int, int]]) -> bo
 
 
 def trim_defined_term(term: str, start: int, end: int) -> \
-        Tuple[str, int, int, bool]:
+        tuple[str, int, int, bool]:
     """
     Remove pair of quotes / brackets framing text
     Replace N-grams of spaces with single spaces
@@ -434,7 +431,7 @@ def trim_defined_term(term: str, start: int, end: int) -> \
     return term, start, end, was_quoted
 
 
-def filter_definitions_for_self_repeating(definitions: List[DefinitionCaught]) -> List[DefinitionCaught]:
+def filter_definitions_for_self_repeating(definitions: list[DefinitionCaught]) -> list[DefinitionCaught]:
     """
     :param definitions:
     :return: excludes definitions that are "overlapped", leaves unique definitions only
@@ -463,7 +460,7 @@ def get_quotes_count_in_string(text: str) -> int:
 
 
 def regex_matches_to_word_coords(pattern: Pattern[str],
-                                 text: str, phrase_start: int = 0) -> List[Tuple[str, int, int]]:
+                                 text: str, phrase_start: int = 0) -> list[tuple[str, int, int]]:
     """
     :param pattern: pattern for searching for matches within the text
     :param text: text to search for matches

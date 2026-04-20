@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List
 from decimal import Decimal
 from lexnlp.extract.common.annotations.duration_annotation import DurationAnnotation
 from lexnlp.extract.de.durations import get_duration_list, get_duration_annotations
@@ -81,7 +80,7 @@ class TestGetDurations(AssertionMixin):
             DurationAnnotation)
 
 
-def get_ordered_durations(text: str) -> List[DurationAnnotation]:
+def get_ordered_durations(text: str) -> list[DurationAnnotation]:
     ants = list(get_duration_annotations(text))
     ants.sort(key=lambda a: a.coords[0])
     return ants

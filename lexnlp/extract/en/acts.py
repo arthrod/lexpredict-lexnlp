@@ -7,7 +7,8 @@ __email__ = "support@contraxsuite.com"
 
 
 import regex as re
-from typing import Generator, Dict, List, Any
+from typing import Any
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.act_annotation import ActAnnotation
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
@@ -27,16 +28,16 @@ ACT_PARTS_RE = re.compile(r'''
 )''', re.VERBOSE | re.MULTILINE)
 
 
-def get_acts(text: str) -> Generator[Dict[str, Any], None, None]:
+def get_acts(text: str) -> Generator[dict[str, Any]]:
     for act in get_acts_annotations(text):
         yield act.to_dictionary_legacy()
 
 
-def get_act_list(*args, **kwargs) -> List[Dict[str, str]]:
+def get_act_list(*args, **kwargs) -> list[dict[str, str]]:
     return list(get_acts(*args, **kwargs))
 
 
-def get_acts_annotations(text: str) -> Generator[ActAnnotation, None, None]:
+def get_acts_annotations(text: str) -> Generator[ActAnnotation]:
     for match in ACT_PARTS_RE.finditer(text):  # type: re.Match
         captures = match.capturesdict()
         act_name = ''.join(captures.get('act_name') or [])
@@ -52,5 +53,5 @@ def get_acts_annotations(text: str) -> Generator[ActAnnotation, None, None]:
         yield act
 
 
-def get_acts_annotations_list(text: str) -> List[ActAnnotation]:
+def get_acts_annotations_list(text: str) -> list[ActAnnotation]:
     return list(get_acts_annotations(text))

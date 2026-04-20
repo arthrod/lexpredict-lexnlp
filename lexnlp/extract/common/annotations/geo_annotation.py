@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, List
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -19,7 +18,7 @@ class GeoAnnotation(TextAnnotation):
     record_type = 'geoentity'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
                  text: str = None,
                  name: str = None,
@@ -47,7 +46,7 @@ class GeoAnnotation(TextAnnotation):
         self.iso_3166_2 = iso_3166_2
         self.iso_3166_3 = iso_3166_3
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [str(self.name or ''),
                  str(self.year or '')]
         return parts

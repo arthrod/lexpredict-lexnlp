@@ -8,7 +8,6 @@ __email__ = "support@contraxsuite.com"
 
 import os
 from tempfile import NamedTemporaryFile
-from typing import List
 from unittest import TestCase
 
 from lexnlp.extract.common.ocr_rating.lang_vector_distribution_builder import LangVectorDistributionBuilder
@@ -43,7 +42,7 @@ class TestLangVectorDistributionBuilder(TestCase):
         grade = calc.get_rating(sample_text, 'chi')
         self.assertGreater(grade, 5)
 
-    def collect_paths(self, root: str, paths: List[str]):
+    def collect_paths(self, root: str, paths: list[str]):
         for path in os.listdir(root):
             full_path = os.path.join(root, path)
             if path.endswith('.txt'):

@@ -9,7 +9,8 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any
+from collections.abc import Sequence
 
 
 DEFAULT_FIXTURE = Path(
@@ -101,12 +102,12 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def load_fixture(path: Path) -> Tuple[List[str], List[bool]]:
+def load_fixture(path: Path) -> tuple[list[str], list[bool]]:
     if not path.exists():
         raise FileNotFoundError(f"Fixture file not found: {path}")
 
-    texts: List[str] = []
-    labels: List[bool] = []
+    texts: list[str] = []
+    labels: list[bool] = []
 
     with path.open("r", encoding="utf-8", newline="") as fixture_file:
         reader = csv.DictReader(fixture_file)
@@ -142,7 +143,7 @@ def load_pipeline_for_tag(tag: str):
         return load(model_file)
 
 
-def score_pipeline(pipeline, texts: List[str], labels: List[bool], min_probability: float) -> Dict[str, float]:
+def score_pipeline(pipeline, texts: list[str], labels: list[bool], min_probability: float) -> dict[str, float]:
     from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
     from lexnlp.extract.en.contracts.predictors import ProbabilityPredictorIsContract
 
@@ -159,7 +160,7 @@ def score_pipeline(pipeline, texts: List[str], labels: List[bool], min_probabili
     }
 
 
-def parse_metrics(raw: Dict[str, Any], source: str) -> Dict[str, float]:
+def parse_metrics(raw: dict[str, Any], source: str) -> dict[str, float]:
     missing = [key for key in REQUIRED_METRIC_KEYS if key not in raw]
     if missing:
         raise ValueError(f"Missing metric keys in {source}: {', '.join(missing)}")
@@ -170,7 +171,7 @@ def parse_metrics(raw: Dict[str, Any], source: str) -> Dict[str, float]:
     }
 
 
-def load_baseline_metrics(path: Path) -> Dict[str, Any]:
+def load_baseline_metrics(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Baseline metrics file not found: {path}")
 
@@ -203,7 +204,7 @@ def main(argv: Sequence[str]) -> int:
 
     baseline_source = "tag"
     baseline_metrics_source = None
-    baseline_metrics_file: Dict[str, Any] | None = None
+    baseline_metrics_file: dict[str, Any] | None = None
 
     if args.baseline_metrics_json:
         baseline_source = "metrics-json"
@@ -262,7 +263,7 @@ def main(argv: Sequence[str]) -> int:
 
     print(json.dumps(result, indent=2, sort_keys=True))
 
-    violations: List[str] = []
+    violations: list[str] = []
     accuracy_drop = baseline_metrics["accuracy"] - candidate_metrics["accuracy"]
     f1_drop = baseline_metrics["f1"] - candidate_metrics["f1"]
 

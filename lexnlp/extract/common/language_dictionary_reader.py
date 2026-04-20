@@ -8,7 +8,6 @@ __email__ = "support@contraxsuite.com"
 
 import codecs
 
-from typing import Set
 
 
 class LanguageDictionaryReader:
@@ -22,7 +21,7 @@ class LanguageDictionaryReader:
     @staticmethod
     def read_str_set(file_path: str,
                      encoding='utf8',
-                     strip_symbols=' ') -> Set[str]:
+                     strip_symbols=' ') -> set[str]:
         words = set()
         with codecs.open(file_path, encoding=encoding, mode='r') as fr:
             for line in fr.readlines():

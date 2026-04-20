@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -9,7 +8,6 @@ __email__ = "support@contraxsuite.com"
 
 
 import string
-from typing import Optional
 
 import nltk
 import regex as re
@@ -20,7 +18,7 @@ from lexnlp.extract.en.utils import NPExtractor
 
 class CompanyNPExtractor(NPExtractor):
 
-    def __init__(self, grammar: Optional[str] = None):
+    def __init__(self, grammar: str | None = None):
         grammar = grammar or r"""
             NBAR:
                 {<DT>?<NNP.*|JJ|POS|\(|\)|,>*<NNP.*>}  # DeTerminer, Proper Noun, Adjective, brackets, terminated by Proper Noun

@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Union, Tuple
 
 import numpy
 import pandas
@@ -20,7 +19,7 @@ class DefinitionTermDetector(ArtifactDetector):
 
     def process_sample(self,
                        sample_df: pandas.DataFrame,
-                       build_target_data: bool = False) -> Union[numpy.ndarray, Tuple[numpy.ndarray, numpy.ndarray]]:
+                       build_target_data: bool = False) -> numpy.ndarray | tuple[numpy.ndarray, numpy.ndarray]:
         return process_sample(sample_df, self.model,
                               get_target_start_end=get_target_start_end_from_corgetes,
                               column_name_formatted='labels')

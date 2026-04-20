@@ -7,10 +7,9 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-from typing import List, Tuple
 
 
-PhraseMatch = Tuple[str, int, int]
+PhraseMatch = tuple[str, int, int]
 
 
 class PhraseFinder:
@@ -20,7 +19,7 @@ class PhraseFinder:
     ignoring or regarding the case
     """
 
-    def __init__(self, phrase_set: List[str], extra_format_function=None):
+    def __init__(self, phrase_set: list[str], extra_format_function=None):
         self.extra_format_function = extra_format_function
         self.word_re_ig = dict((v, self.word_to_regex(v, True)) for v in phrase_set)
         self.word_re_cs = dict((v, self.word_to_regex(v, False)) for v in phrase_set)
@@ -34,7 +33,7 @@ class PhraseFinder:
         return re.compile(sps + subphrase + sps, re.IGNORECASE | re.UNICODE) if ignore_case else \
             re.compile(sps + subphrase + sps, re.UNICODE)
 
-    def find_word(self, phrase: str, ignore_case: bool = True) -> List[PhraseMatch]:
+    def find_word(self, phrase: str, ignore_case: bool = True) -> list[PhraseMatch]:
         """
         :param phrase: "Tis better using France than trusting France: let us be back'd with God and with the seas"
         :param ignore_case: True

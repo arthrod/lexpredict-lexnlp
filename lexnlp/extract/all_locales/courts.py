@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -8,7 +7,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Generator, List
+from collections.abc import Generator
 
 from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.en.dict_entities import DictionaryEntry, find_dict_entities, conflicts_take_first_by_id
@@ -18,10 +17,10 @@ from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
 def get_court_annotations(
         locale: str,
         text: str,
-        court_config_list: List[DictionaryEntry],
+        court_config_list: list[DictionaryEntry],
         priority: bool = False,
-        text_locales: List[str] = (),
-        simplified_normalization: bool = False) -> Generator[CourtAnnotation, None, None]:
+        text_locales: list[str] = (),
+        simplified_normalization: bool = False) -> Generator[CourtAnnotation]:
     locale_obj = Locale(locale)
     dic_entries = find_dict_entities(
         text,

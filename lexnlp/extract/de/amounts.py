@@ -20,7 +20,7 @@ import nltk
 import string
 import regex as re
 from decimal import Decimal
-from typing import Dict, Generator, List, Optional, Union
+from collections.abc import Generator
 from num2words import num2words, CONVERTER_CLASSES
 from lexnlp.extract.common.annotations.amount_annotation import AmountAnnotation
 from lexnlp.extract.en.amounts import quantize_by_float_digit
@@ -79,10 +79,10 @@ class AmountParserDE:
         self.ONE = N2W_CONFIG.low_numwords[-2]
         self.HUNDRED = dict(N2W_CONFIG.mid_numwords)[100]
 
-        UNIQUE_NUMBERS: List[int] = [*range(0, 21, 1), *range(30, 100, 10)]
-        BIG_UNIQUE_NUMBERS: List[int] = [100, 1000, 1000000, 1000000000, 1000000000000]
+        UNIQUE_NUMBERS: list[int] = [*range(0, 21, 1), *range(30, 100, 10)]
+        BIG_UNIQUE_NUMBERS: list[int] = [100, 1000, 1000000, 1000000000, 1000000000000]
 
-        UNIQUE_NUMBERS_MAP: Dict = {}
+        UNIQUE_NUMBERS_MAP: dict = {}
         # ordinal
         UNIQUE_NUMBERS_MAP.update(
             {num2words(n, ordinal=True, lang=self.language): n for n in UNIQUE_NUMBERS})
@@ -107,7 +107,7 @@ class AmountParserDE:
             'milliardenste': 1000000000
         })
 
-        self.UNIQUE_NUMBERS_MAP: Dict[str, Union[int, Decimal]] = UNIQUE_NUMBERS_MAP
+        self.UNIQUE_NUMBERS_MAP: dict[str, int | Decimal] = UNIQUE_NUMBERS_MAP
 
         self.MAGNITUDE_MAP = {num2words(10 ** n, lang=self.language).replace('eine ', '').replace('ein', '').lower(): 10 ** n
                               for n in self.BIG_NUMBERS_EXPONENT}
@@ -122,7 +122,7 @@ class AmountParserDE:
             'b': 1000000000,
         })
 
-        unique_number_list: List[str] = list(self.UNIQUE_NUMBERS_MAP.keys())
+        unique_number_list: list[str] = list(self.UNIQUE_NUMBERS_MAP.keys())
         unique_number_list.sort(key=len, reverse=True)
         self.UNIQUE_NUMBER_SPLIT_RE = re.compile(r'({}|\s+)'.format('|'.join(unique_number_list)))
 
@@ -162,7 +162,7 @@ class AmountParserDE:
             text = text.lstrip(punctuation_and_whitespace)
 
         # TODO: do not hardcode 'de_DE'! This should come from a locale string
-        delimiters: Optional[Dict] = infer_delimiters(text, 'de_DE')
+        delimiters: dict | None = infer_delimiters(text, 'de_DE')
         if delimiters is None:
             return text
 
@@ -209,7 +209,7 @@ class AmountParserDE:
             s = self.QUARTER_RE.sub('', s)
 
         # process
-        a: List = self.split(s)
+        a: list = self.split(s)
 
         for w in a:
             if w == 'und':
@@ -264,7 +264,7 @@ class AmountParserDE:
         text: str,
         float_digits: int = 4,
         return_sources: bool = True
-    ) -> Generator[AmountAnnotation, None, None]:
+    ) -> Generator[AmountAnnotation]:
         """
         Find possible amount references in the text.
         :param text: text
@@ -336,5 +336,5 @@ def get_amount_annotation_list(
     text: str,
     float_digits: int = 4,
     return_sources: bool = True
-) -> List[AmountAnnotation]:
+) -> list[AmountAnnotation]:
     return list(get_amount_annotations(text, float_digits, return_sources))

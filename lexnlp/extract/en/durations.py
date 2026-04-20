@@ -10,7 +10,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Generator, List, Union, Tuple
+from collections.abc import Generator
 import regex as re
 from decimal import Decimal
 from fractions import Fraction
@@ -43,8 +43,8 @@ class EnDurationParser(DurationParser):
     @classmethod
     def get_all_annotations(cls,
                             text: str,
-                            float_digits: int = 4) -> List[DurationAnnotation]:
-        all_annotations: List[DurationAnnotation] = []
+                            float_digits: int = 4) -> list[DurationAnnotation]:
+        all_annotations: list[DurationAnnotation] = []
         for match in cls.DURATION_PTN_RE.finditer(text.lower()):
             source_text, number_text, duration_type = match.groups()
             amount = list(get_amounts(number_text, float_digits=float_digits))
@@ -70,8 +70,7 @@ class EnDurationParser(DurationParser):
 
 def get_durations(text: str,
                   return_sources: bool = False,
-                  float_digits: int = 4) -> Generator[Union[Tuple[str, Decimal, Decimal],
-                                                            Tuple[str, Decimal, Decimal, str]], None, None]:
+                  float_digits: int = 4) -> Generator[tuple[str, Decimal, Decimal] | tuple[str, Decimal, Decimal, str]]:
     for ant in EnDurationParser.get_annotations(text, float_digits):
         yield (ant.duration_type, ant.amount, ant.duration_days, ant.text) \
             if return_sources else (ant.duration_type, ant.amount, ant.duration_days)
@@ -79,14 +78,13 @@ def get_durations(text: str,
 
 def get_duration_list(text: str,
                       return_sources: bool = False,
-                      float_digits: int = 4) -> List[Union[Tuple[str, Decimal, Decimal],
-                                                           Tuple[str, Decimal, Decimal, str]]]:
+                      float_digits: int = 4) -> list[tuple[str, Decimal, Decimal] | tuple[str, Decimal, Decimal, str]]:
     return list(get_durations(text, return_sources, float_digits))
 
 
-def get_duration_annotations(text: str, float_digits: int = 4) -> Generator[DurationAnnotation, None, None]:
+def get_duration_annotations(text: str, float_digits: int = 4) -> Generator[DurationAnnotation]:
     yield from EnDurationParser.get_annotations(text, float_digits)
 
 
-def get_duration_annotations_list(text: str, float_digits: int = 4) -> List[DurationAnnotation]:
+def get_duration_annotations_list(text: str, float_digits: int = 4) -> list[DurationAnnotation]:
     return EnDurationParser.get_annotations(text, float_digits)

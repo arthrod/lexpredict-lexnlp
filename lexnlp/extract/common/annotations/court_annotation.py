@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, List
 
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
@@ -19,7 +18,7 @@ class CourtAnnotation(TextAnnotation):
     record_type = 'court'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
                  name: str = '',
                  text: str = '',
@@ -35,7 +34,7 @@ class CourtAnnotation(TextAnnotation):
         self.court_type = court_type
         self.entity_id = entity_id  # reference to the dictionary of courts
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [self.name,
                  self.jurisdiction or '',
                  self.court_type or '']

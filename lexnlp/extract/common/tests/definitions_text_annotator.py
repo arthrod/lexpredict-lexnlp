@@ -6,13 +6,12 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
 from lexnlp.tests.utility_for_testing import save_test_document, annotate_text
 
 
 def annotate_definitions_text(text: str,
-                              definitions: List[DefinitionAnnotation],
+                              definitions: list[DefinitionAnnotation],
                               save_path: str) -> None:
     markup = annotate_text(text, definitions)
     save_test_document(save_path, markup)

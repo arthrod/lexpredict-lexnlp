@@ -7,7 +7,6 @@ __email__ = "support@contraxsuite.com"
 
 
 import regex as re
-from typing import List, Tuple
 
 from lexnlp.extract.common.text_beautifier import TextBeautifier
 
@@ -18,9 +17,9 @@ class PhrasePositionFinder:
 
     @staticmethod
     def find_phrase_in_source_text(text: str,
-                                   phrases: List[str],
+                                   phrases: list[str],
                                    pos_start: int = 0,
-                                   pos_end: int = 0) -> List[Tuple[str, int, int]]:
+                                   pos_end: int = 0) -> list[tuple[str, int, int]]:
         """
         Though phrase is taken from text, it could be changed - e.g.,
         extra or removed spaces...

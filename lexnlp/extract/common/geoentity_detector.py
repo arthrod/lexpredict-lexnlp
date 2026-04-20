@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -8,7 +7,8 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Union, Dict, Tuple, Generator, Any
+from typing import Any
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
 from lexnlp.extract.en.dict_entities import DictionaryEntry, find_dict_entities, DictionaryEntryAlias, \
@@ -24,11 +24,11 @@ class GeoEntityLocator:
     def __init__(
             self,
             language: str,
-            geo_config_list: List[DictionaryEntry],
-            prepared_alias_ban_list: Union[None, Dict[str, Tuple[List[str], List[str]]]],
+            geo_config_list: list[DictionaryEntry],
+            prepared_alias_ban_list: None | dict[str, tuple[list[str], list[str]]],
             conflict_resolving_field: str = 'none',
             priority_direction: str = 'asc',
-            text_languages: List[str] = None,
+            text_languages: list[str] = None,
             min_alias_len: int = 2,
             simplified_normalization: bool = False):
         """
@@ -60,7 +60,7 @@ class GeoEntityLocator:
 
     def get_geoentity_entries(
             self,
-            text: str) -> Generator[Tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
+            text: str) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
         """
         This method uses general searching routines for dictionary entities from dict_entities.py module.
         Methods of dict_entities module can be used for comfortable creating the config: entity_config(),
@@ -79,7 +79,7 @@ class GeoEntityLocator:
 
     def get_geoentity_annotations(
             self,
-            text: str) -> Generator[GeoAnnotation, None, None]:
+            text: str) -> Generator[GeoAnnotation]:
         """
         This method uses general searching routines for dictionary entities from dict_entities.py module.
         Methods of dict_entities module can be used for comfortable creating the config: entity_config(),

@@ -9,7 +9,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import regex as re
-from typing import Dict, Generator, List, Tuple
+from collections.abc import Generator
 from lexnlp.extract.common.copyrights.copyright_en_style_parser import CopyrightEnStyleParser
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
 from lexnlp.extract.de.language_tokens import DeLanguageTokens
@@ -33,7 +33,7 @@ class CopyrightDeParser(CopyrightEnStyleParser):
         CopyrightDeParser.line_processor = LineProcessor(line_split_params=split_params)
 
     @classmethod
-    def extract_phrases_with_coords(cls, sentence: str) -> List[Tuple[str, int, int]]:
+    def extract_phrases_with_coords(cls, sentence: str) -> list[tuple[str, int, int]]:
         return [(t.text, t.start, t.get_end()) for t in
                 cls.line_processor.split_text_on_line_with_endings(sentence)]
 
@@ -41,7 +41,7 @@ class CopyrightDeParser(CopyrightEnStyleParser):
 CopyrightDeParser.init_parser()
 
 
-def get_copyright_annotations(text: str, return_sources=False) -> Generator[CopyrightAnnotation, None, None]:
+def get_copyright_annotations(text: str, return_sources=False) -> Generator[CopyrightAnnotation]:
     """
     Gets copyright annotations.
 
@@ -60,7 +60,7 @@ def get_copyright_annotations(text: str, return_sources=False) -> Generator[Copy
         yield ant
 
 
-def get_copyright_annotation_list(text: str, return_sources=False) -> List[CopyrightAnnotation]:
+def get_copyright_annotation_list(text: str, return_sources=False) -> list[CopyrightAnnotation]:
     """
     Gets a list of copyright annotations.
 
@@ -77,7 +77,7 @@ def get_copyright_annotation_list(text: str, return_sources=False) -> List[Copyr
     return list(get_copyright_annotations(text, return_sources))
 
 
-def get_copyrights(text: str, return_sources=False) -> Generator[dict, None, None]:
+def get_copyrights(text: str, return_sources=False) -> Generator[dict]:
     """
     Gets copyrights.
 
@@ -95,7 +95,7 @@ def get_copyrights(text: str, return_sources=False) -> Generator[dict, None, Non
         yield ant.to_dictionary()
 
 
-def get_copyright_list(text: str, return_sources: bool = False) -> List[Dict]:
+def get_copyright_list(text: str, return_sources: bool = False) -> list[dict]:
     """
     Gets a list of dictionaries representing copyright annotations.
 

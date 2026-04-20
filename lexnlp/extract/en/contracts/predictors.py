@@ -12,7 +12,7 @@ __email__ = "support@contraxsuite.com"
 # standard library
 import logging
 import pickle
-from typing import Iterable, Tuple, Union
+from collections.abc import Iterable
 
 # third-party imports
 from numpy import ndarray
@@ -86,7 +86,7 @@ class ProbabilityPredictorIsContract(ProbabilityPredictor):
         text: str,
         min_probability: float = 0.5,
         return_probability: bool = False,
-    ) -> Union[bool, Tuple[bool, float]]:
+    ) -> bool | tuple[bool, float]:
         """
         Determines whether text is a contract.
 
@@ -169,7 +169,7 @@ class ProbabilityPredictorContractType(ProbabilityPredictor):
 
     def make_predictions(
         self,
-        text: Union[str, Iterable[str]],
+        text: str | Iterable[str],
         top_n: int = 2,
     ) -> Series:
         """
@@ -240,7 +240,7 @@ class ProbabilityPredictorContractType(ProbabilityPredictor):
 
     def detect_contract_type(
         self,
-        text: Union[str, Iterable[str]],
+        text: str | Iterable[str],
         min_probability: float = 0.15,
         max_closest_probability: float = 0.75,
         unknown_classification: str = '',

@@ -8,7 +8,7 @@ __email__ = "support@contraxsuite.com"
 
 from enum import Enum
 
-from typing import Tuple, Generator, List
+from collections.abc import Generator
 
 
 class PhraseConstructorMethod(Enum):
@@ -58,9 +58,9 @@ class PhraseConstructor:
     @staticmethod
     def join_tokens(tokens,
                     predicted_class,
-                    feature_mask: List[int] = None,
+                    feature_mask: list[int] = None,
                     settings: PhraseConstructorSettings = None,
-                    token_classes: PhraseTokenClasses = None) -> Generator[Tuple[int, int], None, None]:
+                    token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:
         settings = settings or PhraseConstructor.DEFAULT_CONSTRUCTOR_SETTINGS
         if settings.method == PhraseConstructorMethod.by_class:
             yield from PhraseConstructor.join_tokens_by_class(
@@ -80,7 +80,7 @@ class PhraseConstructor:
             tokens,
             predicted_class,
             strict: bool = False,
-            token_classes: PhraseTokenClasses = None) -> Generator[Tuple[int, int], None, None]:
+            token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:
         """
         Run model on text
         """
@@ -90,7 +90,7 @@ class PhraseConstructor:
             token_classes.inner_class, token_classes.end_class)
         start_pos = -1
 
-        for i in range(0, predicted_class.shape[0]):
+        for i in range(predicted_class.shape[0]):
             if predicted_class[i] == start_class and start_pos == -1:
                 start_pos = i
             elif predicted_class[i] == end_class:
@@ -112,10 +112,10 @@ class PhraseConstructor:
     def join_tokens_by_score(
             tokens,
             predicted_class,
-            feature_mask: List[int] = None,
+            feature_mask: list[int] = None,
             max_zeros: int = 2,
             min_token_score: int = 2,
-            token_classes: PhraseTokenClasses = None) -> Generator[Tuple[int, int], None, None]:
+            token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:
         """
         Run model on text
         """

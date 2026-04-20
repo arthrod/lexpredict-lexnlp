@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -9,7 +8,6 @@ __email__ = "support@contraxsuite.com"
 
 
 import joblib
-from typing import List
 from pandas import Series
 from gensim.models.doc2vec import Doc2Vec
 from sklearn.ensemble import RandomForestClassifier
@@ -79,7 +77,7 @@ class ContractTypeDetector:
         return Series(class_prob[0], index=self.rf_model.classes_).sort_values(ascending=False).head()
 
     @classmethod
-    def process_document(cls, document_text: str) -> List[str]:
+    def process_document(cls, document_text: str) -> list[str]:
         """
         """
         return [

@@ -7,7 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-from typing import Generator, List, Union, Tuple
+from collections.abc import Generator
 
 import pandas as pd
 
@@ -114,7 +114,7 @@ class DataframeEntityParser:
             'source': matched_str
         }
         if self.result_columns:
-            matched_rows = self.dataframe[self.dataframe[col_name].str.contains(r'(?:^|;){}(?:$|;)'.format(matched_str), regex=True)]
+            matched_rows = self.dataframe[self.dataframe[col_name].str.contains(rf'(?:^|;){matched_str}(?:$|;)', regex=True)]
             if self.unique_column_values:
                 matched_row = self.get_single_result(matched_rows)
                 for _col_name, new_col_name in self.result_columns.items():
@@ -130,7 +130,7 @@ class DataframeEntityParser:
         formed_entity.update(self.preformed_entity)
         return formed_entity
 
-    def get_entities(self, text: str) -> Generator[dict, None, None]:
+    def get_entities(self, text: str) -> Generator[dict]:
         if self.line_processor:
             # split text on sentences and remove linebreaks within sentences
             for sent in self.line_processor.split_text_on_line_with_endings(text):
@@ -141,7 +141,7 @@ class DataframeEntityParser:
         else:
             yield from self.get_entities_from_text(text)
 
-    def get_entities_from_text(self, text: str) -> Generator[dict, None, None]:
+    def get_entities_from_text(self, text: str) -> Generator[dict]:
         sent_text = text.replace('\n', ' ')
         for col_name, collection_ptn in self.collection_patterns.items():
             for match in collection_ptn.finditer(sent_text):
@@ -153,13 +153,13 @@ class DataframeEntityParser:
 
 def get_entities(text: str,
                  config: pd.DataFrame,
-                 parse_columns: Union[List[str], Tuple[str]],
-                 result_columns: Union[dict, None] = None,
-                 preformed_entity: Union[dict, None] = None,
-                 priority_sort_column: Union[str, None] = None,
+                 parse_columns: list[str] | tuple[str],
+                 result_columns: dict | None = None,
+                 preformed_entity: dict | None = None,
+                 priority_sort_column: str | None = None,
                  priority_sort_ascending: bool = True,
-                 cell_values_separator: Union[str, None] = ';',
-                 unique_column_values: bool = True) -> Generator[dict, None, None]:
+                 cell_values_separator: str | None = ';',
+                 unique_column_values: bool = True) -> Generator[dict]:
     """
     Simple wrapper around DataframeEntityParser
     """
@@ -175,13 +175,13 @@ def get_entities(text: str,
 
 def get_entity_list(text: str,
                     config: pd.DataFrame,
-                    parse_columns: Union[List[str], Tuple[str]],
-                    result_columns: Union[dict, None] = None,
-                    preformed_entity: Union[dict, None] = None,
-                    priority_sort_column: Union[str, None] = None,
+                    parse_columns: list[str] | tuple[str],
+                    result_columns: dict | None = None,
+                    preformed_entity: dict | None = None,
+                    priority_sort_column: str | None = None,
                     priority_sort_ascending: bool = True,
-                    cell_values_separator: Union[str, None] = ';',
-                    unique_column_values: bool = True) -> List:
+                    cell_values_separator: str | None = ';',
+                    unique_column_values: bool = True) -> list:
     """
     Simple wrapper around DataframeEntityParser
     """

@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, List, Optional
 from lexnlp.utils.map import Map
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
@@ -19,15 +18,15 @@ class CompanyAnnotation(TextAnnotation):
     record_type = 'company'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
-                 name: Optional[str] = None,
-                 name_abbr: Optional[str] = None,
-                 company_type_full: Optional[str] = None,
-                 company_type_abbr: Optional[str] = None,
-                 company_type_label: Optional[str] = None,
-                 description: Optional[str] = None,
-                 text: Optional[str] = None,
+                 name: str | None = None,
+                 name_abbr: str | None = None,
+                 company_type_full: str | None = None,
+                 company_type_abbr: str | None = None,
+                 company_type_label: str | None = None,
+                 description: str | None = None,
+                 text: str | None = None,
                  counter: int = 1):
         super().__init__(
             name=name,
@@ -52,7 +51,7 @@ class CompanyAnnotation(TextAnnotation):
             text += f' {self.company_type}'
         return f'{text}, ({self.coords[0]}, {self.coords[1]})'
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [self.name, str(self.company_type)]
         return parts
 

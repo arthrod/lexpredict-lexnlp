@@ -19,7 +19,8 @@ __email__ = "support@contraxsuite.com"
 
 import os
 import re
-from typing import Tuple, List, Generator, Any, Union
+from typing import Any
+from collections.abc import Generator
 
 # Packages
 from nltk.tokenize.punkt import PunktTrainer, PunktSentenceTokenizer
@@ -83,7 +84,7 @@ def pre_process_document(text: str) -> str:
     return PRE_PROCESS_TEXT_REMOVE.sub('', text)
 
 
-def _trim_span(span_text: str, span: Tuple[int, int]) -> Union[None, Tuple[int, int]]:
+def _trim_span(span_text: str, span: tuple[int, int]) -> None | tuple[int, int]:
     m = STRIP_GROUP.search(span_text)
     if m:
         new_span = m.span(1)
@@ -92,8 +93,8 @@ def _trim_span(span_text: str, span: Tuple[int, int]) -> Union[None, Tuple[int, 
     return None
 
 
-def post_process_sentence(text: str, sent_span: Tuple[int, int]) \
-        -> Generator[Tuple[int, int], Any, Any]:
+def post_process_sentence(text: str, sent_span: tuple[int, int]) \
+        -> Generator[tuple[int, int], Any, Any]:
     """
     Post-process sentence span detected by PunktSentenceTokenizer by additionally extracting
     titles, table of contents entries and other short strings stayed separately between empty lines
@@ -148,7 +149,7 @@ def normalize_text(text: str) -> str:
     return text
 
 
-def get_sentence_span(text: str) -> Generator[Tuple[int, int, str], Any, Any]:
+def get_sentence_span(text: str) -> Generator[tuple[int, int, str], Any, Any]:
     """
     Given a text, returns a list of the (start, end) spans of sentences
     in the text.
@@ -160,7 +161,7 @@ def get_sentence_span(text: str) -> Generator[Tuple[int, int, str], Any, Any]:
             yield start, end, substring
 
 
-def get_sentence_span_list(text) -> List[Tuple[int, int, str]]:
+def get_sentence_span_list(text) -> list[tuple[int, int, str]]:
     """
     Given a text, generates (start, end) spans of sentences
     in the text.
@@ -168,12 +169,12 @@ def get_sentence_span_list(text) -> List[Tuple[int, int, str]]:
     return [*get_sentence_span(text)]
 
 
-def get_sentences(text: str) -> Generator[str, None, None]:
+def get_sentences(text: str) -> Generator[str]:
     for _, _, sentence_span in get_sentence_span(text):
         yield sentence_span
 
 
-def get_sentence_list(text: str) -> List[str]:
+def get_sentence_list(text: str) -> list[str]:
     """
     Get sentences from text.
     :param text:

@@ -16,7 +16,6 @@ import re
 import string
 from datetime import datetime
 from email.utils import parseaddr
-from typing import List
 
 import nltk
 import pycountry
@@ -32,7 +31,7 @@ def _norm(s: str) -> str:
 
 
 def _load_set_from_lines(fn, normalize: bool = False):
-    with open(os.path.join(cwd, fn), 'r', encoding='utf-8') as f:
+    with open(os.path.join(cwd, fn), encoding='utf-8') as f:
         if normalize:
             return {_norm(l.strip()) for l in f.readlines()}
         return {l.strip() for l in f.readlines()}
@@ -131,7 +130,7 @@ def _pickle_load(fn: str):
 
 POS_TAG_SET_INDEX_FN = os.path.join(cwd, 'nltk_pos_tag_indexes.json')
 
-POS_TAG_SET_INDEX = json.load(open(POS_TAG_SET_INDEX_FN, 'r'))
+POS_TAG_SET_INDEX = json.load(open(POS_TAG_SET_INDEX_FN))
 
 COUNTRY_WORDS = build_country_words()
 
@@ -144,7 +143,7 @@ FEATURE_WORD_LEN = 21
 ZERO_FEATURES = [0 for _i in range(FEATURE_WORD_LEN)]
 
 
-def get_word_features(word: str, part_of_speech: str) -> List[int]:
+def get_word_features(word: str, part_of_speech: str) -> list[int]:
     if not word:
         return ZERO_FEATURES
 

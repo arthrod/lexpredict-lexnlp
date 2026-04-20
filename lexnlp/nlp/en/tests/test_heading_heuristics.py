@@ -7,7 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import json
-from typing import Dict, Any, List
+from typing import Any
 from unittest import TestCase
 import os
 import codecs
@@ -58,7 +58,7 @@ class TestHeadingHeuristics(TestCase):
         return text
 
     @classmethod
-    def parse_section(cls, section_dict: List[Dict[str, Any]]) -> List[DocumentSection]:
+    def parse_section(cls, section_dict: list[dict[str, Any]]) -> list[DocumentSection]:
         sections = []
         for item in section_dict:
             s = DocumentSection()

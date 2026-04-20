@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -12,7 +11,7 @@ from decimal import Decimal
 
 import regex as re
 import string
-from typing import Generator, Dict, List, Tuple, Union, Callable
+from collections.abc import Generator, Callable
 
 from lexnlp.extract.common.annotations.money_annotation import MoneyAnnotation
 
@@ -21,11 +20,11 @@ class MoneyDetector:
     def __init__(self,
                  locale: str,
                  default_currency: str,
-                 currency_token_map: Dict[str, str],
+                 currency_token_map: dict[str, str],
                  currency_symbol_map,
-                 currency_preffix_map: Dict[str, str],
+                 currency_preffix_map: dict[str, str],
                  num_ptn: str,
-                 trigger_words: List[str],
+                 trigger_words: list[str],
                  get_amounts: Callable):
         self.locale = locale
         self.default_currency = default_currency  # 'USD' or ...
@@ -61,20 +60,20 @@ class MoneyDetector:
     def get_money(self,
                   text: str,
                   return_sources: bool = False,
-                  float_digits: int = 4) -> Generator[Union[Tuple[str, str, str], Tuple[str, str]], None, None]:
+                  float_digits: int = 4) -> Generator[tuple[str, str, str] | tuple[str, str]]:
         for ant in self.get_money_annotations(text, float_digits):
             yield (ant.amount, ant.currency, ant.text) if return_sources else (ant.amount, ant.currency)
 
     def get_money_annotations(self,
                               text: str,
-                              float_digits: int = 4) -> Generator[MoneyAnnotation, None, None]:
+                              float_digits: int = 4) -> Generator[MoneyAnnotation]:
         for match in self.currency_ptn_re.finditer(text):
             capture = match.capturesdict()
             if not (capture['prefix'] or capture['postfix']) and not (capture['trigger_word']):
                 continue
             prefix = capture['prefix']
             postfix = capture['postfix']
-            amount: List[Union[Decimal, Tuple[Decimal, str]]] = \
+            amount: list[Decimal | tuple[Decimal, str]] = \
                 list(self.get_amounts(capture['amount'][0], float_digits=float_digits))
             if len(amount) != 1:
                 continue

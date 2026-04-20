@@ -7,7 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-from typing import List, Generator
+from collections.abc import Generator
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
 from lexnlp.extract.common.definitions.common_definition_patterns import CommonDefinitionPatterns
 from lexnlp.extract.common.definitions.universal_definition_parser import UniversalDefinitionsParser
@@ -27,7 +27,7 @@ class SpanishParsingMethods:
     reg_first_word_is = re.compile(r"^.+?(?=es\s+\w+\W+\w+|está\s+\w+\W+\w+)", re.UNICODE)
 
     @staticmethod
-    def match_es_def_by_hereafter(phrase: str) -> List[PatternFound]:
+    def match_es_def_by_hereafter(phrase: str) -> list[PatternFound]:
         """
         :param phrase: las instrucciones de uso o instalación del software o todas las descripciones
                        de uso del mismo (de aquí en adelante, la "Documentación");
@@ -43,7 +43,7 @@ class SpanishParsingMethods:
         return dfs
 
     @staticmethod
-    def match_es_def_by_reffered(phrase: str) -> List[PatternFound]:
+    def match_es_def_by_reffered(phrase: str) -> list[PatternFound]:
         """
         :param phrase: En este acuerdo, el término "Software" se refiere a: (i) el programa informático
                        que acompaña a este Acuerdo y todos sus componentes;
@@ -59,7 +59,7 @@ class SpanishParsingMethods:
         return dfs
 
     @staticmethod
-    def match_first_word_is(phrase: str) -> List[PatternFound]:
+    def match_first_word_is(phrase: str) -> list[PatternFound]:
         """
         :param phrase: El tabaquismo es la adicción al tabaco, provocada principalmente.
         :return: definitions (objects)
@@ -92,18 +92,18 @@ def make_es_definitions_parser():
 parser = make_es_definitions_parser()
 
 
-def get_definition_annotations(text: str, language: str = 'es') -> Generator[DefinitionAnnotation, None, None]:
+def get_definition_annotations(text: str, language: str = 'es') -> Generator[DefinitionAnnotation]:
     yield from parser.parse(text, language)
 
 
-def get_definition_annotation_list(text: str, language: str = 'es') -> List[DefinitionAnnotation]:
+def get_definition_annotation_list(text: str, language: str = 'es') -> list[DefinitionAnnotation]:
     return list(get_definition_annotations(text, language))
 
 
-def get_definitions(text: str, language: str = 'es') -> Generator[dict, None, None]:
+def get_definitions(text: str, language: str = 'es') -> Generator[dict]:
     for annotation in parser.parse(text, language):
         yield annotation.to_dictionary()
 
 
-def get_definition_list(text: str, language: str = 'es') -> List[dict]:
+def get_definition_list(text: str, language: str = 'es') -> list[dict]:
     return list(get_definitions(text, language))

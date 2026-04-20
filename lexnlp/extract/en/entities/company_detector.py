@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -8,7 +7,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Dict, List, Generator, Tuple, Optional
+from collections.abc import Generator
 import os
 import copy
 import regex as re
@@ -47,8 +46,8 @@ class CompanyDetector:
 
     def __init__(
         self,
-        company_types: Dict[str, CompanyDescriptor],
-        company_descriptions: List[str]
+        company_types: dict[str, CompanyDescriptor],
+        company_descriptions: list[str]
     ) -> None:
         """
         """
@@ -58,7 +57,7 @@ class CompanyDetector:
         self.np_extractor.token_pos_tag_adjustments = \
             self.create_token_pos_tag_adjustments()
         self.company_descriptions = company_descriptions
-        self.default_company_banlist: Optional[List[EntityBanListItem]] = None
+        self.default_company_banlist: list[EntityBanListItem] | None = None
         self.default_company_banlist = None
         self.company_name_pattern = None
         self.company_pattern = None
@@ -69,7 +68,7 @@ class CompanyDetector:
         self.company_types_re = self.compile_company_type_reg(list(company_types.keys()))
         self.compile_company_pattern()
 
-    def init_company_types(self, company_types: Dict[str, CompanyDescriptor]):
+    def init_company_types(self, company_types: dict[str, CompanyDescriptor]):
         self.company_types = {}
         alias_transformers = [
             lambda a: a.strip(' ').lower(),
@@ -82,7 +81,7 @@ class CompanyDetector:
                     self.company_types[lc_alias] = CompanyDescriptor(
                         lc_alias, cmp.abbreviation, cmp.label)
 
-    def create_token_pos_tag_adjustments(self) -> List[TokenPosTagAdjustment]:
+    def create_token_pos_tag_adjustments(self) -> list[TokenPosTagAdjustment]:
         """
         Some company abbreviations are not recognized as NNP parts of speech by
         NLTK in `get_np()`. This function inserts adjustments based on
@@ -94,7 +93,7 @@ class CompanyDetector:
                 from_pos=lambda pos: pos == 'NN',
                 to_pos=lambda pos: 'NNP'
             )
-        token_pos_tag_adjustments: List[TokenPosTagAdjustment] = [
+        token_pos_tag_adjustments: list[TokenPosTagAdjustment] = [
             _create_adjustment(key)
             for key in [
                 *self.company_types,
@@ -104,24 +103,22 @@ class CompanyDetector:
         return token_pos_tag_adjustments
 
     @classmethod
-    def compile_company_type_reg(cls, company_types: List[str]):
+    def compile_company_type_reg(cls, company_types: list[str]):
         company_types = sorted(company_types + nltk_re.COMPANY_DESCRIPTIONS, key=len)
         company_types_re = re.compile(r' %s(?:\W|$)' % '|'.join(
             [re.escape(i.strip('.')) for i in company_types]), re.IGNORECASE)
         return company_types_re
 
     def compile_company_pattern(self):
-        self.company_name_pattern = r'''
+        self.company_name_pattern = rf'''
             (?:
                 (?:(?-i:[A-Z0-9][A-Z0-9a-z\'\`\-&]+)
                    |of
-                   |(?<!(?:{company_type_pattern}|{company_description_pattern})\s+)and(?=\s+(?-i:[A-Z0-9][A-Z0-9a-z\'\`\-&]+))
+                   |(?<!(?:{nltk_re.get_company_type_pipe(self.company_types)}|{nltk_re.get_company_description_pipe(self.company_descriptions)})\s+)and(?=\s+(?-i:[A-Z0-9][A-Z0-9a-z\'\`\-&]+))
                 )[,\.& ]*
             ){{1,5}}
             (?:\([a-z0-9][a-z0-9 \,\.\-\&]+?\))?
-        '''.format(
-            company_type_pattern=nltk_re.get_company_type_pipe(self.company_types),
-            company_description_pattern=nltk_re.get_company_description_pipe(self.company_descriptions))
+        '''
 
         # Create patterns from parameters
         self.company_pattern = self.create_company_pattern()
@@ -152,8 +149,8 @@ class CompanyDetector:
         use_gnp: bool = False,
         count_unique: bool = False,
         name_upper: bool = False,
-        banlist_usage: Optional[BanListUsage] = None
-    ) -> Generator[CompanyAnnotation, None, None]:
+        banlist_usage: BanListUsage | None = None
+    ) -> Generator[CompanyAnnotation]:
         """
         Find company names in text, optionally using the stricter article/prefix expression.
         :param text:
@@ -171,7 +168,7 @@ class CompanyDetector:
         text = text.replace('\n', ' ')
         banlist = self.get_company_banlist(banlist_usage)
         valid_punctuation = VALID_PUNCTUATION + ["(", ")"]
-        unique_companies: Dict[Tuple[str, str], CompanyAnnotation] = {}
+        unique_companies: dict[tuple[str, str], CompanyAnnotation] = {}
 
         if not self.company_types_re.search(text):
             return
@@ -214,8 +211,7 @@ class CompanyDetector:
                             yield ant
 
         if count_unique:
-            for company in unique_companies.values():
-                yield company
+            yield from unique_companies.values()
         # search for acronyms in text ("[A-Z]" or (A-Z))
         # try to merge annotations (in one sentence!) in acronyms
 
@@ -262,7 +258,7 @@ class CompanyDetector:
                 result = result + (ant.counter,)
             yield result
 
-    def get_company_banlist(self, banlist_usage: Optional[BanListUsage]) -> Optional[List[EntityBanListItem]]:
+    def get_company_banlist(self, banlist_usage: BanListUsage | None) -> list[EntityBanListItem] | None:
         banlist_usage = banlist_usage or default_banlist_usage
         if banlist_usage.banlist and not banlist_usage.append_to_default:
             return banlist_usage.banlist
@@ -351,7 +347,7 @@ class CompanyDetector:
     def get_companies_re(self,
                          text: str,
                          use_article: bool = False,
-                         use_sentence_splitter: bool = True) -> Generator[CompanyAnnotation, None, None]:
+                         use_sentence_splitter: bool = True) -> Generator[CompanyAnnotation]:
         """
         Find company names in text, optionally using the stricter article/prefix expression.
         """

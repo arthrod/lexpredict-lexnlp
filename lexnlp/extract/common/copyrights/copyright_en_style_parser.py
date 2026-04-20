@@ -14,7 +14,7 @@ __email__ = "support@contraxsuite.com"
 
 import regex as re
 import string
-from typing import Generator, List, Tuple
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
 
@@ -36,7 +36,7 @@ class CopyrightEnStyleParser:
     def get_copyrights(
         text: str,
         return_sources: bool = False
-    ) -> Generator[CopyrightAnnotation, None, None]:
+    ) -> Generator[CopyrightAnnotation]:
         for ant in CopyrightEnStyleParser.get_copyright_annotations(text, return_sources):
             if return_sources:
                 yield ant.sign, ant.date, ant.name, ant.text
@@ -44,11 +44,11 @@ class CopyrightEnStyleParser:
                 yield ant.sign, ant.date, ant.name
 
     @classmethod
-    def extract_phrases_with_coords(cls, sentence: str) -> List[Tuple[str, int, int]]:
+    def extract_phrases_with_coords(cls, sentence: str) -> list[tuple[str, int, int]]:
         raise NotImplementedError()
 
     @classmethod
-    def get_copyright_annotations(cls, text: str, return_sources=False) -> Generator[CopyrightAnnotation, None, None]:
+    def get_copyright_annotations(cls, text: str, return_sources=False) -> Generator[CopyrightAnnotation]:
         """
         Find copyright in text.
         :param text:
@@ -70,7 +70,7 @@ class CopyrightEnStyleParser:
                     cp_date_at_end = cls.year_ptn_re.search(cp_name)
                     if cp_date_at_end:
                         cp_date = cp_date_at_end.group()
-                        cp_name = re.sub(r'{}$'.format(cp_date), '', cp_name)
+                        cp_name = re.sub(rf'{cp_date}$', '', cp_name)
 
                 start, end = match.span()
                 if end > (phrase_end - phrase_start):
@@ -104,7 +104,7 @@ class CopyrightEnStyleParser:
             ant.company = ant.company.strip(' ,;-(:')
 
     @classmethod
-    def take_best_company_name(cls, names: List[str]) -> str:
+    def take_best_company_name(cls, names: list[str]) -> str:
         # e.g., ['Huawei', 'permiten que más']
         for name in names:
             if cls.reg_company_name.search(name):

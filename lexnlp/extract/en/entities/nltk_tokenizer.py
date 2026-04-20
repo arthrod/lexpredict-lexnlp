@@ -6,7 +6,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Optional, List, Any
+from typing import Any
 
 from nltk import TreebankWordTokenizer
 
@@ -18,8 +18,8 @@ class NltkTokenizer(TreebankWordTokenizer):
     settings
     """
     def __init__(self,
-                 punctuation: Optional[List[Any]] = None,
-                 starting_quotes: Optional[Any] = None):
+                 punctuation: list[Any] | None = None,
+                 starting_quotes: Any | None = None):
         super().__init__()
         self.punctuation = punctuation or self.PUNCTUATION
         self.starting_quotes = starting_quotes or self.STARTING_QUOTES

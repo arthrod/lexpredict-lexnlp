@@ -19,7 +19,8 @@ from importlib import import_module
 import string
 
 from dateparser.search import search_dates
-from typing import Generator, Any, Dict, Optional, Tuple, List, Set
+from typing import Any
+from collections.abc import Generator
 
 from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
@@ -48,14 +49,14 @@ class DateParser:
     DEFAULT_DATEPARSER_SETTINGS = {'PREFER_DAY_OF_MONTH': 'first', 'STRICT_PARSING': False}
 
     def __init__(self,
-                 characters: List[str],
-                 text: Optional[str] = None,
+                 characters: list[str],
+                 text: str | None = None,
                  locale: Locale = Locale('en-US'),
-                 dateparser_settings: Optional[Dict[str, Any]] = None,
+                 dateparser_settings: dict[str, Any] | None = None,
                  enable_classifier_check: bool = True,
-                 classifier_model: Optional[Any] = None,
+                 classifier_model: Any | None = None,
                  classifier_threshold: float = 0.5,
-                 alphabet_character_set: Optional[Set[str]] = None,
+                 alphabet_character_set: set[str] | None = None,
                  count_words=False,
                  feature_window=5):
         """
@@ -78,8 +79,8 @@ class DateParser:
         self.feature_window = feature_window
 
     def get_dateparser_dates(self,
-                             text: Optional[str],
-                             strict: bool) -> List[Tuple[str, datetime.datetime]]:
+                             text: str | None,
+                             strict: bool) -> list[tuple[str, datetime.datetime]]:
         """
         Extract possible dates with dateparser
         """
@@ -127,9 +128,9 @@ class DateParser:
         return date_score[0, 1] > self.classifier_threshold
 
     def get_dates(self,
-                  text: Optional[str] = None,
-                  locale: Optional[Locale] = None) \
-            -> Generator[Dict[str, Any], None, None]:
+                  text: str | None = None,
+                  locale: Locale | None = None) \
+            -> Generator[dict[str, Any]]:
         strict = self.dateparser_settings.get('STRICT_PARSING',
                                               self.DEFAULT_DATEPARSER_SETTINGS.get('STRICT_PARSING', False))
         for ant in self.get_date_annotations(text, locale, strict=strict):
@@ -140,9 +141,9 @@ class DateParser:
 
     def get_date_annotations(self,
                              text: str = None,
-                             locale: Optional[Locale] = None,
+                             locale: Locale | None = None,
                              strict: bool = True) -> \
-            Generator[DateAnnotation, None, None]:
+            Generator[DateAnnotation]:
         self.text = text.replace('\n', ' ') or self.text
         self.locale.language = (locale.language if locale else "") or self.locale.language
 
@@ -191,7 +192,7 @@ class DateParser:
     def get_date_annotation_list(
         self,
         text: str = None,
-        locale: Optional[Locale] = None,
+        locale: Locale | None = None,
         strict: bool = True,
-    ) -> List[DateAnnotation]:
+    ) -> list[DateAnnotation]:
         return list(self.get_date_annotations(text, locale, strict))

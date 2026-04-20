@@ -7,7 +7,6 @@ __email__ = "support@contraxsuite.com"
 
 
 from datetime import date as _date
-from typing import Tuple, List
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -19,7 +18,7 @@ class DateAnnotation(TextAnnotation):
     record_type = 'date'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
                  text: str = None,
                  date: _date = None,
@@ -32,7 +31,7 @@ class DateAnnotation(TextAnnotation):
         self.date = date
         self.score = score
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         return [str(self.date or '')]
 
     def get_dictionary_values(self) -> dict:

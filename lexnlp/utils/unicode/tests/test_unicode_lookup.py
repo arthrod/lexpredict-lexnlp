@@ -28,7 +28,7 @@ def check_all_chars_have_correct_category():
     :return:
     """
     m = int(math.pow(16, 5))
-    for i in range(0, m):
+    for i in range(m):
         ch = chr(i)
         unicode_data_category = unicodedata.category(ch)
         lookup_category = UNICODE_CHAR_TOP_CATEGORY_MAPPING.get(ch)
@@ -37,9 +37,9 @@ def check_all_chars_have_correct_category():
             continue
 
         if unicode_data_category and unicode_data_category[0] != lookup_category:
-            print('For char: {0} / {1} '
-                  'lookup table from ftp.unicode.org gives {2} but unicodedata module gives {3}.'
-                  .format(i, hex(i), lookup_category, unicode_data_category))
+            print(f'For char: {i} / {hex(i)} '
+                  f'lookup table from ftp.unicode.org gives {lookup_category} but unicodedata module gives {unicode_data_category}.'
+                  )
 
             # As we found unicodedata module returns different categories for many characters.
             #  if lookup_category \
@@ -64,22 +64,22 @@ def test_performance():
     start = datetime.now()
 
     found = set()
-    for _ in range(0, repeat_count):
+    for _ in range(repeat_count):
         for ch in line:
             found.add(unicodedata.category(ch)[0])
     duration1 = datetime.now() - start
 
-    print('Duration when using unicodedata.category(): {0}'.format(duration1))
+    print(f'Duration when using unicodedata.category(): {duration1}')
 
     start = datetime.now()
 
     found = set()
-    for _ in range(0, repeat_count):
+    for _ in range(repeat_count):
         for ch in line:
             found.add(UNICODE_CHAR_TOP_CATEGORY_MAPPING[ch])
     duration2 = datetime.now() - start
 
-    print('Duration when using custom lookup tables: {0}'.format(duration2))
+    print(f'Duration when using custom lookup tables: {duration2}')
     # this test is unstable
     # assert duration2 < duration1
 
@@ -94,12 +94,12 @@ def safe_remove_temp_file(handler, name):
     try:
         os.close(handler)
     except Exception as e1:
-        logger.error('Unable to close OS temp file handler for file {0}'.format(name), e1)
+        logger.error(f'Unable to close OS temp file handler for file {name}', e1)
     finally:
         try:
             os.remove(name)
         except Exception as e:
-            logger.error('Unable to remove temp file {0}'.format(name), e)
+            logger.error(f'Unable to remove temp file {name}', e)
 
 
 def test_preparing_tables():

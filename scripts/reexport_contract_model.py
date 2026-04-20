@@ -9,9 +9,9 @@ import os
 import pickle
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from pathlib import Path
-from typing import Sequence
+from collections.abc import Sequence
 
 from cloudpickle import load
 
@@ -241,7 +241,7 @@ def main(argv: Sequence[str]) -> int:
     metadata_path = args.output_metadata_json or default_metadata_path
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
     metadata_payload = {
-        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "created_at_utc": datetime.now(UTC).isoformat(),
         "source_tag": args.source_tag,
         "target_tag": args.target_tag,
         "source_model_path": str(source_path),

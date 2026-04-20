@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List
 import pandas as pd
 import io
 
@@ -98,7 +97,7 @@ class TestGetGeoEntities(AssertionMixin):
             GeoAnnotation)
 
 
-def get_ordered_geo_annotations(text: str) -> List[GeoAnnotation]:
+def get_ordered_geo_annotations(text: str) -> list[GeoAnnotation]:
     ants = list(get_geoentity_annotations_custom_settings(
         text,
         entity_df,

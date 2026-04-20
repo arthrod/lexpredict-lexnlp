@@ -12,7 +12,7 @@ import io
 import pickle
 import warnings
 from pathlib import Path
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Sequence
 from zipfile import ZipFile, ZIP_STORED
 
 import joblib

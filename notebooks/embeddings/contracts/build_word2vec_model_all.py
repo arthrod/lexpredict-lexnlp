@@ -57,5 +57,5 @@ if __name__ == "__main__":
                 min_count=10,
                 workers=3,
             )
-            w2v_model_cbow.save("models/w2v_cbow_all_size{0}_window{1}".format(size, window))
-            print("cbow trained: size={0}, window={1}".format(size,  window))
+            w2v_model_cbow.save(f"models/w2v_cbow_all_size{size}_window{window}")
+            print(f"cbow trained: size={size}, window={window}")

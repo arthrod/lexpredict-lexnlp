@@ -107,7 +107,7 @@ def load_model(path: Path, *, trusted: bool = False) -> Any:
     # surface a ValueError listing the supported suffixes.
     try:
         return _load_skops(path, trusted=trusted)
-    except Exception as exc:  # noqa: BLE001 - narrow to unsupported suffix error
+    except Exception as exc:
         raise ValueError(
             f"Unsupported model suffix '{path.suffix}'. "
             f"Use '{CANONICAL_SUFFIX}' or one of {sorted(_LEGACY_SUFFIXES)}."

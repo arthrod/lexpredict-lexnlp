@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -9,7 +8,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import locale
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 
 class LocaleContextManager:
@@ -29,7 +28,7 @@ class LocaleContextManager:
         self.category: int = category
         self.locale: str = _locale
 
-    def __enter__(self) -> Union[str, str]:
+    def __enter__(self) -> str | str:
         try:
             return locale.setlocale(self.category, self.locale)
         except locale.Error:

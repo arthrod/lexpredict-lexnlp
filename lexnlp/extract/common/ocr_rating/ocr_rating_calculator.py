@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -11,7 +10,7 @@ __email__ = "support@contraxsuite.com"
 import codecs
 import os
 import string
-from typing import Dict, Optional, List, Callable
+from collections.abc import Callable
 
 import numpy
 import pandas
@@ -44,8 +43,8 @@ class BaseOcrRatingCalculator:
         return pandas.Series(list(file_vector.values()), index=[''.join(k) for k in file_vector.keys()])
 
     def init_language_data(self,
-                           data_folders: List[str],
-                           language_file_paths: Optional[List[str]] = None) -> None:
+                           data_folders: list[str],
+                           language_file_paths: list[str] | None = None) -> None:
         """
         Try loading languages from language_file_paths. The try loading pickled
         dataframes (per language) from first data folder in the list,
@@ -118,16 +117,16 @@ class QuadraticCosineSimilarityOcrRatingCalculator(CosineSimilarityOcrRatingCalc
 
 
 def build_cs_rating_calculator(
-        language_file_paths: Optional[List[str]] = None,
-        primary_language_folder: Optional[str] = None) \
+        language_file_paths: list[str] | None = None,
+        primary_language_folder: str | None = None) \
         -> CosineSimilarityOcrRatingCalculator:
     # noinspection PyTypeChecker
     return build_rating_calculator(CosineSimilarityOcrRatingCalculator,
                                    language_file_paths, primary_language_folder)
 
 
-def build_cs_quad_rating_calculator(language_file_paths: Optional[List[str]] = None,
-                                    primary_language_folder: Optional[str] = None) \
+def build_cs_quad_rating_calculator(language_file_paths: list[str] | None = None,
+                                    primary_language_folder: str | None = None) \
         -> QuadraticCosineSimilarityOcrRatingCalculator:
     # noinspection PyTypeChecker
     return build_rating_calculator(QuadraticCosineSimilarityOcrRatingCalculator,
@@ -136,8 +135,8 @@ def build_cs_quad_rating_calculator(language_file_paths: Optional[List[str]] = N
 
 def build_rating_calculator(
         build_calc_object: Callable[[], BaseOcrRatingCalculator],
-        language_file_paths: Optional[List[str]] = None,
-        primary_language_folder: Optional[str] = None) \
+        language_file_paths: list[str] | None = None,
+        primary_language_folder: str | None = None) \
         -> BaseOcrRatingCalculator:
     data_path = os.path.join(os.path.dirname(__file__), './reference_vectors')
     calc = build_calc_object()

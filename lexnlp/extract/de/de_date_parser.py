@@ -8,7 +8,7 @@ __email__ = "support@contraxsuite.com"
 
 import datetime
 import regex as re
-from typing import List, Optional, Generator
+from collections.abc import Generator
 
 import zahlwort2num as w2n
 
@@ -53,7 +53,7 @@ class DeDateParser(DateParser):
         if len(parts) < 2:
             return False
 
-        number_values: List[int] = []
+        number_values: list[int] = []
         numbers, possible_months, possible_days, possible_years = 0, 0, 0, 0
         for p in parts:
             if p.category == 'number':
@@ -88,8 +88,8 @@ class DeDateParser(DateParser):
             return False
         return True
 
-    def get_word_parts(self, date_str: str) -> List[DatePart]:
-        parts: List[DatePart] = []
+    def get_word_parts(self, date_str: str) -> list[DatePart]:
+        parts: list[DatePart] = []
         for wrd in split_date_words(date_str):
             if not wrd:
                 continue
@@ -126,9 +126,9 @@ class DeDateParser(DateParser):
 
     def get_date_annotations(self,
                              text: str = None,
-                             locale: Optional[Locale] = None,
+                             locale: Locale | None = None,
                              strict: bool = True) -> \
-            Generator[DateAnnotation, None, None]:
+            Generator[DateAnnotation]:
         self.text = text.replace('\n', ' ') or self.text
         self.text = re.sub(CUSTOM_DATES_SEPARATOR, '\n', self.text)
         text_parts = self.text.split('\n')

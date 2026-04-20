@@ -20,7 +20,8 @@ __email__ = "support@contraxsuite.com"
 import os
 import re
 import warnings
-from typing import List, Tuple, Generator, Any
+from typing import Any
+from collections.abc import Generator
 
 from lexnlp.extract.all_locales.languages import LANG_EN
 from lexnlp.extract.common.base_path import lexnlp_base_path
@@ -34,11 +35,11 @@ from lexnlp.utils.lines_processing.line_processor import LineSplitParams
 
 def _get_courts(
     text: str,
-    court_config_list: List[DictionaryEntry],
+    court_config_list: list[DictionaryEntry],
     priority: bool = False,
-    text_languages: List[str] = None,
+    text_languages: list[str] = None,
     simplified_normalization: bool = False
-) -> Generator[Tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
+) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     """
     TODO: remove this function
     Searches for courts from the provided config list and yields tuples of (court_config, court_alias).
@@ -89,18 +90,18 @@ def setup_en_parser():
 parser = setup_en_parser()
 
 
-def get_court_annotations(text: str, language: str = 'en') -> Generator[CourtAnnotation, None, None]:
+def get_court_annotations(text: str, language: str = 'en') -> Generator[CourtAnnotation]:
     yield from parser.parse(text, language)
 
 
-def get_court_annotation_list(text: str, language: str = 'en') -> List[CourtAnnotation]:
+def get_court_annotation_list(text: str, language: str = 'en') -> list[CourtAnnotation]:
     return list(parser.parse(text, language))
 
 
-def get_courts(text: str, language: str = 'en') -> Generator[dict, None, None]:
+def get_courts(text: str, language: str = 'en') -> Generator[dict]:
     for court_annotation in parser.parse(text, language):
         yield court_annotation.to_dictionary()
 
 
-def get_court_list(text: str, language: str = 'en') -> List[CourtAnnotation]:
+def get_court_list(text: str, language: str = 'en') -> list[CourtAnnotation]:
     return list(parser.parse(text, language))

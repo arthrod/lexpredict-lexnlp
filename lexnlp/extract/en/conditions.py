@@ -16,7 +16,7 @@ __email__ = "support@contraxsuite.com"
 
 import copy
 import regex as re
-from typing import Generator, List, Optional, Tuple
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.condition_annotation import ConditionAnnotation
 from lexnlp.nlp.en.segments.sentences import get_sentence_list
@@ -62,7 +62,7 @@ RE_CONDITION = re.compile(CONDITION_PATTERN, re.IGNORECASE | re.UNICODE | re.DOT
 def get_conditions(
     text: str,
     strict: bool = True,
-) -> Generator[Tuple[Optional[str], Optional[str], Optional[str]], None, None]:
+) -> Generator[tuple[str | None, str | None, str | None]]:
     """
     Get conditions possible conditions from natural language.
 
@@ -79,7 +79,7 @@ def get_conditions(
         yield ant.condition, ant.pre, ant.post
 
 
-def get_condition_list(text, strict: bool = True) -> List[Tuple[Optional[str], Optional[str], Optional[str]]]:
+def get_condition_list(text, strict: bool = True) -> list[tuple[str | None, str | None, str | None]]:
     """
     Get a list of conditions possible conditions from natural language.
 
@@ -96,7 +96,7 @@ def get_condition_list(text, strict: bool = True) -> List[Tuple[Optional[str], O
     return list(get_conditions(text, strict))
 
 
-def get_condition_annotations(text: str, strict: bool = True) -> Generator[ConditionAnnotation, None, None]:
+def get_condition_annotations(text: str, strict: bool = True) -> Generator[ConditionAnnotation]:
     """
     Get ConditionAnnotations.
 
@@ -132,7 +132,7 @@ def get_condition_annotations(text: str, strict: bool = True) -> Generator[Condi
             yield ant
 
 
-def get_condition_annotation_list(text: str, strict: bool = True) -> List[ConditionAnnotation]:
+def get_condition_annotation_list(text: str, strict: bool = True) -> list[ConditionAnnotation]:
     """
     Get a list of ConditionAnnotations.
 

@@ -11,7 +11,6 @@ __email__ = "support@contraxsuite.com"
 
 import collections
 import os
-from typing import Dict
 
 import nltk
 
@@ -21,7 +20,7 @@ from lexnlp.nlp.en.tokens import get_tokens, get_stems
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_token_distribution(text: str, lowercase=False, stopword=False) -> Dict[str, int]:
+def get_token_distribution(text: str, lowercase=False, stopword=False) -> dict[str, int]:
     """
     Get token distribution of text, potentially lowercasing and stopwording first.
     """
@@ -33,7 +32,7 @@ def get_token_distribution(text: str, lowercase=False, stopword=False) -> Dict[s
     return token_distribution
 
 
-def get_stem_distribution(text: str, lowercase=False, stopword=False) -> Dict[str, int]:
+def get_stem_distribution(text: str, lowercase=False, stopword=False) -> dict[str, int]:
     """
     Get stemmed token distribution of text, potentially lowercasing and stopwording first.
     """
@@ -46,7 +45,7 @@ def get_stem_distribution(text: str, lowercase=False, stopword=False) -> Dict[st
 
 
 def get_ngram_distribution(text: str, n: int,
-                           lowercase=False, stopword=False) -> Dict[str, int]:
+                           lowercase=False, stopword=False) -> dict[str, int]:
     """
     Get n-gram distribution of text, potentially lowercasing and stopwording first.
     """
@@ -63,7 +62,7 @@ def get_ngram_distribution(text: str, n: int,
     return token_ngram_distribution
 
 
-def get_bigram_distribution(text: str, lowercase=False, stopword=False) -> Dict[str, int]:
+def get_bigram_distribution(text: str, lowercase=False, stopword=False) -> dict[str, int]:
     """
     Get bigram distribution from text.
     :param text:
@@ -74,7 +73,7 @@ def get_bigram_distribution(text: str, lowercase=False, stopword=False) -> Dict[
     return get_ngram_distribution(text, 2, lowercase=lowercase, stopword=stopword)
 
 
-def get_trigram_distribution(text: str, lowercase=False, stopword=False) -> Dict[str, int]:
+def get_trigram_distribution(text: str, lowercase=False, stopword=False) -> dict[str, int]:
     """
     Get trigram distribution from text.
     :param text:
@@ -86,7 +85,7 @@ def get_trigram_distribution(text: str, lowercase=False, stopword=False) -> Dict
 
 
 def get_skipgram_distribution(text: str, n: int, k: int,
-                              lowercase=False, stopword=False) -> Dict[str, int]:
+                              lowercase=False, stopword=False) -> dict[str, int]:
     """
     Get skipgram distribution from text.
 

@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, List
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -18,7 +17,7 @@ class ConstraintAnnotation(TextAnnotation):
     record_type = 'constraint'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
                  constraint: str = None,
                  pre: str = None,
@@ -33,7 +32,7 @@ class ConstraintAnnotation(TextAnnotation):
         self.pre = pre
         self.post = post
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [self.constraint or '',
                  self.pre or '',
                  self.post or '']

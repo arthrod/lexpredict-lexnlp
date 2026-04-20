@@ -9,7 +9,7 @@ __email__ = "support@contraxsuite.com"
 # -*- coding: utf-8 -*-
 
 import locale
-from typing import Dict, FrozenSet, List, NamedTuple, Optional, Set, Tuple
+from typing import NamedTuple
 
 from lexnlp.extract.all_locales.languages import LocaleContextManager
 
@@ -17,7 +17,7 @@ from lexnlp.extract.all_locales.languages import LocaleContextManager
 # https://en.wikipedia.org/wiki/Decimal_separator
 
 
-DELIMITERS: FrozenSet = frozenset((
+DELIMITERS: frozenset = frozenset((
     '\u0020',  # U+0020   SPACE (HTML &#32;)
     '\u0027',  # U+0027 ' APOSTROPHE (HTML &#39; · &apos;)
     '\u002C',  # U+002C , COMMA (HTML &#44; · &comma;)
@@ -42,7 +42,7 @@ class DelimitedBlock(NamedTuple):
 
 def get_delimited_blocks(
     text: str,
-) -> Optional[Tuple[Set[str], List[DelimitedBlock]]]:
+) -> tuple[set[str], list[DelimitedBlock]] | None:
     """
     Splits text on delimiters into `DelimitedBlocks` containing the block length
     and its preceding delimiter.
@@ -54,8 +54,8 @@ def get_delimited_blocks(
     """
     start = 0
     delimiter = None
-    delimiters: Set[str] = set()
-    blocks: List[DelimitedBlock] = []
+    delimiters: set[str] = set()
+    blocks: list[DelimitedBlock] = []
 
     for count, character in enumerate(text):
         if character in DELIMITERS:
@@ -78,9 +78,9 @@ def get_delimited_blocks(
 
 
 def check_block_grouping(
-    blocks: List[DelimitedBlock],
+    blocks: list[DelimitedBlock],
     decimal_delimiter: str,
-    grouping: List[int],
+    grouping: list[int],
 ) -> bool:
     """
     Args:
@@ -104,7 +104,7 @@ def check_block_grouping(
     """
     len_grouping: int = len(grouping)
     permitted_length: int = grouping[0]
-    encountered_delimiters: Set[str] = set()
+    encountered_delimiters: set[str] = set()
 
     for index, block in enumerate(reversed(blocks)):
 
@@ -130,7 +130,7 @@ def check_block_grouping(
 def infer_delimiters(
     text: str,
     _locale: str,
-) -> Optional[Dict[str, Optional[str]]]:
+) -> dict[str, str | None] | None:
     """
     Infers decimal and group delimiters based on the input text, falling back
     on GNU locales when needed.
@@ -168,7 +168,7 @@ def infer_delimiters(
         locale_conventions = locale.localeconv()
         decimal_delimiter: str = locale_conventions['decimal_point']
         group_delimiter: str = locale_conventions['thousands_sep']
-        grouping: List[int] = locale_conventions['grouping']
+        grouping: list[int] = locale_conventions['grouping']
 
     # Some runners do not have locale packs (e.g., de_DE.UTF-8) installed and
     # silently fall back to another locale (often C or en_US). This breaks

@@ -6,7 +6,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Generator, Tuple
+from collections.abc import Generator
 import regex as re
 
 
@@ -53,8 +53,8 @@ class LineSplitParams:
         self.abbr_ignore_case = True
 
 
-WordList = List[SingleWord]
-StringList = List[str]
+WordList = list[SingleWord]
+StringList = list[str]
 
 
 # splits text by phrases
@@ -126,7 +126,7 @@ class LineProcessor:
     def split_text_on_line_with_endings(self,
                                         text: str,
                                         line_split_ptrs: LineSplitParams = None) -> \
-            Generator[LineOrPhrase, None, None]:
+            Generator[LineOrPhrase]:
         ptrs = line_split_ptrs or self.line_split_params
         line = None
         text_ended = False
@@ -177,7 +177,7 @@ class LineProcessor:
                 yield line
 
     def get_abbreviations_in_text(self,
-                                  text: str) -> List[Tuple[int, int]]:
+                                  text: str) -> list[tuple[int, int]]:
         if self.reg_abbreviations:
             return [a.span() for a in self.reg_abbreviations.finditer(text)]
         return []  # List[Tuple[int, int]]

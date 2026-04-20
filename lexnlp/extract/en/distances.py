@@ -14,7 +14,7 @@ __email__ = "support@contraxsuite.com"
 
 import re
 from decimal import Decimal
-from typing import Generator, List, Tuple, Union
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.distance_annotation import DistanceAnnotation
 from lexnlp.extract.en.amounts import get_amounts, NUM_PTN
@@ -47,7 +47,7 @@ def get_distances(
     text: str,
     return_sources: bool = False,
     float_digits: int = 4
-) -> Generator[Union[Tuple[Decimal, str], Tuple[Decimal, str, str]], None, None]:
+) -> Generator[tuple[Decimal, str] | tuple[Decimal, str, str]]:
     for ant in get_distance_annotations(text, float_digits):
         if return_sources:
             yield ant.amount, ant.distance_type, ant.text
@@ -59,7 +59,7 @@ def get_distance_list(
     text: str,
     return_sources: bool = False,
     float_digits: int = 4,
-) -> List[Union[Tuple[Decimal, str], Tuple[Decimal, str, str]]]:
+) -> list[tuple[Decimal, str] | tuple[Decimal, str, str]]:
     """
     """
     return list(get_distances(text, return_sources, float_digits))
@@ -68,7 +68,7 @@ def get_distance_list(
 def get_distance_annotations(
     text: str,
     float_digits: int = 4
-) -> Generator[DistanceAnnotation, None, None]:
+) -> Generator[DistanceAnnotation]:
     for match in DISTANCE_PTN_RE.finditer(text.lower()):
         source_text, number_text, distance_item = match.groups()
         amount = list(get_amounts(number_text, float_digits=float_digits))
@@ -87,7 +87,7 @@ def get_distance_annotations(
 def get_distance_annotation_list(
     text: str,
     float_digits: int = 4,
-) -> List[DistanceAnnotation]:
+) -> list[DistanceAnnotation]:
     """
     """
     return list(get_distance_annotations(text, float_digits))

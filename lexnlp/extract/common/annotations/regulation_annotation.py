@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, List
 from lexnlp.utils.map import Map
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
@@ -19,7 +18,7 @@ class RegulationAnnotation(TextAnnotation):
     record_type = 'regulation'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
                  name: str = '',
                  text: str = None,
@@ -33,7 +32,7 @@ class RegulationAnnotation(TextAnnotation):
         self.country = country
         self.source = source
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [self.country or '',
                  self.source or '',
                  self.name or '']

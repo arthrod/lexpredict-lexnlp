@@ -19,7 +19,7 @@ import sys
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set, Tuple
+from collections.abc import Sequence
 
 ANNOTATION_RE = re.compile(
     r"skip-audit:\s*issue=(?P<issue>\S+)\s+expires=(?P<expires>\d{4}-\d{2}-\d{2})"
@@ -73,7 +73,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def marker_kind(node: ast.AST) -> Optional[str]:
+def marker_kind(node: ast.AST) -> str | None:
     if not isinstance(node, ast.Attribute):
         return None
     if node.attr not in MARKER_NAMES:
@@ -89,7 +89,7 @@ def marker_kind(node: ast.AST) -> Optional[str]:
     return None
 
 
-def list_python_files(repo_root: Path) -> List[Path]:
+def list_python_files(repo_root: Path) -> list[Path]:
     try:
         result = subprocess.run(
             ["git", "ls-files", "*.py"],
@@ -110,9 +110,9 @@ def list_python_files(repo_root: Path) -> List[Path]:
     return sorted(files)
 
 
-def collect_markers(repo_root: Path) -> Tuple[List[Marker], List[str]]:
-    markers: List[Marker] = []
-    parse_errors: List[str] = []
+def collect_markers(repo_root: Path) -> tuple[list[Marker], list[str]]:
+    markers: list[Marker] = []
+    parse_errors: list[str] = []
 
     for file_path in list_python_files(repo_root):
         relative_path = file_path.relative_to(repo_root)
@@ -136,14 +136,14 @@ def collect_markers(repo_root: Path) -> Tuple[List[Marker], List[str]]:
             )
             continue
 
-        parents: Dict[int, ast.AST] = {}
+        parents: dict[int, ast.AST] = {}
         for parent in ast.walk(tree):
             for child in ast.iter_child_nodes(parent):
                 parents[id(child)] = parent
 
-        seen: Set[Tuple[int, int, str]] = set()
+        seen: set[tuple[int, int, str]] = set()
         for node in ast.walk(tree):
-            kind: Optional[str] = None
+            kind: str | None = None
             if isinstance(node, ast.Call):
                 kind = marker_kind(node.func)
             elif isinstance(node, ast.Attribute):
@@ -175,10 +175,10 @@ def collect_markers(repo_root: Path) -> Tuple[List[Marker], List[str]]:
     return markers, parse_errors
 
 
-def load_allowlist(allowlist_path: Path) -> Set[str]:
+def load_allowlist(allowlist_path: Path) -> set[str]:
     if not allowlist_path.exists():
         return set()
-    entries: Set[str] = set()
+    entries: set[str] = set()
     for raw_line in allowlist_path.read_text(encoding="utf-8").splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#"):
@@ -187,7 +187,7 @@ def load_allowlist(allowlist_path: Path) -> Set[str]:
     return entries
 
 
-def find_annotation(lines: Sequence[str], marker_line: int) -> Optional[re.Match[str]]:
+def find_annotation(lines: Sequence[str], marker_line: int) -> re.Match[str] | None:
     start = max(1, marker_line - LOOKBACK_LINES)
     for line_number in range(marker_line, start - 1, -1):
         line = lines[line_number - 1]
@@ -218,9 +218,9 @@ def main(argv: Sequence[str]) -> int:
             print(f"{marker.key} stable={marker.stable_key} expr={marker.expression}")
         return 0
 
-    files_cache: Dict[Path, List[str]] = {}
+    files_cache: dict[Path, list[str]] = {}
     today = dt.date.today()
-    violations: List[str] = []
+    violations: list[str] = []
     allowlisted_count = 0
 
     for marker in markers:

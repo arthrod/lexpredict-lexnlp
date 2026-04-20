@@ -7,7 +7,7 @@ import sys
 import tarfile
 import zipfile
 from pathlib import Path
-from typing import Iterable, List
+from collections.abc import Iterable
 
 BANNED_SUBSTRINGS = (
     "libs/stanford_nlp/",
@@ -42,8 +42,8 @@ def iter_zip_names(path: Path) -> Iterable[str]:
                 yield name
 
 
-def find_violations(names: Iterable[str]) -> List[str]:
-    violations: List[str] = []
+def find_violations(names: Iterable[str]) -> list[str]:
+    violations: list[str] = []
     for name in names:
         normalized = name.replace("\\", "/")
         if any(token in normalized for token in BANNED_SUBSTRINGS):
@@ -70,7 +70,7 @@ def main(argv: list[str]) -> int:
         print(f"dist-check: no build artifacts found under {dist_dir}", file=sys.stderr)
         return 1
 
-    failures: List[str] = []
+    failures: list[str] = []
     for artifact in artifacts:
         if artifact.suffix == ".whl":
             names = iter_zip_names(artifact)

@@ -1,7 +1,6 @@
 # Imports
 import glob
 import tarfile
-from typing import List
 
 # Packages
 from lexnlp.nlp.en.tokens import get_stems
@@ -10,7 +9,7 @@ from lexnlp.nlp.en.tokens import get_stems
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 
 
-def process_text(text: str) -> List[str]:
+def process_text(text: str) -> list[str]:
     return [
         stem for stem in get_stems(text, stopword=True, lowercase=True)
         if stem.isalpha()
@@ -47,7 +46,7 @@ if __name__ == "__main__":
                     stems = process_text(member_buffer)
                     if len(stems) < min_stem_count:
                         continue
-                    doc = TaggedDocument(stems, ["{0}".format(tar_member.name)])
+                    doc = TaggedDocument(stems, [f"{tar_member.name}"])
                     documents.append(doc)                
                 except Exception as e:
                     print(e)
@@ -62,5 +61,5 @@ if __name__ == "__main__":
                 min_count=10,
                 workers=2,
             )
-            d2v_model.save("models/d2v_all_size{0}_window{1}".format(size, window))
-            print("d2v trained: size={0}, window={1}".format(size,  window))
+            d2v_model.save(f"models/d2v_all_size{size}_window{window}")
+            print(f"d2v trained: size={size}, window={window}")

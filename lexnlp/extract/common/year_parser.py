@@ -8,7 +8,6 @@ __email__ = "support@contraxsuite.com"
 
 import datetime
 import regex as re
-from typing import List, Tuple
 
 
 class YearParser:
@@ -25,7 +24,7 @@ class YearParser:
 
     def get_years_with_coords_from_string(self,
                                           text: str, min_year: int = 1800,
-                                          max_year=0) -> List[Tuple[int, int, int]]:
+                                          max_year=0) -> list[tuple[int, int, int]]:
         years = []  # List[Tuple[int, int, int]]
         for m in self.reg_year.finditer(text):
             year = int(m.group())

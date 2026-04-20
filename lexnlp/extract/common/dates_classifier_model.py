@@ -10,7 +10,7 @@ import datetime
 import itertools
 
 import joblib
-from typing import List, Tuple, Callable, Dict, Union, Set, Optional
+from collections.abc import Callable
 import regex as re
 
 import sklearn
@@ -23,12 +23,12 @@ REG_WORD_SEPARATOR = re.compile(r'[\s\-\.\[\]\{\}\(\),;:\+\\/]+')
 REG_NUMBER = re.compile(r'^\d+')
 
 
-def build_date_model(input_examples: List[Tuple[str, List[datetime.date]]],
+def build_date_model(input_examples: list[tuple[str, list[datetime.date]]],
                      output_file: str,
-                     parse_dates: Callable[[str], List[Union[Tuple[int, int], Dict[str, List[str]]]]],
-                     characters: List[str],
+                     parse_dates: Callable[[str], list[tuple[int, int] | dict[str, list[str]]]],
+                     characters: list[str],
                      verbose=False,
-                     alphabet_char_set: Optional[Set[str]] = False,
+                     alphabet_char_set: set[str] | None = False,
                      count_words=False):
     """
     Build a sklearn model for classifying date strings as potential false positives.
@@ -89,7 +89,7 @@ def build_date_model(input_examples: List[Tuple[str, List[datetime.date]]],
     if verbose:
         print("In-Sample Assessment:")
         print("Raw Dates:")
-        print("Accuracy: {0}% on {1} samples".format(100. * float(correct) / total, total))
+        print(f"Accuracy: {100. * float(correct) / total}% on {total} samples")
         print(f'Feature data: {len(feature_list)} x {len(feature_list[0])}')
 
     pipelines = [
@@ -150,8 +150,8 @@ def build_date_model(input_examples: List[Tuple[str, List[datetime.date]]],
 def get_date_features(text,
                       start_index: int,
                       end_index: int,
-                      characters: List[str],
-                      alphabet_char_set: Optional[Set[str]] = False,
+                      characters: list[str],
+                      alphabet_char_set: set[str] | None = False,
                       include_bigrams=True,
                       window=5,
                       norm=True,
@@ -240,5 +240,5 @@ def get_date_features(text,
     return char_vec
 
 
-def split_date_words(date_str: str) -> List[str]:
+def split_date_words(date_str: str) -> list[str]:
     return REG_WORD_SEPARATOR.split(date_str)

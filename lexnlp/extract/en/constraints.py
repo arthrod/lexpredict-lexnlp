@@ -15,7 +15,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import copy
-from typing import Generator, List, Optional, Tuple
+from collections.abc import Generator
 
 import regex as re
 
@@ -69,7 +69,7 @@ RE_CONSTRAINT = re.compile(CONSTRAINT_PATTERN, re.IGNORECASE | re.UNICODE | re.D
 def get_constraints(
     text: str,
     strict: bool = False,
-) -> Generator[Tuple[Optional[str], Optional[str], Optional[str]], None, None]:
+) -> Generator[tuple[str | None, str | None, str | None]]:
     """
     Find possible constraints in natural language.
     :param text:
@@ -85,7 +85,7 @@ def get_constraints(
 def get_constraint_list(
     text: str,
     strict: bool = False,
-) -> List[Tuple[Optional[str], Optional[str], Optional[str]]]:
+) -> list[tuple[str | None, str | None, str | None]]:
     """
     Find possible constraints in natural language.
     :param text:
@@ -95,7 +95,7 @@ def get_constraint_list(
     return list(get_constraints(text, strict))
 
 
-def get_constraint_annotations(text: str, strict: bool = False) -> Generator[ConstraintAnnotation, None, None]:
+def get_constraint_annotations(text: str, strict: bool = False) -> Generator[ConstraintAnnotation]:
     """
     Find possible constraints in natural language.
     :param text:
@@ -121,7 +121,7 @@ def get_constraint_annotations(text: str, strict: bool = False) -> Generator[Con
             post = "".join(captures["post"])
 
             if num_post == 0 and num_pre == 1:
-                combined = "{0} {1}".format(pre, constraint).lower().strip()
+                combined = f"{pre} {constraint}".lower().strip()
                 if combined in CONSTRAINT_PHRASES:
                     constraint = combined
 
@@ -132,7 +132,7 @@ def get_constraint_annotations(text: str, strict: bool = False) -> Generator[Con
             yield ant
 
 
-def get_constraint_annotation_list(text: str, strict: bool = False) -> List[ConstraintAnnotation]:
+def get_constraint_annotation_list(text: str, strict: bool = False) -> list[ConstraintAnnotation]:
     """
     Find possible constraints in natural language.
     :param text:

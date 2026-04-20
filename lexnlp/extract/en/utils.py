@@ -14,7 +14,7 @@ import nltk
 import string
 import unicodedata
 from itertools import groupby
-from typing import Generator, List, Tuple
+from collections.abc import Generator
 from lexnlp.utils.pos_adjustments import TokenPosTagAdjustment
 from lexnlp.extract.common.annotations.phrase_position_finder import PhrasePositionFinder
 
@@ -73,7 +73,7 @@ class NPExtractor:
     replacements = [
         [(r'(\w)&(\w)', r'\1-=AND=-\2'), ('-=AND=-', '&')]
     ]
-    token_pos_tag_adjustments: List[TokenPosTagAdjustment] = []
+    token_pos_tag_adjustments: list[TokenPosTagAdjustment] = []
 
     def __init__(self, grammar=None):
         grammar = grammar or default_grammar
@@ -91,7 +91,7 @@ class NPExtractor:
                   if l[0][1] not in self.exception_pos or l[0][0] in self.exception_sym]
         return leaves
 
-    def get_np(self, text: str) -> Generator[str, None, None]:
+    def get_np(self, text: str) -> Generator[str]:
         text = self.replace(text)
         tokenizer_func = self.get_tokenizer()
         tokens = tokenizer_func(text)
@@ -110,7 +110,7 @@ class NPExtractor:
             text = re.sub(_from, _to, text)
         return text
 
-    def get_np_with_coords(self, text: str) -> List[Tuple[str, int, int]]:
+    def get_np_with_coords(self, text: str) -> list[tuple[str, int, int]]:
         phrases = list(self.get_np(text))
         tagged_phrases = PhrasePositionFinder.find_phrase_in_source_text(
             text, phrases)

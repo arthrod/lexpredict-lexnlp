@@ -8,7 +8,7 @@ __email__ = "support@contraxsuite.com"
 
 from abc import abstractmethod
 from itertools import groupby
-from typing import Callable, Generator, List
+from collections.abc import Callable, Generator
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.extract.common.pattern_found import PatternFound
 from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams, LineOrPhrase
@@ -20,7 +20,7 @@ class TextPatternCollector:
     EsDefinitionsParser searches for definitions in text according to the
     rules of Spanish. See the "parse" method
     """
-    def __init__(self, parsing_functions: List[Callable[[str], List[PatternFound]]], split_params: LineSplitParams):
+    def __init__(self, parsing_functions: list[Callable[[str], list[PatternFound]]], split_params: LineSplitParams):
         """
         :param parsing_functions: a functions' collection from SpanishParsingMethods
         :param split_params: text-to-sentences splitting params
@@ -30,7 +30,7 @@ class TextPatternCollector:
         self.proc = LineProcessor(line_split_params=self.split_params)
         self.prohibited_words = {}    # words that are Not definitions per se
 
-    def parse(self, text: str, locale: str = None) -> Generator[TextAnnotation, None, None]:
+    def parse(self, text: str, locale: str = None) -> Generator[TextAnnotation]:
         """
         :param locale: 'En', 'De', 'Es', ...
         :param text: En este acuerdo, el término "Software" se refiere a: (i) el programa informático
@@ -64,12 +64,12 @@ class TextPatternCollector:
     ) -> TextAnnotation:
         raise NotImplementedError
 
-    def remove_prohibited_words(self, matches: List[PatternFound]) -> List[PatternFound]:
+    def remove_prohibited_words(self, matches: list[PatternFound]) -> list[PatternFound]:
         # like 'und' or 'and' or 'the' - the word like this is not a definition itself
         return [m for m in matches if m.name not in self.prohibited_words]
 
     @staticmethod
-    def choose_best_matches(matches: List[PatternFound]) -> List[PatternFound]:
+    def choose_best_matches(matches: list[PatternFound]) -> list[PatternFound]:
         resulted = []
         # pylint: disable=unused-variable
         for _, g in groupby(matches, lambda m: m.name.strip(" \t'\"")):
@@ -82,7 +82,7 @@ class TextPatternCollector:
         return resulted
 
     @staticmethod
-    def choose_more_precise_matches(matches: List[PatternFound], text: str) -> List[PatternFound]:
+    def choose_more_precise_matches(matches: list[PatternFound], text: str) -> list[PatternFound]:
         """
         look for a match "consumed" by other matches and spare the consuming! matches
         """

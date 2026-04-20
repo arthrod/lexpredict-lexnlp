@@ -7,9 +7,8 @@ __email__ = "support@contraxsuite.com"
 
 
 import regex as re
-from typing import List, Tuple, Generator
+from collections.abc import Generator
 
-from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.common import year_parser
 from lexnlp.extract.common.annotations.court_citation_annotation import CourtCitationAnnotation
 from lexnlp.extract.de.dates import get_dates
@@ -17,7 +16,7 @@ from lexnlp.utils.lines_processing.phrase_finder import PhraseFinder
 
 
 class PossibleToken:
-    def __init__(self, token_type: str, value: str, coords: Tuple[int, int], prob: int):
+    def __init__(self, token_type: str, value: str, coords: tuple[int, int], prob: int):
         self.token_type = token_type
         self.value = value
         self.coords = coords
@@ -68,13 +67,13 @@ class CourtCitationsParser:
     # endregion
 
     def __init__(self):
-        self.items: List[CourtCitationAnnotation] = []
+        self.items: list[CourtCitationAnnotation] = []
         self.language: str = 'de'
 
-    def parse(self, text: str, language: str = 'de') -> List[CourtCitationAnnotation]:
+    def parse(self, text: str, language: str = 'de') -> list[CourtCitationAnnotation]:
         # TODO: can we turn this into a generator?
         self.language: str = language
-        self.items: List[CourtCitationAnnotation] = []
+        self.items: list[CourtCitationAnnotation] = []
         self.find_citations_in_embraced_text(text)
         return self.items
 
@@ -134,7 +133,7 @@ class CourtCitationsParser:
             end = end_match.start()
         return chunk_body[start: end + 1].strip(' \t.,;()')
 
-    def get_registries_from_text(self, text: str) -> List[PossibleToken]:
+    def get_registries_from_text(self, text: str) -> list[PossibleToken]:
         reg_names = [(m, 100) for m in CourtCitationsParser.registry_finder.find_word(text, ignore_case=False)]
         # if the case is not the same, the probability is 50%
         reg_names += [(m, 50) for m in CourtCitationsParser.registry_finder.find_word(text, ignore_case=True)]
@@ -148,7 +147,7 @@ class CourtCitationsParser:
             toks.append(tok)
         return toks
 
-    def get_dates_from_text(self, text: str) -> List[PossibleToken]:
+    def get_dates_from_text(self, text: str) -> list[PossibleToken]:
         try:
             date_ents = list(get_dates(text))
         except TypeError:
@@ -168,9 +167,9 @@ class CourtCitationsParser:
         return tokens
 
     @staticmethod
-    def split_text_by_keywords(text: str) -> List[Tuple[str, int]]:
+    def split_text_by_keywords(text: str) -> list[tuple[str, int]]:
         # noinspection PyTypeChecker
-        matches: Tuple[re.Match] = tuple(CourtCitationsParser.reg_split_by_registry.finditer(text))
+        matches: tuple[re.Match] = tuple(CourtCitationsParser.reg_split_by_registry.finditer(text))
         chunks = []
         for i, match in enumerate(matches):
             ending = -1
@@ -189,22 +188,22 @@ parser = CourtCitationsParser()
 def get_court_citation_annotations(
     text: str,
     language: str = 'de',
-) -> Generator[CourtCitationAnnotation, None, None]:
+) -> Generator[CourtCitationAnnotation]:
     yield from parser.parse(text, language)
 
 
 def get_court_citation_annotation_list(
     text: str,
     language: str = 'de',
-) -> List[CourtCitationAnnotation]:
+) -> list[CourtCitationAnnotation]:
     return parser.parse(text, language)
 
 
-def get_court_citations(text: str, language: str = 'de') -> Generator[dict, None, None]:
+def get_court_citations(text: str, language: str = 'de') -> Generator[dict]:
     cts = parser.parse(text, language)
     for ct in cts:
         yield ct.to_dictionary()
 
 
-def get_court_citation_list(text: str, language: str = 'de') -> List[CourtCitationAnnotation]:
+def get_court_citation_list(text: str, language: str = 'de') -> list[CourtCitationAnnotation]:
     return parser.parse(text, language)

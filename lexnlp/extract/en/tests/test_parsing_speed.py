@@ -10,7 +10,7 @@ import os
 from unittest import TestCase
 import codecs
 import time
-from typing import Callable, Dict
+from collections.abc import Callable
 
 from lexnlp.extract.en.dict_entities import DictionaryEntry
 from lexnlp.extract.common.base_path import lexnlp_test_path
@@ -75,7 +75,7 @@ class TestParsingSpeed(TestCase):
 
         self.assertTrue('get_amounts' in times)
 
-    def check_time(self, text: str, func: Callable, func_name: str, times: Dict[str, float]) -> None:
+    def check_time(self, text: str, func: Callable, func_name: str, times: dict[str, float]) -> None:
         start = time.time()
         func(text)
         end = time.time()

@@ -24,7 +24,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-import bootstrap_assets  # noqa: E402  (module-level import after sys.path tweak)
+import bootstrap_assets
 
 
 # ---------------------------------------------------------------------------
@@ -239,7 +239,7 @@ class TestLambdaClosureFix:
         all_tasks: bool = False,
         contract_model: bool = False,
         contract_type_model: bool = False,
-    ) -> "bootstrap_assets.argparse.Namespace":
+    ) -> bootstrap_assets.argparse.Namespace:
         import argparse
 
         ns = argparse.Namespace(

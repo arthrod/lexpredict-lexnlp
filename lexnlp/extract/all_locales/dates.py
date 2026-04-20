@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -9,7 +8,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from datetime import datetime
-from typing import Generator, Optional
+from collections.abc import Generator
 
 from lexnlp.extract.all_locales.languages import LANG_EN, LANG_DE, DEFAULT_LANGUAGE, Locale
 from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
@@ -25,8 +24,8 @@ ROUTINE_BY_LOCALE = {
 
 def get_date_annotations(locale: str,
                          text: str,
-                         strict: Optional[bool] = None,
-                         base_date: Optional[datetime] = None,
-                         threshold: float = 0.50) -> Generator[DateAnnotation, None, None]:
+                         strict: bool | None = None,
+                         base_date: datetime | None = None,
+                         threshold: float = 0.50) -> Generator[DateAnnotation]:
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
     yield from routine(text, strict, locale, base_date, threshold)

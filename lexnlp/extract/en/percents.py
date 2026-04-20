@@ -13,7 +13,7 @@ __email__ = "support@contraxsuite.com"
 
 import regex as re
 from decimal import Decimal
-from typing import Dict, Generator, List, Tuple, Union
+from collections.abc import Generator
 
 from lexnlp.extract.en.ratios import get_ratio_annotations
 from lexnlp.extract.common.annotations.percent_annotation import PercentAnnotation
@@ -22,7 +22,7 @@ from .amounts import get_amounts, NUM_PTN, quantize_by_float_digit
 from .money import CURRENCY_SYMBOL_MAP, CURRENCY_PREFIX_MAP
 
 
-PERCENT_UNIT_MAP: Dict[str, Decimal] = {
+PERCENT_UNIT_MAP: dict[str, Decimal] = {
     "%": Decimal('0.01'),
     "percent": Decimal('0.01'),
     "percents": Decimal('0.01'),
@@ -33,7 +33,7 @@ PERCENT_UNIT_MAP: Dict[str, Decimal] = {
     "basis points": Decimal('0.0001')
 }
 
-PERCENT_UNIT_LIST: List[str] = list(PERCENT_UNIT_MAP.keys())
+PERCENT_UNIT_LIST: list[str] = list(PERCENT_UNIT_MAP.keys())
 PERCENT_UNIT_LIST.sort(key=len, reverse=True)
 
 PERCENT_PTN = r"""
@@ -50,7 +50,7 @@ def get_percents(
     text: str,
     return_sources: bool = False,
     float_digits: int = 4,
-) -> Generator[Union[Tuple[str, Decimal, Decimal], Tuple[str, Decimal, Decimal, str]], None, None]:
+) -> Generator[tuple[str, Decimal, Decimal] | tuple[str, Decimal, Decimal, str]]:
     """
     Get percent usages within text.
     :param text:
@@ -70,7 +70,7 @@ def get_percent_list(
     text: str,
     return_sources: bool = False,
     float_digits: int = 4,
-) -> List[Union[Tuple[str, Decimal, Decimal], Tuple[str, Decimal, Decimal, str]]]:
+) -> list[tuple[str, Decimal, Decimal] | tuple[str, Decimal, Decimal, str]]:
     """
     """
     return list(get_percents(text, return_sources, float_digits))
@@ -79,7 +79,7 @@ def get_percent_list(
 def get_percent_annotations(
     text: str,
     float_digits: int = 4,
-) -> Generator[PercentAnnotation, None, None]:
+) -> Generator[PercentAnnotation]:
     """
     Get percent usages within text.
     """
@@ -88,12 +88,12 @@ def get_percent_annotations(
         if currency_prefix:
             continue
 
-        numbers: List[Decimal] = \
+        numbers: list[Decimal] = \
             list(get_amounts(number_text, float_digits=float_digits))
         if len(numbers) == 1:
             val: Decimal = Decimal(str(numbers[0]))
         else:
-            ratios: List[RatioAnnotation] = \
+            ratios: list[RatioAnnotation] = \
                 list(get_ratio_annotations(number_text, float_digits=float_digits))
             if len(ratios) == 1:
                 val: Decimal = Decimal(ratios[0].ratio)
@@ -120,7 +120,7 @@ def get_percent_annotations(
 def get_percent_annotation_list(
     text: str,
     float_digits: int = 4,
-) -> List[PercentAnnotation]:
+) -> list[PercentAnnotation]:
     """
     """
     return list(get_percent_annotations(text, float_digits))

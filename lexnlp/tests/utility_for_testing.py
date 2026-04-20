@@ -9,7 +9,6 @@ __email__ = "support@contraxsuite.com"
 import os
 import codecs
 from html import escape
-from typing import List
 
 from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
@@ -35,7 +34,7 @@ def save_test_document(doc_path: str, text: str,
         fw.write(text)
 
 
-def annotate_text(text: str, annotations: List[TextAnnotation]) -> str:
+def annotate_text(text: str, annotations: list[TextAnnotation]) -> str:
     """
     :param text: source text
     :param annotations: text annotations

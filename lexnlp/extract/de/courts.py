@@ -10,7 +10,7 @@ __email__ = "support@contraxsuite.com"
 
 import os
 import re
-from typing import Generator, List
+from collections.abc import Generator
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
 from lexnlp.extract.common.universal_court_parser import UniversalCourtsParser, ParserInitParams
 from lexnlp.extract.de.language_tokens import DeLanguageTokens
@@ -42,18 +42,18 @@ def setup_de_parser():
 parser = setup_de_parser()
 
 
-def get_court_annotations(text: str, language: str = 'de') -> Generator[CourtAnnotation, None, None]:
+def get_court_annotations(text: str, language: str = 'de') -> Generator[CourtAnnotation]:
     yield from parser.parse(text, language)
 
 
-def get_court_annotation_list(text: str, language: str = 'de') -> List[CourtAnnotation]:
+def get_court_annotation_list(text: str, language: str = 'de') -> list[CourtAnnotation]:
     return list(get_court_annotations(text, language))
 
 
-def get_courts(text: str, language: str = 'de') -> Generator[dict, None, None]:
+def get_courts(text: str, language: str = 'de') -> Generator[dict]:
     for court_annotation in parser.parse(text, language):
         yield court_annotation.to_dictionary()
 
 
-def get_court_list(text: str, language: str = 'de') -> List[dict]:
+def get_court_list(text: str, language: str = 'de') -> list[dict]:
     return list(get_courts(text, language))

@@ -22,18 +22,18 @@ STANFORD_BASE_PATH = '/usr/lexnlp/libs/stanford_nlp'
 
 STANFORD_POS_PATH = os.path.join(
     STANFORD_BASE_PATH,
-    'stanford-postagger-full-{0}'.format(STANFORD_VERSION))
+    f'stanford-postagger-full-{STANFORD_VERSION}')
 if not os.path.exists(STANFORD_POS_PATH):
     STANFORD_POS_PATH = os.path.join(
         get_lib_path(),
         "stanford_nlp",
-        "stanford-postagger-full-{0}".format(STANFORD_VERSION))
+        f"stanford-postagger-full-{STANFORD_VERSION}")
 
 STANFORD_NER_PATH = os.path.join(
     STANFORD_BASE_PATH,
-    "stanford-ner-{0}".format(STANFORD_VERSION))
+    f"stanford-ner-{STANFORD_VERSION}")
 if not os.path.exists(STANFORD_NER_PATH):
     STANFORD_NER_PATH = os.path.join(
         get_lib_path(),
         "stanford_nlp",
-        "stanford-ner-{0}".format(STANFORD_VERSION))
+        f"stanford-ner-{STANFORD_VERSION}")

@@ -19,13 +19,12 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Union, List, Dict, Optional
 
 import regex as re
 from lexnlp.config.en.company_types import COMPANY_TYPES, COMPANY_DESCRIPTIONS, CompanyDescriptor
 
 
-def get_company_type_pipe(company_type_list: Union[None, List[str], Dict[str, CompanyDescriptor]] = None) -> str:
+def get_company_type_pipe(company_type_list: None | list[str] | dict[str, CompanyDescriptor] = None) -> str:
     company_type_list = company_type_list or COMPANY_TYPES
     if isinstance(company_type_list, dict):
         company_type_list = list(company_type_list.keys())  # type: List[str]
@@ -37,7 +36,7 @@ def get_company_type_pipe(company_type_list: Union[None, List[str], Dict[str, Co
     return company_type_pipe
 
 
-def get_company_description_pipe(company_description_list: Optional[List[str]] = None) -> str:
+def get_company_description_pipe(company_description_list: list[str] | None = None) -> str:
     company_description_list = company_description_list or COMPANY_DESCRIPTIONS
     company_description_list.sort(key=len, reverse=True)
     company_description_pipe = '|'.join([re.escape(c.strip(".").lower())
@@ -49,28 +48,26 @@ def get_company_description_pipe(company_description_list: Optional[List[str]] =
 ARTICLES = r'by\ and\ between|by\ and\ among|among|between|with|the|and|to|by|an|a|all'
 ARTICLE_RE = re.compile(ARTICLES,
                         re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
-ARTICLE_PATTERN = r'''
+ARTICLE_PATTERN = rf'''
 (?:
     (?:\W|^)
-    (?P<article>{})
+    (?P<article>{ARTICLES})
     \s+
 )?
-'''.format(ARTICLES)
+'''
 
 # COMPANY_NAME_PATTERN = r'(?-i:[A-Z0-9])[a-z0-9 \'\,\.\-&]+?(?:\([a-z0-9][a-z0-9 \,\.\-\&]+?\))?'
 
 # !!! Assume that company TYPE or DESCRIPTION shouldn't precede " and"
-COMPANY_NAME_PATTERN = r'''
+COMPANY_NAME_PATTERN = rf'''
     (?:
         (?:(?-i:[A-Z0-9][A-Z0-9a-z\'\`\-&]+)
            |of
-           |(?<!(?:{company_type_pattern}|{company_description_pattern})\s+)and(?=\s+(?-i:[A-Z0-9][A-Z0-9a-z\'\`\-&]+))
+           |(?<!(?:{get_company_type_pipe()}|{get_company_description_pipe()})\s+)and(?=\s+(?-i:[A-Z0-9][A-Z0-9a-z\'\`\-&]+))
         )[,\.& ]*
     ){{1,5}}
     (?:\([a-z0-9][a-z0-9 \,\.\-\&]+?\))?
-'''.format(
-    company_type_pattern=get_company_type_pipe(),
-    company_description_pattern=get_company_description_pipe())
+'''
 
 # Setup template expression for name matches alone
 COMPANY_PATTERN_TEMPLATE = r'''

@@ -23,11 +23,11 @@ __email__ = "support@contraxsuite.com"
 
 author_ptn = re.escape(author.strip()).replace("0\.0\.0", "\d\.\d\.\d+")
 
-py_file_struc_ptn = '(?P<service>(?:\#[^\n]+\n+)+){{,1}}\n*' \
-                    '(?P<docstr>(?:\'\'\'.+?\'\'\'|""".+?""")){{,1}}\n*' \
-                    '(?P<author>{author_ptn}){{,1}}\n*' \
-                    '(?P<imports>(?:^(?:#|import|from|\s{{4,}})[^\n]+\n+)+){{,1}}\n*' \
-                    '(?P<code>.*)'.format(author_ptn=author_ptn)
+py_file_struc_ptn = '(?P<service>(?:\#[^\n]+\n+)+){,1}\n*' \
+                    '(?P<docstr>(?:\'\'\'.+?\'\'\'|""".+?""")){,1}\n*' \
+                    f'(?P<author>{author_ptn}){{,1}}\n*' \
+                    '(?P<imports>(?:^(?:#|import|from|\s{4,})[^\n]+\n+)+){,1}\n*' \
+                    '(?P<code>.*)'
 py_file_struc_re = re.compile(py_file_struc_ptn, re.M | re.S)
 
 release_version_re = re.compile(r'\d+\.\d+\.\d+')
@@ -53,7 +53,7 @@ def unify_file_structure(release_number):
     author = release_version_re.sub(release_number, author)
 
     for a_file in files:
-        with open(a_file, 'r') as f:
+        with open(a_file) as f:
             file_content_str = f.read()
 
         match = py_file_struc_re.fullmatch(file_content_str)
@@ -83,12 +83,12 @@ def unify_file_structure(release_number):
 
         # search problems
         if new_file_content.count('__author__') > 1:
-            print('>>> WARN!!! Duplicated author block: {a_file}'.format(a_file=a_file))
+            print(f'>>> WARN!!! Duplicated author block: {a_file}')
             # continue
 
         with open(a_file, 'w') as f:
             f.write(new_file_content)
-        print('Done: {a_file}'.format(a_file=a_file))
+        print(f'Done: {a_file}')
 
 
 if __name__ == '__main__':

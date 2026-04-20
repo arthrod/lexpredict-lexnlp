@@ -12,7 +12,7 @@ __email__ = "support@contraxsuite.com"
 # standard library
 from os import PathLike
 from abc import ABC, abstractmethod
-from typing import Iterable, Tuple, Union
+from collections.abc import Iterable
 
 # third-party imports
 from numpy import fromiter, ndarray
@@ -41,14 +41,14 @@ class VectorizerKeywordSearch(Vectorizer):
         vectorize(tokens) => array([0.0, 1.0])
     """
 
-    def __init__(self, keywords: Iterable[Tuple[str, float, float]]) -> None:
+    def __init__(self, keywords: Iterable[tuple[str, float, float]]) -> None:
         """
         Args:
             keywords (Iterable[Tuple[str, float, float]]):
                 An iterable of tuples in the form of (keyword, value_if_present, value_if_absent).
                 Example: ('keyword', 1.0, 0.0)
         """
-        self.keywords: Tuple[Tuple[str, float, float]] = tuple(keywords)
+        self.keywords: tuple[tuple[str, float, float]] = tuple(keywords)
 
     def vectorize(self, tokens: Iterable[str]) -> ndarray:
         return fromiter(
@@ -66,11 +66,11 @@ class VectorizerDoc2Vec(Vectorizer):
     Vectorizes an iterable of strings using a Gensim Doc2Vec language model.
     """
 
-    def __init__(self, doc2vec: Union[Doc2Vec, PathLike]) -> None:
+    def __init__(self, doc2vec: Doc2Vec | PathLike) -> None:
         self.doc2vec: Doc2Vec = self._load_doc2vec(doc2vec)
 
     @staticmethod
-    def _load_doc2vec(doc2vec: Union[Doc2Vec, PathLike]) -> Doc2Vec:
+    def _load_doc2vec(doc2vec: Doc2Vec | PathLike) -> Doc2Vec:
         """
         Args:
             doc2vec (Union[Doc2Vec, PathLike]):

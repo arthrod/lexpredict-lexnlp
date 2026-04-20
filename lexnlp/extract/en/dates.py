@@ -18,7 +18,8 @@ import calendar
 import datetime
 import os
 import random
-from typing import Any, Dict, Generator, List, Optional, Set, Tuple
+from typing import Any
+from collections.abc import Generator
 
 # Third-party packages
 import regex as re
@@ -41,14 +42,14 @@ DATE_MERGE_WINDOW = 10
 DATE_MAX_LENGTH = 40
 
 # Setup regular expression for "as of" strings
-AS_OF_PATTERN = r"""
+AS_OF_PATTERN = rf"""
 (made|dated|date)
 [\s]+?
 as
 [\s]+?
 of[\s]+?
-(.{{0,{max_length}}})
-""".format(max_length=DATE_MAX_LENGTH)
+(.{{0,{DATE_MAX_LENGTH}}})
+"""
 
 RE_AS_OF = re.compile(AS_OF_PATTERN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
@@ -68,7 +69,7 @@ MONTH_BY_NAME = get_month_by_name()
 MONTH_FULLS = {v.lower(): k for k, v in enumerate(calendar.month_name)}
 
 
-def get_raw_date_list(text, strict=False, base_date=None, return_source=False, locale=None) -> List:
+def get_raw_date_list(text, strict=False, base_date=None, return_source=False, locale=None) -> list:
     return list(get_raw_dates(
         text, strict=strict, base_date=base_date, return_source=return_source, locale=locale))
 
@@ -275,7 +276,7 @@ def get_raw_dates(text, strict=False, base_date=None,
 
 def check_date_parts_are_in_date(
         date: datetime.datetime,
-        date_props: Dict[str, List[Any]]
+        date_props: dict[str, list[Any]]
 ) -> bool:
     """
     Checks that when we transformed "possible date" into date, we found
@@ -286,25 +287,25 @@ def check_date_parts_are_in_date(
     :return: True if date is OK
     """
 
-    def _ordinal_to_cardinal(s: str) -> Optional[int]:
+    def _ordinal_to_cardinal(s: str) -> int | None:
         n: str = ''
         for char in s:
             if char.isdigit():
                 n: str = f'{n}{char}'
         return int(n) if n else None
 
-    units_of_time: Tuple[str, ...] = ('year', 'month', 'day', 'hour', 'minute')
-    date_values: Dict[str, int] = {
+    units_of_time: tuple[str, ...] = ('year', 'month', 'day', 'hour', 'minute')
+    date_values: dict[str, int] = {
         unit: getattr(date, unit)
         for unit in units_of_time
     }
 
-    date_prop_digits: List[int] = [int(d) for d in date_props['digits']]
-    date_prop_months: List[int] = [
+    date_prop_digits: list[int] = [int(d) for d in date_props['digits']]
+    date_prop_months: list[int] = [
         MONTH_BY_NAME.get(month.lower())
         for month in date_props['months']
     ]
-    date_prop_days: List[int] = [
+    date_prop_days: list[int] = [
         day for day in
         (_ordinal_to_cardinal(n) for n in date_props['digits_modifier'])
         if day
@@ -317,11 +318,11 @@ def check_date_parts_are_in_date(
             if month not in date_prop_months:
                 return False
 
-    combined: List[int] = [*date_prop_digits, *date_prop_months, *date_prop_days]
-    difference: Set[int] = set(combined).difference(date_values.values())
+    combined: list[int] = [*date_prop_digits, *date_prop_months, *date_prop_days]
+    difference: set[int] = set(combined).difference(date_values.values())
 
-    removeable: List[int] = []
-    reassembled_date: Dict[str, int] = {}
+    removeable: list[int] = []
+    reassembled_date: dict[str, int] = {}
     for k, v in date_values.items():
         if k == 'year':
             short_year = (v - 100 * (v // 100)) if v > 1000 else v
@@ -333,8 +334,8 @@ def check_date_parts_are_in_date(
             reassembled_date[k] = v
             removeable.append(v)
 
-    diff_digits: List[int] = [digit for digit in difference if digit not in removeable]
-    diff_units: Set[str] = date_values.keys() - reassembled_date.keys()
+    diff_digits: list[int] = [digit for digit in difference if digit not in removeable]
+    diff_units: set[str] = date_values.keys() - reassembled_date.keys()
 
     if any(k for k in diff_units if k in units_of_time[:3]):
         if diff_digits:
@@ -342,7 +343,7 @@ def check_date_parts_are_in_date(
     return True
 
 
-def get_dates_list(text, **kwargs) -> List:
+def get_dates_list(text, **kwargs) -> list:
     return list(get_dates(text, **kwargs))
 
 
@@ -371,11 +372,11 @@ def get_dates(text: str,
 
 
 def get_date_annotations(text: str,
-                         strict: Optional[bool] = None,
-                         locale: Optional[str] = '',
-                         base_date: Optional[datetime.datetime] = None,
+                         strict: bool | None = None,
+                         locale: str | None = '',
+                         base_date: datetime.datetime | None = None,
                          threshold: float = 0.50) \
-        -> Generator[DateAnnotation, None, None]:
+        -> Generator[DateAnnotation]:
     """
     Find dates after cleaning false positives.
     :param text: raw text to search
@@ -726,19 +727,19 @@ def train_default_model(save=True):
                         d = datetime.date(year, month, day)
                         n = random.randint(2, 30)
                         d2 = d + datetime.timedelta(days=n)
-                        examples.append(("""on {0}-{1}-{2}""".format(year, month, day),
+                        examples.append((f"""on {year}-{month}-{day}""",
                                          [d]))
                         examples.append(("by " + d.strftime("%b %d, %Y"),
                                          [d]))
                         examples.append(("on " + d.strftime("%B %d, %Y"),
                                          [d]))
-                        examples.append(("{0} to {1}".format(d, d2),
+                        examples.append((f"{d} to {d2}",
                                          [d, d2]))
-                        examples.append(("{0} to {1}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")),
+                        examples.append(("{} to {}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")),
                                          [d, d2]))
-                        examples.append(("{0} through {1}".format(d.isoformat(), d2.isoformat()),
+                        examples.append((f"{d.isoformat()} through {d2.isoformat()}",
                                          [d, d2]))
-                        examples.append(("{0} through {1}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")),
+                        examples.append(("{} through {}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")),
                                          [d, d2]))
                     except ValueError:
                         continue

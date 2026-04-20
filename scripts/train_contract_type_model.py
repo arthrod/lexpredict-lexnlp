@@ -8,7 +8,7 @@ import json
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import Dict, Sequence
+from collections.abc import Sequence
 
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
@@ -78,7 +78,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def score(labels, predictions) -> Dict[str, float]:
+def score(labels, predictions) -> dict[str, float]:
     return {
         "accuracy": float(accuracy_score(labels, predictions)),
         "f1_macro": float(f1_score(labels, predictions, average="macro")),

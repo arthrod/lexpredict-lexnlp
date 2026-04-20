@@ -26,10 +26,10 @@ def extract_sentences(text):
 if __name__ == "__main__":
     # Setup file
     for year in range(2016, 2018):
-        print("parsing {0}...".format(year))
+        print(f"parsing {year}...")
         
         # Get file name and open
-        file_name = "data/filings_10k_{0}.tar.gz".format(year)
+        file_name = f"data/filings_10k_{year}.tar.gz"
         tar_file = tarfile.open(file_name)
         print("opened tar.")
             
@@ -71,10 +71,10 @@ if __name__ == "__main__":
         print("training w2v models...")
         # Train w2v CBOW model
         w2v_model_cbow = Word2Vec(sentences=sample_sentence_list, vector_size=200, window=20, min_count=10, workers=2)
-        w2v_model_cbow.save("w2v_model_cbow_{0}".format(year))
+        w2v_model_cbow.save(f"w2v_model_cbow_{year}")
         print("cbow trained.")
 
         # Train w2v SG model
         w2v_model_sg = Word2Vec(sentences=sample_sentence_list, vector_size=200, window=20, min_count=10, workers=2, sg=1)
-        w2v_model_sg.save("w2v_model_sg_{0}".format(year))
+        w2v_model_sg.save(f"w2v_model_sg_{year}")
         print("sg trained.")

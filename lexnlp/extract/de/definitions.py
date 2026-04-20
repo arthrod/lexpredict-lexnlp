@@ -9,7 +9,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-from typing import List, Generator, Optional
+from collections.abc import Generator
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
 from lexnlp.extract.common.definitions.common_definition_patterns import CommonDefinitionPatterns
 from lexnlp.extract.common.definitions.universal_definition_parser import UniversalDefinitionsParser
@@ -40,7 +40,7 @@ class DeutscheParsingMethods:
     # endregion
 
     @staticmethod
-    def match_im_sinne(phrase: str) -> List[PatternFound]:
+    def match_im_sinne(phrase: str) -> list[PatternFound]:
         """
         :param phrase: Vermögensgegenstände im Sinne dieses Gesetzes sind unbewegliches Vermögen im Sinne des Absatzes 8, ferner zu dessen Bewirtschaftung;
         :return: {name: 'Vermögensgegenstände', probability: 100, ...}
@@ -55,7 +55,7 @@ class DeutscheParsingMethods:
         return dfs
 
     @staticmethod
-    def match_ist_jeder(phrase: str) -> List[PatternFound]:
+    def match_ist_jeder(phrase: str) -> list[PatternFound]:
         """
         :param phrase: ist Diensteanbieter jeder natürliche oder juristische Person, die eigene oder fremde Telemedien zur Nutzung bereithält oder den Zugang zur Nutzung vermittelt;
         :return: {name: 'Diensteanbieter', probability: 100, ...}
@@ -91,22 +91,21 @@ def make_de_definitions_parser():
 parser: UniversalDefinitionsParser = make_de_definitions_parser()
 
 
-def get_definition_annotations(text: str, language: str = 'de') -> Generator[DefinitionAnnotation, None, None]:
+def get_definition_annotations(text: str, language: str = 'de') -> Generator[DefinitionAnnotation]:
     dfs = parser.parse(text, language)
-    for d in dfs:
-        yield d
+    yield from dfs
 
 
-def get_definition_annotation_list(text: str, language: str = 'de') -> List[DefinitionAnnotation]:
+def get_definition_annotation_list(text: str, language: str = 'de') -> list[DefinitionAnnotation]:
     return list(get_definition_annotations(text, language))
 
 
-def get_definitions(text: str, language: str = 'de') -> Generator[dict, None, None]:
+def get_definitions(text: str, language: str = 'de') -> Generator[dict]:
     dfs = parser.parse(text, language)
     for d in dfs:
         yield d.to_dictionary()
 
 
-def get_definition_list(text: str, language: str = 'de') -> List[dict]:
+def get_definition_list(text: str, language: str = 'de') -> list[dict]:
     # noinspection PyTypeChecker
     return list(get_definitions(text, language))

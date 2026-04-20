@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List
 from decimal import Decimal
 from lexnlp.extract.common.annotations.percent_annotation import PercentAnnotation
 from lexnlp.extract.de.percents import get_percents, get_percent_annotations
@@ -68,7 +67,7 @@ class TestGetPercents(AssertionMixin):
             PercentAnnotation)
 
 
-def get_ordered_percent_annotations(text: str) -> List[PercentAnnotation]:
+def get_ordered_percent_annotations(text: str) -> list[PercentAnnotation]:
     ants = list(get_percent_annotations(text))
     ants.sort(key=lambda a: a.coords[0])
     return ants

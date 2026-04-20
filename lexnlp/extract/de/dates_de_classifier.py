@@ -471,16 +471,16 @@ def add_numeric_date_samples(examples):
                         d = datetime.date(year, month, day)
                         n = random.randint(2, 30)
                         d2 = d + datetime.timedelta(days=n)
-                        examples.append(("""{0}/{1}/{2}""".format(year, month, day), [d]))
-                        examples.append(("""{0}.{1}.{2}""".format(year, month, day), [d]))
-                        examples.append(("""bis {0}-{1}-{2}""".format(year, month, day), [d]))
+                        examples.append((f"""{year}/{month}/{day}""", [d]))
+                        examples.append((f"""{year}.{month}.{day}""", [d]))
+                        examples.append((f"""bis {year}-{month}-{day}""", [d]))
                         examples.append(("bis " + d.strftime("%b %d, %Y"), [d]))
                         examples.append(("am " + d.strftime("%B %d, %Y"), [d]))
-                        examples.append(("bis {0} zum {1}".format(d, d2), [d, d2]))
-                        examples.append(("bis {0} zum {1}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")),
+                        examples.append((f"bis {d} zum {d2}", [d, d2]))
+                        examples.append(("bis {} zum {}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")),
                                          [d, d2]))
-                        examples.append(("{0} bis {1}".format(d.isoformat(), d2.isoformat()), [d, d2]))
-                        examples.append(("{0} bis {1}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")),
+                        examples.append((f"{d.isoformat()} bis {d2.isoformat()}", [d, d2]))
+                        examples.append(("{} bis {}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")),
                                          [d, d2]))
                     except ValueError:
                         continue

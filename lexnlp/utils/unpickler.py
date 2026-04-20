@@ -8,7 +8,7 @@ class RenameUnpickler(pickle.Unpickler):
             renamed_module = "sklearn.tree"
         if module == "sklearn.ensemble.forest":
             renamed_module = "sklearn.ensemble._forest"
-        return super(RenameUnpickler, self).find_class(renamed_module, name)
+        return super().find_class(renamed_module, name)
 
 
 def renamed_load(file_obj):
