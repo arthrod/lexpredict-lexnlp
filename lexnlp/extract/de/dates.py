@@ -16,7 +16,6 @@ from lexnlp.extract.de.date_model import DATE_MODEL_CHARS, DE_ALPHA_CHAR_SET
 # Setup path
 from lexnlp.extract.de.de_date_parser import DeDateParser
 
-
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load model

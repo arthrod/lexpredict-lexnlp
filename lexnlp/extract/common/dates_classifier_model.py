@@ -8,16 +8,14 @@ __email__ = "support@contraxsuite.com"
 
 import datetime
 import itertools
+from collections.abc import Callable
 
 import joblib
-from collections.abc import Callable
 import regex as re
-
 import sklearn
 import sklearn.ensemble
 import sklearn.neural_network
 from sklearn.model_selection import cross_val_score
-
 
 REG_WORD_SEPARATOR = re.compile(r'[\s\-\.\[\]\{\}\(\),;:\+\\/]+')
 REG_NUMBER = re.compile(r'^\d+')

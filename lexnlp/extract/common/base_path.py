@@ -8,7 +8,6 @@ __email__ = "support@contraxsuite.com"
 
 import os
 
-
 lexnlp_base_path = os.path.abspath(os.path.dirname(__file__) + '/../../../')
 
 lexnlp_test_path = os.path.join(lexnlp_base_path, 'test_data/')

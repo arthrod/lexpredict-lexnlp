@@ -19,7 +19,6 @@ from lexnlp.nlp.en.segments.paragraphs import get_paragraph_list, get_paragraph_
 from lexnlp.nlp.en.segments.utils import build_document_distribution
 from lexnlp.tests import lexnlp_tests
 
-
 DOCUMENT_EXAMPLE_1 = "this is a test 123!"
 DOCUMENT_EXAMPLE_1_RESULT_LC = {'doc_char_s': 0.2727272727272727, 'doc_char_p': 0.0, 'doc_char_a': 0.09090909090909091,
                                 'doc_char_f': 0.0, 'doc_char_q': 0.0, 'doc_char_j': 0.0, 'doc_char_z': 0.0,

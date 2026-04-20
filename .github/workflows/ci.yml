@@ -16,6 +16,40 @@ env:
   CONTRACT_TYPE_MODEL_BASELINE_METRICS: "test_data/model_quality/contract_type_baseline_metrics.json"
 
 jobs:
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install lint dependencies
+        run: |
+          uv venv .venv --python "${PYTHON_VERSION}"
+          uv sync --frozen --python .venv/bin/python --group lint
+
+      - name: Ruff import & dead-import check
+        run: .venv/bin/ruff check --select I,F401 .
+
+      - name: Ruff lint
+        run: .venv/bin/ruff check .
+
+      - name: Ruff format check
+        run: .venv/bin/ruff format --check .
+
+      - name: ty (type check)
+        continue-on-error: true
+        run: .venv/bin/ty check lexnlp scripts ci
+
   base-tests:
     name: Base Tests
     runs-on: ubuntu-latest

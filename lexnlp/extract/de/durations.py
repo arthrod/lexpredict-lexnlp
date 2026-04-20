@@ -6,15 +6,16 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import regex as re
 from collections.abc import Generator
 from decimal import Decimal
 from fractions import Fraction
-from lexnlp.extract.common.durations.durations_parser import DurationParser
+
+import regex as re
+
 from lexnlp.extract.common.annotations.duration_annotation import DurationAnnotation
+from lexnlp.extract.common.durations.durations_parser import DurationParser
 from lexnlp.extract.de.amounts import AmountParserDE
 from lexnlp.extract.en.amounts import quantize_by_float_digit
-
 
 amounts_parser = AmountParserDE()
 get_amounts = amounts_parser.parse

@@ -10,8 +10,8 @@ import pickle
 import subprocess
 import sys
 import tarfile
-from pathlib import Path
 from collections.abc import Iterable, Mapping, Sequence
+from pathlib import Path
 
 from cloudpickle import load
 from sklearn.ensemble import RandomForestClassifier
@@ -20,7 +20,6 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
-
 
 DEFAULT_POSITIVE_TAGS: tuple[str, ...] = (
     "corpus/contract-types/0.1",

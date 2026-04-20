@@ -6,8 +6,8 @@ from __future__ import annotations
 import sys
 import tarfile
 import zipfile
-from pathlib import Path
 from collections.abc import Iterable
+from pathlib import Path
 
 BANNED_SUBSTRINGS = (
     "libs/stanford_nlp/",

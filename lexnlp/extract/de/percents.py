@@ -6,12 +6,13 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import regex as re
 from collections.abc import Generator
 from decimal import Decimal
+
+import regex as re
+
 from lexnlp.extract.common.annotations.percent_annotation import PercentAnnotation
 from lexnlp.extract.de.amounts import AmountParserDE
-
 
 amounts_parser = AmountParserDE()
 get_amounts = amounts_parser.parse

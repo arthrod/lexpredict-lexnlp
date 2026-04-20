@@ -14,13 +14,13 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import regex as re
 from collections.abc import Generator
 
-from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
+import regex as re
+
 from lexnlp.extract.common.annotations.phone_annotation import PhoneAnnotation
 from lexnlp.extract.common.annotations.ssn_annotation import SsnAnnotation
-
+from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 SSN_PATTERN = r"""
 (?P<block1>[0-9]{3})[\-]?(?P<block2>[0-9]{2})[\-]?(?P<block3>[0-9]{4})

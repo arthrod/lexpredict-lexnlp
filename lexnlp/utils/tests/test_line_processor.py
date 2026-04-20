@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from unittest import TestCase
+
 from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams
 
 

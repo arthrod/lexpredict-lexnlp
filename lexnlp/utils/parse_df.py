@@ -153,7 +153,7 @@ class DataframeEntityParser:
 
 def get_entities(text: str,
                  config: pd.DataFrame,
-                 parse_columns: list[str] | tuple[str],
+                 parse_columns: list[str] | tuple[str, ...],
                  result_columns: dict | None = None,
                  preformed_entity: dict | None = None,
                  priority_sort_column: str | None = None,
@@ -161,8 +161,22 @@ def get_entities(text: str,
                  cell_values_separator: str | None = ';',
                  unique_column_values: bool = True) -> Generator[dict]:
     """
-    Simple wrapper around DataframeEntityParser
-    """
+                 Create entities from `text` by matching values in `config` DataFrame columns and yield each entity as a dictionary.
+                 
+                 Parameters:
+                     text (str): Input text to search.
+                     config (pd.DataFrame): DataFrame whose specified columns provide values to match against the text.
+                     parse_columns (list[str] | tuple[str, ...]): Column names in `config` to build match patterns from.
+                     result_columns (dict | None): Mapping from DataFrame column names to output keys to include in each entity when a match is found.
+                     preformed_entity (dict | None): Static key/value pairs to merge into every produced entity.
+                     priority_sort_column (str | None): Column name used to break ties when selecting a single matching row from the DataFrame.
+                     priority_sort_ascending (bool): Sort order used when applying `priority_sort_column`.
+                     cell_values_separator (str | None): Separator used to split multi-value cells before building match patterns (None disables splitting).
+                     unique_column_values (bool): If True, map single values from the selected DataFrame row into the entity; if False, include a list of mapped entities for all matching rows.
+                 
+                 Returns:
+                     Generator[dict]: Generator that yields entity dictionaries with span positions, matched source text, any mapped result fields, and merged `preformed_entity` fields.
+                 """
     yield from DataframeEntityParser(dataframe=config,
                                      parse_columns=parse_columns,
                                      result_columns=result_columns,
@@ -175,7 +189,7 @@ def get_entities(text: str,
 
 def get_entity_list(text: str,
                     config: pd.DataFrame,
-                    parse_columns: list[str] | tuple[str],
+                    parse_columns: list[str] | tuple[str, ...],
                     result_columns: dict | None = None,
                     preformed_entity: dict | None = None,
                     priority_sort_column: str | None = None,
@@ -183,8 +197,22 @@ def get_entity_list(text: str,
                     cell_values_separator: str | None = ';',
                     unique_column_values: bool = True) -> list:
     """
-    Simple wrapper around DataframeEntityParser
-    """
+                    Create a list of entity dictionaries extracted from text by matching values in a DataFrame.
+                    
+                    Parameters:
+                        text (str): Input text to search for entities.
+                        config (pd.DataFrame): DataFrame whose specified columns provide values to match against the text.
+                        parse_columns (list[str] | tuple[str, ...]): Column names in `config` whose values will be searched for matches.
+                        result_columns (dict | None): Mapping of DataFrame column names to output keys; when provided, matched rows supply additional fields in the returned entities.
+                        preformed_entity (dict | None): Static key/value pairs to attach to every produced entity.
+                        priority_sort_column (str | None): Column name used to break ties when a matched value appears in multiple rows.
+                        priority_sort_ascending (bool): Sort direction used with `priority_sort_column` when selecting a single matching row.
+                        cell_values_separator (str | None): Separator used to split multi-value cells in `config` before building match patterns; `None` treats cells as single tokens.
+                        unique_column_values (bool): If True, assumes each value in a parse column maps to a single row and merges mapped `result_columns` into the top-level entity; if False, returns an `entities` list with one entry per matching row.
+                    
+                    Returns:
+                        list: A list of dictionaries describing each matched entity, including span positions, matched source text, any mapped DataFrame fields, and fields from `preformed_entity`.
+                    """
     return DataframeEntityParser(dataframe=config,
                                  parse_columns=parse_columns,
                                  result_columns=result_columns,

@@ -22,9 +22,8 @@ from nltk.tokenize.stanford import StanfordTokenizer
 
 # Project imports
 from lexnlp import is_stanford_enabled
-from lexnlp.nlp.en.tokens import STOPWORDS, get_lemma_list
 from lexnlp.config.stanford import STANFORD_POS_PATH
-
+from lexnlp.nlp.en.tokens import STOPWORDS, get_lemma_list
 
 # Setup Stanford POS configuration
 

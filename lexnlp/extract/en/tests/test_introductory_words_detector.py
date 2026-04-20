@@ -8,28 +8,25 @@ __email__ = "support@contraxsuite.com"
 
 from unittest import TestCase
 
-from lexnlp.extract.en.preprocessing.span_tokenizer import SpanTokenizer
 from lexnlp.extract.en.introductory_words_detector import IntroductoryWordsDetector
+from lexnlp.extract.en.preprocessing.span_tokenizer import SpanTokenizer
 
 
 class TestIntroductoryWordsDetector(TestCase):
     def test_negative(self):
-        term = 'Physically Completed'
+        term = "Physically Completed"
         term_pos = list(SpanTokenizer.get_token_spans(term))
-        term_clear = \
-            IntroductoryWordsDetector.remove_term_introduction(term, term_pos)
+        term_clear = IntroductoryWordsDetector.remove_term_introduction(term, term_pos)
         self.assertEqual(term, term_clear)
 
     def test_negative_combined(self):
-        term = 'Combined EDITT Deficit Alpha Beta Gamma Cappa'
+        term = "Combined EDITT Deficit Alpha Beta Gamma Cappa"
         term_pos = list(SpanTokenizer.get_token_spans(term))
-        term_clear = \
-            IntroductoryWordsDetector.remove_term_introduction(term, term_pos)
+        term_clear = IntroductoryWordsDetector.remove_term_introduction(term, term_pos)
         self.assertEqual(term, term_clear)
 
     def test_positive(self):
-        term = 'so called "champerty\''
+        term = "so called \"champerty'"
         term_pos = list(SpanTokenizer.get_token_spans(term))
-        term_clear = \
-            IntroductoryWordsDetector.remove_term_introduction(term, term_pos)
-        self.assertEqual('"champerty\'', term_clear)
+        term_clear = IntroductoryWordsDetector.remove_term_introduction(term, term_pos)
+        self.assertEqual("\"champerty'", term_clear)

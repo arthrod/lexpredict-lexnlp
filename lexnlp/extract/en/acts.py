@@ -6,13 +6,13 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import regex as re
-from typing import Any
 from collections.abc import Generator
+from typing import Any
+
+import regex as re
 
 from lexnlp.extract.common.annotations.act_annotation import ActAnnotation
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
-
 
 ACT_PARTS_RE = re.compile(r'''
 (?P<text>

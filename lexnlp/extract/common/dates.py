@@ -14,13 +14,12 @@ __email__ = "support@contraxsuite.com"
 # pylint: disable=bare-except,broad-except,unused-argument
 import datetime
 import re
-from importlib import import_module
-
 import string
+from collections.abc import Generator
+from importlib import import_module
+from typing import Any
 
 from dateparser.search import search_dates
-from typing import Any
-from collections.abc import Generator
 
 from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
@@ -131,7 +130,21 @@ class DateParser:
                   text: str | None = None,
                   locale: Locale | None = None) \
             -> Generator[dict[str, Any]]:
-        strict = self.dateparser_settings.get('STRICT_PARSING',
+        """
+                  Yield dictionaries describing each extracted date found in the text.
+                  
+                  Parameters:
+                      text (str | None): Optional text to extract dates from. If None, uses the instance's stored text.
+                      locale (Locale | None): Optional locale to guide parsing; if None, uses the instance's configured locale.
+                  
+                  Returns:
+                      dict[str, Any]: An iterator of dictionaries, each containing:
+                          - location_start (int): start index of the matched substring in the text.
+                          - location_end (int): end index of the matched substring in the text.
+                          - value (datetime | Any): the parsed/normalized date value.
+                          - source (str): the exact substring from the text that produced the date.
+                  """
+                  strict = self.dateparser_settings.get('STRICT_PARSING',
                                               self.DEFAULT_DATEPARSER_SETTINGS.get('STRICT_PARSING', False))
         for ant in self.get_date_annotations(text, locale, strict=strict):
             yield {'location_start': ant.coords[0],
@@ -140,11 +153,29 @@ class DateParser:
                    'source': ant.text}
 
     def get_date_annotations(self,
-                             text: str = None,
+                             text: str | None = None,
                              locale: Locale | None = None,
                              strict: bool = True) -> \
             Generator[DateAnnotation]:
-        self.text = text.replace('\n', ' ') or self.text
+        """
+                             Generate date annotations from the parser and optional custom extractors for the given text and locale.
+                             
+                             Parameters:
+                                 text (str | None): Input text to search for dates. Newlines are replaced with spaces. If None, the parser uses the instance's existing `self.text`.
+                                 locale (Locale | None): Locale to use for extraction; if provided, its `language` overrides the parser's current language.
+                                 strict (bool): If true, enable strict parsing behavior when calling the underlying date extraction.
+                             
+                             Returns:
+                                 Generator[DateAnnotation]: Lazily yields DateAnnotation objects with coords, date, text, and locale for each accepted date mention.
+                             
+                             Raises:
+                                 RuntimeError: If neither text nor locale language is defined.
+                             
+                             Notes:
+                                 - Extraction first uses the dateparser searcher, then any custom extractions from `get_extra_dates`.
+                                 - Candidate matches are filtered by general heuristics and, if enabled, by the classifier check; overlapping spans are suppressed.
+                             """
+                             self.text = text.replace('\n', ' ') or self.text
         self.locale.language = (locale.language if locale else "") or self.locale.language
 
         if not self.text or not self.locale.language:
@@ -191,8 +222,19 @@ class DateParser:
 
     def get_date_annotation_list(
         self,
-        text: str = None,
+        text: str | None = None,
         locale: Locale | None = None,
         strict: bool = True,
     ) -> list[DateAnnotation]:
+        """
+        Produce a list of date annotations extracted from the given text.
+        
+        Parameters:
+            text (str | None): Text to analyze; if None, the parser uses the instance's stored text.
+            locale (Locale | None): Locale override for parsing language; if None, the instance's locale is used.
+            strict (bool): If True, enable strict parsing rules for date extraction.
+        
+        Returns:
+            list[DateAnnotation]: List of detected date annotations with coordinates, normalized date value, and source text.
+        """
         return list(self.get_date_annotations(text, locale, strict))

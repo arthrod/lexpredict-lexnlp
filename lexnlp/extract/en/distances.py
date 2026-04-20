@@ -13,12 +13,11 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-from decimal import Decimal
 from collections.abc import Generator
+from decimal import Decimal
 
 from lexnlp.extract.common.annotations.distance_annotation import DistanceAnnotation
-from lexnlp.extract.en.amounts import get_amounts, NUM_PTN
-
+from lexnlp.extract.en.amounts import NUM_PTN, get_amounts
 
 DISTANCE_SYMBOL_MAP = {
     "km": "kilometer",

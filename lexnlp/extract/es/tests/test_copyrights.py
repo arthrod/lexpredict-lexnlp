@@ -8,16 +8,19 @@ __email__ = "support@contraxsuite.com"
 
 from unittest import TestCase
 
-
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
-from lexnlp.extract.es.copyrights import get_copyright_list, get_copyrights, get_copyright_annotations, \
-    get_copyright_annotation_list
+from lexnlp.extract.es.copyrights import (
+    get_copyright_annotation_list,
+    get_copyright_annotations,
+    get_copyright_list,
+    get_copyrights,
+)
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestParseEsCourts(TestCase):
     def test_parse_empty_text(self):
-        ret = get_copyright_list('')
+        ret = get_copyright_list("")
         self.assertEqual(0, len(ret))
         ret = get_copyright_list("""
 
@@ -27,26 +30,36 @@ class TestParseEsCourts(TestCase):
     def test_parse_simply_phrase(self):
         text = "Website BBC Mundo © 1996 – 2019   "
         ret = get_copyright_annotation_list(text)
-        self.assertEqual(1, len(ret), 'test_parse_simply_phrase failed')
+        self.assertEqual(1, len(ret), "test_parse_simply_phrase failed")
         self.assertEqual((18, 34), ret[0].coords)
         self.assertEqual(1996, ret[0].year_start)
 
     def test_two_symbols(self):
         text = "Copyright © 2019 BBC"
         ret = get_copyright_annotation_list(text)
-        self.assertEqual(1, len(ret), 'test_two_symbols failed')
-        self.assertEqual('es', ret[0].locale)
+        self.assertEqual(1, len(ret), "test_two_symbols failed")
+        self.assertEqual("es", ret[0].locale)
 
         ret = list(get_copyrights(text))
-        self.assertEqual(1, len(ret), 'test_two_symbols failed')
+        self.assertEqual(1, len(ret), "test_two_symbols failed")
 
     def test_file_samples(self):
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
             get_verbose_copyright_annotations,
-            'lexnlp/typed_annotations/es/copyright/copyrights.txt',
-            CopyrightAnnotation)
+            "lexnlp/typed_annotations/es/copyright/copyrights.txt",
+            CopyrightAnnotation,
+        )
 
 
 def get_verbose_copyright_annotations(text: str) -> list[CopyrightAnnotation]:
+    """
+    Extract verbose Spanish copyright annotations from the given text as typed CopyrightAnnotation objects.
+    
+    Parameters:
+        text (str): Input text to parse for copyright annotations.
+    
+    Returns:
+        list[CopyrightAnnotation]: A list of CopyrightAnnotation instances with source details included.
+    """
     return list(get_copyright_annotations(text, return_sources=True))

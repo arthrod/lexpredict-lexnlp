@@ -14,9 +14,9 @@ import os
 import re
 from collections.abc import Generator
 
+from lexnlp.extract.common.annotations.address_annotation import AddressAnnotation
 from lexnlp.extract.en.addresses import address_features
 from lexnlp.extract.en.preprocessing.span_tokenizer import SpanTokenizer
-from lexnlp.extract.common.annotations.address_annotation import AddressAnnotation
 from lexnlp.utils.unpickler import renamed_load
 
 NGRAM_CLASSIFIER_FN = os.path.join(os.path.dirname(__file__), 'addresses_clf.pickle')

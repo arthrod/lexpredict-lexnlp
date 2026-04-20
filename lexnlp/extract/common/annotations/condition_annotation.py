@@ -19,11 +19,22 @@ class ConditionAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 text: str = None,
-                 condition: str = None,
-                 pre: str = None,
-                 post: str = None):
-        super().__init__(
+                 text: str | None = None,
+                 condition: str | None = None,
+                 pre: str | None = None,
+                 post: str | None = None):
+        """
+                 Initialize a ConditionAnnotation representing an annotated span with optional condition, pre, and post text.
+                 
+                 Parameters:
+                 	coords (tuple[int, int]): Start and end character indices of the annotation span.
+                 	locale (str): Locale identifier for the annotation (default 'en').
+                 	text (str | None): Text covered by the annotation, if available.
+                 	condition (str | None): Extracted condition associated with the annotation.
+                 	pre (str | None): Text occurring immediately before the condition, if any.
+                 	post (str | None): Text occurring immediately after the condition, if any.
+                 """
+                 super().__init__(
             name='',
             locale=locale,
             coords=coords,

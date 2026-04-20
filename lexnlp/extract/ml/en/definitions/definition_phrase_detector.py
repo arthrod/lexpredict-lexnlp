@@ -10,9 +10,9 @@ __email__ = "support@contraxsuite.com"
 import numpy
 import pandas
 
-from lexnlp.extract.ml.detector.detecting_settings import DetectingSettings
-from lexnlp.extract.ml.detector.sample_processor import process_sample, get_target_start_end_from_corgetes
 from lexnlp.extract.ml.detector.artifact_detector import ArtifactDetector
+from lexnlp.extract.ml.detector.detecting_settings import DetectingSettings
+from lexnlp.extract.ml.detector.sample_processor import get_target_start_end_from_corgetes, process_sample
 
 
 class DefinitionPhraseDetector(ArtifactDetector):

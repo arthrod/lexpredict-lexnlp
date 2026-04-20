@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from collections.abc import Generator
+
 import regex as re
 
 

@@ -19,7 +19,6 @@ __email__ = "support@contraxsuite.com"
 # Change the path according to your system
 import os
 import string
-
 from collections.abc import Generator
 
 from nltk.tag import StanfordNERTagger
@@ -28,7 +27,6 @@ from lexnlp.config.stanford import STANFORD_NER_PATH
 from lexnlp.extract.en.utils import strip_unicode_punctuation
 from lexnlp.nlp.en.segments.sentences import get_sentence_list
 from lexnlp.nlp.en.stanford import get_tokens_list
-
 
 # Setup Stanford NER configuration
 

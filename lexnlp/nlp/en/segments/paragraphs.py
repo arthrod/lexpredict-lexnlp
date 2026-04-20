@@ -19,9 +19,10 @@ __email__ = "support@contraxsuite.com"
 import os
 import string
 import unicodedata
-from re import Pattern, compile as re_compile
-from typing import Final
 from collections.abc import Generator
+from re import Pattern
+from re import compile as re_compile
+from typing import Final
 
 # third-party imports
 import joblib
@@ -29,7 +30,6 @@ from pandas import DataFrame
 
 # LexNLP
 from lexnlp.nlp.en.segments.utils import build_document_line_distribution
-
 
 # Setup module path
 

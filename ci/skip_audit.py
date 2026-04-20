@@ -17,9 +17,9 @@ import re
 import subprocess
 import sys
 import warnings
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from collections.abc import Sequence
 
 ANNOTATION_RE = re.compile(
     r"skip-audit:\s*issue=(?P<issue>\S+)\s+expires=(?P<expires>\d{4}-\d{2}-\d{2})"

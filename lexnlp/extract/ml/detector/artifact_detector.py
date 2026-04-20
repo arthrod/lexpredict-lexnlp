@@ -6,10 +6,10 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from abc import abstractmethod
-from typing import Any
-from collections.abc import Generator
 import string
+from abc import abstractmethod
+from collections.abc import Generator
+from typing import Any
 
 import num2words
 import numpy
@@ -18,7 +18,7 @@ import sklearn.ensemble
 
 from lexnlp.extract.ml.classifier.base_token_sequence_classifier_model import BaseTokenSequenceClassifierModel
 from lexnlp.extract.ml.detector.detecting_settings import DetectingSettings
-from lexnlp.extract.ml.detector.phrase_constructor import PhraseConstructorSettings, PhraseConstructor
+from lexnlp.extract.ml.detector.phrase_constructor import PhraseConstructor, PhraseConstructorSettings
 
 
 class ArtifactDetector:
@@ -52,8 +52,18 @@ class ArtifactDetector:
     def predict_text(self,
                      text: str,
                      join_settings: PhraseConstructorSettings = None,
-                     feature_mask: list[int] = None) -> Generator[tuple[int, int]]:
-        feature_data, tokens = self.model.get_feature_data(text, feature_mask)
+                     feature_mask: list[int] | None = None) -> Generator[tuple[int, int]]:
+        """
+                     Identify phrase spans in the given text using the detector's loaded model and joining rules.
+                     
+                     Parameters:
+                         join_settings (PhraseConstructorSettings | None): Optional settings that control how token predictions are merged into phrase spans. If omitted, the detector's default join settings are used.
+                         feature_mask (list[int] | None): Optional list of feature/token indices to consider when constructing features; if provided, only the specified positions are used.
+                     
+                     Returns:
+                         Generator[tuple[int, int]]: Generator of (start_index, end_index) tuples representing the token-span positions of detected phrases in the input text.
+                     """
+                     feature_data, tokens = self.model.get_feature_data(text, feature_mask)
         predicted_class = self.model.model.predict(feature_data)
         join_settings = join_settings or self.join_token_settings
         yield from PhraseConstructor.join_tokens(

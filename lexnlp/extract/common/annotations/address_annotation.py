@@ -16,12 +16,20 @@ class AddressAnnotation(TextAnnotation):
     """
     record_type = 'address'
 
-    def __int__(
+    def __init__(
         self,
         coords: tuple[int, int],
         locale: str = 'en',
         text: str = '',
     ):
+        """
+        Initialize an AddressAnnotation with its span, locale, and extracted text.
+        
+        Parameters:
+            coords (tuple[int, int]): Pair of integer coordinates (start, end) indicating the annotated span.
+            locale (str): Language/locale code for the annotation (default 'en').
+            text (str): Extracted address text for the annotation (default '').
+        """
         super().__init__(
             name='',
             locale=locale,

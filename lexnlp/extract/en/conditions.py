@@ -15,12 +15,12 @@ __email__ = "support@contraxsuite.com"
 
 
 import copy
-import regex as re
 from collections.abc import Generator
+
+import regex as re
 
 from lexnlp.extract.common.annotations.condition_annotation import ConditionAnnotation
 from lexnlp.nlp.en.segments.sentences import get_sentence_list
-
 
 CONDITION_PHRASES = ['if', 'if not', 'when', 'when not', 'where', 'where not', 'unless and until', 'unless',
                      'unless not', 'until', 'until not', 'as soon as', 'as soon as not', 'provided that',

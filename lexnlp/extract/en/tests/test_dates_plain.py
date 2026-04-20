@@ -10,12 +10,11 @@ import datetime
 from unittest import TestCase
 
 from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
-from lexnlp.extract.en.dates import get_raw_date_list, get_dates_list, get_date_annotations
+from lexnlp.extract.en.dates import get_date_annotations, get_dates_list, get_raw_date_list
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestDatesPlain(TestCase):
-
     def test_dates(self):
         text = """
         2. Amendment to Interest Rate. Beginning on February 1, 1998, and
@@ -33,8 +32,10 @@ class TestDatesPlain(TestCase):
         self.assertEqual(datetime.date(2002, 7, 18), dates[3])
 
     def test_dates_times(self):
-        text = "From 12:01 a.m. on March 1, 1999 (the 'Commencement Date') through " + \
-               "1l:59 p.m. on November 30, 2002 (the 'Expiration Date')"
+        text = (
+            "From 12:01 a.m. on March 1, 1999 (the 'Commencement Date') through "
+            + "1l:59 p.m. on November 30, 2002 (the 'Expiration Date')"
+        )
         dates = get_raw_date_list(text)
 
         self.assertEqual(2, len(dates))
@@ -129,8 +130,7 @@ class TestDatesPlain(TestCase):
         self.assertEqual(0, len(dates))
 
     def test_another_may(self):
-        text = "Sections 12.1, 12.2, 12.3, 12.4, 12.6, 12.7 and 12.12\n" + \
-               "may be amended only"
+        text = "Sections 12.1, 12.2, 12.3, 12.4, 12.6, 12.7 and 12.12\n" + "may be amended only"
         dates = list(get_dates_list(text, strict=True))
         self.assertEqual(0, len(dates))
 
@@ -145,7 +145,10 @@ class TestDatesPlain(TestCase):
 
     def test_is_it_a_date(self):
         """
-        Somehow "29MAY19 1350" produces 1350-01-01 that doesn't go through validation
+        Verify parsing of a compact date-time token with month abbreviation and 24-hour time.
+        
+        Asserts that the substring "29MAY19 1350" embedded in surrounding text is recognized by get_dates_list(..., strict=True)
+        and produces datetime.datetime(2019, 5, 29, 13, 50, 0).
         """
         text = "NOT RCVD BY RJ BY 29MAY19 1350 DOH LT REF"
         dates = list(get_dates_list(text, strict=True))
@@ -153,39 +156,49 @@ class TestDatesPlain(TestCase):
         self.assertEqual(datetime.datetime(2019, 5, 29, 13, 50, 0), dates[0])
 
     def test_date_en_us(self):
-        text = 'Commencement Date: 09/12/2022.'
+        text = "Commencement Date: 09/12/2022."
         dates = get_dates_list(text)
         self.assertEqual(1, len(dates))
         self.assertEqual(9, dates[0].month)
 
     def test_date_en_gb(self):
-        text = 'Commencement Date: 09/12/2022.'
-        dates = get_dates_list(text, locale='en-GB')
+        """
+        Verify that numeric date strings are parsed in day-month-year order when the locale is "en-GB".
+        
+        Asserts that a single date is extracted from "09/12/2022" and that the parsed month equals 12 (December).
+        """
+        text = "Commencement Date: 09/12/2022."
+        dates = get_dates_list(text, locale="en-GB")
         self.assertEqual(1, len(dates))
         self.assertEqual(12, dates[0].month)
 
     def test_date_with_abbreviation(self):
-        text = "'“Obligation No. 1” means Direct Note Obligation No. 1 dated October 27, 2011, " \
-               "issued to the Authority under the First Supplemental Master Indenture to secure " \
-               "the Series 2000 COPs.'"
+        """
+        Verify extraction of a single date from text containing "dated October 27, 2011".
+        """
+        text = (
+            "'“Obligation No. 1” means Direct Note Obligation No. 1 dated October 27, 2011, "
+            "issued to the Authority under the First Supplemental Master Indenture to secure "
+            "the Series 2000 COPs.'"
+        )
         dates = get_dates_list(text)
         self.assertEqual(1, len(dates))
         self.assertEqual(datetime.date(2011, 10, 27), dates[0])
 
     def test_en_dates(self):
         text = "Some date like February 26, 2018 and this one 10-11-2017"
-        extracted_dates = list(get_date_annotations(text=text, locale='en'))
+        extracted_dates = list(get_date_annotations(text=text, locale="en"))
         for ant in extracted_dates:
-            ant.text = text[ant.coords[0]: ant.coords[1]]
+            ant.text = text[ant.coords[0] : ant.coords[1]]
         extracted_dates.sort(key=lambda k: k.coords[0])
 
         self.assertEqual((15, 32), extracted_dates[0].coords)
         self.assertEqual(datetime.date(2018, 2, 26), extracted_dates[0].date)
-        self.assertEqual('February 26, 2018', extracted_dates[0].text.strip())
+        self.assertEqual("February 26, 2018", extracted_dates[0].text.strip())
 
         self.assertEqual((46, 56), extracted_dates[1].coords)
         self.assertEqual(datetime.date(2017, 10, 11), extracted_dates[1].date)
-        self.assertEqual('10-11-2017', extracted_dates[1].text.strip())
+        self.assertEqual("10-11-2017", extracted_dates[1].text.strip())
 
     def test_should_marella(self):
         text = """
@@ -197,8 +210,12 @@ class TestDatesPlain(TestCase):
         self.assertEqual(0, len(dates))
 
     def test_file_samples(self):
+        """
+        Validate the date annotation extractor against the English date fixtures.
+        
+        Runs the TypedAnnotationsTester using get_date_annotations and the
+        lexnlp/typed_annotations/en/date/dates.txt fixtures; the tester will raise
+        an error if extracted annotations do not match the expected DateAnnotation entries.
+        """
         tester = TypedAnnotationsTester()
-        tester.test_and_raise_errors(
-            get_date_annotations,
-            'lexnlp/typed_annotations/en/date/dates.txt',
-            DateAnnotation)
+        tester.test_and_raise_errors(get_date_annotations, "lexnlp/typed_annotations/en/date/dates.txt", DateAnnotation)

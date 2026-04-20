@@ -19,37 +19,37 @@ __email__ = "support@contraxsuite.com"
 
 # Imports
 from decimal import Decimal
+
 from lexnlp.extract.en.distances import get_distances
 from lexnlp.tests import lexnlp_tests
 
 
 def test_get_distance():
     """
-    Test distance extraction.
-    :return:
+    Verify that get_distances extracts distance values and units from the test dataset.
+    
+    Uses lexnlp_tests.test_extraction_func_on_test_data with return_sources=False and an expected_data_converter that casts expected distance strings to Decimal while preserving units.
     """
     # TODO: Do we need this separate method? test_get_distance_source()
     #   ... tests both distances and sources
     lexnlp_tests.test_extraction_func_on_test_data(
         func=get_distances,
         return_sources=False,
-        expected_data_converter=lambda expected: [
-            (Decimal(distance), units)
-            for distance, units in expected
-        ]
+        expected_data_converter=lambda expected: [(Decimal(distance), units) for distance, units in expected],
     )
 
 
 def test_get_distance_source():
     """
-    Test distance extraction with source.
-    :return:
+    Run tests that verify distance extraction returns distance, units, and source.
+    
+    Converts expected distance strings to Decimal and asserts that get_distances yields
+    tuples of (distance, units, source) matching the test data.
     """
     lexnlp_tests.test_extraction_func_on_test_data(
         func=get_distances,
         return_sources=True,
         expected_data_converter=lambda expected: [
-            (Decimal(distance), units, source)
-            for distance, units, source in expected
-        ]
+            (Decimal(distance), units, source) for distance, units, source in expected
+        ],
     )

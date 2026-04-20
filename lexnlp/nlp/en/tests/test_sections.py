@@ -23,7 +23,7 @@ import os
 from unittest import TestCase
 
 from lexnlp import get_module_path
-from lexnlp.nlp.en.segments.sections import get_sections, get_section_spans, DocumentSection, find_section_titles
+from lexnlp.nlp.en.segments.sections import DocumentSection, find_section_titles, get_section_spans, get_sections
 from lexnlp.nlp.en.segments.sentences import get_sentence_span_list
 from lexnlp.tests import lexnlp_tests
 

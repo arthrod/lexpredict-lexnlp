@@ -6,9 +6,11 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from re import Match
 from collections.abc import Callable
+from re import Match
+
 import regex as re
+
 from lexnlp.extract.common.definitions.universal_definition_parser import UniversalDefinitionsParser
 from lexnlp.extract.common.pattern_found import PatternFound
 

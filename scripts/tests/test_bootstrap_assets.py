@@ -26,7 +26,6 @@ if str(_SCRIPTS_DIR) not in sys.path:
 
 import bootstrap_assets
 
-
 # ---------------------------------------------------------------------------
 # download_file - URL scheme validation
 # ---------------------------------------------------------------------------

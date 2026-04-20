@@ -9,8 +9,8 @@ __email__ = "support@contraxsuite.com"
 import argparse
 import csv
 import sys
-from datetime import UTC, datetime
 from collections.abc import Callable
+from datetime import UTC, datetime
 
 from elasticsearch import Elasticsearch, helpers
 

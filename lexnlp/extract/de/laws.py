@@ -6,14 +6,14 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from pandas import DataFrame
 from collections.abc import Generator
 
-from lexnlp.extract.de.language_tokens import DeLanguageTokens
-from lexnlp.extract.common.annotations.law_annotation import LawAnnotation
-from lexnlp.utils.parse_df import DataframeEntityParser
-from lexnlp.utils.lines_processing.line_processor import LineSplitParams, LineProcessor
+from pandas import DataFrame
 
+from lexnlp.extract.common.annotations.law_annotation import LawAnnotation
+from lexnlp.extract.de.language_tokens import DeLanguageTokens
+from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams
+from lexnlp.utils.parse_df import DataframeEntityParser
 
 ANNOTATION_SET_NAME = 'Laws and Rules'
 
@@ -94,8 +94,20 @@ parser: LawsParser | None = None
 
 
 def get_law_annotations(text: str, language: str = 'de') -> Generator[LawAnnotation]:
+    """
+    Yield law and rule annotations found in the given text.
+    
+    If the module-level parser is not initialized, nothing is yielded.
+    
+    Parameters:
+        text (str): Text to scan for law or rule mentions.
+        language (str): Locale code used for parsing (e.g., 'de').
+    
+    Returns:
+        Generator[LawAnnotation]: `LawAnnotation` objects for each detected law or rule.
+    """
     if not parser:
-        return None
+        return
     yield from parser.parse(text, language)
 
 

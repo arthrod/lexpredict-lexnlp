@@ -11,8 +11,9 @@ __email__ = "support@contraxsuite.com"
 import os
 import re
 from collections.abc import Generator
+
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
-from lexnlp.extract.common.universal_court_parser import UniversalCourtsParser, ParserInitParams
+from lexnlp.extract.common.universal_court_parser import ParserInitParams, UniversalCourtsParser
 from lexnlp.extract.de.language_tokens import DeLanguageTokens
 from lexnlp.utils.lines_processing.line_processor import LineSplitParams
 

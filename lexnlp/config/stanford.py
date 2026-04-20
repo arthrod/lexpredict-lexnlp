@@ -11,8 +11,8 @@ __email__ = "support@contraxsuite.com"
 
 
 import os
-from lexnlp import get_lib_path
 
+from lexnlp import get_lib_path
 
 # Setup Stanford configuration
 

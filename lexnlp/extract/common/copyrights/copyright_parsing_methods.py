@@ -10,6 +10,7 @@ __email__ = "support@contraxsuite.com"
 
 # pylint: enable=unused-import
 import regex as re
+
 from lexnlp.extract.common import year_parser
 from lexnlp.extract.common.copyrights.copyright_pattern_found import CopyrightPatternFound
 from lexnlp.extract.common.definitions.common_definition_patterns import CommonDefinitionPatterns

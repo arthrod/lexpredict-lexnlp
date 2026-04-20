@@ -16,8 +16,7 @@ from datetime import datetime
 from tempfile import mkstemp
 
 from lexnlp.extract.common.base_path import lexnlp_test_path
-from lexnlp.utils.unicode.unicode_lookup import UNICODE_CHAR_TOP_CATEGORY_MAPPING, build_lookup_tables, _load_table
-
+from lexnlp.utils.unicode.unicode_lookup import UNICODE_CHAR_TOP_CATEGORY_MAPPING, _load_table, build_lookup_tables
 
 logger = logging.getLogger(__name__)
 

@@ -35,11 +35,11 @@ __email__ = "support@contraxsuite.com"
 import os
 from unittest import TestCase
 
-from lexnlp.extract.en.dict_entities import DictionaryEntry
-from lexnlp.config.en.company_types import COMPANY_TYPES, COMPANY_DESCRIPTIONS, CompanyDescriptor
-from lexnlp.extract.en.entities.company_detector import CompanyDetector
+from lexnlp.config.en.company_types import COMPANY_DESCRIPTIONS, COMPANY_TYPES, CompanyDescriptor
 from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.common.entities.entity_banlist import BanListUsage, EntityBanListItem
+from lexnlp.extract.en.dict_entities import DictionaryEntry
+from lexnlp.extract.en.entities.company_detector import CompanyDetector
 from lexnlp.extract.en.entities.nltk_maxent import get_company_annotations
 
 

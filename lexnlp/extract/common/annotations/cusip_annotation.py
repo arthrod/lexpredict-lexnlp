@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from typing import Any
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -22,15 +23,31 @@ class CusipAnnotation(TextAnnotation):
                  coords: tuple[int, int],
                  locale: str = 'en',
                  name: str = '',
-                 text: str = None,
-                 code: str = None,
-                 internal: bool = None,
-                 ppn: str = None,
-                 tba: dict = None,
-                 checksum: str = None,
-                 issue_id: str = None,
-                 issuer_id: str = None):
-        super().__init__(
+                 text: str | None = None,
+                 code: str | None = None,
+                 internal: bool | None = None,
+                 ppn: str | None = None,
+                 tba: dict | None = None,
+                 checksum: str | None = None,
+                 issue_id: str | None = None,
+                 issuer_id: str | None = None):
+        """
+                 Initialize the CusipAnnotation with position, locale, text, and CUSIP-specific metadata.
+                 
+                 Parameters:
+                     coords (tuple[int, int]): Start and end positions of the annotation.
+                     locale (str): Language/locale of the annotation.
+                     name (str): Annotation name or label.
+                     text (str | None): Extracted text associated with the annotation.
+                     code (str | None): Extracted CUSIP code value.
+                     internal (bool | None): Flag indicating an internal identifier or internal extraction status.
+                     ppn (str | None): Associated PPN (proprietary product number) if present.
+                     tba (dict | None): TBA-related data when the annotation refers to a To Be Announced instrument.
+                     checksum (str | None): Checksum value associated with the CUSIP, if available.
+                     issue_id (str | None): Identifier for the specific issue.
+                     issuer_id (str | None): Identifier for the issuer.
+                 """
+                 super().__init__(
             name=name,
             locale=locale,
             coords=coords,

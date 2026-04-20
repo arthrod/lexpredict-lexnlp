@@ -10,11 +10,11 @@ __email__ = "support@contraxsuite.com"
 
 
 from collections.abc import Generator
-from lexnlp.extract.common.copyrights.copyright_en_style_parser import CopyrightEnStyleParser
+
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
+from lexnlp.extract.common.copyrights.copyright_en_style_parser import CopyrightEnStyleParser
 from lexnlp.extract.es.language_tokens import EsLanguageTokens
-from lexnlp.utils.lines_processing.line_processor import LineSplitParams
-from lexnlp.utils.lines_processing.line_processor import LineProcessor
+from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams
 
 
 class CopyrightEsParser(CopyrightEnStyleParser):

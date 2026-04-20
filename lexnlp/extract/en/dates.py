@@ -18,8 +18,8 @@ import calendar
 import datetime
 import os
 import random
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
 # Third-party packages
 import regex as re
@@ -30,8 +30,7 @@ from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
 from lexnlp.extract.common.date_parsing.datefinder import DateFinder
 from lexnlp.extract.common.dates import DateParser
 from lexnlp.extract.common.dates_classifier_model import build_date_model, get_date_features
-from lexnlp.extract.en.date_model import MODEL_DATE, MODULE_PATH, DATE_MODEL_CHARS
-
+from lexnlp.extract.en.date_model import DATE_MODEL_CHARS, MODEL_DATE, MODULE_PATH
 
 # Distance in characters to use to merge two date strings
 
@@ -77,14 +76,18 @@ def get_raw_date_list(text, strict=False, base_date=None, return_source=False, l
 def get_raw_dates(text, strict=False, base_date=None,
                   return_source=False, locale=None) -> Generator:
     """
-    Find "raw" or potential date matches prior to false positive classification.
-    :param text: raw text to search
-    :param strict: whether to return only complete or strict matches
-    :param base_date: base date to use for implied or partial matches
-    :param return_source: whether to return raw text around date
-    :param locale: locale object
-    :return:
-    """
+                  Yield raw candidate dates found in the input text before classifier-based filtering.
+                  
+                  Parameters:
+                      text (str): Text to search for date-like substrings.
+                      strict (bool): If True, prefer complete/strict matches from the extractor.
+                      base_date (datetime.datetime | datetime.date | None): Base date used to resolve partial or implied dates; if None, a default base is used.
+                      return_source (bool): If True, yield tuples of (date, (start_index, end_index)) representing the parsed date and its source span.
+                      locale (str | Locale | None): Locale identifier or Locale object used for parsing; if a string is provided it is converted to a Locale.
+                  
+                  Returns:
+                      Generator: Yields parsed `datetime.date` or `datetime.datetime` objects for each candidate, or `(date, (start, end))` tuples when `return_source` is True.
+                  """
     if isinstance(locale, str):
         locale = Locale(locale)
     elif locale is None:
@@ -239,7 +242,7 @@ def get_raw_dates(text, strict=False, base_date=None,
                     try:
                         date = date_finder.parse_date_string(date_string, date_props, locale=locale)
                     # pylint: disable=broad-except
-                    except:
+                    except Exception:
                         date = None
                     if date:
                         break

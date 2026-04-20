@@ -8,29 +8,32 @@ __email__ = "support@contraxsuite.com"
 
 import codecs
 import os
+from collections.abc import Generator
 from unittest import TestCase
 
-from collections.abc import Generator
-
-from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
-from lexnlp.extract.en.copyright import get_copyrights, get_copyright_annotations
+from lexnlp.extract.common.base_path import lexnlp_test_path
+from lexnlp.extract.en.copyright import get_copyright_annotations, get_copyrights
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestCopyrightPlain(TestCase):
-
     def test_copyrights(self):
-        text = '(C)Maverick(R) International Processing Services, Inc. 1999'
+        text = "(C)Maverick(R) International Processing Services, Inc. 1999"
         cs = list(get_copyrights(text))
         self.assertEqual(1, len(cs))
 
         ant = list(get_copyright_annotations(text))[0]
         self.assertEqual((0, 58), ant.coords)
         cite = ant.get_cite()
-        self.assertEqual('/en/copyright/Maverick/1999', cite)
+        self.assertEqual("/en/copyright/Maverick/1999", cite)
 
     def test_text_coords(self):
+        """
+        Verify that the annotation start coordinate equals the index of the matched substring.
+        
+        Asserts that the first copyright annotation produced for the sample text has a start coordinate equal to text.find("(C)Tenant").
+        """
         text = """
 The provisions contained in Sections 2   through 36, inclusive, which 
 appear after the signature lines below, are a part of this Lease and are 
@@ -39,28 +42,38 @@ executed or caused to be executed this Lease on the dates shown below their
 signatures, to be effective as of the date set forth above.
         """
         ant = list(get_copyright_annotations(text))[0]
-        start = text.find('(C)Tenant')
+        start = text.find("(C)Tenant")
         self.assertEqual(start, ant.coords[0])
 
     def test_file_samples(self):
+        """
+        Validate that the copyright extractor produces the expected CopyrightAnnotation objects for the sample file.
+        
+        Runs the extractor against "lexnlp/typed_annotations/en/copyright/copyrights.txt" using TypedAnnotationsTester.test_and_raise_errors and raises an assertion error if the emitted typed annotations do not match the expected annotations.
+        """
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
             get_copyright_verbose_annotations,
-            'lexnlp/typed_annotations/en/copyright/copyrights.txt',
-            CopyrightAnnotation)
+            "lexnlp/typed_annotations/en/copyright/copyrights.txt",
+            CopyrightAnnotation,
+        )
 
     def test_big_file(self):
-        file_path = os.path.join(lexnlp_test_path,
-                                 'lexnlp/extract/en/copyrights/bigfile.txt')
-        with codecs.open(file_path, encoding='utf-8', mode='r') as of:
+        file_path = os.path.join(lexnlp_test_path, "lexnlp/extract/en/copyrights/bigfile.txt")
+        with codecs.open(file_path, encoding="utf-8", mode="r") as of:
             text = of.read()
         cs = []
-        for part in text.split('\n\n'):
+        for part in text.split("\n\n"):
             for ant in get_copyright_annotations(part):
                 cs.append(ant)
         self.assertEqual(3, len(cs))
 
 
-def get_copyright_verbose_annotations(text: str) -> \
-        Generator[CopyrightAnnotation]:
+def get_copyright_verbose_annotations(text: str) -> Generator[CopyrightAnnotation]:
+    """
+    Yield CopyrightAnnotation objects found in the provided text with source metadata included.
+    
+    Returns:
+        Generator[CopyrightAnnotation]: Generator of CopyrightAnnotation objects whose source metadata is populated.
+    """
     yield from get_copyright_annotations(text, return_sources=True)

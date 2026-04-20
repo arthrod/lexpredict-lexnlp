@@ -17,10 +17,9 @@ __email__ = "support@contraxsuite.com"
 import string
 from collections.abc import Generator
 
-from lexnlp.extract.common.copyrights.copyright_en_style_parser import CopyrightEnStyleParser
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
+from lexnlp.extract.common.copyrights.copyright_en_style_parser import CopyrightEnStyleParser
 from lexnlp.extract.en.utils import NPExtractor
-
 
 grammar = r"""
     NBAR:

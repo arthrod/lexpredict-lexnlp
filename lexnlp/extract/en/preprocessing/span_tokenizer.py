@@ -6,8 +6,9 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from nltk import word_tokenize, pos_tag
 from collections.abc import Generator
+
+from nltk import pos_tag, word_tokenize
 
 from lexnlp.extract.common.text_beautifier import TextBeautifier
 

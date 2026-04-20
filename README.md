@@ -42,17 +42,44 @@ evaluation license
 by contacting ContraxSuite Licensing at <<license@contraxsuite.com>>.
 
 ## Requirements
-* Python 3.11 (default; supported range is defined in `pyproject.toml`)
+* Python 3.13 (minimum; supported range `>=3.13,<3.15` is declared in `pyproject.toml`)
 * `uv`
 
 ## Quick Setup (uv + pyproject)
 ```bash
 cd /path/to/LexNLP
-uv python install 3.11
-uv venv --python 3.11 .venv
+uv python install 3.13
+uv venv --python 3.13 .venv
 uv pip install --python .venv/bin/python -e ".[dev,test]"
 ./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
 ```
+
+## Build system
+The project now uses Astral's native [`uv_build`](https://docs.astral.sh/uv/concepts/build-backends/#uv-build) backend — the `[build-system]` in `pyproject.toml` declares `requires = ["uv_build>=0.9,<0.10"]` and `build-backend = "uv_build"`. This drops setuptools/wheel from the build toolchain and keeps the build, resolve and lint toolchain in a single vendor. Build with:
+
+```bash
+uv build           # sdist + wheel
+uv build --wheel   # wheel only
+```
+
+## New in this branch: `lexnlp.extract.batch`
+Concurrent and Arrow-native extraction helpers that exercise the Python 3.13 feature set declared in `pyproject.toml`:
+
+```python
+from lexnlp.extract.batch import extract_batch, annotations_to_dataframe, find_fuzzy_dates
+from lexnlp.extract.en.amounts import get_amount_annotations
+
+# Concurrent batch extraction via ``asyncio.TaskGroup``:
+results = extract_batch(get_amount_annotations, docs, max_workers=8)
+
+# Convert any iterable of annotations to a PyArrow-backed pandas DataFrame:
+df = annotations_to_dataframe(ann for r in results for ann in r.annotations)
+
+# Fuzzy ISO-date matcher built on the ``regex`` 2024+ engine:
+matches = list(find_fuzzy_dates("Shipped 2O24-01-15", max_edits=1))
+```
+
+See `MODERNIZATION_ROADMAP.md` §4.0 for the full design.
 
 ## Deprecated Setup Variants
 `Pipfile`, `python-requirements.txt`, and `python-requirements-dev.txt` are deprecated and kept only for legacy reproduction. New development and CI updates should use `uv` with `pyproject.toml`.

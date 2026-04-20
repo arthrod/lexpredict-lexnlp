@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import codecs
+
 from lexnlp.extract.en.contracts.contract_type_detector import ContractTypeDetector
 
 

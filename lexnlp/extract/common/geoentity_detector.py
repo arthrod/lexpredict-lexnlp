@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -7,12 +6,17 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
 from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
-from lexnlp.extract.en.dict_entities import DictionaryEntry, find_dict_entities, DictionaryEntryAlias, \
-    conflicts_take_first_by_id, conflicts_top_by_priority
+from lexnlp.extract.en.dict_entities import (
+    DictionaryEntry,
+    DictionaryEntryAlias,
+    conflicts_take_first_by_id,
+    conflicts_top_by_priority,
+    find_dict_entities,
+)
 
 
 class GeoEntityLocator:
@@ -28,26 +32,22 @@ class GeoEntityLocator:
             prepared_alias_ban_list: None | dict[str, tuple[list[str], list[str]]],
             conflict_resolving_field: str = 'none',
             priority_direction: str = 'asc',
-            text_languages: list[str] = None,
+            text_languages: list[str] | None = None,
             min_alias_len: int = 2,
             simplified_normalization: bool = False):
         """
-        :param language: default language for annotations found
-        :param geo_config_list: List of all possible known geo entities in the form of tuples
-        (id, name, [(alias, lang, is_abbrev, alias_id), ...]).
-        :param conflict_resolving_field: If two entities found with the totally equal matching aliases -
-        then use the one with the greatest priority field ("priority") / the one with the lowest id ("id") /
-         leave all entries found ("none", default).
-        :param priority_direction: priority ('asc' or 'desc') order for the conflict resolving function
-        :param text_languages: Language(s) of the source text. If a language is specified then only aliases of this
-        language will be searched for. For example: this allows ignoring "Island" - a German language
-         alias of Iceland for English texts.
-        :param min_alias_len: Minimal length of geo entity aliases to search for.
-        :param prepared_alias_ban_list: List of aliases to exclude from searching in the form:
-         dict of lang -> (list of normalized non-abbreviation aliases, list of normalized abbreviation aliases).
-         Use dict_entities.prepare_alias_banlist_dict() for preparing this dict.
-        :param simplified_normalization: don't use NLTK for "normalizing" text
-        """
+            Initialize locator configuration for finding geographic entities in text.
+            
+            Parameters:
+                language: Default language to assign to annotations when no alias locale is available.
+                geo_config_list: List of known geographic dictionary entries defining entities and their aliases.
+                prepared_alias_ban_list: Optional map of language -> (normalized non-abbreviation aliases, normalized abbreviation aliases) to exclude from matching.
+                conflict_resolving_field: Strategy to resolve exact-alias conflicts: 'id' to prefer lower id, 'priority' to prefer top priority, or 'none' to keep all matches.
+                priority_direction: Order ('asc' or 'desc') used by the priority-based conflict resolution.
+                text_languages: Optional list of languages of the source text; when provided, only aliases in these languages are considered.
+                min_alias_len: Minimum length of an alias to be considered for matching.
+                simplified_normalization: If true, use a simplified normalization pipeline (skip NLTK-based normalization).
+            """
         self.language = language
         self.geo_config_list = geo_config_list
         self.prepared_alias_ban_list = prepared_alias_ban_list

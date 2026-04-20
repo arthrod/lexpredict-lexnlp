@@ -6,8 +6,8 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from lexnlp.utils.map import Map
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
+from lexnlp.utils.map import Map
 
 
 class RegulationAnnotation(TextAnnotation):
@@ -21,10 +21,21 @@ class RegulationAnnotation(TextAnnotation):
                  coords: tuple[int, int],
                  locale: str = 'en',
                  name: str = '',
-                 text: str = None,
+                 text: str | None = None,
                  source: str = '',
                  country: str = ''):
-        super().__init__(
+        """
+                 Initialize a RegulationAnnotation with coordinates, locale, identifier text, and source/country metadata.
+                 
+                 Parameters:
+                     coords (tuple[int, int]): Character span (start, end) of the annotation in the source text.
+                     locale (str): Locale code for the annotation (default 'en').
+                     name (str): Identifier or code of the regulation (e.g., section number or code).
+                     text (str | None): Extracted annotation text; if None, the `name` may be used as display text.
+                     source (str): Issuing source or authority for the regulation (e.g., agency or publication).
+                     country (str): Issuing country for the external reference.
+                 """
+                 super().__init__(
             name=name,
             locale=locale,
             coords=coords,

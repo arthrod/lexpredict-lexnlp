@@ -12,6 +12,7 @@ __email__ = "support@contraxsuite.com"
 
 import json
 import os
+import pickle
 import re
 import string
 from datetime import datetime
@@ -20,8 +21,6 @@ from email.utils import parseaddr
 import nltk
 import pycountry
 from dateutil import parser as dateparser
-import pickle
-
 
 cwd = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 

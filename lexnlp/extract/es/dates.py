@@ -14,6 +14,7 @@ __email__ = "support@contraxsuite.com"
 # pylint: disable=bare-except
 import string
 from typing import Any
+
 import regex as re
 
 # noinspection PyUnresolvedReferences
@@ -21,7 +22,6 @@ from dateparser.data.date_translation_data.es import info
 
 from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.common.dates import DateParser
-
 
 months = ('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december')
 ES_MONTHS = sorted([y.lower() for k, v in info.items() if k in months for y in v],

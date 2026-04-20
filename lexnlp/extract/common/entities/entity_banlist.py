@@ -8,8 +8,8 @@ __email__ = "support@contraxsuite.com"
 
 
 
-import regex as re
 import pandas as pd
+import regex as re
 
 
 class EntityBanListItem:

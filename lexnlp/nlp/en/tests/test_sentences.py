@@ -11,8 +11,14 @@ __email__ = "support@contraxsuite.com"
 
 from unittest import TestCase
 
-from lexnlp.nlp.en.segments.sentences import get_sentence_list, build_sentence_model, \
-    pre_process_document, post_process_sentence, get_sentence_span, get_sentence_span_list
+from lexnlp.nlp.en.segments.sentences import (
+    build_sentence_model,
+    get_sentence_list,
+    get_sentence_span,
+    get_sentence_span_list,
+    post_process_sentence,
+    pre_process_document,
+)
 from lexnlp.tests import lexnlp_tests
 
 

@@ -20,15 +20,19 @@ __email__ = "support@contraxsuite.com"
 import os
 import re
 import warnings
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
 from lexnlp.extract.all_locales.languages import LANG_EN
-from lexnlp.extract.common.base_path import lexnlp_base_path
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
-from lexnlp.extract.en.dict_entities import find_dict_entities, conflicts_take_first_by_id, DictionaryEntry, \
-    DictionaryEntryAlias
-from lexnlp.extract.common.universal_court_parser import UniversalCourtsParser, ParserInitParams
+from lexnlp.extract.common.base_path import lexnlp_base_path
+from lexnlp.extract.common.universal_court_parser import ParserInitParams, UniversalCourtsParser
+from lexnlp.extract.en.dict_entities import (
+    DictionaryEntry,
+    DictionaryEntryAlias,
+    conflicts_take_first_by_id,
+    find_dict_entities,
+)
 from lexnlp.extract.en.en_language_tokens import EnLanguageTokens
 from lexnlp.utils.lines_processing.line_processor import LineSplitParams
 
@@ -37,27 +41,24 @@ def _get_courts(
     text: str,
     court_config_list: list[DictionaryEntry],
     priority: bool = False,
-    text_languages: list[str] = None,
+    text_languages: list[str] | None = None,
     simplified_normalization: bool = False
 ) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     """
-    TODO: remove this function
-    Searches for courts from the provided config list and yields tuples of (court_config, court_alias).
-    Court config is: (court_id, court_name, [list of aliases])
-    Alias is: (alias_text, language, is_abbrev, alias_id)
-
-    This method uses general searching routines for dictionary entities from dict_entities.py module.
-    Methods of dict_entities module can be used for comfortable creating the config: entity_config(),
-    entity_alias(), add_aliases_to_entity().
-    :param text:
-    :param court_config_list: List of all possible known courts in the form of tuples:
-     (id, name, [(alias, lang, is_abbrev], ...).
-    :param priority: If two courts found with the totally equal matching aliases - then use the one with the lowest id.
-    :param text_languages: Language(s) of the source text. If a language is specified then only aliases of this
-    language will be searched for. For example: this allows ignoring "Island" - a German language
-     alias of Iceland for English texts.
-    :param simplified_normalization: don't use NLTK for just "normalizing" the text
-    :return: Generates tuples: (court entity, court alias)
+    Searches the text for court entries defined in the provided configuration and yields matching dictionary entries.
+    
+    This function is deprecated and emits a DeprecationWarning when called.
+    
+    Parameters:
+        text (str): Source text to search for court names and aliases.
+        court_config_list (list[DictionaryEntry]): List of court definitions to match against. Each entry should be a dictionary-style
+            court record (id, name, aliases).
+        priority (bool): If True, resolves exact-match conflicts by selecting the entry with the lowest id.
+        text_languages (list[str] | None): If provided, restricts matching to aliases in these language(s).
+        simplified_normalization (bool): If True, skip heavier NLP normalization and use a simpler text normalization.
+    
+    Returns:
+        Generator[DictionaryEntry, Any, Any]: Yields matched court dictionary entries found in the text.
     """
     warnings.warn("This function will be removed in a future version of LexNLP", DeprecationWarning)
     for ent in find_dict_entities(text,

@@ -13,7 +13,7 @@ import io
 import pickle
 import sys
 from pathlib import Path
-from zipfile import ZipFile, ZIP_STORED
+from zipfile import ZIP_STORED, ZipFile
 
 import pytest
 
@@ -24,8 +24,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-import reexport_bundled_sklearn_models as script_mod  # required: import follows sys.path insertion for test-only script module resolution
-
+import reexport_bundled_sklearn_models as script_mod  # noqa: E402  # required: import follows sys.path insertion for test-only script module resolution
 
 # ---------------------------------------------------------------------------
 # Helpers

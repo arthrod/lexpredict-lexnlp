@@ -7,11 +7,11 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
+import string
+from collections.abc import Callable, Generator
 from decimal import Decimal
 
 import regex as re
-import string
-from collections.abc import Generator, Callable
 
 from lexnlp.extract.common.annotations.money_annotation import MoneyAnnotation
 

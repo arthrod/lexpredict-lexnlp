@@ -8,10 +8,9 @@ import csv
 import json
 import os
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
-from collections.abc import Sequence
-
 
 DEFAULT_FIXTURE = Path(
     "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv"
@@ -144,7 +143,20 @@ def load_pipeline_for_tag(tag: str):
 
 
 def score_pipeline(pipeline, texts: list[str], labels: list[bool], min_probability: float) -> dict[str, float]:
+    """
+    Compute standard binary classification metrics for an "is contract" predictor applied to a set of texts.
+    
+    Parameters:
+        pipeline: A deserialized model pipeline compatible with ProbabilityPredictorIsContract.
+        texts (list[str]): Input texts to score.
+        labels (list[bool]): Ground-truth boolean labels corresponding to `texts`.
+        min_probability (float): Probability threshold passed to the predictor to decide a positive prediction.
+    
+    Returns:
+        dict[str, float]: Mapping with keys `"accuracy"`, `"f1"`, `"precision"`, and `"recall"`, each cast to float.
+    """
     from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+
     from lexnlp.extract.en.contracts.predictors import ProbabilityPredictorIsContract
 
     predictor = ProbabilityPredictorIsContract(pipeline=pipeline)

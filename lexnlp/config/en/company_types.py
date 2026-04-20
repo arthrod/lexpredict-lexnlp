@@ -19,9 +19,6 @@ __email__ = "support@contraxsuite.com"
 import csv
 import os
 
-
-
-
 _COMPANY_TYPES = [
     'A.G.', 'AG', 'B.V.', 'C.A.', 'C.V.', 'Corp.', 'Corporation',
     'G.P.', 'Inc.', 'Incorporated', 'K.K.', 'L.L.C.', 'L.L.L.P.', 'L.L.P.', 'L.P.',

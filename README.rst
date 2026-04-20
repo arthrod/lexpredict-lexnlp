@@ -75,7 +75,7 @@ terms or a non-GPL evaluation license by contacting ContraxSuite Licensing at
 Requirements
 ------------
 
--  Python 3.11 (default; supported range is defined in ``pyproject.toml``)
+-  Python 3.13 (minimum; supported range ``>=3.13,<3.15`` is declared in ``pyproject.toml``)
 -  ``uv``
 
 Quick Setup (uv + pyproject)
@@ -84,8 +84,8 @@ Quick Setup (uv + pyproject)
 .. code:: bash
 
    cd /path/to/LexNLP
-   uv python install 3.11
-   uv venv --python 3.11 .venv
+   uv python install 3.13
+   uv venv --python 3.13 .venv
    uv pip install --python .venv/bin/python -e ".[dev,test]"
    ./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
 

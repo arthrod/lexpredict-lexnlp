@@ -8,8 +8,8 @@ import logging
 import os
 import sys
 import zipfile
-from pathlib import Path
 from collections.abc import Iterable, Sequence
+from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 

@@ -9,13 +9,13 @@ __email__ = "support@contraxsuite.com"
 import codecs
 import os
 import shutil
+from zipfile import ZipFile
 
 import pandas
-from zipfile import ZipFile
 
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
 from lexnlp.extract.ml.detector.detecting_settings import DetectingSettings
-from lexnlp.extract.ml.detector.phrase_constructor import PhraseConstructorSettings, PhraseConstructorMethod
+from lexnlp.extract.ml.detector.phrase_constructor import PhraseConstructorMethod, PhraseConstructorSettings
 from lexnlp.extract.ml.en.definitions.definition_phrase_detector import DefinitionPhraseDetector
 from lexnlp.extract.ml.en.definitions.definition_term_detector import DefinitionTermDetector
 

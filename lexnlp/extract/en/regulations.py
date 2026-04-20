@@ -14,12 +14,11 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import regex as re
-
 from collections.abc import Generator
 
-from lexnlp.extract.common.annotations.regulation_annotation import RegulationAnnotation
+import regex as re
 
+from lexnlp.extract.common.annotations.regulation_annotation import RegulationAnnotation
 
 REGULATION_CODES_MAP = {
     'CFR': 'Code of Federal Regulations',

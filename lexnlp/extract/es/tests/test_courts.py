@@ -9,14 +9,18 @@ __email__ = "support@contraxsuite.com"
 from unittest import TestCase
 
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
-from lexnlp.extract.es.courts import get_court_list, get_courts, get_court_annotations
+from lexnlp.extract.es.courts import get_court_annotations, get_court_list, get_courts
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestParseEsCourts(TestCase):
-
     def test_parse_empty_text(self):
-        ret = get_court_list('')
+        """
+        Verify that providing empty or whitespace-only text yields no court entries.
+        
+        Asserts that calling get_court_list with an empty string and with a string containing only whitespace returns collections of length 0.
+        """
+        ret = get_court_list("")
         self.assertEqual(0, len(ret))
         ret = get_court_list("""
 
@@ -24,34 +28,51 @@ class TestParseEsCourts(TestCase):
         self.assertEqual(0, len(ret))
 
     def test_parse_full_entry(self):
+        """
+        Verify extraction of a full court name from a Spanish sentence.
+        
+        Asserts that exactly one court is found and that its "Extracted Entity Court Name" tag equals "Tribunal Superior de Justicia de Madrid".
+        """
         text = "El actual Tribunal Superior de Justicia de Madrid fue creado en 1985 a partir del artículo 26 de la Ley Orgánica del Poder Judicial, constituyéndose el 23 de mayo de 1989."
 
         ret = list(get_courts(text))
         self.assertEqual(1, len(ret))
         court_name = ret[0]["tags"]["Extracted Entity Court Name"]
-        self.assertEqual('Tribunal Superior de Justicia de Madrid', court_name)
+        self.assertEqual("Tribunal Superior de Justicia de Madrid", court_name)
 
     def test_parse_partial_entry(self):
+        """
+        Validate that a partial court name is extracted from Spanish text and that its fields are populated correctly.
+        
+        Asserts that a single court is returned for the sample text; when called with locale "Mx" the extracted record has:
+        - name "Tribunal Superior"
+        - locale "Mx"
+        - coords (28, 71)
+        - court_type "Tribunal Superior"
+        - jurisdiction "Andalucía"
+        - record_type "court"
+        - text equal to "Yo la sembré para ver el Tribunal Superior" (after stripping).
+        
+        Also asserts that calling the extractor without an explicit locale yields locale "es".
+        """
         text = "Sembré una flor sin interés. Yo la sembré para ver el Tribunal Superior, al volver ya estaba seca y ya no quizo retoñar."
-        ret = get_court_list(text, 'Mx')
+        ret = get_court_list(text, "Mx")
         self.assertEqual(1, len(ret))
-        self.assertEqual('Tribunal Superior', ret[0].name)
-        self.assertEqual('Mx', ret[0].locale)
+        self.assertEqual("Tribunal Superior", ret[0].name)
+        self.assertEqual("Mx", ret[0].locale)
         self.assertEqual((28, 71), ret[0].coords)
 
-        self.assertEqual('Tribunal Superior', ret[0].court_type)
-        self.assertEqual('Andalucía', ret[0].jurisdiction)
-        self.assertEqual('Tribunal Superior', ret[0].name)
-        self.assertEqual('court', ret[0].record_type)
-        self.assertEqual('Yo la sembré para ver el Tribunal Superior',
-                         ret[0].text.strip())
+        self.assertEqual("Tribunal Superior", ret[0].court_type)
+        self.assertEqual("Andalucía", ret[0].jurisdiction)
+        self.assertEqual("Tribunal Superior", ret[0].name)
+        self.assertEqual("court", ret[0].record_type)
+        self.assertEqual("Yo la sembré para ver el Tribunal Superior", ret[0].text.strip())
 
         ret = get_court_list(text)
-        self.assertEqual('es', ret[0].locale)
+        self.assertEqual("es", ret[0].locale)
 
     def test_file_samples(self):
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
-            get_court_annotations,
-            'lexnlp/typed_annotations/es/court/courts.txt',
-            CourtAnnotation)
+            get_court_annotations, "lexnlp/typed_annotations/es/court/courts.txt", CourtAnnotation
+        )

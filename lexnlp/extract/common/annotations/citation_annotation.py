@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from typing import Any
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -22,24 +23,49 @@ class CitationAnnotation(TextAnnotation):
                  coords: tuple[int, int],
                  locale: str = 'en',
                  text: str = '',
-                 volume: int = None,
-                 volume_str: str = None,
-                 year: int = None,
-                 reporter: str = None,
-                 reporter_full_name: str = None,
-                 page: int = None,
-                 page_range: str = None,
-                 court: str = None,
-                 source: str = None,
-                 article: int = None,
-                 paragraph: str = None,
-                 subparagraph: str = None,
-                 letter: str = None,
-                 sentence: int = None,
-                 date: str = None,
-                 part: str = None,
-                 year_str: str = None):
-        super().__init__(
+                 volume: int | None = None,
+                 volume_str: str | None = None,
+                 year: int | None = None,
+                 reporter: str | None = None,
+                 reporter_full_name: str | None = None,
+                 page: int | None = None,
+                 page_range: str | None = None,
+                 court: str | None = None,
+                 source: str | None = None,
+                 article: int | None = None,
+                 paragraph: str | None = None,
+                 subparagraph: str | None = None,
+                 letter: str | None = None,
+                 sentence: int | None = None,
+                 date: str | None = None,
+                 part: str | None = None,
+                 year_str: str | None = None):
+        """
+                 Initialize a CitationAnnotation with location, text, and parsed citation fields.
+                 
+                 Parameters:
+                     coords (tuple[int, int]): Bounding coordinates of the annotation.
+                     locale (str): Locale/language of the annotation text.
+                     text (str): Extracted entity text for the citation.
+                     volume (int | None): Numeric volume number, if available.
+                     volume_str (str | None): Volume represented as a string (when non-numeric or formatted).
+                     year (int | None): Year associated with the citation.
+                     reporter (str | None): Short reporter abbreviation (e.g., "U.S.", "F.3d").
+                     reporter_full_name (str | None): Full reporter name.
+                     page (int | None): Page number within the reporter.
+                     page_range (str | None): Page range string (e.g., "123-125").
+                     court (str | None): Court identifier or name.
+                     source (str | None): Original source string for the citation.
+                     article (int | None): Article number within a source, when applicable.
+                     paragraph (str | None): Paragraph identifier within the cited document.
+                     subparagraph (str | None): Subparagraph identifier.
+                     letter (str | None): Lettered subunit identifier.
+                     sentence (int | None): Sentence number within the cited unit.
+                     date (str | None): Date string associated with the citation.
+                     part (str | None): Part identifier within the source (e.g., "Part I").
+                     year_str (str | None): Year represented as a string (when non-numeric or formatted).
+                 """
+                 super().__init__(
             name='',
             locale=locale,
             coords=coords,

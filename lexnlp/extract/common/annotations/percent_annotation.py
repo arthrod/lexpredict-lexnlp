@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -22,11 +23,22 @@ class PercentAnnotation(TextAnnotation):
         self,
         coords: tuple[int, int],
         locale: str = 'en',
-        text: str = None,
-        amount: Decimal = None,
-        sign: str = None,
-        fraction: Decimal = None
+        text: str | None = None,
+        amount: Decimal | None = None,
+        sign: str | None = None,
+        fraction: Decimal | None = None
     ) -> None:
+        """
+        Initialize a PercentAnnotation with coordinates, optional textual content, and parsed numeric components.
+        
+        Parameters:
+            coords (tuple[int, int]): Bounding box coordinates for the annotation.
+            locale (str): Locale code used for parsing/formatting (default 'en').
+            text (str | None): Original extracted text for the percent annotation.
+            amount (Decimal | None): Whole-number percent value (e.g., 5 for '5%').
+            sign (str | None): Sign associated with the value (e.g., '+' or '-'), if present.
+            fraction (Decimal | None): Fractional part of the percent value (e.g., 0.5 for '5.5%').
+        """
         super().__init__(
             name='',
             locale=locale,

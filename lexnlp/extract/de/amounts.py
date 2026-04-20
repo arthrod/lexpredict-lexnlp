@@ -16,16 +16,17 @@ __email__ = "support@contraxsuite.com"
 
 # pylint: disable=broad-except
 
-import nltk
 import string
-import regex as re
-from decimal import Decimal
 from collections.abc import Generator
-from num2words import num2words, CONVERTER_CLASSES
+from decimal import Decimal
+
+import nltk
+import regex as re
+from num2words import CONVERTER_CLASSES, num2words
+
 from lexnlp.extract.common.annotations.amount_annotation import AmountAnnotation
 from lexnlp.extract.en.amounts import quantize_by_float_digit
 from lexnlp.utils.amount_delimiting import infer_delimiters
-
 
 CURRENCY_SYMBOL_MAP = {
     "$": "USD",

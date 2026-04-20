@@ -6,13 +6,12 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import os
-from unittest import TestCase
 import codecs
+import os
 import time
 from collections.abc import Callable
+from unittest import TestCase
 
-from lexnlp.extract.en.dict_entities import DictionaryEntry
 from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.en.acts import get_acts
 from lexnlp.extract.en.amounts import get_amounts
@@ -24,6 +23,7 @@ from lexnlp.extract.en.courts import _get_courts
 from lexnlp.extract.en.cusip import get_cusip
 from lexnlp.extract.en.dates import get_dates
 from lexnlp.extract.en.definitions import get_definitions
+from lexnlp.extract.en.dict_entities import DictionaryEntry
 from lexnlp.extract.en.distances import get_distances
 from lexnlp.extract.en.durations import get_durations
 from lexnlp.extract.en.geoentities import get_geoentities
@@ -41,41 +41,56 @@ class TestParsingSpeed(TestCase):
     This method is not named as test_XXX
     because it is not intended for (automatic) regression tests
     """
+
     def en_parsers_speed(self):
-        file_path = os.path.join(lexnlp_test_path, 'long_parsed_text.txt')
-        with codecs.open(file_path, 'r', encoding='utf-8') as fr:
+        """
+        Measure parsing performance of English extractors against a long test text and record elapsed times.
+        
+        Loads a long sample text and geographic entity configuration, runs each English extractor to materialize its results while timing execution, stores elapsed times in a shared dictionary, and asserts that timing for "get_amounts" was recorded.
+        """
+        file_path = os.path.join(lexnlp_test_path, "long_parsed_text.txt")
+        with codecs.open(file_path, "r", encoding="utf-8") as fr:
             text = fr.read()
 
-        ge_path = os.path.join(lexnlp_test_path, 'lexnlp/extract/en/tests/test_geoentities/')
-        entities_fn = ge_path + 'geoentities.csv'
-        aliases_fn = ge_path + 'geoaliases.csv'
+        ge_path = os.path.join(lexnlp_test_path, "lexnlp/extract/en/tests/test_geoentities/")
+        entities_fn = ge_path + "geoentities.csv"
+        aliases_fn = ge_path + "geoaliases.csv"
         geo_config = list(DictionaryEntry.load_entities_from_files(entities_fn, aliases_fn))
 
         times = {}  # type: Dict[str, float]
-        self.check_time(text, lambda s: list(get_amounts(s)), 'get_amounts', times)
-        self.check_time(text, lambda s: list(get_acts(s)), 'get_acts', times)
-        self.check_time(text, lambda s: list(get_citations(s)), 'get_citations', times)
-        self.check_time(text, lambda s: list(get_conditions(s)), 'get_conditions', times)
-        self.check_time(text, lambda s: list(get_constraints(s)), 'get_constraints', times)
-        self.check_time(text, lambda s: list(get_copyrights(s)), 'get_copyright', times)
-        self.check_time(text, lambda s: list(_get_courts(s)), 'get_courts', times)
-        self.check_time(text, lambda s: list(get_cusip(s)), 'get_cusip', times)
-        self.check_time(text, lambda s: list(get_dates(s)), 'get_dates', times)
-        self.check_time(text, lambda s: list(get_definitions(s)), 'get_definitions', times)
-        self.check_time(text, lambda s: list(get_distances(s)), 'get_distances', times)
-        self.check_time(text, lambda s: list(get_durations(s)), 'get_durations', times)
-        self.check_time(text, lambda s: list(get_geoentities(s, geo_config)), 'get_geoentities', times)
-        self.check_time(text, lambda s: list(get_money(s)), 'get_money', times)
-        self.check_time(text, lambda s: list(get_percents(s)), 'get_percents', times)
-        self.check_time(text, lambda s: list(get_pii(s)), 'get_pii', times)
-        self.check_time(text, lambda s: list(get_ratios(s)), 'get_ratios', times)
-        self.check_time(text, lambda s: list(get_regulations(s)), 'get_regulations', times)
-        self.check_time(text, lambda s: list(get_trademarks(s)), 'get_trademarks', times)
-        self.check_time(text, lambda s: list(get_urls(s)), 'get_urls', times)
+        self.check_time(text, lambda s: list(get_amounts(s)), "get_amounts", times)
+        self.check_time(text, lambda s: list(get_acts(s)), "get_acts", times)
+        self.check_time(text, lambda s: list(get_citations(s)), "get_citations", times)
+        self.check_time(text, lambda s: list(get_conditions(s)), "get_conditions", times)
+        self.check_time(text, lambda s: list(get_constraints(s)), "get_constraints", times)
+        self.check_time(text, lambda s: list(get_copyrights(s)), "get_copyright", times)
+        self.check_time(text, lambda s: list(_get_courts(s)), "get_courts", times)
+        self.check_time(text, lambda s: list(get_cusip(s)), "get_cusip", times)
+        self.check_time(text, lambda s: list(get_dates(s)), "get_dates", times)
+        self.check_time(text, lambda s: list(get_definitions(s)), "get_definitions", times)
+        self.check_time(text, lambda s: list(get_distances(s)), "get_distances", times)
+        self.check_time(text, lambda s: list(get_durations(s)), "get_durations", times)
+        self.check_time(text, lambda s: list(get_geoentities(s, geo_config)), "get_geoentities", times)
+        self.check_time(text, lambda s: list(get_money(s)), "get_money", times)
+        self.check_time(text, lambda s: list(get_percents(s)), "get_percents", times)
+        self.check_time(text, lambda s: list(get_pii(s)), "get_pii", times)
+        self.check_time(text, lambda s: list(get_ratios(s)), "get_ratios", times)
+        self.check_time(text, lambda s: list(get_regulations(s)), "get_regulations", times)
+        self.check_time(text, lambda s: list(get_trademarks(s)), "get_trademarks", times)
+        self.check_time(text, lambda s: list(get_urls(s)), "get_urls", times)
 
-        self.assertTrue('get_amounts' in times)
+        self.assertTrue("get_amounts" in times)
 
     def check_time(self, text: str, func: Callable, func_name: str, times: dict[str, float]) -> None:
+        """
+        Measure and record the execution time of a callable invoked with the given text.
+        
+        Parameters:
+            text (str): The text passed to the callable.
+            func (Callable): A callable that accepts a single string argument; it will be invoked as `func(text)`.
+            func_name (str): The key under which the measured elapsed seconds will be stored in `times`.
+            times (dict[str, float]): Dictionary updated in-place with the elapsed time (in seconds) for `func_name`.
+        """
         start = time.time()
         func(text)
         end = time.time()

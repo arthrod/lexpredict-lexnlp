@@ -10,12 +10,13 @@ import ast
 import codecs
 import os
 import types
-import regex as re
 from ast import literal_eval as make_tuple
 from collections import OrderedDict
+from collections.abc import Callable
 from datetime import date, datetime
 from typing import Any
-from collections.abc import Callable
+
+import regex as re
 
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.extract.common.base_path import lexnlp_test_path
@@ -65,11 +66,28 @@ class TypedFieldCheck:
 
     def __init__(self,
                  index: int = 0,
-                 path: list[str] = None,
+                 path: list[str] | None = None,
                  value: str = '',
                  comparison: str = '=',
                  check_all: bool = False):
-        self.index = index  # annotation index within the sample
+        """
+                 Initialize a TypedFieldCheck that describes an expected value, where to find it, and how to compare it.
+                 
+                 Parameters:
+                     index (int): Annotation index within the sample. Ignored when `check_all` is True.
+                     path (list[str] | None): Dot/segment path describing how to extract the value from an annotation (e.g., attribute names, numeric indices, or method markers like `name()`); defaults to an empty list.
+                     value (str): Expected value to compare against (kept as a string until comparison/casting).
+                     comparison (str): Comparison operator to apply; one of '=', '!=', '<', '>', '<=', '>='.
+                     check_all (bool): If True, apply this check to all annotations (the `index` is ignored).
+                 
+                 Attributes set:
+                     index, check_all, path, value, comparison, compare_equal, compare_not_equal, last_error
+                 
+                 Notes:
+                     compare_equal is True for '=', '<=', '>='; compare_not_equal is True for '!='.
+                     last_error is initialized to None and is populated when casting/parsing fails during comparison.
+                 """
+                 self.index = index  # annotation index within the sample
         self.check_all = check_all  # check all annotations, index is ignored
         self.path = path or []  # checking value's path
         self.value = value  # value to compare

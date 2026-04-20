@@ -7,24 +7,24 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from collections.abc import Generator
-import os
 import copy
-import regex as re
-import nltk
+import os
 import string
+from collections.abc import Generator
+
+import nltk
+import regex as re
 
 from lexnlp.config.en.company_types import CompanyDescriptor
 from lexnlp.extract.common.annotations.company_annotation import CompanyAnnotation
-from lexnlp.extract.en.entities.company_np_extractor import CompanyNPExtractor
-from lexnlp.extract.en.utils import strip_unicode_punctuation, replace_upper_words_with_titled
-from lexnlp.extract.en.entities import nltk_re
-from lexnlp.extract.common.entities.entity_banlist import BanListUsage, default_banlist_usage, EntityBanListItem
 from lexnlp.extract.common.annotations.phrase_position_finder import PhrasePositionFinder
-from lexnlp.nlp.en.segments.sentences import get_sentence_span_list, get_sentence_list
+from lexnlp.extract.common.entities.entity_banlist import BanListUsage, EntityBanListItem, default_banlist_usage
+from lexnlp.extract.en.entities import nltk_re
+from lexnlp.extract.en.entities.company_np_extractor import CompanyNPExtractor
+from lexnlp.extract.en.utils import replace_upper_words_with_titled, strip_unicode_punctuation
+from lexnlp.nlp.en.segments.sentences import get_sentence_list, get_sentence_span_list
 from lexnlp.nlp.en.tokens import get_token_list
 from lexnlp.utils.pos_adjustments import TokenPosTagAdjustment
-
 
 VALID_PUNCTUATION = [",", ".", "&"]
 

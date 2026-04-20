@@ -12,9 +12,10 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import regex as re
 import string
 from collections.abc import Generator
+
+import regex as re
 
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
 

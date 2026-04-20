@@ -9,11 +9,12 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-import pandas
 from collections.abc import Callable, Generator
 
+import pandas
+
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
-from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams, LineOrPhrase
+from lexnlp.utils.lines_processing.line_processor import LineOrPhrase, LineProcessor, LineSplitParams
 from lexnlp.utils.lines_processing.phrase_finder import PhraseFinder, PhraseMatch
 
 
@@ -76,43 +77,22 @@ class UniversalCourtsParser:
 
     def __init__(self, ptrs: ParserInitParams):
         """
-        :param ptrs.court_pattern_checker: a regex or None, the parser skips the phrase if pattern doesn't match the phrase
-        :param ptrs.column_names['type']: "Court Type", e.g. 'Federal District Court'
-        :param ptrs.column_names['name']: "Court Name", e.g. 'Southern Georgia District Court'
-        :param ptrs.column_names['jurisdiction']: "Jurisdiction", e.g. 'Federal'
-        :param ptrs.column_names['alias']: "Alias", e.g. 'C.D. Cal'
-        :param ptrs.dataframe_paths: like ['data/us_courts.csv', ...]
-        :param ptrs.split_ptrs: phrase splitting processor parameters, see LineProcessor class
-        :param ptrs.key_word_preproc_func: a function used to pre-process column values used in text search
-
-        dataframe_paths is a collection of *.CSV files that contain the data like:
-
-        | Jurisdiction || Court Type         || Court Name               || ... |
-        | Federal      || Verfassungsgericht || Bundesverfassungsgericht || ... |
-
-        The column 'Court Name' (you may provide another column name instead of Court Name
-        in param: court_name_column) should contain unique values that precisely identify each
-        of the court given.
-
-        The columns 'Court Type' (param: court_type_column) and 'Jurisdiction'
-        (param: jurisdiction_column) in couple may or may not precisely identify the court given.
-
-        At least this parser can identify the court's type and return the annotation that
-        neither specifies the court's name nor jurisdiction
-
-        The court_pattern_checker parameter speeds up the parsing process:
-        - the whole text or the line would be skipped if this line doesn't match the court_pattern_checker
-        E.g., you can pass re.compile('court', re.IGNORECASE) for searching courts' annotations
-        for the En locale
-
-        The split_ptrs specify how the parser splits the text into phrases.
-        Each phrase can contain zero or one court annotations. See LineProcessor class.
-        For a courts parser phrase bounds usually include punctuation (.,;!?) and conjunctions
-        (and, or) or (und, oder)
-
-        The example function for key_word_preproc_func is:
-        def preproc_func(text):
-             return re.sub('e$', '[e]?', text)
+        Initialize the parser with configuration and load court reference data.
+        
+        Parameters:
+            ptrs (ParserInitParams): Initialization parameters. Key fields:
+                court_pattern_checker: Optional compiled regex used to pre-filter text or phrases.
+                column_names: Mapping of expected CSV columns; keys include
+                    'type' (court type), 'name' (court name), 'jurisdiction', and 'alias'.
+                dataframe_paths: Iterable of CSV file paths containing court reference data.
+                split_ptrs: Optional LineSplitParams passed to LineProcessor to control phrase splitting.
+                key_word_preproc_func: Optional function to preprocess column values for phrase matching.
+        
+        Notes:
+            - CSV files must include the columns named by ptrs.column_names; court name values should
+              uniquely identify courts when possible. The parser builds PhraseFinder instances from
+              unique non-empty values of the configured columns and loads concatenated dataframes
+              from the provided paths.
         """
 
         self.phrase_match_pattern = None if ptrs.court_pattern_checker is None else ptrs.court_pattern_checker
@@ -148,26 +128,16 @@ class UniversalCourtsParser:
             ptrs.key_word_preproc_func,
         )
 
-    def parse(self, text: str, locale: str = None) -> Generator[CourtAnnotation]:
+    def parse(self, text: str, locale: str | None = None) -> Generator[CourtAnnotation]:
         """
-        Args:
-            text (str):
-                An input string from which to extract CourtAnnotations.
-
-            locale (str):
-                A locale string ("en", "de", "es") to use in CourtAnnotation formation.
-
-        Yields:
-            CourtAnnotation
-
-        Here is an example of the method's call:
-        ret = parser.parse("Bei dir läuft, deine Verfassungsgerichtshof des Freistaates Sachsen rauchen Joints vor der Kamera")
-
-        ret[0]['attrs'] = {'start': 14, 'end': 97}
-        ret[0]['tags'] = {'Extracted Entity Type': 'court',
-            'Extracted Entity Court Name': 'Verfassungsgerichtshof des Freistaates Sachsen',
-            'Extracted Entity Court Type': 'Verfassungsgericht',
-            'Extracted Entity Court Jurisdiction': 'Sachsen'}
+        Extract court mentions from the given text and yield corresponding CourtAnnotation objects.
+        
+        Parameters:
+            text (str): Input text to scan for court mentions.
+            locale (str | None): Locale identifier (e.g., "en", "de", "es") used when constructing CourtAnnotation instances; may be None.
+        
+        Returns:
+            Generator[CourtAnnotation]: A generator that yields each detected CourtAnnotation with coordinates, text, locale, court name, court type, and jurisdiction.
         """
         self.locale: str | None = locale
         yield from self.find_courts_by_alias_in_whole_text(text)

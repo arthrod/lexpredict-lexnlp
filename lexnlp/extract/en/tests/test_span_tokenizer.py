@@ -16,16 +16,21 @@ from lexnlp.extract.en.preprocessing.span_tokenizer import SpanTokenizer
 
 class TestSpanTokenizer(TestCase):
     def test_split_simplest_case(self):
-        text = 'John was named after his dog'
+        text = "John was named after his dog"
         spans = list(SpanTokenizer.get_token_spans(text))
         self.assertGreater(len(spans), 3)
 
     def test_split_plain(self):
-        text = 'He took my heart in East Atlanta, nah-nah-nah'
+        """
+        Verify SpanTokenizer.get_token_spans correctly tokenizes and produces POS tags and character offsets for a plain sentence.
+        
+        Asserts that the token span sequence has more than three items and that the first token is "He" with POS tag "PRP" and character span (0, 1), and that the ninth token is "nah-nah-nah" with POS tag "JJ" and character span (34, 44).
+        """
+        text = "He took my heart in East Atlanta, nah-nah-nah"
         spans = list(SpanTokenizer.get_token_spans(text))
         self.assertGreater(len(spans), 3)
-        self.assertEqual(('He', 'PRP', 0, 1), spans[0])
-        self.assertEqual(('nah-nah-nah', 'JJ', 34, 44), spans[8])
+        self.assertEqual(("He", "PRP", 0, 1), spans[0])
+        self.assertEqual(("nah-nah-nah", "JJ", 34, 44), spans[8])
 
     def test_split_dont(self):
         text = "You don't do it, man!"
@@ -37,14 +42,13 @@ class TestSpanTokenizer(TestCase):
     def test_split_with_quotes(self):
         text = 'He took my heart in "East Atlanta"\n, nah-nah-nah'
         spans = list(SpanTokenizer.get_token_spans(text))
-        self.assertEqual(('"', '``', 20, 20), spans[5])
-        self.assertEqual(('nah-nah-nah', 'JJ', 37, 47), spans[10])
+        self.assertEqual(('"', "``", 20, 20), spans[5])
+        self.assertEqual(("nah-nah-nah", "JJ", 37, 47), spans[10])
 
         words = nltk.word_tokenize(text)
         tokens = nltk.pos_tag(words)
         phrases = [t[0] for t in tokens]
 
-        spans_alt = PhrasePositionFinder.find_phrase_in_source_text(
-            text, phrases)
-        self.assertEqual(('``', 20, 21), spans_alt[5])
-        self.assertEqual(('nah-nah-nah', 37, 48), spans_alt[10])
+        spans_alt = PhrasePositionFinder.find_phrase_in_source_text(text, phrases)
+        self.assertEqual(("``", 20, 21), spans_alt[5])
+        self.assertEqual(("nah-nah-nah", 37, 48), spans_alt[10])

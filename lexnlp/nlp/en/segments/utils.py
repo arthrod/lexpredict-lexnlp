@@ -13,6 +13,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import string
+
 from lexnlp.utils.decorators import handle_invalid_text
 
 

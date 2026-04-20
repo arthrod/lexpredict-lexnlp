@@ -10,12 +10,12 @@ from unittest import TestCase
 
 # LexNLP
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
-from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 from lexnlp.extract.de.copyrights import (
-    get_copyright_list,
-    get_copyright_annotations,
     get_copyright_annotation_list,
+    get_copyright_annotations,
+    get_copyright_list,
 )
+from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestParseDeCourts(TestCase):
@@ -26,8 +26,9 @@ class TestParseDeCourts(TestCase):
 
     Copyright © Mustervorlage und Vertrag kostenlos: Vorlagen für Beruf und Privat 2019.
     """
+
     def test_parse_empty_text(self):
-        ret = get_copyright_list('')
+        ret = get_copyright_list("")
         self.assertEqual(0, len(ret))
         ret = get_copyright_list("""
 
@@ -37,13 +38,12 @@ class TestParseDeCourts(TestCase):
     def test_parse_company_afterwards(self):
         text = "Copyright 2019, Siemens"
         ret = get_copyright_annotation_list(text, return_sources=True)
-        self.assertEqual(1, len(ret), 'test_parse_wo_company failed')
+        self.assertEqual(1, len(ret), "test_parse_wo_company failed")
         self.assertEqual("de", ret[0].locale)
         self.assertEqual("Siemens", ret[0].company)
 
     def test_file_samples(self):
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
-            get_copyright_annotations,
-            'lexnlp/typed_annotations/de/copyright/copyrights.txt',
-            CopyrightAnnotation)
+            get_copyright_annotations, "lexnlp/typed_annotations/de/copyright/copyrights.txt", CopyrightAnnotation
+        )

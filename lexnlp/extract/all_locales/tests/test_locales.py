@@ -19,16 +19,15 @@ from lexnlp.extract.all_locales.languages import Locale
 
 
 class TestLocales(TestCase):
-
     def test_locales_convert(self):
         data = [
-            {'input': 'en', 'output_locale_code': 'EN'},
-            {'input': 'en-US', 'output_locale_code': 'US'},
-            {'input': 'en/Gb', 'output_locale_code': 'GB'},
-            {'input': 'En_us', 'output_locale_code': 'US'},
+            {"input": "en", "output_locale_code": "EN"},
+            {"input": "en-US", "output_locale_code": "US"},
+            {"input": "en/Gb", "output_locale_code": "GB"},
+            {"input": "En_us", "output_locale_code": "US"},
         ]
-        output_language_code = 'en'
+        output_language_code = "en"
         for item in data:
-            locale_obj = Locale(item['input'])
+            locale_obj = Locale(item["input"])
             self.assertEqual(locale_obj.language, output_language_code)
-            self.assertEqual(locale_obj.locale_code, item['output_locale_code'])
+            self.assertEqual(locale_obj.locale_code, item["output_locale_code"])

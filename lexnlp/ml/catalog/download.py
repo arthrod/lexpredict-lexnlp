@@ -12,22 +12,22 @@ __email__ = "support@contraxsuite.com"
 # standard library
 import logging
 import os
-from pathlib import Path
-from hashlib import md5
 from base64 import b64encode
-from math import floor, log, pow
-from typing import Any
 from collections.abc import Generator, Iterator
+from hashlib import md5
+from math import floor, log, pow
+from pathlib import Path
+from typing import Any
+
+from requests import Response, get
+from requests.structures import CaseInsensitiveDict
 
 # third-party libraries
 from tqdm import tqdm
-from requests import get, Response
-from requests.structures import CaseInsensitiveDict
 
 # LexNLP
 from lexnlp import get_models_repo
 from lexnlp.ml.catalog import CATALOG
-
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 
@@ -132,16 +132,15 @@ class GitHubReleaseDownloader:
         chunk_size: int = 8192,
     ) -> None:
         """
-        Args:
-            asset (Dict[str, Any]):
-            destination_directory (Union[Path, str]):
-            chunk_size (int=8192):
-
-        Returns:
-            None
-
-        References:
-            https://docs.github.com/en/rest/reference/releases#get-a-release-asset
+        Download a GitHub release asset to the specified destination directory and verify its MD5 if provided by the server.
+        
+        Parameters:
+            asset (dict): Asset metadata from the GitHub Releases API containing at least the keys 'url' and 'name' and optionally 'size'.
+            destination_directory (Path | str): Directory where the asset file will be written; the directory will be created if it does not exist.
+            chunk_size (int): Number of bytes to read per network chunk when streaming the download.
+        
+        Raises:
+            ChecksumError: If the server provided a Content-MD5 header and the computed file checksum does not match.
         """
         response: Response = get(
             url=asset['url'],
@@ -158,8 +157,9 @@ class GitHubReleaseDownloader:
         content_iterator: Iterator = response.iter_content(chunk_size=chunk_size)
 
         LOGGER.info(f'Downloading {name}...')
-        path_file: Path = Path(destination_directory, name)
+        destination_directory = Path(destination_directory)
         destination_directory.mkdir(exist_ok=True, parents=True)
+        path_file: Path = destination_directory / name
         with open(path_file, 'wb') as f:
             for chunk in cls.yield_asset(content_iterator, content_length, chunk_size):
                 f.write(chunk)

@@ -19,11 +19,22 @@ class ConstraintAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 constraint: str = None,
-                 pre: str = None,
-                 post: str = None,
-                 text: str = None):
-        super().__init__(
+                 constraint: str | None = None,
+                 pre: str | None = None,
+                 post: str | None = None,
+                 text: str | None = None):
+        """
+                 Create a ConstraintAnnotation with coordinates, locale, and optional extracted constraint components.
+                 
+                 Parameters:
+                 	coords (tuple[int, int]): Start and end character offsets of the annotation.
+                 	locale (str): Language locale identifier (default 'en').
+                 	constraint (str | None): Extracted constraint text for the annotation, if any.
+                 	pre (str | None): Text immediately preceding the constraint, if available.
+                 	post (str | None): Text immediately following the constraint, if available.
+                 	text (str | None): Full annotated text fragment; stored as the annotation's text attribute.
+                 """
+                 super().__init__(
             name='',
             locale=locale,
             coords=coords,

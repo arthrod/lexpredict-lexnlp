@@ -10,14 +10,15 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-import nltk
 import string
 import unicodedata
-from itertools import groupby
 from collections.abc import Generator
-from lexnlp.utils.pos_adjustments import TokenPosTagAdjustment
-from lexnlp.extract.common.annotations.phrase_position_finder import PhrasePositionFinder
+from itertools import groupby
 
+import nltk
+
+from lexnlp.extract.common.annotations.phrase_position_finder import PhrasePositionFinder
+from lexnlp.utils.pos_adjustments import TokenPosTagAdjustment
 
 # Default punctuation to accept
 

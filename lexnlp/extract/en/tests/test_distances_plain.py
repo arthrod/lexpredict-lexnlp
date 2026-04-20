@@ -9,35 +9,39 @@ __email__ = "support@contraxsuite.com"
 from unittest import TestCase
 
 from lexnlp.extract.common.annotations.distance_annotation import DistanceAnnotation
-from lexnlp.extract.en.distances import get_distances, get_distance_annotations
+from lexnlp.extract.en.distances import get_distance_annotations, get_distances
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestDistancesPlain(TestCase):
-
     def test_distances_digits(self):
-        text = 'Today I ran 8 miles.'
+        text = "Today I ran 8 miles."
         ds = list(get_distances(text))
         self.assertEqual(1, len(ds))
 
         ant = list(get_distance_annotations(text))[0]
         self.assertEqual((12, 20), ant.coords)
         cite = ant.get_cite()
-        self.assertEqual('/en/distance/8.0/mile', cite)
+        self.assertEqual("/en/distance/8.0/mile", cite)
 
     def test_distances_words(self):
-        text = 'Today I ran eight kilometers.'
+        text = "Today I ran eight kilometers."
         ds = list(get_distances(text))
         self.assertEqual(1, len(ds))
 
         ant = list(get_distance_annotations(text))[0]
         self.assertEqual((11, 29), ant.coords)
         cite = ant.get_cite()
-        self.assertEqual('/en/distance/8.0/kilometer', cite)
+        self.assertEqual("/en/distance/8.0/kilometer", cite)
 
     def test_file_samples(self):
+        """
+        Validate the distance annotation extractor against the sample fixtures.
+        
+        Runs the typed-annotations tester using the fixtures file at
+        "lexnlp/typed_annotations/en/distance/distances.txt" and raises an exception if any extracted annotation does not match the expected DistanceAnnotation.
+        """
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
-            get_distance_annotations,
-            'lexnlp/typed_annotations/en/distance/distances.txt',
-            DistanceAnnotation)
+            get_distance_annotations, "lexnlp/typed_annotations/en/distance/distances.txt", DistanceAnnotation
+        )

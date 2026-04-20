@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -14,37 +13,40 @@ from lexnlp.extract.common.entities.entity_banlist import EntityBanListItem
 
 
 def test_simple_pattern():
-    ptrn = EntityBanListItem('Company')
-    assert ptrn.check('company')
-    assert ptrn.check('Company')
-    assert ptrn.check(' company')
-    assert not ptrn.check('simple company')
+    """
+    Verify EntityBanListItem matches simple literal patterns and respects trim_phrase and ignore_case options.
+    
+    Asserts that a literal pattern ("Company") with default settings matches different casing and leading whitespace, but does not match when additional words are present. Also verifies that setting trim_phrase=False prevents matching leading-whitespace variants, and setting ignore_case=False makes matching case-sensitive.
+    """
+    ptrn = EntityBanListItem("Company")
+    assert ptrn.check("company")
+    assert ptrn.check("Company")
+    assert ptrn.check(" company")
+    assert not ptrn.check("simple company")
 
-    ptrn = EntityBanListItem('Company', trim_phrase=False)
-    assert not ptrn.check(' company')
+    ptrn = EntityBanListItem("Company", trim_phrase=False)
+    assert not ptrn.check(" company")
 
-    ptrn = EntityBanListItem('Company', ignore_case=False)
-    assert not ptrn.check('company')
+    ptrn = EntityBanListItem("Company", ignore_case=False)
+    assert not ptrn.check("company")
 
 
 def test_regex_pattern():
-    ptrn = EntityBanListItem(r'(?:the\s+)?company', is_regex=True)
-    assert ptrn.check('company')
-    assert ptrn.check('The Company')
-    assert ptrn.check('The Company ')
-    assert not ptrn.check('The-Company')
+    ptrn = EntityBanListItem(r"(?:the\s+)?company", is_regex=True)
+    assert ptrn.check("company")
+    assert ptrn.check("The Company")
+    assert ptrn.check("The Company ")
+    assert not ptrn.check("The-Company")
 
 
 def test_read_csv():
-    path = os.path.join(f'{lexnlp_test_path}/lexnlp/extract/common/entities',
-                        'en_banlist_full.csv')
+    path = os.path.join(f"{lexnlp_test_path}/lexnlp/extract/common/entities", "en_banlist_full.csv")
     items = EntityBanListItem.read_from_csv(path)
     assert len(items) > 1
 
 
 def test_read_one_col_csv():
-    path = os.path.join(f'{lexnlp_test_path}/lexnlp/extract/common/entities',
-                        'en_banlist_one_col.csv')
+    path = os.path.join(f"{lexnlp_test_path}/lexnlp/extract/common/entities", "en_banlist_one_col.csv")
     items = EntityBanListItem.read_from_csv(path)
     assert len(items) > 1
     assert items[0].ignore_case

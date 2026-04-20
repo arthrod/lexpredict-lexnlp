@@ -11,13 +11,13 @@ import os
 import random
 
 from num2words import num2words
+
 from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.common.dates import DateParser
 from lexnlp.extract.common.dates_classifier_model import build_date_model
-from lexnlp.extract.de.date_model import DATE_MODEL_CHARS, MONTH_NAMES, DE_ALPHA_CHAR_SET
+from lexnlp.extract.de.date_model import DATE_MODEL_CHARS, DE_ALPHA_CHAR_SET, MONTH_NAMES
 from lexnlp.extract.de.dates import MODEL_DATE
 from lexnlp.extract.de.de_date_parser import DeDateParser
-
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 

@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -22,11 +23,22 @@ class RatioAnnotation(TextAnnotation):
         self,
         coords: tuple[int, int],
         locale: str = 'en',
-        text: str = None,
-        left: Decimal = None,
-        right: Decimal = None,
-        ratio: Decimal = None
+        text: str | None = None,
+        left: Decimal | None = None,
+        right: Decimal | None = None,
+        ratio: Decimal | None = None
     ) -> None:
+        """
+        Initialize a RatioAnnotation representing an extracted ratio with optional numeric components.
+        
+        Parameters:
+            coords (tuple[int, int]): Start and end character offsets of the annotation in the source text.
+            locale (str): Locale code for the annotation (default 'en').
+            text (str | None): Extracted text span associated with the annotation, if any.
+            left (Decimal | None): Left numeric component (e.g., numerator or first operand) when present.
+            right (Decimal | None): Right numeric component (e.g., denominator or second operand) when present.
+            ratio (Decimal | None): Computed or extracted ratio value when present.
+        """
         super().__init__(
             name='',
             locale=locale,

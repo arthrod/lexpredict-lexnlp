@@ -20,17 +20,17 @@ __email__ = "support@contraxsuite.com"
 
 import string
 from collections.abc import Generator
+
 import nltk
 
-from lexnlp.extract.en.entities.nltk_re import RE_PARTY_AS
+from lexnlp.config.en.company_types import COMPANY_DESCRIPTIONS, COMPANY_TYPES
 from lexnlp.extract.common.annotations.company_annotation import CompanyAnnotation
 from lexnlp.extract.common.entities.entity_banlist import BanListUsage
-from lexnlp.config.en.company_types import COMPANY_TYPES, COMPANY_DESCRIPTIONS
+from lexnlp.extract.en.entities.company_detector import VALID_PUNCTUATION, CompanyDetector
+from lexnlp.extract.en.entities.nltk_re import RE_PARTY_AS
 from lexnlp.extract.en.utils import strip_unicode_punctuation
 from lexnlp.nlp.en.segments.sentences import get_sentence_list
 from lexnlp.nlp.en.tokens import get_token_list
-from lexnlp.extract.en.entities.company_detector import CompanyDetector, VALID_PUNCTUATION
-
 
 default_company_detector = CompanyDetector(COMPANY_TYPES, COMPANY_DESCRIPTIONS)
 

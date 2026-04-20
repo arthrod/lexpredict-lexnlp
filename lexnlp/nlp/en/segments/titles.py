@@ -28,7 +28,6 @@ from lexnlp.nlp.en.segments.utils import build_document_line_distribution
 from lexnlp.utils.decorators import safe_failure
 from lexnlp.utils.unicode.unicode_lookup import UNICODE_CHAR_TOP_CATEGORY_MAPPING
 
-
 # Setup module path
 
 

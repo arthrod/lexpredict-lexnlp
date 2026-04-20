@@ -8,6 +8,7 @@ __email__ = "support@contraxsuite.com"
 
 import re
 from collections.abc import Generator
+
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
 from lexnlp.extract.common.definitions.common_definition_patterns import CommonDefinitionPatterns
 from lexnlp.extract.common.definitions.universal_definition_parser import UniversalDefinitionsParser

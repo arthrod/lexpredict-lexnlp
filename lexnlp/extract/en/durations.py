@@ -11,12 +11,14 @@ __email__ = "support@contraxsuite.com"
 
 
 from collections.abc import Generator
-import regex as re
 from decimal import Decimal
 from fractions import Fraction
-from lexnlp.extract.common.durations.durations_parser import DurationParser
+
+import regex as re
+
 from lexnlp.extract.common.annotations.duration_annotation import DurationAnnotation
-from lexnlp.extract.en.amounts import get_amounts, quantize_by_float_digit, NUM_PTN
+from lexnlp.extract.common.durations.durations_parser import DurationParser
+from lexnlp.extract.en.amounts import NUM_PTN, get_amounts, quantize_by_float_digit
 
 
 class EnDurationParser(DurationParser):

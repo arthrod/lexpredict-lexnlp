@@ -18,16 +18,15 @@ __email__ = "support@contraxsuite.com"
 import os
 import string
 import unicodedata
-
 from collections.abc import Generator
+
+import joblib
 
 # Packages
 import pandas
-import joblib
 
 # Project imports
 from lexnlp.nlp.en.segments.utils import build_document_distribution
-
 
 # Setup module path
 

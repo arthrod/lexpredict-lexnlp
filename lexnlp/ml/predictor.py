@@ -11,14 +11,14 @@ __email__ = "support@contraxsuite.com"
 
 # standard library
 import os
-from pathlib import Path
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
 # third-party imports
 from cloudpickle import load
-from sklearn.pipeline import Pipeline
 from sklearn.exceptions import NotFittedError
+from sklearn.pipeline import Pipeline
 from sklearn.utils.validation import check_is_fitted
 
 # LexNLP

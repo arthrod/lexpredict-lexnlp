@@ -9,12 +9,11 @@ __email__ = "support@contraxsuite.com"
 from unittest import TestCase
 
 from lexnlp.extract.common.annotations.ssn_annotation import SsnAnnotation
-from lexnlp.extract.en.pii import get_ssns, get_ssn_annotations
+from lexnlp.extract.en.pii import get_ssn_annotations, get_ssns
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestSsnPlain(TestCase):
-
     def test_ssn(self):
         text = "Somewhere in the form I filled out my SSN (123-45-6789) number"
         ds = list(get_ssns(text))
@@ -22,12 +21,14 @@ class TestSsnPlain(TestCase):
 
         ants = list(get_ssn_annotations(text))
         self.assertEqual(1, len(ds))
-        self.assertEqual('en', ants[0].locale)
-        self.assertEqual('123-45-6789', ants[0].number)
+        self.assertEqual("en", ants[0].locale)
+        self.assertEqual("123-45-6789", ants[0].number)
 
     def test_file_samples(self):
+        """
+        Validate SSN typed annotation samples against the SSN annotation extractor.
+        
+        Runs TypedAnnotationsTester.test_and_raise_errors using the SSN sample file and SsnAnnotation; raises an exception if any sample does not produce the expected annotation.
+        """
         tester = TypedAnnotationsTester()
-        tester.test_and_raise_errors(
-            get_ssn_annotations,
-            'lexnlp/typed_annotations/en/ssn/ssn.txt',
-            SsnAnnotation)
+        tester.test_and_raise_errors(get_ssn_annotations, "lexnlp/typed_annotations/en/ssn/ssn.txt", SsnAnnotation)

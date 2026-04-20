@@ -14,8 +14,8 @@ __email__ = "support@contraxsuite.com"
 import logging
 import tarfile
 from collections import defaultdict
-from pathlib import Path
 from collections.abc import Iterable, Sequence
+from pathlib import Path
 
 # third-party imports
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -23,7 +23,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
 from lexnlp.ml.model_io import dump_model, load_model
-
 
 LOGGER = logging.getLogger(__name__)
 

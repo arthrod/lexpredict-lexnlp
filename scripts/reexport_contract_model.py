@@ -9,12 +9,11 @@ import os
 import pickle
 import subprocess
 import sys
-from datetime import datetime, timezone, UTC
-from pathlib import Path
 from collections.abc import Sequence
+from datetime import UTC, datetime
+from pathlib import Path
 
 from cloudpickle import load
-
 
 DEFAULT_FIXTURE = Path(
     "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv"
@@ -204,14 +203,28 @@ except Exception as exc:  # noqa: BLE001 - catch all errors during model probe f
 
 
 def main(argv: Sequence[str]) -> int:
+    """
+    Re-export a contract classifier from a source catalog tag to a target tag, apply runtime compatibility adjustments, write the re-serialized model and metadata, probe for legacy sklearn unpickle warnings, and optionally run a post-export quality gate.
+    
+    Parameters:
+    	argv (Sequence[str]): Command-line arguments (excluding program name).
+    
+    Returns:
+    	int: Exit code (0 on success, 1 if legacy sklearn warning regression exceeds the configured threshold).
+    
+    Raises:
+    	ValueError: If `--source-tag` and `--target-tag` are identical.
+    	FileExistsError: If the destination model already exists and `--force` is not provided.
+    """
     args = parse_args(argv)
     if args.source_tag == args.target_tag:
         raise ValueError("--source-tag and --target-tag must differ")
 
+    from sklearn import __version__ as sklearn_version
+
     from lexnlp import __version__ as lexnlp_version
     from lexnlp.extract.en.contracts.predictors import ProbabilityPredictorIsContract
     from lexnlp.ml.catalog import CATALOG
-    from sklearn import __version__ as sklearn_version
 
     source_path = ensure_tag_downloaded(args.source_tag)
     destination_dir = CATALOG / args.target_tag

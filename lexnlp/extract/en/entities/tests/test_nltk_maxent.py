@@ -22,7 +22,7 @@ __email__ = "support@contraxsuite.com"
 from typing import Any
 
 from lexnlp.extract.en.entities.company_detector import get_noun_phrases
-from lexnlp.extract.en.entities.nltk_maxent import get_geopolitical, get_companies, get_persons
+from lexnlp.extract.en.entities.nltk_maxent import get_companies, get_geopolitical, get_persons
 from lexnlp.tests import lexnlp_tests
 
 

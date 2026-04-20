@@ -7,11 +7,12 @@ __email__ = "support@contraxsuite.com"
 
 
 from abc import abstractmethod
-from itertools import groupby
 from collections.abc import Callable, Generator
+from itertools import groupby
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.extract.common.pattern_found import PatternFound
-from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams, LineOrPhrase
+from lexnlp.utils.lines_processing.line_processor import LineOrPhrase, LineProcessor, LineSplitParams
 
 
 class TextPatternCollector:
@@ -22,21 +23,28 @@ class TextPatternCollector:
     """
     def __init__(self, parsing_functions: list[Callable[[str], list[PatternFound]]], split_params: LineSplitParams):
         """
-        :param parsing_functions: a functions' collection from SpanishParsingMethods
-        :param split_params: text-to-sentences splitting params
+        Initialize the TextPatternCollector with parsing functions and line-splitting parameters.
+        
+        Parameters:
+        	parsing_functions (list[Callable[[str], list[PatternFound]]]): Callables that parse a phrase string and return a list of PatternFound results.
+        	split_params (LineSplitParams): Configuration used to split input text into lines/phrases.
+        
         """
         self.parsing_functions = parsing_functions
         self.split_params = split_params
         self.proc = LineProcessor(line_split_params=self.split_params)
         self.prohibited_words = {}    # words that are Not definitions per se
 
-    def parse(self, text: str, locale: str = None) -> Generator[TextAnnotation]:
+    def parse(self, text: str, locale: str | None = None) -> Generator[TextAnnotation]:
         """
-        :param locale: 'En', 'De', 'Es', ...
-        :param text: En este acuerdo, el término "Software" se refiere a: (i) el programa informático
-        :return: { "attrs": {"start": 28, "end": 82}, "tags": {"Extracted Entity Type": "definition",
-                "Extracted Entity Definition Name": "Software",
-                "Extracted Entity Text": ""Software" se refiere a: (i) el programa informático"} }
+        Extract pattern-based annotations from the input text using the collector's parsing functions.
+        
+        Parameters:
+            text (str): Input text to scan for patterns (e.g., definitions or named entities).
+            locale (str | None): Optional locale code (e.g., 'En', 'De', 'Es') passed to annotation construction.
+        
+        Returns:
+            TextAnnotation: TextAnnotation objects for each detected pattern, with annotation coordinates adjusted to the original text offsets.
         """
         for phrase in self.proc.split_text_on_line_with_endings(text):
             matches = []

@@ -19,9 +19,18 @@ class SsnAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 text: str = None,
-                 number: str = None):
-        super().__init__(
+                 text: str | None = None,
+                 number: str | None = None):
+        """
+                 Initialize an SsnAnnotation with coordinates, locale, optional display text, and optional SSN value.
+                 
+                 Parameters:
+                     coords (tuple[int, int]): Start and end character offsets of the annotation within the source text.
+                     locale (str): Locale code for the annotation (default 'en').
+                     text (str | None): The extracted text corresponding to the annotation, if available.
+                     number (str | None): The extracted Social Security Number value, if available.
+                 """
+                 super().__init__(
             name='',
             locale=locale,
             coords=coords,
