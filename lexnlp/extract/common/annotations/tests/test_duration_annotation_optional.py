@@ -20,6 +20,11 @@ class TestDurationAnnotationConstruction:
         assert ann.prefix is None
 
     def test_all_optional_fields(self) -> None:
+        """
+        Verify that providing all optional fields to DurationAnnotation sets its attributes accordingly.
+        
+        Asserts that `amount`, `duration_type`, and `value_dict` match the values passed to the constructor.
+        """
         ann = DurationAnnotation(
             coords=(0, 10),
             amount=Decimal("2"),

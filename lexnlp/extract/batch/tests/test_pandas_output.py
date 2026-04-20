@@ -42,6 +42,11 @@ class TestAnnotationsToDataFrame:
         assert list(df.columns) == ["record_type", "locale", "text", "start", "end"]
 
     def test_extra_columns_are_appended(self) -> None:
+        """
+        Verifies that specified extra annotation attributes are appended as columns and that missing values are represented as NaN or None.
+        
+        Asserts that the requested extra column appears in the DataFrame, that present values are preserved for annotations that provide them, and that annotations lacking the attribute yield a missing value (accepting either `pandas.NA`/`NaN` or `None`).
+        """
         annots = [
             _StubAnnotation(coords=(0, 3), text="abc", extra_field="deadbeef"),
             _StubAnnotation(coords=(4, 7), text="xyz"),
@@ -71,6 +76,20 @@ class TestAnnotationsToDataFrame:
         real_import = builtins.__import__
 
         def patched(name: str, *args: object, **kwargs: object):
+            """
+            Act as an import hook that simulates a missing `pyarrow` module while delegating all other imports to the real importer.
+            
+            Parameters:
+                name (str): The fully qualified module or package name to import.
+                *args (object): Additional positional arguments forwarded to the real importer.
+                **kwargs (object): Additional keyword arguments forwarded to the real importer.
+            
+            Returns:
+                The module object returned by the real importer for the requested name when not simulating an error.
+            
+            Raises:
+                ImportError: If `name` is exactly `"pyarrow"`, an ImportError is raised to simulate the module being unavailable.
+            """
             if name == "pyarrow":
                 raise ImportError("simulated missing pyarrow")
             return real_import(name, *args, **kwargs)

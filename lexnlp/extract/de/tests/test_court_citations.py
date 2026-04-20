@@ -54,6 +54,14 @@ class TestCourtCitationsParser(TestCase):
         self.assertEqual(2, len(items))
 
     def test_parse(self):
+        """
+        Verify parsing and extraction of a German court citation from a text sample.
+        
+        Asserts that a citation inside parentheses is detected with record_type "court citation",
+        the extracted citation text equals "BStBl I 2003, 240", the locale is "de", and that the
+        dictionary output contains the tag "Extracted Entity Type" set to "court citation" and
+        the tag "Extracted Entity Name" matching "Bundessteuerblatt (sonstige gebräuchliche Verwendung)".
+        """
         text = """
                 Mit Einreichung der Körperschaftsteuererklärung für das Jahr 2006 im Februar 2008 beantragte die Klägerin unter Bezugnahme auf das Schreiben des Bundesministeriums der Finanzen (BMF) vom 27.3.2003 IV A 6-S 2140-8/03 (BStBl I 2003, 240; - Sanierungserlass -), die Körperschaftsteuer gemäß § 163 der Abgabenordnung (AO) aus Billigkeitsgründen abweichend festzusetzen.
                 """

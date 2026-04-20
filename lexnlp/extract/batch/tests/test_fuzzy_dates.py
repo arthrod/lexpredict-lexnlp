@@ -74,6 +74,11 @@ class TestValidation:
             list(find_fuzzy_dates("2024-01-15", max_edits=3))
 
     def test_match_is_immutable(self) -> None:
+        """
+        Verifies that a FuzzyDateMatch instance is immutable.
+        
+        Attempts to assign to an existing attribute (e.g., `start`) must raise an AttributeError or other exception.
+        """
         m = FuzzyDateMatch(start=0, end=10, matched_text="x", parsed=None, edit_distance=0)
         with pytest.raises((AttributeError, Exception)):
             m.start = 5  # type: ignore[misc]

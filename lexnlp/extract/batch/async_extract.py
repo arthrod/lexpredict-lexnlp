@@ -67,7 +67,12 @@ class BatchExtractionResult[T]:
 
     @property
     def ok(self) -> bool:
-        """``True`` if the extractor ran to completion without error."""
+        """
+        Whether the extraction completed without error.
+        
+        Returns:
+            True if extraction completed without error, False otherwise.
+        """
         return self.error is None
 
 
@@ -78,7 +83,19 @@ async def _run_one[T](
     semaphore: asyncio.Semaphore,
     raise_on_error: bool,
 ) -> BatchExtractionResult[T]:
-    """Run ``extractor(text)`` under the semaphore on a worker thread."""
+    """
+    Run the provided extractor for a single text while respecting the concurrency semaphore.
+    
+    Parameters:
+        index (int): Original input position of the text.
+        text (str): Text to process.
+        extractor (Callable[[str], Iterable[T]]): Synchronous callable that yields extracted items from `text`; executed in a worker thread.
+        semaphore (asyncio.Semaphore): Concurrency limiter that must be acquired before running the extractor.
+        raise_on_error (bool): If True, propagate exceptions raised by the extractor; if False, capture the exception in the result.
+    
+    Returns:
+        BatchExtractionResult[T]: A result for `index` containing the extracted `annotations` on success (with `error` set to `None`), or an empty `annotations` list and the caught exception in `error` on failure.
+    """
     async with semaphore:
         loop = asyncio.get_running_loop()
         try:
@@ -159,6 +176,17 @@ async def _collect[T](
     raise_on_error: bool,
     sink: list[BatchExtractionResult[T] | None],
 ) -> None:
+    """
+    Execute extraction for a single text while respecting the concurrency semaphore and store the resulting BatchExtractionResult into the provided sink at the given index.
+    
+    Parameters:
+        index (int): Position in the original input list where the result will be placed.
+        text (str): The input text to process.
+        extractor (Callable[[str], Iterable[T]]): Synchronous callable that yields annotations for the text.
+        semaphore (asyncio.Semaphore): Semaphore used to bound concurrent executor workers.
+        raise_on_error (bool): If True, propagate exceptions from extraction; otherwise capture them in the result.
+        sink (list[BatchExtractionResult[T] | None]): Pre-sized list serving as an indexed sink; this function assigns the result to sink[index].
+    """
     sink[index] = await _run_one(index, text, extractor, semaphore, raise_on_error)
 
 
@@ -169,18 +197,25 @@ def extract_batch[T](
     max_workers: int = 8,
     raise_on_error: bool = False,
 ) -> list[BatchExtractionResult[T]]:
-    """Synchronous wrapper around :func:`extract_batch_async`.
-
-    Creates a fresh event loop via :func:`asyncio.run` so this helper is
-    safe to call from scripts and test suites. If you already run inside
-    an event loop, call :func:`extract_batch_async` directly — this
-    helper will raise :class:`RuntimeError` because ``asyncio.run`` cannot
-    be nested.
-
-    The argument semantics mirror :func:`extract_batch_async` exactly.
+    """
+    Run the extractor over the provided texts using a fresh event loop and return per-text BatchExtractionResult objects.
+    
+    This helper drives the async implementation using asyncio.run so it is suitable for use from scripts and synchronous test code. It returns results in the same order as the input texts; each result contains either the extracted annotations or the exception that occurred for that text.
+    
+    Returns:
+        list[BatchExtractionResult[T]]: Results aligned to the input order; each entry contains `annotations` on success or `error` on failure.
+    
+    Raises:
+        RuntimeError: If called from within an already-running event loop (asyncio.run cannot be nested).
     """
 
     async def _run() -> list[BatchExtractionResult[T]]:
+        """
+        Invoke the batch extractor and collect per-text extraction results.
+        
+        Returns:
+            list[BatchExtractionResult[T]]: A list of per-input extraction results aligned to the original texts.
+        """
         return await extract_batch_async(
             extractor,
             texts,
@@ -194,11 +229,13 @@ def extract_batch[T](
 def group_successful[T](
     results: Sequence[BatchExtractionResult[T]],
 ) -> tuple[list[BatchExtractionResult[T]], list[BatchExtractionResult[T]]]:
-    """Partition a batch of results into (ok, failed) lists.
-
-    Purely a convenience: callers typically want to post-process successful
-    extractions and separately log failures without writing the same
-    comprehension everywhere.
+    """
+    Partition a sequence of BatchExtractionResult objects into successful and failed groups.
+    
+    Returns:
+        tuple[list[BatchExtractionResult[T]], list[BatchExtractionResult[T]]]:
+            A pair `(ok, failed)` where `ok` contains results whose `ok` property is true
+            and `failed` contains the remaining results.
     """
     ok: list[BatchExtractionResult[T]] = []
     failed: list[BatchExtractionResult[T]] = []
@@ -208,10 +245,14 @@ def group_successful[T](
 
 
 def flatten[T](results: Iterable[BatchExtractionResult[T]]) -> list[T]:
-    """Flatten successful batch results into a single list of annotations.
-
-    Failed results are skipped silently; pair with :func:`group_successful`
-    when you need to separately handle them.
+    """
+    Flatten annotations from successful BatchExtractionResult items into a single list.
+    
+    Parameters:
+        results (Iterable[BatchExtractionResult[T]]): Per-document results to collect annotations from.
+    
+    Returns:
+        list[T]: Concatenated annotations from results that succeeded (i.e., have no error).
     """
     out: list[T] = []
     for r in results:

@@ -50,8 +50,9 @@ class MoneyTest(TestCase):
 
 def test_get_money():
     """
-    Test money extraction.
-    :return:
+    Run the standard extraction test harness against the English money test dataset without source information.
+    
+    The test invokes the shared extraction tester using `get_money` and supplies an `expected_data_converter` that transforms each expected (amount, currency) pair into (Decimal(amount) if amount else None, currency).
     """
     lexnlp_tests.test_extraction_func_on_test_data(
         func=get_money,
@@ -64,8 +65,9 @@ def test_get_money():
 
 def test_get_money_source():
     """
-    Test money extraction with source.
-    :return:
+    Run the standard extraction test harness against English money test data including extraction sources.
+    
+    Converts each expected (amount, currency, source) into (Decimal(amount) if amount else None, currency, source) and filters out entries where amount, currency, and source are all falsy before comparison.
     """
     lexnlp_tests.test_extraction_func_on_test_data(
         func=get_money,

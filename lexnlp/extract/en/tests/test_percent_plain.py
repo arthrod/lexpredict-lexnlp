@@ -48,6 +48,11 @@ class TestPercentPlain(TestCase):
         self.assertEqual(Decimal("0.026"), ants[0].fraction)
 
     def test_percent_mix_fraction(self):
+        """
+        Verifies that a percent with a leading integer and a vulgar fraction (e.g., "020 ⅗%") is parsed and converted to the correct Decimal fraction.
+        
+        Asserts that a single annotation is produced and its `fraction` equals Decimal("0.206").
+        """
         text = "020 ⅗%"
         ants = list(get_percent_annotations(text))
         self.assertEqual(1, len(ants))

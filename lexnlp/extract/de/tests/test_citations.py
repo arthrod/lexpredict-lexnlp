@@ -13,6 +13,15 @@ from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 def _sort(v):
+    """
+    Sort items by their "location_start" key.
+    
+    Parameters:
+        v (Iterable[Mapping]): An iterable of dict-like objects each containing a "location_start" key with a comparable value.
+    
+    Returns:
+        list: A list of the input items sorted in ascending order by their "location_start" value.
+    """
     return sorted(v, key=lambda i: i["location_start"])
 
 

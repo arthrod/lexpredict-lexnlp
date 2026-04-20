@@ -170,6 +170,15 @@ class CourtCitationsParser:
     @staticmethod
     def split_text_by_keywords(text: str) -> list[tuple[str, int]]:
         # noinspection PyTypeChecker
+        """
+        Split text into slices anchored at recognized registry keywords and return each slice with its start position.
+        
+        Parameters:
+            text (str): The input string to scan for registry keywords.
+        
+        Returns:
+            list[tuple[str, int]]: A list of (chunk_text, start_index) tuples where `chunk_text` begins at a detected registry keyword and extends up to the next registry occurrence or a phrase-breaking delimiter (comma or semicolon), and `start_index` is the index of `chunk_text` in the original `text`.
+        """
         matches: tuple[re.Match, ...] = tuple(CourtCitationsParser.reg_split_by_registry.finditer(text))
         chunks = []
         for i, match in enumerate(matches):

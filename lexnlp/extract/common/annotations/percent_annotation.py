@@ -28,6 +28,17 @@ class PercentAnnotation(TextAnnotation):
         sign: str | None = None,
         fraction: Decimal | None = None
     ) -> None:
+        """
+        Initialize a PercentAnnotation with coordinates, optional textual content, and parsed numeric components.
+        
+        Parameters:
+            coords (tuple[int, int]): Bounding box coordinates for the annotation.
+            locale (str): Locale code used for parsing/formatting (default 'en').
+            text (str | None): Original extracted text for the percent annotation.
+            amount (Decimal | None): Whole-number percent value (e.g., 5 for '5%').
+            sign (str | None): Sign associated with the value (e.g., '+' or '-'), if present.
+            fraction (Decimal | None): Fractional part of the percent value (e.g., 0.5 for '5.5%').
+        """
         super().__init__(
             name='',
             locale=locale,

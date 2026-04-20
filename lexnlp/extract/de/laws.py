@@ -94,6 +94,18 @@ parser: LawsParser | None = None
 
 
 def get_law_annotations(text: str, language: str = 'de') -> Generator[LawAnnotation]:
+    """
+    Yield law and rule annotations found in the given text.
+    
+    If the module-level parser is not initialized, nothing is yielded.
+    
+    Parameters:
+        text (str): Text to scan for law or rule mentions.
+        language (str): Locale code used for parsing (e.g., 'de').
+    
+    Returns:
+        Generator[LawAnnotation]: `LawAnnotation` objects for each detected law or rule.
+    """
     if not parser:
         return
     yield from parser.parse(text, language)

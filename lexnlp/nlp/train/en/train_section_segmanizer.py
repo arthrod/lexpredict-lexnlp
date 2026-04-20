@@ -183,8 +183,19 @@ class SectionSegmentizerTrainManager:
     def _build_document_distribution(
             cls, text: str, characters=string.printable, norm=True):
         """
-        Build document distribution based on fixed character and optionally norm to unit.
-        """
+            Compute per-character and line-start character distributions for the given document.
+            
+            Parameters:
+                text (str): Document text to analyze.
+                characters (str): Sequence of characters to track; used to form keys `doc_char_{c}` and `doc_startchar_{c}`. Defaults to `string.printable`.
+                norm (bool): If True, normalize counts so that all `doc_char_*` values sum to 1 and all `doc_startchar_*` values sum to 1. If False, values are raw counts.
+            
+            Returns:
+                dict: Mapping of feature names to counts or normalized frequencies. Feature keys include:
+                    - `doc_char_{c}`: count or normalized frequency of character `c` in the entire text.
+                    - `doc_startchar_{c}`: count or normalized frequency of lines that start with character `c`.
+                    - `doc_startchar_other`: count or normalized frequency of lines that start with a character not in `characters`.
+            """
         # Build character vector
         v = {}
         for c in characters:

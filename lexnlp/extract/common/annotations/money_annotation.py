@@ -26,6 +26,16 @@ class MoneyAnnotation(TextAnnotation):
         amount: Decimal | None = None,
         currency: str | None = None
     ) -> None:
+        """
+        Initialize a MoneyAnnotation representing a monetary value extracted from text.
+        
+        Parameters:
+            coords (tuple[int, int]): Start and end character indices of the annotation within the source text.
+            locale (str): Locale code used for parsing/formatting (default 'en').
+            text (str | None): Original annotated text snippet, if available.
+            amount (Decimal | None): Numeric monetary amount as a Decimal, if available.
+            currency (str | None): Currency code or symbol associated with the amount, if available.
+        """
         super().__init__(
             name='',
             locale=locale,

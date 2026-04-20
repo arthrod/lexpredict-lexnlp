@@ -43,8 +43,19 @@ def _get_courts(
     simplified_normalization: bool = False,
 ) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     """
-    TODO: remove this function
-    See lexnlp/extract/en/tests/test_courts.py
+    Extracts court dictionary matches from the given text using the provided dictionary entries.
+    
+    This function is deprecated and emits a DeprecationWarning when called.
+    
+    Parameters:
+        text (str): Text to search for court entities.
+        court_config_list (list[DictionaryEntry]): Dictionary entries to match against the text.
+        priority (bool): If True, resolve overlapping/conflicting matches by taking the entry with highest priority (first by id).
+        text_languages (list[str] | None): Optional list of language codes to guide language-specific matching.
+        simplified_normalization (bool): If True, apply simplified normalization rules during matching.
+    
+    Returns:
+        Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]: Yields a tuple of (DictionaryEntry, DictionaryEntryAlias) for each matched entity.
     """
     warnings.warn("This function will be removed in a future version of LexNLP", DeprecationWarning)
     for ent in find_dict_entities(

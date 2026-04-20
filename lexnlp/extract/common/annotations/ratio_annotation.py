@@ -28,6 +28,17 @@ class RatioAnnotation(TextAnnotation):
         right: Decimal | None = None,
         ratio: Decimal | None = None
     ) -> None:
+        """
+        Initialize a RatioAnnotation representing an extracted ratio with optional numeric components.
+        
+        Parameters:
+            coords (tuple[int, int]): Start and end character offsets of the annotation in the source text.
+            locale (str): Locale code for the annotation (default 'en').
+            text (str | None): Extracted text span associated with the annotation, if any.
+            left (Decimal | None): Left numeric component (e.g., numerator or first operand) when present.
+            right (Decimal | None): Right numeric component (e.g., denominator or second operand) when present.
+            ratio (Decimal | None): Computed or extracted ratio value when present.
+        """
         super().__init__(
             name='',
             locale=locale,

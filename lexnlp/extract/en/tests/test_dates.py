@@ -47,6 +47,19 @@ DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 def expected_data_converter(expected):
+    """
+    Convert an iterable of date strings into a list of Python date/datetime objects.
+    
+    Parameters:
+        expected (iterable[str]): Strings representing dates in one of the following formats:
+            - "YYYY-MM-DD HH:MM:SS" (length 19) — parsed to `datetime.datetime`.
+            - "YYYY-MM-DD" (length 10) — parsed to `datetime.date`.
+            - "MM-DD" (length 5) — treated as the given month and day in the current year and parsed to `datetime.date`.
+    
+    Returns:
+        list[datetime.date | datetime.datetime]: Parsed dates where full datetimes (length 19 inputs) are `datetime.datetime`
+        objects and other inputs produce `datetime.date` objects.
+    """
     ret = []
     for d in expected:
         if len(d) == 19:
@@ -74,7 +87,9 @@ class TestDates(TestCase):
 
     def test_fixed_dates(self):
         """
-        Test date extraction from fixed examples.
+        Validate date extraction against the module's fixed test dataset.
+        
+        Runs the fixed test cases and asserts that parsed dates match the expected values after normalization by `expected_data_converter`.
         """
         lexnlp_tests.test_extraction_func_on_test_data(get_dates_list, expected_data_converter=expected_data_converter)
 
@@ -148,7 +163,10 @@ class TestDates(TestCase):
 
     def test_date_feature_1(self):
         """
-        Test date feature engineering.
+        Verify character-frequency features produced for the date string "2000-02-02".
+        
+        Asserts that get_date_features("2000-02-02", 0, 10, include_bigrams=False, characters=string.printable)
+        returns the expected dictionary of "char_" feature frequencies for the given input.
         """
         date_feature = get_date_features("2000-02-02", 0, 10, include_bigrams=False, characters=string.printable)
         self.assertDictEqual(
@@ -373,7 +391,8 @@ class TestDates(TestCase):
     @pytest.mark.serial
     def debug_build_model(self):
         """
-        Test build model by running default train.
-        :return:
+        Run the default date-extraction training pipeline without saving the model to validate it executes end-to-end.
+        
+        This test is intended as a debug/integration check and does not perform assertions.
         """
         train_default_model(save=False)

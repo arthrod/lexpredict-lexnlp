@@ -96,6 +96,11 @@ of Trust") dated August 29, 1997, is executed and
         self.assertEqual(0, len(matches))
 
     def test_capitalized_false_positive(self):
+        """
+        Ensure capitalized common nouns do not trigger definition extraction.
+        
+        Asserts that no definition annotations are returned for two example sentences where words like "Corporation" and "Bonds" are capitalized in normal, non-definitional contexts.
+        """
         text = (
             "Costs incurred by the Corporation in providing these services are reflected in the respective "
             + "categories in the consolidated statements of operations and changes in net assets."
@@ -117,13 +122,9 @@ of Trust") dated August 29, 1997, is executed and
 
     def test_include_multitoken_definition(self):
         """
-        I think that the text
-        (each an “Obligation” and collectively, the “Obligations”)
-        IS the definition. But the parser skips the text because it has more
-        than MAX_TERM_TOKENS (presently, 5) words.
-
-        So, the behavior is changed: now 10 words are allowed because there are
-        2 possible "definitions".
+        Verify extraction of multi-token definitions when singular and plural forms are presented together.
+        
+        Asserts that three definition annotations containing "Obligation" are produced from text where the singular and plural definienda appear in a parenthetical (each an “Obligation” and collectively, the “Obligations”).
         """
         text = """
         Obligation No. 39, the outstanding Obligations relating to other indebtedness and obligations of the 
@@ -199,11 +200,21 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         self.assertEqual(1, len(defs))
 
     def test_parse_moodys(self):
+        """
+        Ensure a quoted term containing an apostrophe is recognized as a single definition.
+        
+        Asserts that the sentence containing `"Moody's"` yields exactly one definition annotation.
+        """
         text = '''together with any successor thereto, "Moody's"'''
         defs = list(get_definition_annotations(text))
         self.assertEqual(1, len(defs))
 
     def test_parse_in_extra_quotes(self):
+        """
+        Verify that a quoted definiendum with extra leading quotation marks is recognized as a single definition.
+        
+        Asserts that exactly one definition annotation is returned for a term that contains superfluous quote characters before the opening quote.
+        """
         text = (
             """""Consolidated EBITDA" means, for any period, for the Company and its Subsidiaries """
             + """on a consolidated basis, an amount equal to Consolidated Net Income for such period"""
@@ -263,6 +274,11 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         self.assertEqual(definitions[0].name, "U.S. Person")
 
     def test_trigger_word_fullmatches(self):
+        """
+        Ensures a generic "meanings given to terms defined herein" clause does not produce definition annotations.
+        
+        Verifies that a parenthetical list marker followed by a sentence stating that meanings given to defined terms apply equally to singular and plural forms yields zero extracted definitions.
+        """
         text = """(i)\nThe meanings given to terms defined herein shall be equally applicable to both\n
                   the singular and plural forms of such terms."""
         definitions = list(get_definition_annotations(text))
@@ -302,6 +318,11 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         self.assertEqual("Administrator", definitions[0].name)
 
     def test_def_called(self):
+        """
+        Verify extraction of a quoted "so called" definiendum from noisy, irregular text.
+        
+        Asserts that exactly one definition is detected and that its normalized name equals "champerty".
+        """
         text = """4. Contracts whereby one party unrelated (___
         performed (an assignment for past duties is not to the suit agrees with a party to the suit that
         illegal or against public poiicy - here the harm is they will split the proceeds of the suit and the
@@ -328,6 +349,11 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         self.assertEqual(len(definitions), 1)
 
     def test_unbal_quotes(self):
+        """
+        Verifies that definition extraction tolerates unbalanced or corrupted quotation marks and excludes invalid quote contexts.
+        
+        First case: a noisy string with mismatched single/double quotes should yield one definition with name "authorized". Second case: an input with an unclosed/ill-formed quote spanning lines should yield no definitions.
+        """
         text = """Buthrzd d"uatc-\nmunicate the acceptance of the offer to the between 
                 so-called 'authorized" and unauthre\nofferor. """
         definitions = list(get_definition_annotations(text))
@@ -388,6 +414,11 @@ against the Trustee in connection with the Trustee's obligations under or in con
         self.assertEqual(4, len(definitions))
 
     def test_merge_defs_consumed(self):
+        """
+        Verifies that adjacent singular and plural quoted definitional terms are extracted as two separate definitions.
+        
+        Asserts that parsing "(each an “Obligation” and collectively, the “Obligations”)" yields exactly two definition annotations.
+        """
         text = "(each an “Obligation” and collectively, the “Obligations”)"
         definitions = list(get_definition_annotations(text))
         self.assertEqual(2, len(definitions))
@@ -443,6 +474,11 @@ of income of the Borrower for such period.
         # self.assertEqual('Deed of Trust', definitions[0].name)
 
     def test_overlapping_defs(self):
+        """
+        Verifies that definition extraction finds multiple (overlapping) definitions in a known problematic document.
+        
+        Loads the resource file "bad_def.txt", extracts definitions, and asserts that more than 12 definitions are returned.
+        """
         text = load_resource_document("lexnlp/extract/en/tests/test_definitions/bad_def.txt", "utf-8")
         defs = list(get_definitions(text))
         self.assertGreater(len(defs), 12)

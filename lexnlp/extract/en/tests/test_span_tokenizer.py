@@ -21,6 +21,11 @@ class TestSpanTokenizer(TestCase):
         self.assertGreater(len(spans), 3)
 
     def test_split_plain(self):
+        """
+        Verify SpanTokenizer.get_token_spans correctly tokenizes and produces POS tags and character offsets for a plain sentence.
+        
+        Asserts that the token span sequence has more than three items and that the first token is "He" with POS tag "PRP" and character span (0, 1), and that the ninth token is "nah-nah-nah" with POS tag "JJ" and character span (34, 44).
+        """
         text = "He took my heart in East Atlanta, nah-nah-nah"
         spans = list(SpanTokenizer.get_token_spans(text))
         self.assertGreater(len(spans), 3)

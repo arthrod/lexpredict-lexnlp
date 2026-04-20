@@ -15,7 +15,15 @@ from typing import Any
 
 def safe_failure(func):
     """
-    Return None on failure, either skip result if generator
+    Create a decorator that conditionally suppresses exceptions raised by the wrapped function.
+    
+    The wrapper checks a boolean keyword argument `safe_failure` (default True). If `safe_failure` is True, exceptions raised by the wrapped function (or during iteration if the function returns a generator) are suppressed and the wrapper returns None or stops yielding further results; if `safe_failure` is False, exceptions are re-raised. When the wrapped function returns a generator, the wrapper yields the generator's items and applies the same suppression behavior to exceptions that occur during iteration.
+    
+    Parameters:
+        func (callable): The function to wrap.
+    
+    Returns:
+        callable: A decorator/wrapper that applies the described failure-suppression behavior.
     """
     def decorator(*args, **kwargs):
         raise_exc = not kwargs.pop('safe_failure', True)

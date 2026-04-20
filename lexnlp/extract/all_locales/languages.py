@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -15,26 +14,41 @@ class LocaleContextManager:
 
     def __init__(self, category: int, _locale: str) -> None:
         """
-        Set the locale for the given category. The locale can be
-        a string, an iterable of two strings (language code and encoding),
-        or None.
-
-        Iterables are converted to strings using the locale aliasing
-        engine. Locale strings are passed directly to the C lib.
-
-        `category` may be given as one of the LC_* values.
+        Initialize the LocaleContextManager by recording the current locale and the target category and locale.
+        
+        Parameters:
+            category (int): The LC_* category to modify (e.g., locale.LC_TIME).
+            _locale (str | tuple[str, str] | None): The desired locale (a locale string, a two-item (language, encoding) tuple, or None).
         """
         self._original_locale: Sequence = locale.getlocale()
         self.category: int = category
         self.locale: str = _locale
 
     def __enter__(self) -> str | None:
+        """
+        Temporarily set the process locale for the instance's category.
+        
+        Attempts to set the locale to the instance's configured value and returns the effective locale string when successful; if setting the locale fails due to a locale.Error, returns `None`.
+        
+        Returns:
+            `str` effective locale string on success, `None` if the requested locale could not be set.
+        """
         try:
             return locale.setlocale(self.category, self.locale)
         except locale.Error:
             return None
 
     def __exit__(self, type, value, traceback) -> None:
+        """
+        Restore the process locale for the context's category.
+        
+        Always sets the locale for the stored category back to the original locale saved when the context was entered. This restoration is performed regardless of whether the with-block raised an exception and the method does not suppress exceptions (it returns None).
+        
+        Parameters:
+            type: The exception type if an exception was raised in the with-block, otherwise None. Ignored.
+            value: The exception instance if raised, otherwise None. Ignored.
+            traceback: The traceback object if an exception was raised, otherwise None. Ignored.
+        """
         locale.setlocale(self.category, self._original_locale)
 
 

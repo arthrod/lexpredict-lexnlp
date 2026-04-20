@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -20,5 +19,18 @@ ROUTINE_BY_LOCALE = {
 
 def get_court_citation_annotations(locale: str, text: str, language: str | None = None) -> \
         Generator[CourtCitationAnnotation]:
-    routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[LANG_DE.code])
+    """
+        Extract court citation annotations from text using a locale-specific routine.
+        
+        If no routine is registered for the locale's language, the German extraction routine is used as a fallback.
+        
+        Parameters:
+            locale (str): Locale identifier used to select the extraction routine (for example, "de_DE").
+            text (str): Text to scan for court citation annotations.
+            language (str | None): Optional language code to pass to the extraction routine to refine or override locale selection.
+        
+        Returns:
+            Generator[CourtCitationAnnotation]: An iterator yielding found court citation annotations.
+        """
+        routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[LANG_DE.code])
     yield from routine(text, language)

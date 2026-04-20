@@ -16,10 +16,16 @@ from lexnlp.extract.ml.classifier.base_token_sequence_classifier_model import (
 
 class TestFeatureMaskSignature:
     def test_get_feature_data_default_is_none(self) -> None:
+        """
+        Ensure BaseTokenSequenceClassifierModel.get_feature_data declares a `feature_mask` parameter whose default value is None.
+        """
         sig = inspect.signature(BaseTokenSequenceClassifierModel.get_feature_data)
         assert sig.parameters["feature_mask"].default is None
 
     def test_run_model_default_is_none(self) -> None:
+        """
+        Verify that BaseTokenSequenceClassifierModel.run_model declares a `feature_mask` parameter with a default value of None.
+        """
         sig = inspect.signature(BaseTokenSequenceClassifierModel.run_model)
         assert sig.parameters["feature_mask"].default is None
 

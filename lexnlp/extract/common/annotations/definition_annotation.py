@@ -22,7 +22,16 @@ class DefinitionAnnotation(TextAnnotation):
                  locale: str = 'en',
                  name: str = '',
                  text: str | None = None):
-        super().__init__(
+        """
+                 Initialize a DefinitionAnnotation instance.
+                 
+                 Parameters:
+                     coords (tuple[int, int]): A (start, end) pair of character offsets indicating the annotation span.
+                     locale (str): Locale code for the annotation (default 'en').
+                     name (str): The label or name of the definition.
+                     text (str | None): The extracted text for the definition; may be None if not available.
+                 """
+                 super().__init__(
             name=name,
             locale=locale,
             coords=coords,

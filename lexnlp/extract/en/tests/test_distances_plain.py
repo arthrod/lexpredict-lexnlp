@@ -35,6 +35,12 @@ class TestDistancesPlain(TestCase):
         self.assertEqual("/en/distance/8.0/kilometer", cite)
 
     def test_file_samples(self):
+        """
+        Validate the distance annotation extractor against the sample fixtures.
+        
+        Runs the typed-annotations tester using the fixtures file at
+        "lexnlp/typed_annotations/en/distance/distances.txt" and raises an exception if any extracted annotation does not match the expected DistanceAnnotation.
+        """
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
             get_distance_annotations, "lexnlp/typed_annotations/en/distance/distances.txt", DistanceAnnotation

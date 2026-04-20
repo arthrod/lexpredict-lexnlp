@@ -26,6 +26,17 @@ from lexnlp.config.en.company_types import COMPANY_DESCRIPTIONS, COMPANY_TYPES, 
 
 
 def get_company_type_pipe(company_type_list: None | list[str] | dict[str, CompanyDescriptor] = None) -> str:
+    """
+    Builds a regex alternation string of company type tokens.
+    
+    If `company_type_list` is None, the default company type set is used. If a dict is provided, its keys are used as the company type tokens. Tokens are sorted longest-first, lowercased, escaped for regex safety, and joined with `|`.
+    
+    Parameters:
+        company_type_list (None | list[str] | dict[str, CompanyDescriptor]): Optional list or dict of company type strings to use; when a dict is provided its keys are used.
+    
+    Returns:
+        company_type_pipe (str): A `|`-separated, escaped, lowercased alternation string suitable for use inside a regex.
+    """
     company_type_list = company_type_list or COMPANY_TYPES
     if isinstance(company_type_list, dict):
         company_type_list = list(company_type_list.keys())  # type: List[str]

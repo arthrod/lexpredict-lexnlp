@@ -48,8 +48,11 @@ def test_get_percents():
 
 def test_get_percents_source():
     """
-    Test get percent behavior with source return.
-    :return:
+    Test that get_percents returns percent extractions with source information.
+    
+    Calls the shared test harness with return_sources=True. The expected_data_converter converts each expected tuple
+    (unit, value_units, value_decimal, source) into (unit, Decimal(value_units) or None, Decimal(value_decimal) or None, source)
+    and filters out entries where all fields are falsy.
     """
     lexnlp_tests.test_extraction_func_on_test_data(
         func=get_percents,

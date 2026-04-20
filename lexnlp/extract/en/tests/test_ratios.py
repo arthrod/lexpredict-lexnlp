@@ -28,8 +28,9 @@ from lexnlp.tests import lexnlp_tests
 
 def test_get_ratios():
     """
-    Test ratio extraction.
-    :return:
+    Run unit tests for ratio extraction.
+    
+    Converts each expected (numerator, consequent, decimal) tuple into a tuple of Decimal values or None and compares them against get_ratios extraction results using the test harness.
     """
     lexnlp_tests.test_extraction_func_on_test_data(
         func=get_ratios,

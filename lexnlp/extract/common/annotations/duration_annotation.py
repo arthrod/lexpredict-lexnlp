@@ -31,6 +31,21 @@ class DurationAnnotation(TextAnnotation):
         is_complex: bool = False,
         value_dict: dict | None = None
     ) -> None:
+        """
+        Initialize a DurationAnnotation representing a detected duration entity.
+        
+        Parameters:
+            coords (tuple[int, int]): Start and end character offsets of the annotation in the source text.
+            locale (str): Locale code used for parsing/normalization (default 'en').
+            text (str | None): Exact substring of the source corresponding to the annotation, if available.
+            amount (Decimal | None): Numeric magnitude of the duration (e.g., '3' for "3 years"), if parsed.
+            prefix (str | None): Any prefix text associated with the duration (e.g., 'about', 'approximately').
+            duration_days (Decimal | None): Total duration expressed in days; set only when `amount` is provided.
+            duration_type (str | None): Original duration unit extracted from the text (e.g., 'years', 'months').
+            duration_type_en (str | None): English-normalized duration unit.
+            is_complex (bool): True when the duration expression is compound or composed of multiple parts.
+            value_dict (dict | None): Optional additional metadata or parsed values to attach to the annotation.
+        """
         super().__init__(
             name='',
             locale=locale,

@@ -24,6 +24,13 @@ class TestCitationsPlain(TestCase):
         self.assertEqual("/en/citation/1 F.2d 1, 2-5 (2d Cir., 1982)" + "/1/1982/2-5/2d Cir./F.2d", cite)
 
     def test_file_samples(self):
+        """
+        Validate citation annotation extraction against canonical test samples.
+        
+        Runs TypedAnnotationsTester.test_and_raise_errors using get_citation_annotations and the
+        typed-annotation samples file "lexnlp/typed_annotations/en/citation/citations.txt", and
+        raises an exception if any parsed annotation does not match the expected CitationAnnotation.
+        """
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
             get_citation_annotations, "lexnlp/typed_annotations/en/citation/citations.txt", CitationAnnotation

@@ -24,6 +24,12 @@ class TestCollapseSequence:
 
     def test_generator_input_is_supported(self) -> None:
         def gen() -> object:
+            """
+            Yield a fixed sequence of integers 10, 20, and 30.
+            
+            Returns:
+                generator: Yields the integers 10, 20, and 30 in order.
+            """
             yield from (10, 20, 30)
 
         assert collapse_sequence(gen(), lambda i, a: a + i, 0) == 60

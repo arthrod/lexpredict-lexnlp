@@ -14,6 +14,9 @@ from lexnlp.extract.en.courts import _get_courts
 
 class TestGetCourtsSignature:
     def test_text_languages_default_is_none(self) -> None:
+        """
+        Verify that the `_get_courts` function's `text_languages` parameter has a default value of `None`.
+        """
         sig = inspect.signature(_get_courts)
         assert sig.parameters["text_languages"].default is None
 

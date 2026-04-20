@@ -37,6 +37,11 @@ class TestPhraseFinder(TestCase):
         self.assertEqual((3, 7), (tagged[0][1], tagged[1][1]))
 
     def test_tagging_non_uni_quotes(self):
+        """
+        Verify that PhrasePositionFinder locates phrases quoted with straight double quotes when the source text uses typographic (curly) double quotes.
+        
+        Asserts that searching for '"Obligation"' and '"Obligations"' in the provided text within bounds 0–58 produces start positions 9 and 44, respectively.
+        """
         text = "(each an “Obligation” and collectively, the “Obligations”)"
         tagged = PhrasePositionFinder.find_phrase_in_source_text(text, ['"Obligation"', '"Obligations"'], 0, 58)
         self.assertEqual((9, 44), (tagged[0][1], tagged[1][1]))

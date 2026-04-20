@@ -29,6 +29,11 @@ from lexnlp.extract.common.annotations.url_annotation import UrlAnnotation
 
 class TestAnnotation(TestCase):
     def test_format_copyright_annotation(self):
+        """
+        Verify that CopyrightAnnotation produces citation strings containing the copyright label, company name, and start/end years and that locale changes are applied.
+        
+        Creates a CopyrightAnnotation with a start year and asserts the citation includes "copyright", the company name, and the start year; then sets a year_end and locale and asserts the citation includes the end year as well.
+        """
         cp = CopyrightAnnotation(
             name="Siemens", coords=(0, 100), text="text text", locale="locale", company="Siemens", year_start=1996
         )
@@ -92,6 +97,14 @@ class TestAnnotation(TestCase):
         self.assertEqual("/pg/date/2018-01-13", cite)
 
     def test_amount_annotation(self):
+        """
+        Verify AmountAnnotation records locale, provides a non-empty representation, and generates the expected cite string.
+        
+        Asserts that:
+        - the annotation's locale is set to "pg",
+        - its __repr__() returns a non-empty string,
+        - get_cite() returns "/pg/amount/2.3".
+        """
         ant = AmountAnnotation(coords=(2, 12), value=2.3, locale="pg")
         self.assertEqual("pg", ant.locale)
         s = ant.__repr__()
@@ -166,6 +179,11 @@ class TestAnnotation(TestCase):
         self.assertEqual("/en/percent/101/percento", cite)
 
     def test_ssn_annotation(self):
+        """
+        Verify that SsnAnnotation uses the default locale and produces the expected citation for a provided SSN.
+        
+        Asserts that the annotation's locale is "en" and that get_cite() returns "/en/ssn/1234-4321-1234".
+        """
         ant = SsnAnnotation(coords=(2, 20), number="1234-4321-1234")
         self.assertEqual("en", ant.locale)
         cite = ant.get_cite()

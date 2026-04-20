@@ -93,6 +93,12 @@ class TestGetPercents(AssertionMixin):
 
 
 def get_ordered_percent_annotations(text: str) -> list[PercentAnnotation]:
+    """
+    Extract percent annotations from the given text and return them sorted by their starting coordinate.
+    
+    Returns:
+        list[PercentAnnotation]: PercentAnnotation objects sorted in ascending order by each annotation's starting coordinate.
+    """
     ants = list(get_percent_annotations(text))
     ants.sort(key=lambda a: a.coords[0])
     return ants

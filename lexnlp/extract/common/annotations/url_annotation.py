@@ -21,7 +21,16 @@ class UrlAnnotation(TextAnnotation):
                  locale: str = 'en',
                  text: str | None = None,
                  url: str | None = None):
-        super().__init__(
+        """
+                 Initialize a UrlAnnotation with location, locale, optional display text, and URL.
+                 
+                 Parameters:
+                     coords (tuple[int, int]): Start and end character offsets for the annotation.
+                     locale (str): Locale code for the annotation (default 'en').
+                     text (str | None): Optional extracted or display text associated with the URL.
+                     url (str | None): Optional URL value for the annotation; stored on the instance as `self.url`.
+                 """
+                 super().__init__(
             name='',
             locale=locale,
             coords=coords,

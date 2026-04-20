@@ -132,16 +132,15 @@ class GitHubReleaseDownloader:
         chunk_size: int = 8192,
     ) -> None:
         """
-        Args:
-            asset (Dict[str, Any]):
-            destination_directory (Union[Path, str]):
-            chunk_size (int=8192):
-
-        Returns:
-            None
-
-        References:
-            https://docs.github.com/en/rest/reference/releases#get-a-release-asset
+        Download a GitHub release asset to the specified destination directory and verify its MD5 if provided by the server.
+        
+        Parameters:
+            asset (dict): Asset metadata from the GitHub Releases API containing at least the keys 'url' and 'name' and optionally 'size'.
+            destination_directory (Path | str): Directory where the asset file will be written; the directory will be created if it does not exist.
+            chunk_size (int): Number of bytes to read per network chunk when streaming the download.
+        
+        Raises:
+            ChecksumError: If the server provided a Content-MD5 header and the computed file checksum does not match.
         """
         response: Response = get(
             url=asset['url'],

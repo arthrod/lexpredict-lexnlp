@@ -133,9 +133,18 @@ class TokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
                          text: str,
                          feature_mask: list[int] | None = None):
         """
-        Get features based on character model.
-        feature_mask - array of numbers, has the same length as text
-        """
+                         Extract per-token feature vectors and token offset pairs from the input text.
+                         
+                         Builds a dense int8 feature matrix where each row corresponds to a token found in the input and each column to a feature name from the model's feature list, and returns the token (start, end) offsets (end is exclusive).
+                         
+                         Parameters:
+                             text (str): Input text to tokenize and extract character/unicode-based features from.
+                             feature_mask (list[int] | None): Optional per-character mask with the same length as `text`; when provided, the token-level `mask` feature is set to the maximum mask value of the token's characters.
+                         
+                         Returns:
+                             feature_data (numpy.ndarray): Array of shape (num_tokens, len(self.feature_list)), dtype `numpy.int8`, containing per-token feature counts/flags.
+                             tokens (list[tuple[int,int]]): List of (start_offset, end_offset) pairs for each token in `text`, where `end_offset` is exclusive.
+                         """
         # setup return data
         text_len = len(text)
         text_lower = [c.lower() for c in text]

@@ -22,6 +22,15 @@ class TestDefinitionsTemplate(TestCase):
 
 
 def get_definitions_sorted(text: str):
+    """
+    Produce a list of definition annotations extracted from the given text, sorted by each annotation's starting coordinate.
+    
+    Parameters:
+        text (str): Input text to extract definitions from.
+    
+    Returns:
+        list: Definition annotations sorted by their starting coordinate (the first element of each annotation's `coords`).
+    """
     annotations = list(get_definition_annotations(text))
     annotations.sort(key=lambda a: a.coords[0])
     return annotations

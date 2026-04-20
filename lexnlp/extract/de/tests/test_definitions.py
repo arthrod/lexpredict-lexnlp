@@ -87,6 +87,11 @@ class TestParseDeutscheDefinitions(TestCase):
         assert len(ret) > 0
 
     def test_parse_de_definitions_tail_break(self):
+        """
+        Ensures German definition parsing extracts definitions from a long sentence that ends with a trailing clause.
+        
+        Asserts that at least one definition annotation is returned and that "Vermögensgegenstände" appears among the extracted definition names.
+        """
         text = (
             "Vermögensgegenstände im Sinne dieses Gesetzes sind unbewegliches Vermögen im Sinne des Absatzes 8, "
             + "ferner zu dessen Bewirtschaftung erforderliche Gegenstände sowie Bankguthaben, "

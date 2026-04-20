@@ -58,6 +58,13 @@ class TestParseDeCourts(TestCase):
         self.assertEqual("Federal", jurisdiction)
 
     def test_file_samples(self):
+        """
+        Validate court annotation parsing against the typed-annotation fixture and fail the test on any mismatch.
+        
+        Runs TypedAnnotationsTester.test_and_raise_errors using the court annotations parser and the fixture
+        "lexnlp/typed_annotations/de/court/courts.txt" expecting instances of CourtAnnotation; the test fails
+        if the produced annotations do not match the fixture.
+        """
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
             get_court_annotations, "lexnlp/typed_annotations/de/court/courts.txt", CourtAnnotation

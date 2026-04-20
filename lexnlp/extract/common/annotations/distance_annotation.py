@@ -26,6 +26,16 @@ class DistanceAnnotation(TextAnnotation):
         amount: Decimal | None = None,
         distance_type: str | None = None,
     ) -> None:
+        """
+        Initialize a DistanceAnnotation with location, locale, optional text, numeric amount, and distance type.
+        
+        Parameters:
+            coords (tuple[int, int]): Start and end character indices for the annotation within the source text.
+            locale (str): Locale code for the annotation (e.g., 'en').
+            text (str | None): The matched text span for the annotation, or None if unavailable.
+            amount (Decimal | None): Numeric distance value, or None if not provided.
+            distance_type (str | None): Unit or descriptor for the distance (e.g., 'miles', 'feet'), or None if unspecified.
+        """
         super().__init__(
             name='',
             locale=locale,

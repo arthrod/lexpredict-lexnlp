@@ -15,6 +15,9 @@ from lexnlp.extract.common.ocr_rating.ocr_rating_calculator import build_cs_quad
 
 class TestOcrGrade(TestCase):
     def test_empty_text(self):
+        """
+        Verify that the OCR rating calculator returns a score of 0 when both text and language are empty.
+        """
         calc = build_cs_quad_rating_calculator()
         rating = calc.get_rating("", "")
         self.assertEqual(0, rating)

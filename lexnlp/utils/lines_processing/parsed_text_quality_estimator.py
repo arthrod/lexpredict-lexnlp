@@ -21,11 +21,25 @@ class TypedLineOrPhrase(LineOrPhrase):
     Adds LineType attribute specifying the line's "role" within the text
     """
     def __init__(self):
+        """
+        Initialize the TypedLineOrPhrase instance and set its role type to LineType.regular.
+        
+        This constructor delegates base initialization to the parent LineOrPhrase and establishes the `type` attribute with a default of `LineType.regular`.
+        """
         super().__init__()
         self.type = LineType.regular
 
     @staticmethod
     def wrap_line(line_or_phrase: LineOrPhrase):
+        """
+        Wrap a LineOrPhrase into a new TypedLineOrPhrase while preserving its text, start, and ending.
+        
+        Parameters:
+            line_or_phrase (LineOrPhrase): The source line or phrase whose `text`, `start`, and `ending` will be copied.
+        
+        Returns:
+            TypedLineOrPhrase: A newly created instance with `text`, `start`, and `ending` copied from `line_or_phrase`; `type` remains at its default value.
+        """
         t = TypedLineOrPhrase()
         t.text = line_or_phrase.text
         t.start = line_or_phrase.start
@@ -33,6 +47,12 @@ class TypedLineOrPhrase(LineOrPhrase):
         return t
 
     def __repr__(self):
+        """
+        Return a concise debug representation of the TypedLineOrPhrase instance.
+        
+        Returns:
+            repr_str (str): A string in the format "[{type}] {text}->{ending}" where {type} is the line type, {text} is the line content, and {ending} is the line ending characters.
+        """
         return '[' + str(self.type) + '] ' + self.text + '->' + self.ending
 
 
@@ -88,6 +108,14 @@ class ParsedTextQualityEstimator:
         return self.estimate
 
     def split_text_on_lines(self, text: str):
+        """
+        Reset the internal quality estimate and split the provided text into typed lines for analysis.
+        
+        This resets the estimator state, splits `text` into line objects (preserving line endings), updates the estimator's average line length, and assigns a LineType to each resulting TypedLineOrPhrase.
+        
+        Parameters:
+            text (str): The input text to split and classify into lines.
+        """
         self.estimate = ParsedTextQualityEstimate()
 
         self.lines = [TypedLineOrPhrase.wrap_line(line_or_phrase) for line_or_phrase in

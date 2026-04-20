@@ -88,6 +88,17 @@ class DeDateParser(DateParser):
         return True
 
     def get_word_parts(self, date_str: str) -> list[DatePart]:
+        """
+        Split a candidate date string into labeled tokens (DatePart instances).
+        
+        Given a date-like string, produce a list of DatePart objects where each token is categorized and, when applicable, assigned a numeric value. Tokens may be categorized as 'number' (explicit digits or parsed numeral words), 'month' (recognized full or short German month names), or an empty category for other retained tokens; negative numeral conversions and tokens starting with non-German alphabet characters are ignored.
+        
+        Parameters:
+            date_str (str): The input string containing a candidate date or phrase.
+        
+        Returns:
+            list[DatePart]: A list of DatePart objects representing the extracted and categorized tokens from the input string.
+        """
         parts: list[DatePart] = []
         for wrd in split_date_words(date_str):
             if not wrd:
@@ -128,7 +139,21 @@ class DeDateParser(DateParser):
                              locale: Locale | None = None,
                              strict: bool = True) -> \
             Generator[DateAnnotation]:
-        self.text = text.replace('\n', ' ') or self.text
+        """
+                             Extracts date annotations from the provided text and yields validated DateAnnotation objects.
+                             
+                             Parameters:
+                                 text (str | None): Text to scan for dates. If None, the parser's existing text is used.
+                                 locale (Locale | None): Locale whose language, if provided, will be used for parsing; otherwise the parser's current locale language is used.
+                                 strict (bool): If True, apply stricter parsing rules when extracting candidate dates.
+                             
+                             Returns:
+                                 Generator[DateAnnotation]: An iterator that yields DateAnnotation objects for each validated, non-overlapping date occurrence found in the text.
+                             
+                             Raises:
+                                 RuntimeError: If a text segment is empty or no language is defined for parsing.
+                             """
+                             self.text = text.replace('\n', ' ') or self.text
         self.text = re.sub(CUSTOM_DATES_SEPARATOR, '\n', self.text)
         text_parts = self.text.split('\n')
         for text_part in text_parts:

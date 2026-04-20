@@ -24,7 +24,18 @@ class CourtCitationAnnotation(TextAnnotation):
                  short_name: str | None = None,
                  text: str | None = None,
                  translated_name: str | None = None):
-        super().__init__(
+        """
+                 Initialize a CourtCitationAnnotation with document coordinates and optional citation naming fields.
+                 
+                 Parameters:
+                     coords (tuple[int, int]): Start and end character offsets for the annotation within the source text.
+                     locale (str): Locale code for the annotation (e.g., 'en').
+                     name (str): Primary name of the cited entity.
+                     short_name (str | None): Optional abbreviated form of the citation.
+                     text (str | None): Optional extracted entity text; used as the displayed text when present.
+                     translated_name (str | None): Optional translated version of the citation name.
+                 """
+                 super().__init__(
             coords=coords,
             name=name,
             locale=locale,

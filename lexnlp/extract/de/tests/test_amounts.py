@@ -17,11 +17,27 @@ from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 def _sort(v):
+    """
+    Produce a list of dictionaries sorted by their "location_start" value.
+    
+    Parameters:
+        v (iterable): An iterable of mapping objects (e.g., dict) each containing a "location_start" key with a comparable value.
+    
+    Returns:
+        list: A list of the input items sorted in ascending order by their "location_start" value.
+    """
     return sorted(v, key=lambda i: i["location_start"])
 
 
 class AssertionMixin(TestCase):
     def assertOneOK(self, num, writ_num):
+        """
+        Assert that parsing `writ_num` produces exactly one amount equal to `num`.
+        
+        Parameters:
+            num (int|float|Decimal): The expected numeric value extracted from the text.
+            writ_num (str): The text to parse for a single written or numeric amount.
+        """
         parsed_num = list(get_amounts(writ_num))
         self.assertEqual(len(parsed_num), 1)
         self.assertEqual(num, parsed_num[0])
@@ -41,6 +57,13 @@ class TestGetAmounts(AssertionMixin):
     test_nums = (2, 15, 67, 128, 709, 1234, 3005, 16070, 735900, 900100, 999999, 1234567)
 
     def assertOneOK(self, num, writ_num):
+        """
+        Assert that parsing `writ_num` produces exactly one amount equal to `num`.
+        
+        Parameters:
+            num (int|float|Decimal): The expected numeric value extracted from the text.
+            writ_num (str): The text to parse for a single written or numeric amount.
+        """
         parsed_num = list(get_amounts(writ_num))
         self.assertEqual(len(parsed_num), 1)
         self.assertEqual(num, parsed_num[0])
@@ -51,6 +74,11 @@ class TestGetAmounts(AssertionMixin):
             self.assertOneOK(num, writ_num)
 
     def test_writ_numbers_ord(self):
+        """
+        Verifies that German ordinal word forms are extracted as their corresponding integer values.
+        
+        For each integer in self.test_nums, converts it to German ordinal words and asserts a single parsed amount equals the original number.
+        """
         for num in self.test_nums:
             writ_num = num2words(num, ordinal=True, lang="de")
             print(num, writ_num)
@@ -72,6 +100,11 @@ class TestGetAmounts(AssertionMixin):
         self.assertOneOK(1000000, "millionen")
 
     def test_writ_mixed_number(self):
+        """
+        Verify that leading digits combined with German scale words produce the correct numeric amounts.
+        
+        Asserts that "1 tausend" is parsed as 1000 and "5 millionen" is parsed as 5000000.
+        """
         self.assertOneOK(1000, "1 tausend")
         self.assertOneOK(5000000, "5 millionen")
 
@@ -106,6 +139,11 @@ class TestGetAmounts(AssertionMixin):
         self.assertEqual(text.find(" dreißig"), ants[1].coords[0])
 
     def test_one_spelled_number(self):
+        """
+        Asserts that a single spelled-out German number produces exactly one amount annotation.
+        
+        Uses the text "dreißig " and verifies get_amount_annotations yields one annotation.
+        """
         text = "dreißig "
         ants = list(get_amount_annotations(text))
         self.assertEqual(1, len(ants))

@@ -25,7 +25,19 @@ class ActAnnotation(TextAnnotation):
                  year: int | None = None,
                  ambiguous: bool = False,
                  text: str = ''):
-        super().__init__(
+        """
+                 Initialize an ActAnnotation with location coordinates, extracted act attributes, and the source text.
+                 
+                 Parameters:
+                     coords (tuple[int, int]): Start and end character offsets for the annotation within the source text.
+                     locale (str): Locale of the annotation (default 'en').
+                     act_name (str): Name of the legislative act or statute extracted.
+                     section (str): Section or provision identified within the act.
+                     year (int | None): Year associated with the act, or None if unknown.
+                     ambiguous (bool): Whether the extraction is ambiguous (True) or confidently identified (False).
+                     text (str): The original text span covered by the annotation.
+                 """
+                 super().__init__(
             name='',
             locale=locale,
             coords=coords,

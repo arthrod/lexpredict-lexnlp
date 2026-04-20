@@ -18,6 +18,11 @@ from lexnlp.tests.utility_for_testing import annotate_text, load_resource_docume
 
 class TestParseSpanishLawsRegulations(TestCase):
     def test_parse_comision(self):
+        """
+        Verify parsing of Spanish regulation mentions and extracted attributes.
+        
+        Asserts that parsing a Spanish text containing "Comisión Nacional Bancaria y de Valores" yields two parsed items and that the second item has country "Spain" and the expected name. Then asserts that parsing a second Spanish text containing "Registro Nacional de Valores" yields one parsed item with expected coordinates, country "Spain", name and text "Registro Nacional de Valores", and locale "es".
+        """
         text = (
             "Las instituciones de banca múltiple que se ubiquen en lo dispuesto en esta fracción, deberán "
             + "entregar a la Comisión Nacional Bancaria y de Valores, la información y documentación que acredite "

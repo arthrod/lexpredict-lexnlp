@@ -73,6 +73,12 @@ class TestParseEsDates(TestCase):
         self.assertEqual(datetime.datetime(1999, 1, 1, 0, 0), ants[3].date)
 
     def test_file_samples(self):
+        """
+        Validate Spanish date extraction against the typed-annotation sample file.
+        
+        Runs TypedAnnotationsTester.test_and_raise_errors using get_date_annotations (strict=False) with the sample
+        file "lexnlp/typed_annotations/es/date/dates.txt" and expects DateAnnotation; the tester will raise on any mismatches.
+        """
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
             partial(get_date_annotations, strict=False), "lexnlp/typed_annotations/es/date/dates.txt", DateAnnotation

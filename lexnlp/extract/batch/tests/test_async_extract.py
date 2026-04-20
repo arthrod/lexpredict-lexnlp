@@ -37,11 +37,25 @@ from lexnlp.extract.batch.async_extract import (
 
 
 def _upper_extractor(text: str) -> list[str]:
-    """A deterministic sync extractor used across tests."""
+    """
+    Extract whitespace-separated tokens from the input text and return them in uppercase.
+    
+    Returns:
+        list[str]: Uppercase tokens obtained by splitting the input text on whitespace.
+    """
     return text.upper().split()
 
 
 def _exploding_extractor(text: str) -> list[str]:
+    """
+    Split the input text into whitespace-separated tokens; raise a RuntimeError if the substring "BOOM" appears.
+    
+    Returns:
+        list[str]: Tokens produced by calling `text.split()`.
+    
+    Raises:
+        RuntimeError: If "BOOM" is present in `text`, with message "boom: <text>".
+    """
     if "BOOM" in text:
         raise RuntimeError(f"boom: {text}")
     return text.split()
@@ -113,6 +127,9 @@ class TestExtractBatchSync:
 
 class TestExtractBatchAsync:
     def test_returns_coroutine_results_in_input_order(self) -> None:
+        """
+        Verify that extract_batch_async returns results in the same order as the input texts and that each result's annotations match the extractor's output.
+        """
         async def _run() -> list[BatchExtractionResult[str]]:
             return await extract_batch_async(_upper_extractor, ["a b", "c d"])
 
@@ -126,6 +143,14 @@ class TestExtractBatchAsync:
         peak = 0
 
         def tracking_extractor(_text: str) -> list[str]:
+            """
+            Increment concurrency trackers while simulating brief work and return a single "ok" annotation.
+            
+            This extractor increments the shared `in_flight` counter on entry, updates the shared `peak` with the maximum concurrent value observed, sleeps for ~0.01 seconds to simulate work, then decrements `in_flight` before returning.
+            
+            Returns:
+                list[str]: A single-element list containing the string "ok".
+            """
             nonlocal in_flight, peak
             in_flight += 1
             peak = max(peak, in_flight)
@@ -134,6 +159,11 @@ class TestExtractBatchAsync:
             return ["ok"]
 
         async def _run() -> None:
+            """
+            Run the batch extractor with `tracking_extractor` on 16 identical inputs using a concurrency limit of 3.
+            
+            Used by tests to exercise and observe concurrency behaviour (peak in-flight workers) of the batch extractor.
+            """
             await extract_batch_async(
                 tracking_extractor,
                 ["x"] * 16,
@@ -147,6 +177,12 @@ class TestExtractBatchAsync:
 
     def test_many_failures_are_collected(self) -> None:
         async def _run() -> list[BatchExtractionResult[str]]:
+            """
+            Run the exploding extractor on a fixed set of test inputs and collect their batch results.
+            
+            Returns:
+                A list of BatchExtractionResult[str] corresponding to the inputs ["BOOM a", "BOOM b", "ok", "BOOM c"] in the same order; each result contains `annotations` for successful extractions or `error` for failed extractions.
+            """
             return await extract_batch_async(
                 _exploding_extractor,
                 ["BOOM a", "BOOM b", "ok", "BOOM c"],
@@ -195,6 +231,15 @@ class TestHelperFunctions:
 class TestMiscEdgeCases:
     def test_extract_batch_supports_generator_extractor(self) -> None:
         def gen_extractor(text: str):
+            """
+            Yield tokens from `text` split on commas in their original order.
+            
+            Parameters:
+                text (str): Input string to split on commas.
+            
+            Yields:
+                str: Each token resulting from splitting `text` by ',' (empty tokens are yielded if present).
+            """
             yield from text.split(",")
 
         results = extract_batch(gen_extractor, ["a,b", "c,d"])
@@ -214,6 +259,15 @@ class TestMiscEdgeCases:
 
     def test_error_propagation_keeps_exception_type(self) -> None:
         def raiser(_: str) -> list[Any]:
+            """
+            Always raises a KeyError indicating a missing value.
+            
+            Parameters:
+                _ (str): Input text (unused).
+            
+            Raises:
+                KeyError: Always raised with message "missing".
+            """
             raise KeyError("missing")
 
         results = extract_batch(raiser, ["x"])

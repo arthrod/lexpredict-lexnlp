@@ -99,6 +99,12 @@ class TestGetDurations(AssertionMixin):
 
 
 def get_ordered_durations(text: str) -> list[DurationAnnotation]:
+    """
+    Return duration annotations extracted from the given text, ordered by their start offset.
+    
+    Returns:
+        list[DurationAnnotation]: Duration annotations sorted in ascending order by the annotation start coordinate (coords[0]).
+    """
     ants = list(get_duration_annotations(text))
     ants.sort(key=lambda a: a.coords[0])
     return ants

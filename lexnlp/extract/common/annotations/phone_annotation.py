@@ -21,7 +21,16 @@ class PhoneAnnotation(TextAnnotation):
                  locale: str = 'en',
                  text: str | None = None,
                  phone: str | None = None):
-        super().__init__(
+        """
+                 Initialize a PhoneAnnotation with location, locale, optional extracted text, and optional phone value.
+                 
+                 Parameters:
+                     coords (tuple[int, int]): Start and end character offsets for the annotation.
+                     locale (str): Locale code for the annotation (default 'en').
+                     text (str | None): Extracted text covered by the annotation, if available.
+                     phone (str | None): Extracted or normalized phone number associated with the annotation, if available.
+                 """
+                 super().__init__(
             name='',
             locale=locale,
             coords=coords,

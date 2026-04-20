@@ -161,8 +161,16 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
                          text: str,
                          feature_mask: list[int] | None = None):
         """
-        Get features based on character model.
-        """
+                         Build a per-token feature matrix and corresponding token character offsets from the input text using spaCy and the model's character and unicode mappings.
+                         
+                         Parameters:
+                             text (str): Input text to tokenize and extract features from.
+                             feature_mask (list[int] | None): Optional per-character mask; when provided the token-level `mask` feature is set to the maximum mask value among the token's characters.
+                         
+                         Returns:
+                             feature_data (numpy.ndarray): Integer array of shape (num_tokens, num_features) and dtype numpy.int8 containing token-level features for each token.
+                             tokens (list[tuple[int, int]]): List of (start_pos, end_pos) character offsets for each token in `text`.
+                         """
         # parse text with spacy
         text_data = [(self.unicode_character_top_category_mapping[
                           c] if c in self.unicode_character_top_category_mapping else "C",

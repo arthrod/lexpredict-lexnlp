@@ -34,6 +34,9 @@ class TestAddressAnnotationInit:
         assert ann.record_type == "address"
 
     def test_get_cite_value_parts_echoes_text(self) -> None:
+        """
+        Verify that get_cite_value_parts returns a single-item list containing the annotation's text.
+        """
         ann = AddressAnnotation(coords=(0, 4), text="echo")
         assert ann.get_cite_value_parts() == ["echo"]
 

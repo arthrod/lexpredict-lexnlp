@@ -54,6 +54,11 @@ BY SUCH COURTS.""",
 
 
 def test_courts():
+    """
+    Execute extraction tests for US courts using the standard test harness.
+    
+    Loads the US courts CSV, constructs dictionary entries for each row, and verifies that `_get_courts` extracts the expected court names by running `lexnlp_tests.test_extraction_func_on_test_data`.
+    """
     court_df = pandas.read_csv(
         "https://raw.githubusercontent.com/LexPredict/lexpredict-legal-dictionary/1.0.2/en/legal/us_courts.csv"
     )
@@ -71,8 +76,9 @@ def test_courts():
 
 def test_courts_rs():
     """
-    Test court extraction with return sources.
-    :return:
+    Run extraction tests for US courts using the official court dataset.
+    
+    Loads the US courts CSV, constructs dictionary entries, and asserts that _get_courts produces the expected court names via the test harness.
     """
 
     # Read main data
@@ -95,11 +101,9 @@ def test_courts_rs():
 
 def test_courts_longest_match():
     """
-    Tests the case when there are courts having names/aliases being one a substring of another.
-    In such case the court having longest alias should be returned for each conflicting matching.
-    But for the case when there is another match of the court having shorter alias in that conflict,
-    they both should be returned.
-    :return:
+    Verify extractor resolves overlapping court names by preferring the longest matching alias while still returning shorter matches when they appear independently.
+    
+    This test builds DictionaryEntry objects from the local us_courts.csv file (including aliases), then runs the extraction harness against _get_courts using a tuple(name, type) converter with debug output enabled.
     """
     courts_config_fn = os.path.join(os.path.dirname(lexnlp_tests.this_test_data_path()), "us_courts.csv")
     courts_config_list = []
@@ -128,6 +132,18 @@ def test_courts_longest_match():
 
 
 def build_dictionary_entry(row):
+    """
+    Create a DictionaryEntry for a court from a CSV row.
+    
+    Parameters:
+        row (Mapping or pandas.Series): A mapping representing a CSV row that must contain the keys
+            "Court ID" (convertible to int) and "Court Name" (string). May optionally contain
+            "Alias" as a semicolon-separated string of alias values.
+    
+    Returns:
+        DictionaryEntry: A dictionary entry with id set from "Court ID", name set from "Court Name",
+        priority 0, and aliases populated from "Alias" (each alias converted to a DictionaryEntryAlias).
+    """
     aliases = []
     if not pandas.isnull(row["Alias"]):
         aliases = [DictionaryEntryAlias(r) for r in row["Alias"].split(";")]

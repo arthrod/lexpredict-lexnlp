@@ -66,6 +66,17 @@ class FuzzyDateMatch:
 
 
 def _safe_parse(y: str, m: str, d: str) -> date | None:
+    """
+    Attempt to construct a datetime.date from numeric year, month, and day strings.
+    
+    Parameters:
+        y (str): Four-digit year string.
+        m (str): One- or two-digit month string.
+        d (str): One- or two-digit day string.
+    
+    Returns:
+        date | None: A datetime.date for the provided components, or `None` if conversion or date construction fails.
+    """
     try:
         return date(int(y), int(m), int(d))
     except (ValueError, TypeError):

@@ -124,7 +124,21 @@ class FactExtractor:
                    extract_all: bool = True,
                    include_types: set[AnnotationType] | None = None,
                    exclude_types: set[AnnotationType] | None = None) -> dict[AnnotationType, list[Any]]:
-        if lang not in FactExtractor.func_by_lang:
+        """
+                   Selects and runs registered extractors for a language and returns extracted facts organized by annotation type.
+                   
+                   Parameters:
+                       text (str): Input text to be analyzed.
+                       lang (str): Language code identifying which extractor registry to use.
+                       result_fmt (ExtractorResultFormat): Desired output format; when `fmt_dict` is requested, class-based extractors are used and their results are converted to dictionaries.
+                       extract_all (bool): If True, run all available annotation types (subject to `exclude_types`); if False, run only types in `include_types`.
+                       include_types (set[AnnotationType] | None): Specific annotation types to extract when `extract_all` is False. Ignored when `extract_all` is True.
+                       exclude_types (set[AnnotationType] | None): Annotation types to omit when `extract_all` is True.
+                   
+                   Returns:
+                       dict[AnnotationType, list[Any]]: Mapping from each extracted `AnnotationType` to a list of extracted items (annotation objects or dictionaries depending on `result_fmt`).
+                   """
+                   if lang not in FactExtractor.func_by_lang:
             langs = ', '.join(FactExtractor.func_by_lang)
             raise Exception(f'Language "{lang}" was not found among {langs}')
         lang_extractors = FactExtractor.func_by_lang[lang]
@@ -172,7 +186,15 @@ class FactExtractor:
     @staticmethod
     def ensure_parser_arguments_en(
             geo_config: list[Any] | None = None) -> None:
-        for fmt in ExtractorResultFormat:
+        """
+            Register extra parser arguments for English geoentity extractors across all output formats.
+            
+            For each ExtractorResultFormat, stores a one-element tuple containing `geo_config` as the parser extra-arguments for `AnnotationType.geoentity` under the English language registry.
+            
+            Parameters:
+                geo_config (list[Any] | None): Configuration passed to geoentity extractors; may be `None`.
+            """
+            for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_EN,
                                                   fmt,
                                                   AnnotationType.geoentity,
@@ -181,7 +203,13 @@ class FactExtractor:
     @staticmethod
     def ensure_parser_arguments_de(
             geo_config: list[Any] | None = None) -> None:
-        for fmt in ExtractorResultFormat:
+        """
+            Register the geoentity parser extra-arguments for German extractors across all result formats.
+            
+            Parameters:
+                geo_config (list[Any] | None): Optional configuration object passed to German geoentity extractors; it is stored as the single extra-argument tuple `(geo_config,)`.
+            """
+            for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_DE,
                                                   fmt,
                                                   AnnotationType.geoentity,

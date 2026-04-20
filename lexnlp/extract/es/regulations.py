@@ -94,9 +94,29 @@ def get_regulation_annotation_list(text: str, language: str = 'es') -> list[Regu
 
 
 def get_regulations(text: str, language: str = 'es') -> Generator[dict]:
+    """
+    Yield regulation annotations found in the input text as dictionaries.
+    
+    Parameters:
+        text (str): Input text to scan for regulation mentions.
+        language (str): Language code used by the parser (default 'es').
+    
+    Yields:
+        dict: Dictionary representation of each RegulationAnnotation (e.g., containing 'name', 'coords', 'text', 'locale', 'country').
+    """
     for reg in parser.parse(text, language):
         yield reg.to_dictionary()
 
 
 def get_regulation_list(text: str, language: str | None = None) -> list[dict]:
+    """
+    Return a list of regulation annotations extracted from the given text.
+    
+    Parameters:
+        text (str): Input text to search for regulation mentions.
+        language (str | None): Language code to use for parsing; when `None`, defaults to `'es'`.
+    
+    Returns:
+        list[dict]: A list of dictionaries representing found regulation annotations.
+    """
     return list(get_regulations(text, language or 'es'))

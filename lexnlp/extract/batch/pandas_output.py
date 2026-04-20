@@ -45,11 +45,17 @@ _CORE_COLUMNS: tuple[str, ...] = (
 
 
 def _row_from_annotation(annotation: Any) -> dict[str, Any]:
-    """Extract the common fields every ``TextAnnotation`` exposes.
-
-    Uses attribute access rather than ``to_dictionary`` because the latter
-    flattens non-primitive sub-structures (tags, attributes) in a way that
-    pandas cannot infer a single dtype for.
+    """
+    Build a dictionary of core fields from an annotation suitable for a DataFrame row.
+    
+    Extracts `record_type`, `locale`, and `text` via attribute access and parses `coords`
+    into `start` and `end`. If `coords` is missing or cannot be unpacked, `start`
+    and `end` are set to `None`.
+    
+    Returns:
+        dict[str, Any]: Mapping with keys `"record_type"`, `"locale"`, `"text"`,
+        `"start"`, and `"end"`. `start` and `end` are integers when available or
+        `None` otherwise.
     """
     coords = getattr(annotation, "coords", (None, None))
     start: int | None
@@ -73,24 +79,16 @@ def annotations_to_dataframe(
     prefer_arrow: bool = True,
     extra_columns: tuple[str, ...] = (),
 ) -> pd.DataFrame:
-    """Convert an iterable of annotations into a DataFrame.
-
-    Args:
-        annotations: Any iterable of annotation instances — typically the
-            output of ``list(get_*_annotations(text))`` or the flattened
-            output of :func:`lexnlp.extract.batch.extract_batch`.
-        prefer_arrow: When ``True`` (the default) and ``pyarrow`` is
-            importable, request ``dtype_backend="pyarrow"`` so text columns
-            use ``string[pyarrow]`` and integers use Arrow's nullable int
-            family. Falls back to the default NumPy backend otherwise.
-        extra_columns: Additional annotation attributes to extract
-            alongside the five core columns. Missing attributes are stored
-            as ``None``.
-
+    """
+    Convert an iterable of annotation-like objects into a pandas DataFrame with one row per annotation.
+    
+    Parameters:
+        annotations: Iterable of annotation objects; each object's attributes are accessed to populate rows.
+        prefer_arrow (bool): If True, attempt to use PyArrow-backed dtypes (e.g., `string[pyarrow]` and Arrow nullable integers) when PyArrow is available; silently falls back to NumPy-backed dtypes otherwise.
+        extra_columns (tuple[str, ...]): Names of additional attributes to extract from each annotation; missing attributes become `None`.
+    
     Returns:
-        A :class:`pandas.DataFrame` with one row per annotation. The column
-        order is ``record_type, locale, text, start, end`` followed by
-        ``extra_columns``.
+        pd.DataFrame: A DataFrame whose columns are `record_type`, `locale`, `text`, `start`, `end` followed by the names in `extra_columns`, with one row per input annotation.
     """
     import pandas as pd  # local import to keep module import cheap
 
@@ -111,7 +109,20 @@ def annotations_to_dataframe(
 
 
 def _maybe_convert_to_arrow(frame: pd.DataFrame, prefer_arrow: bool) -> pd.DataFrame:
-    """Return ``frame`` with a pyarrow-backed dtype when possible."""
+    """
+    Prefer a PyArrow-backed dtype representation for the provided DataFrame when possible.
+    
+    If `prefer_arrow` is False, or PyArrow is not importable, or pandas does not support
+    `convert_dtypes(dtype_backend="pyarrow")`, the original DataFrame is returned unchanged.
+    
+    Parameters:
+        frame (pd.DataFrame): The DataFrame to convert.
+        prefer_arrow (bool): If True, attempt to convert columns to PyArrow-backed dtypes.
+    
+    Returns:
+        pd.DataFrame: The input DataFrame converted to PyArrow-backed dtypes when the conversion
+        succeeded; otherwise the unmodified input DataFrame.
+    """
     if not prefer_arrow:
         return frame
     try:

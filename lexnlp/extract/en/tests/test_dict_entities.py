@@ -74,6 +74,11 @@ class TestDictEntities(TestCase):
         self.assertEqual("Some Entity", alias.alias)
 
     def test_equal_aliases_in_dif_languages(self):
+        """
+        Verify that identical aliases in the same language produce multiple matches and that language filtering and case rules prevent unrelated lowercase words from matching.
+        
+        This test constructs three DictionaryEntry objects where two different entities share the same English abbreviation alias ("MS") and a third has an English abbreviation ("CAN"). It asserts that two matches for "MS" are found when searching with English as the text language and that the lowercase "can" in the text does not produce a match for "CAN".
+        """
         mississippi = DictionaryEntry(
             1,
             "Mississippi",
@@ -124,6 +129,11 @@ class TestDictEntities(TestCase):
         self.assertEqual("MS", alias.alias)
 
     def test_abbreviations_simple(self):
+        """
+        Verify abbreviation matching: an uppercase abbreviation inside a possessive is detected while a lowercase token is not, and results are identical with simplified normalization enabled or disabled.
+        
+        Creates two dictionary entries with abbreviation aliases "IT" and "IS", searches a sample text containing "IT's" and "ISS", asserts exactly one match for the "IT" alias, and asserts the same alias is returned when running with simplified_normalization=True and simplified_normalization=False.
+        """
         some_entity = DictionaryEntry(1, "ITAbbrev", aliases=[DictionaryEntryAlias("IT", is_abbreviation=True)])
         some_entity1 = DictionaryEntry(2, "ISAbbrev", aliases=[DictionaryEntryAlias("IS", is_abbreviation=True)])
         entities = [some_entity, some_entity1]
@@ -264,6 +274,15 @@ class TestDictEntities(TestCase):
         )
 
     def test_prepare_alias_banlist_dict(self):
+        """
+        Verify that prepare_alias_banlist_dict groups aliases and abbreviations by language, normalizes them, and returns None for an empty source list.
+        
+        This test supplies AliasBanRecord items for multiple languages (including None), calls prepare_alias_banlist_dict with use_stemmer=False, and asserts:
+        - Per-language aliases are lowercased and surrounded by spaces (e.g., " alias1 ") and collected under `.aliases`.
+        - Per-language abbreviations are uppercased/normalized and surrounded by spaces (e.g., " ABBREV1 ") and collected under `.abbreviations`.
+        - Languages with no abbreviations have an empty abbreviations list.
+        - Calling prepare_alias_banlist_dict([]) returns None.
+        """
         src = [
             AliasBanRecord("Alias1", "lang1", False),
             AliasBanRecord("ABBREV1", "lang1", True),
@@ -322,6 +341,17 @@ class TestDictEntities(TestCase):
         self.assertEqual(16, mp[14])  # space between 'Bankr.' and 'E.'
 
     def test_normalize_text_extra_spaced(self):
+        """
+        Verify that normalize_text_with_map produces the same normalized string as normalize_text when the input contains extra spaces and that the returned source-to-destination index map reflects expected token position shifts.
+        
+        Asserts:
+        - The normalized output with a mapping equals the output from normalize_text for the same input and options.
+        - Specific mapping relationships for this input:
+          - mp[0] == 1 (the initial "One" moves one position due to leading space insertion),
+          - mp[16] == 17 (the "E." token maps to expected destination index),
+          - mp[25] == 33 (the first "two" maps to expected destination index),
+          - mp[36] == 45 (the final period maps to expected destination index).
+        """
         src = "One one  Bankr. E.D.N.C. two two two."
         dst, mp = normalize_text_with_map(src, lowercase=False, use_stemmer=False)
         simply_normalized = normalize_text(src, lowercase=False, use_stemmer=False)
@@ -341,6 +371,17 @@ class TestDictEntities(TestCase):
         self.assertEqual(45, mp[36])  # final '.'
 
     def test_reverse_src_to_dest_map(self):
+        """
+        Verify reverse_src_to_dest_map produces correct source indices for a normalized text mapping.
+        
+        Checks that for the sample input "One one Bankr. E.D.N.C. two two two." the reversed mapping has the expected source index values at several destination positions:
+        - destination 9 maps to source index 8 (Bankr.)
+        - destination 17 maps to source index 15 (E . D . N . C . segment)
+        - destination 33 maps to source index 24 (first "two")
+        - destination 41 maps to source index 32 (last "two")
+        - destination 45 maps to source index 35 (final ".")
+        Also asserts the last two destination positions map to the same source index (trailing unused space).
+        """
         src = "One one Bankr. E.D.N.C. two two two."
         dst, mp = normalize_text_with_map(src, lowercase=False, use_stemmer=False)
         self.assertEqual(len(src), len(mp))

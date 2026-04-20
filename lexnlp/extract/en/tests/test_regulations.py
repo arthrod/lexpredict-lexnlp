@@ -43,8 +43,9 @@ class TestRegulations(TestCase):
 
     def test_get_regulations_csv(self):
         """
-        Test default get regulations behavior.
-        :return:
+        Verify get_regulations extracts regulation type, code, and text from the CSV test fixture and that outputs match expected values.
+        
+        Runs two high-level extraction checks (without and with source text) against lexnlp/extract/en/tests/test_regulations/test_get_regulations.csv, then performs a per-row comparison of extracted dictionaries (keys: "regulation_type", "regulation_code", "regulation_text") using DictionaryComparer with order enforced. Raises an Exception containing formatted per-line mismatch reports if any test rows differ from expectations.
         """
         test_data_path = os.path.join(
             lexnlp_test_path, "lexnlp/extract/en/tests/test_regulations/test_get_regulations.csv"

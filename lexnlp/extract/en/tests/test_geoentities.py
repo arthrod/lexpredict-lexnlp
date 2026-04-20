@@ -31,6 +31,14 @@ from lexnlp.tests import lexnlp_tests
 
 
 def load_entities_dict():
+    """
+    Load geo-entity definitions and their aliases from the repository's test CSV files.
+    
+    This function locates the test CSV files for geo entities and aliases within the test data directory and loads them into DictionaryEntry objects using the library's file loader.
+    
+    Returns:
+        list[DictionaryEntry]: Loaded geo-entity entries, each possibly containing alias records.
+    """
     base_path = os.path.join(lexnlp_test_path, "lexnlp/extract/en/tests/test_geoentities")
     entities_fn = os.path.join(base_path, "geoentities.csv")
     aliases_fn = os.path.join(base_path, "geoaliases.csv")
@@ -50,6 +58,20 @@ def get_geoentities_routine(
     prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
     simplified_normalization: bool = False,
 ) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
+    """
+    Yield geo-entity matches found in `text` according to `geo_config_list`.
+    
+    Parameters:
+        text_languages (str | None): If provided, the single language to consider; it will be wrapped into a one-item list for matching.
+        prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional precomputed alias ban mapping used to filter aliases; keys are alias strings and values are two lists used by the matching logic to determine bans.
+        min_alias_len (int | None): Optional minimum alias length to consider when matching.
+        conflict_resolving_field (str): Field name used to resolve conflicting matches (e.g., "id" or "priority").
+        priority_direction (str): Direction for priority comparison ("asc" or "desc").
+        simplified_normalization (bool): If true, apply a simplified normalization strategy when matching aliases.
+    
+    Returns:
+        Generator of tuples (DictionaryEntry, DictionaryEntryAlias) for each extracted geo-entity match.
+    """
     yield from get_geoentities(
         text,
         geo_config_list,
@@ -63,6 +85,11 @@ def get_geoentities_routine(
 
 
 def test_geoentities():
+    """
+    Validate geo-entity extraction against the CSV test cases.
+    
+    Runs the extraction routine on the test dataset, converts actual results to a list of extracted entity names, and asserts they match the expected values; enables debug printing for test output.
+    """
     lexnlp_tests.test_extraction_func_on_test_data(
         get_geoentities_routine,
         geo_config_list=_CONFIG,
@@ -89,6 +116,11 @@ def test_geoentities_en_equal_match_take_lowest_id():
 
 
 def test_geoentities_en_equal_match_take_top_prio():
+    """
+    Verifies that when multiple geoentity matches have equal match quality, the extractor selects the alias with the highest priority.
+    
+    Runs the extraction test on English test data with conflict_resolving_field="priority" and compares actual results to expected (entity name, alias) pairs.
+    """
     lexnlp_tests.test_extraction_func_on_test_data(
         get_geoentities_routine,
         geo_config_list=_CONFIG,

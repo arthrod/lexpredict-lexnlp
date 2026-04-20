@@ -145,7 +145,10 @@ class TestDatesPlain(TestCase):
 
     def test_is_it_a_date(self):
         """
-        Somehow "29MAY19 1350" produces 1350-01-01 that doesn't go through validation
+        Verify parsing of a compact date-time token with month abbreviation and 24-hour time.
+        
+        Asserts that the substring "29MAY19 1350" embedded in surrounding text is recognized by get_dates_list(..., strict=True)
+        and produces datetime.datetime(2019, 5, 29, 13, 50, 0).
         """
         text = "NOT RCVD BY RJ BY 29MAY19 1350 DOH LT REF"
         dates = list(get_dates_list(text, strict=True))
@@ -159,12 +162,20 @@ class TestDatesPlain(TestCase):
         self.assertEqual(9, dates[0].month)
 
     def test_date_en_gb(self):
+        """
+        Verify that numeric date strings are parsed in day-month-year order when the locale is "en-GB".
+        
+        Asserts that a single date is extracted from "09/12/2022" and that the parsed month equals 12 (December).
+        """
         text = "Commencement Date: 09/12/2022."
         dates = get_dates_list(text, locale="en-GB")
         self.assertEqual(1, len(dates))
         self.assertEqual(12, dates[0].month)
 
     def test_date_with_abbreviation(self):
+        """
+        Verify extraction of a single date from text containing "dated October 27, 2011".
+        """
         text = (
             "'“Obligation No. 1” means Direct Note Obligation No. 1 dated October 27, 2011, "
             "issued to the Authority under the First Supplemental Master Indenture to secure "
@@ -199,5 +210,12 @@ class TestDatesPlain(TestCase):
         self.assertEqual(0, len(dates))
 
     def test_file_samples(self):
+        """
+        Validate the date annotation extractor against the English date fixtures.
+        
+        Runs the TypedAnnotationsTester using get_date_annotations and the
+        lexnlp/typed_annotations/en/date/dates.txt fixtures; the tester will raise
+        an error if extracted annotations do not match the expected DateAnnotation entries.
+        """
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(get_date_annotations, "lexnlp/typed_annotations/en/date/dates.txt", DateAnnotation)

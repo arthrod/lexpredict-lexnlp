@@ -20,6 +20,14 @@ from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 def setup_parser():
+    """
+    Create and configure a LawsParser using German test CSV data files.
+    
+    Loads 'gesetze_list.csv', 'verordnungen_list.csv', and 'de_concept_sample.csv' from the test data directory and constructs a LawsParser initialized with those DataFrames.
+    
+    Returns:
+        law_parser (LawsParser): A LawsParser instance configured with the loaded test data.
+    """
     base_path = os.path.join(lexnlp_test_path, "lexnlp/extract/de/laws/")
     gesetze_df = pd.read_csv(os.path.join(os.path.dirname(__file__), base_path + "gesetze_list.csv"), encoding="utf-8")
 
@@ -77,6 +85,15 @@ class TestParseDeLaws(TestCase):
 
 
 def get_ordered_law_annotations(text: str) -> list[LawAnnotation]:
+    """
+    Parse the given text and return law annotations sorted by their starting coordinate.
+    
+    Parameters:
+        text (str): Text to parse for law references.
+    
+    Returns:
+        annotations (list[LawAnnotation]): List of LawAnnotation objects ordered by the annotation's starting coordinate (ascending).
+    """
     ants = list(parser.parse(text))
     ants.sort(key=lambda a: a.coords[0])
     return ants

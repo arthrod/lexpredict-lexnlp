@@ -15,6 +15,15 @@ from lexnlp.utils.parse_df import DataframeEntityParser
 
 
 def _dummy_df() -> pd.DataFrame:
+    """
+    Construct a pandas DataFrame with three sample columns used by tests.
+    
+    Returns:
+        pd.DataFrame: DataFrame with columns:
+            - "Kurztitel": ["BGB", "StGB", "ZPO"]
+            - "Titel": ["Bürgerliches Gesetzbuch", "Strafgesetzbuch", "Zivilprozessordnung"]
+            - "Abkürzung": ["BGB", "StGB", "ZPO"]
+    """
     return pd.DataFrame(
         {
             "Kurztitel": ["BGB", "StGB", "ZPO"],
@@ -37,6 +46,11 @@ class TestParseColumnsTypes:
         assert list(parser.parse_columns) == ["Kurztitel", "Titel"]
 
     def test_accepts_two_element_tuple(self) -> None:
+        """
+        Verifies that DataframeEntityParser accepts a two-element tuple for `parse_columns` and preserves it.
+        
+        Asserts that `parser.parse_columns == ("Kurztitel", "Titel")`.
+        """
         parser = DataframeEntityParser(
             dataframe=_dummy_df(),
             parse_columns=("Kurztitel", "Titel"),

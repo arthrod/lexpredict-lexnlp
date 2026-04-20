@@ -25,5 +25,10 @@ class TestSsnPlain(TestCase):
         self.assertEqual("123-45-6789", ants[0].number)
 
     def test_file_samples(self):
+        """
+        Validate SSN typed annotation samples against the SSN annotation extractor.
+        
+        Runs TypedAnnotationsTester.test_and_raise_errors using the SSN sample file and SsnAnnotation; raises an exception if any sample does not produce the expected annotation.
+        """
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(get_ssn_annotations, "lexnlp/typed_annotations/en/ssn/ssn.txt", SsnAnnotation)

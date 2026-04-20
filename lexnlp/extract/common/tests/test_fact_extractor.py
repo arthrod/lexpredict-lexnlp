@@ -15,6 +15,14 @@ from lexnlp.extract.en.dict_entities import DictionaryEntry
 
 
 def make_geoconfig():
+    """
+    Load English geo-entity dictionary entries from the test data CSV files and return them as a list.
+    
+    The function locates the `geoentities.csv` and `geoaliases.csv` files in the package's test_data lexnlp extract English geoentities directory relative to this file, loads entries using DictionaryEntry.load_entities_from_files, and returns the resulting entries.
+    
+    Returns:
+        list: A list of loaded DictionaryEntry objects from `geoentities.csv` and `geoaliases.csv`.
+    """
     dir_path = os.path.dirname(os.path.realpath(__file__))
     ge_path = dir_path + "/../../../../test_data/lexnlp/extract/en/tests/test_geoentities/"
     entities_fn = ge_path + "geoentities.csv"
@@ -27,6 +35,11 @@ EN_GEO_CONFIG = make_geoconfig()
 
 class TestFactExtractor(TestCase):
     def test_one_fact_en(self):
+        """
+        Unit test that verifies English money fact extraction identifies multiple monetary annotations.
+        
+        Parses a short English narrative with the FactExtractor and asserts that money annotations are present and that more than two money facts are extracted.
+        """
         text = """
         Three people check into a hotel room. 
         The manager says the bill is $30, so each guest pays $10. 
@@ -84,6 +97,11 @@ class TestFactExtractor(TestCase):
         self.assertGreater(len(facts), 2)
 
     def test_all_facts_en(self):
+        """
+        Verify that monetary annotations are produced for an English passage when parser arguments are configured with the English geo-entity data.
+        
+        Uses a short hotel-bill scenario and asserts that `AnnotationType.money` is present in the extraction results.
+        """
         text = """
         Country code: BE. Three people check into a hotel room.
         The manager says the bill is $30, so each guest pays $10. 

@@ -16,6 +16,11 @@ from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 class TestAmountsPlain(TestCase):
     def test_amounts(self):
+        """
+        Unit test verifying numeric amount extraction from a sample contract-like text.
+        
+        Asserts that get_amounts yields the expected sequence of numeric values (as stringified decimals) for the provided multi-line contract fragment.
+        """
         text = """
         2. Amendment to Interest Rate. Beginning on February 1, 1998, and
                 continuing until July 18, 2002, which is the fifth anniversary of the Loan
@@ -29,6 +34,11 @@ class TestAmountsPlain(TestCase):
         self.assertEqual("2.0, 1.0, 1998.0, 18.0, 2002.0, 5.0, 7.38, 200.0, 5.0, 23.0, 1998.0, 18.0, 2002.0", str_vals)
 
     def test_fraction_symbol(self):
+        """
+        Verify that Unicode fraction characters are converted into correct Decimal amount annotations.
+        
+        Checks two cases: the contiguous fraction glyph "1½" is parsed as Decimal("1.5"), and the spaced fraction "2 ⅗" is parsed as Decimal("2.6"); each case must yield exactly one AmountAnnotation.
+        """
         text = "1½ of apple"
         amts = list(get_amount_annotations(text))
         self.assertEqual(1, len(amts))
@@ -40,6 +50,11 @@ class TestAmountsPlain(TestCase):
         self.assertEqual(Decimal("2.6"), amts[0].value)
 
     def test_file_samples(self):
+        """
+        Run the sample-based annotation tests for amount extraction.
+        
+        This executes the typed-annotation tester against the sample file "lexnlp/typed_annotations/en/amount/amounts.txt" using get_amount_annotations and expects annotations of type AmountAnnotation; the tester raises an error if any sample fails.
+        """
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
             get_amount_annotations, "lexnlp/typed_annotations/en/amount/amounts.txt", AmountAnnotation

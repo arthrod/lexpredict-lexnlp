@@ -16,7 +16,14 @@ from lexnlp.extract.common.base_path import lexnlp_test_path
 
 def load_resource_document(doc_path: str, encoding: str = "ascii") -> str:
     """
-    load file as string from test_data folder
+    Load a resource file from the package test data directory and return its contents as a string.
+    
+    Parameters:
+        doc_path (str): Path to the file relative to the package's test data root.
+        encoding (str): Encoding used to read the file (default: "ascii").
+    
+    Returns:
+        str: The file contents.
     """
     full_path = os.path.join(lexnlp_test_path, doc_path)
     with codecs.open(full_path, encoding=encoding, mode='r') as fr:

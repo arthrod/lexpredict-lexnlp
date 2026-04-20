@@ -53,4 +53,13 @@ class TestParseEsCourts(TestCase):
 
 
 def get_verbose_copyright_annotations(text: str) -> list[CopyrightAnnotation]:
+    """
+    Extract verbose Spanish copyright annotations from the given text as typed CopyrightAnnotation objects.
+    
+    Parameters:
+        text (str): Input text to parse for copyright annotations.
+    
+    Returns:
+        list[CopyrightAnnotation]: A list of CopyrightAnnotation instances with source details included.
+    """
     return list(get_copyright_annotations(text, return_sources=True))
