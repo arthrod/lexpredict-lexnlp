@@ -24,8 +24,6 @@ Covered classes:
 
 from __future__ import annotations
 
-from __future__ import annotations
-
 from datetime import date
 
 from lexnlp.extract.common.annotations.act_annotation import ActAnnotation
