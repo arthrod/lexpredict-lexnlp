@@ -168,6 +168,13 @@ class TestLoadLegacy:
         joblib.dump({"jl": True}, path)
         assert _load_legacy(path) == {"jl": True}
 
+    def test_loads_joblib_compressed_pickle_file(self, tmp_path: Path) -> None:
+        import joblib
+
+        path = tmp_path / "model.pickle"
+        joblib.dump({"jl_pickle": True}, path, compress=3)
+        assert _load_legacy(path) == {"jl_pickle": True}
+
     def test_unknown_suffix_raises_value_error(self, tmp_path: Path) -> None:
         """Unknown extensions must be rejected rather than blindly pickle-loaded."""
         path = tmp_path / "model.bin"

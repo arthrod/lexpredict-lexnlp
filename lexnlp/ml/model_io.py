@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import logging
 import pickle
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -66,21 +67,102 @@ def _load_legacy(path: Path) -> Any:
     suffix = path.suffix.lower()
     if suffix in (".pickle", ".pkl"):
         with path.open("rb") as file:
-            return pickle.load(file)
+            try:
+                return pickle.load(file)
+            except (pickle.UnpicklingError, ValueError, EOFError, AttributeError):
+                if not _looks_like_joblib_pickle(path):
+                    raise
+                LOGGER.debug("Falling back to joblib-compatible legacy loader: %s", path)
+        return _load_legacy_joblib(path)
     if suffix == ".cloudpickle":
         from cloudpickle import load as cloudpickle_load
 
         with path.open("rb") as file:
             return cloudpickle_load(file)
     if suffix == ".joblib":
-        import joblib
-
-        return joblib.load(path)
+        return _load_legacy_joblib(path)
     # Reject unknown suffixes instead of attempting unsafe deserialization
     raise ValueError(
         f"Unsupported file suffix '{suffix}' for legacy model loading. "
         f"Expected one of: {', '.join(sorted(_LEGACY_SUFFIXES))}"
     )
+
+
+def _load_legacy_joblib(path: Path) -> Any:
+    """Load a legacy joblib artifact with sklearn tree ABI shims when needed."""
+
+    import joblib
+
+    with _patched_sklearn_tree_loader():
+        return _patch_legacy_sklearn_estimator(joblib.load(path))
+
+
+def _looks_like_joblib_pickle(path: Path) -> bool:
+    """Return ``True`` when a legacy ``.pickle`` file looks joblib-compressed."""
+
+    with path.open("rb") as file:
+        return file.read(1) == b"\x78"
+
+
+def _patch_legacy_sklearn_estimator(obj: Any) -> Any:
+    """Populate sklearn runtime attrs that older pickles did not persist."""
+
+    if isinstance(obj, dict):
+        for value in obj.values():
+            _patch_legacy_sklearn_estimator(value)
+        return obj
+    if isinstance(obj, (list, tuple, set)):
+        for value in obj:
+            _patch_legacy_sklearn_estimator(value)
+        return obj
+
+    if hasattr(obj, "steps"):
+        for _, step in obj.steps:
+            _patch_legacy_sklearn_estimator(step)
+
+    if hasattr(obj, "base_estimator") and not hasattr(obj, "estimator"):
+        obj.estimator = obj.base_estimator
+    if hasattr(obj, "tree_") and not hasattr(obj, "monotonic_cst"):
+        obj.monotonic_cst = None
+    if hasattr(obj, "estimators_") and not hasattr(obj, "monotonic_cst"):
+        obj.monotonic_cst = None
+        for estimator in obj.estimators_:
+            _patch_legacy_sklearn_estimator(estimator)
+        if hasattr(obj, "estimator"):
+            _patch_legacy_sklearn_estimator(obj.estimator)
+
+    return obj
+
+
+@contextmanager
+def _patched_sklearn_tree_loader():
+    """Patch sklearn's tree-node validator so pre-1.3 models still load."""
+
+    try:
+        import numpy
+        from sklearn.tree import _tree
+    except ImportError:
+        yield
+        return
+
+    original = _tree._check_node_ndarray
+
+    def compat(node_ndarray, expected_dtype):
+        names = getattr(getattr(node_ndarray, "dtype", None), "names", None)
+        expected_names = getattr(expected_dtype, "names", None)
+        if names and expected_names and "missing_go_to_left" in expected_names and "missing_go_to_left" not in names:
+            patched = numpy.empty(node_ndarray.shape, dtype=expected_dtype)
+            for name in names:
+                patched[name] = node_ndarray[name]
+            patched["missing_go_to_left"] = 0
+            node_ndarray = patched
+        return original(node_ndarray, expected_dtype)
+
+    _tree._check_node_ndarray = compat
+    try:
+        yield
+    finally:
+        _tree._check_node_ndarray = original
 
 
 def load_model(path: Path, *, trusted: bool = False) -> Any:

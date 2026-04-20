@@ -19,14 +19,13 @@ import os
 import string
 import unicodedata
 from collections.abc import Generator
-from typing import Any
-
-import joblib
+from typing import Any, ClassVar
 
 # Packages
 import pandas
 import regex as re
 
+from lexnlp.ml.model_io import load_model
 from lexnlp.nlp.en.segments.heading_heuristics import HeadingHeuristics
 
 # Project imports
@@ -41,8 +40,8 @@ MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 class SectionSegmenterModel:
-    SECTION_SEGMENTER_MODEL = joblib.load(os.path.join(MODULE_PATH, "./section_segmenter.pickle"))
-    FEATURE_NAMES = []
+    SECTION_SEGMENTER_MODEL = load_model(os.path.join(MODULE_PATH, "./section_segmenter.pickle"))
+    FEATURE_NAMES: ClassVar[list[str]] = []
 
 
 class DocumentSection:
@@ -349,7 +348,7 @@ def get_section_spans(text: str,
 
 class SectionLevelParser:
 
-    DEFAULT_SECTION_HIERARCHY = [
+    DEFAULT_SECTION_HIERARCHY: ClassVar[list[str]] = [
         r'(?i:(appendix|exhibit|schedule|part|title)\s+\S+)',
         r'(?i:subtitle\s+\S+)',
         r'(?i:section\s+\S+)',

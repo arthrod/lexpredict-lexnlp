@@ -20,12 +20,11 @@ import string
 import unicodedata
 from collections.abc import Generator
 
-import joblib
-
 # Packages
 import pandas
 
 # Project imports
+from lexnlp.ml.model_io import load_model
 from lexnlp.nlp.en.segments.utils import build_document_distribution
 
 # Setup module path
@@ -34,13 +33,13 @@ from lexnlp.nlp.en.segments.utils import build_document_distribution
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load segmenters
-PAGE_SEGMENTER_MODEL = joblib.load(os.path.join(MODULE_PATH, "./page_segmenter.pickle"))
+PAGE_SEGMENTER_MODEL = load_model(os.path.join(MODULE_PATH, "./page_segmenter.pickle"))
 
 
-def build_page_break_features(lines, 
-                              line_id, 
-                              line_window_pre, 
-                              line_window_post, 
+def build_page_break_features(lines,
+                              line_id,
+                              line_window_pre,
+                              line_window_post,
                               characters=string.printable,
                               include_doc=None):
     """
