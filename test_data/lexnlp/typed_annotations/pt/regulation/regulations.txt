@@ -1,0 +1,17 @@
+O Decreto nº 7.724 de 2012 regulamenta a Lei nº 12.527 conhecida como Lei de Acesso à Informação.
+-------------------------------------------------------------------------------
+total=3
+..)locale=pt
+0)name=Decreto nº 7.724 de 2012 regulamenta a Lei nº 12.527 conhecida como Lei de Acesso à Informação
+0)get_cite()=/pt/regulation/Brazil/Decreto nº 7.724 de 2012 regulamenta a Lei nº 12.527 conhecida como Lei de Acesso à Informação
+
+
+
+-------------------------------------------------------------------------------
+A Comissão de Valores Mobiliários publicou uma nova resolução hoje.
+-------------------------------------------------------------------------------
+total=2
+..)locale=pt
+0)name=Comissão de Valores Mobiliários publicou uma nova resolução hoje
+
+1)name=resolução hoje

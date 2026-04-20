@@ -80,11 +80,13 @@ class Locale:
 LANG_EN = Language('en', 'eng', 'English')
 LANG_DE = Language('de', 'ger', 'German')
 LANG_ES = Language('es', 'spa', 'Spanish')
+LANG_PT = Language('pt', 'por', 'Portuguese')
 
 LANGUAGES = [
     LANG_EN,
     LANG_DE,
-    LANG_ES
+    LANG_ES,
+    LANG_PT
 ]
 
 DEFAULT_LANGUAGE = LANG_EN

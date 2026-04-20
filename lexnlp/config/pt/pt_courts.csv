@@ -1,0 +1,38 @@
+Term Locale,Term Category,Court ID,Level,Jurisdiction,Court Type,Court Name,Alias
+pt-BR,Brazilian Courts,1,Supremo,Federal,Tribunal Supremo,Supremo Tribunal Federal,STF
+pt-BR,Brazilian Courts,2,Superior,Federal,Tribunal Superior,Superior Tribunal de Justiça,STJ
+pt-BR,Brazilian Courts,3,Superior,Federal,Tribunal Superior,Tribunal Superior do Trabalho,TST
+pt-BR,Brazilian Courts,4,Superior,Federal,Tribunal Superior,Tribunal Superior Eleitoral,TSE
+pt-BR,Brazilian Courts,5,Superior,Federal,Tribunal Superior,Superior Tribunal Militar,STM
+pt-BR,Brazilian Courts,6,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 1ª Região,TRF1
+pt-BR,Brazilian Courts,7,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 2ª Região,TRF2
+pt-BR,Brazilian Courts,8,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 3ª Região,TRF3
+pt-BR,Brazilian Courts,9,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 4ª Região,TRF4
+pt-BR,Brazilian Courts,10,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 5ª Região,TRF5
+pt-BR,Brazilian Courts,11,Estadual,Acre,Tribunal de Justiça,Tribunal de Justiça do Estado do Acre,TJAC
+pt-BR,Brazilian Courts,12,Estadual,Alagoas,Tribunal de Justiça,Tribunal de Justiça do Estado de Alagoas,TJAL
+pt-BR,Brazilian Courts,13,Estadual,Amapá,Tribunal de Justiça,Tribunal de Justiça do Estado do Amapá,TJAP
+pt-BR,Brazilian Courts,14,Estadual,Amazonas,Tribunal de Justiça,Tribunal de Justiça do Estado do Amazonas,TJAM
+pt-BR,Brazilian Courts,15,Estadual,Bahia,Tribunal de Justiça,Tribunal de Justiça do Estado da Bahia,TJBA
+pt-BR,Brazilian Courts,16,Estadual,Ceará,Tribunal de Justiça,Tribunal de Justiça do Estado do Ceará,TJCE
+pt-BR,Brazilian Courts,17,Estadual,Distrito Federal,Tribunal de Justiça,Tribunal de Justiça do Distrito Federal e Territórios,TJDFT
+pt-BR,Brazilian Courts,18,Estadual,Espírito Santo,Tribunal de Justiça,Tribunal de Justiça do Estado do Espírito Santo,TJES
+pt-BR,Brazilian Courts,19,Estadual,Goiás,Tribunal de Justiça,Tribunal de Justiça do Estado de Goiás,TJGO
+pt-BR,Brazilian Courts,20,Estadual,Maranhão,Tribunal de Justiça,Tribunal de Justiça do Estado do Maranhão,TJMA
+pt-BR,Brazilian Courts,21,Estadual,Mato Grosso,Tribunal de Justiça,Tribunal de Justiça do Estado de Mato Grosso,TJMT
+pt-BR,Brazilian Courts,22,Estadual,Mato Grosso do Sul,Tribunal de Justiça,Tribunal de Justiça do Estado de Mato Grosso do Sul,TJMS
+pt-BR,Brazilian Courts,23,Estadual,Minas Gerais,Tribunal de Justiça,Tribunal de Justiça do Estado de Minas Gerais,TJMG
+pt-BR,Brazilian Courts,24,Estadual,Pará,Tribunal de Justiça,Tribunal de Justiça do Estado do Pará,TJPA
+pt-BR,Brazilian Courts,25,Estadual,Paraíba,Tribunal de Justiça,Tribunal de Justiça do Estado da Paraíba,TJPB
+pt-BR,Brazilian Courts,26,Estadual,Paraná,Tribunal de Justiça,Tribunal de Justiça do Estado do Paraná,TJPR
+pt-BR,Brazilian Courts,27,Estadual,Pernambuco,Tribunal de Justiça,Tribunal de Justiça do Estado de Pernambuco,TJPE
+pt-BR,Brazilian Courts,28,Estadual,Piauí,Tribunal de Justiça,Tribunal de Justiça do Estado do Piauí,TJPI
+pt-BR,Brazilian Courts,29,Estadual,Rio de Janeiro,Tribunal de Justiça,Tribunal de Justiça do Estado do Rio de Janeiro,TJRJ
+pt-BR,Brazilian Courts,30,Estadual,Rio Grande do Norte,Tribunal de Justiça,Tribunal de Justiça do Estado do Rio Grande do Norte,TJRN
+pt-BR,Brazilian Courts,31,Estadual,Rio Grande do Sul,Tribunal de Justiça,Tribunal de Justiça do Estado do Rio Grande do Sul,TJRS
+pt-BR,Brazilian Courts,32,Estadual,Rondônia,Tribunal de Justiça,Tribunal de Justiça do Estado de Rondônia,TJRO
+pt-BR,Brazilian Courts,33,Estadual,Roraima,Tribunal de Justiça,Tribunal de Justiça do Estado de Roraima,TJRR
+pt-BR,Brazilian Courts,34,Estadual,Santa Catarina,Tribunal de Justiça,Tribunal de Justiça do Estado de Santa Catarina,TJSC
+pt-BR,Brazilian Courts,35,Estadual,São Paulo,Tribunal de Justiça,Tribunal de Justiça do Estado de São Paulo,TJSP
+pt-BR,Brazilian Courts,36,Estadual,Sergipe,Tribunal de Justiça,Tribunal de Justiça do Estado de Sergipe,TJSE
+pt-BR,Brazilian Courts,37,Estadual,Tocantins,Tribunal de Justiça,Tribunal de Justiça do Estado do Tocantins,TJTO
