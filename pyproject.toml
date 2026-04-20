@@ -7,7 +7,7 @@ name = "lexnlp"
 version = "2.3.0"
 description = "LexPredict LexNLP"
 readme = { file = "README.rst", content-type = "text/x-rst" }
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.13,<3.15"
 license = "AGPL-3.0-or-later"
 authors = [
   { name = "ContraxSuite, LLC", email = "support@contraxsuite.com" }
@@ -30,33 +30,34 @@ classifiers = [
   "Topic :: Office/Business",
   "Topic :: Text Processing :: Linguistic",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.13"
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14"
 ]
 dependencies = [
-  "beautifulsoup4>=4.12,<5",
-  "cloudpickle>=3.0,<4",
-  "dateparser>=1.2,<2",
-  "elasticsearch>=8.15,<10",
-  "gensim>=4.3.3,<5",
-  "joblib>=1.4,<2",
-  "lxml>=5.3,<7",
-  "nltk>=3.9,<4",
-  "num2words>=0.5.13,<1",
+  "beautifulsoup4>=4.12",
+  "cloudpickle>=3.0",
+  "dateparser>=1.2",
+  "elasticsearch>=8.15",
+  "gensim>=4.3.3",
+  "joblib>=1.4",
+  "lxml>=5.3",
+  "nltk>=3.9",
+  "num2words>=0.5.13",
   "numpy>=1.26,<3",
   "pandas>=2.2.0,<3",
-  "psutil>=6,<8",
-  "pycountry>=23,<26",
-  "python-dateutil>=2.9,<3",
-  "regex>=2024.0,<2026",
-  "reporters-db>=3.2.61,<4",
-  "requests>=2.32,<3",
-  "scikit-learn>=1.5,<2",
-  "scipy>=1.11.0,<2",
-  "skops>=0.11,<1",
-  "tqdm>=4.67,<5",
-  "Unidecode>=1.4,<2",
-  "us>=2.0.2,<3",
-  "zahlwort2num>=0.4.3,<1"
+  "psutil>=6",
+  "pycountry>=23",
+  "python-dateutil>=2.9",
+  "regex>=2024.0",
+  "reporters-db>=3.2.61",
+  "requests>=2.32",
+  "scikit-learn>=1.5",
+  "scipy>=1.11.0",
+  "skops>=0.11",
+  "tqdm>=4.67",
+  "Unidecode>=1.4",
+  "us>=2.0.2",
+  "zahlwort2num>=0.4.3"
 ]
 
 [project.optional-dependencies]

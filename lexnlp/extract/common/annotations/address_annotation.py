@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, List, Dict, Any
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -19,7 +18,7 @@ class AddressAnnotation(TextAnnotation):
 
     def __int__(
         self,
-        coords: Tuple[int, int],
+        coords: tuple[int, int],
         locale: str = 'en',
         text: str = '',
     ):
@@ -30,7 +29,7 @@ class AddressAnnotation(TextAnnotation):
             text=text
         )
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         return [self.text]
 
     def get_dictionary_values(self) -> dict:

@@ -18,7 +18,8 @@ __email__ = "support@contraxsuite.com"
 import calendar
 import regex as re
 import string
-from typing import Any, Dict, Generator, List
+from typing import Any
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.cusip_annotation import CusipAnnotation
 
@@ -74,16 +75,16 @@ def is_cusip_valid(code, return_checksum=False):
     return checksum == _checksum
 
 
-def get_cusip(text: str) -> Generator[Dict[str, Any], None, None]:
+def get_cusip(text: str) -> Generator[dict[str, Any]]:
     for ant in get_cusip_annotations(text):
         yield ant.to_dictionary_legacy()
 
 
-def get_cusip_list(text: str) -> List[Dict[str, Any]]:
+def get_cusip_list(text: str) -> list[dict[str, Any]]:
     return list(get_cusip(text))
 
 
-def get_cusip_annotations(text: str) -> Generator[CusipAnnotation, None, None]:
+def get_cusip_annotations(text: str) -> Generator[CusipAnnotation]:
     """
     INFO: https://www.cusip.com/pdf/CUSIP_Intro_03.14.11.pdf
     """
@@ -121,7 +122,7 @@ def get_cusip_annotations(text: str) -> Generator[CusipAnnotation, None, None]:
         yield ant
 
 
-def get_cusip_annotation_list(text: str) -> List[CusipAnnotation]:
+def get_cusip_annotation_list(text: str) -> list[CusipAnnotation]:
     """
     """
     return list(get_cusip_annotations(text))

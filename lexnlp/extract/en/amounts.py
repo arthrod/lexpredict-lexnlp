@@ -37,7 +37,7 @@ __email__ = "support@contraxsuite.com"
 
 import string
 from decimal import Decimal, DecimalTuple, InvalidOperation
-from typing import Dict, Generator, Optional, Tuple, Union, List
+from collections.abc import Generator
 
 import nltk
 import regex as re
@@ -50,12 +50,12 @@ from lexnlp.extract.common.annotations.amount_annotation import AmountAnnotation
 # Define small numbers
 
 
-SMALL_NUMBERS: List[int] = [*range(0, 21, 1), *range(30, 100, 10)]
+SMALL_NUMBERS: list[int] = [*range(0, 21, 1), *range(30, 100, 10)]
 SMALL_NUMBERS_MAP = {num2words(n): n for n in SMALL_NUMBERS}
 SMALL_NUMBERS_MAP.update({num2words(n, ordinal=True): n for n in SMALL_NUMBERS})
 SMALL_NUMBERS_MAP.update({num2words(n, ordinal=True) + 's': n for n in SMALL_NUMBERS[3:20]})
 SMALL_NUMBERS_MAP.update({num2words(n).replace('y', 'ieths'): n for n in SMALL_NUMBERS[20:]})
-MAGNITUDE_MAP: Dict[str, int] = {
+MAGNITUDE_MAP: dict[str, int] = {
     'k': 1000,
     'thousand': 1000,
     'thousandth': 1000,
@@ -190,9 +190,9 @@ def cleanup(text) -> str:
         next(re.finditer(BIG_NUMBERS_RE, text))
         only_digits_and_delimiters: str = \
             next(re.finditer(ONLY_DIGITS_AND_DELIMITERS_RE, text)).captures()[0]
-        delimiters: Optional[Dict] = infer_delimiters(only_digits_and_delimiters, 'en_US')
+        delimiters: dict | None = infer_delimiters(only_digits_and_delimiters, 'en_US')
     except StopIteration:
-        delimiters: Optional[Dict] = infer_delimiters(text, 'en_US')
+        delimiters: dict | None = infer_delimiters(text, 'en_US')
 
     if delimiters is None:
         return text
@@ -209,7 +209,7 @@ def cleanup(text) -> str:
 def text2num(
     s: str,
     search_fraction: bool = True,
-) -> Optional[Decimal]:
+) -> Decimal | None:
     """
     Convert written amount into Decimal.
     :param s: written number
@@ -271,7 +271,7 @@ def text2num(
             pass
 
     # process
-    s_split: List[str] = s.split()
+    s_split: list[str] = s.split()
 
     x1: int = 0
     for token in s_split:
@@ -299,8 +299,8 @@ def text2num(
     return Decimal(n + prefix + d)
 
 
-def get_np(text) -> Generator[str, None, None]:
-    tokens: List[str] = nltk.word_tokenize(text)
+def get_np(text) -> Generator[str]:
+    tokens: list[str] = nltk.word_tokenize(text)
     pos_tokens: nltk.tree.Tree = nltk.tag.pos_tag(tokens)
     chunks: nltk.tree.Tree = chunker.parse(pos_tokens)
     for subtree in chunks.subtrees(filter=lambda t: t.label() == 'NP'):
@@ -332,7 +332,7 @@ def get_amounts(
     return_sources: bool = False,
     extended_sources: bool = True,
     float_digits: int = 4,
-) -> Generator[Union[Decimal, Tuple[Decimal, str]], None, None]:
+) -> Generator[Decimal | tuple[Decimal, str]]:
     """
     Find possible amount references in the text.
     :param text: text
@@ -354,7 +354,7 @@ def get_amount_list(
     return_sources: bool = False,
     extended_sources: bool = True,
     float_digits: int = 4,
-) -> List[Union[Decimal, Tuple[Decimal, str]]]:
+) -> list[Decimal | tuple[Decimal, str]]:
     """
     Find possible amount references in the text.
     :param text: text
@@ -377,7 +377,7 @@ def get_amount_annotations(
     text: str,
     extended_sources: bool = True,
     float_digits: int = 4,
-) -> Generator[AmountAnnotation, None, None]:
+) -> Generator[AmountAnnotation]:
     """
     Find possible amount references in the text.
     :param text: text
@@ -399,7 +399,7 @@ def get_amount_annotations(
         if AND_RE.fullmatch(found_item):
             continue
         try:
-            amount: Optional[Decimal] = text2num(found_item)
+            amount: Decimal | None = text2num(found_item)
         except:
             continue
         if amount is None:
@@ -444,7 +444,7 @@ def get_amount_annotation_list(
     text: str,
     extended_sources: bool = True,
     float_digits: int = 4,
-) -> List[AmountAnnotation]:
+) -> list[AmountAnnotation]:
     """
     Find possible amount references in the text.
     :param text: text

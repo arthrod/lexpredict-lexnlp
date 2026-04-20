@@ -10,7 +10,7 @@ import argparse
 import csv
 import sys
 from datetime import UTC, datetime
-from typing import Callable, List, Dict
+from collections.abc import Callable
 
 from elasticsearch import Elasticsearch, helpers
 
@@ -35,9 +35,9 @@ safe_int = safe()(int)
 safe_float = safe()(float)
 
 
-def process_data(csv_file_name: str, index: str, process_func: Callable[[List[Dict]], int]):
+def process_data(csv_file_name: str, index: str, process_func: Callable[[list[dict]], int]):
     total = 0
-    with open(csv_file_name, 'r', encoding='utf8') as f:
+    with open(csv_file_name, encoding='utf8') as f:
         r = csv.DictReader(f)
         actions = []
 
@@ -90,15 +90,15 @@ def parse_args(args):
                         help='ElasticSearch index prefix')
 
     args = parser.parse_args(args)
-    print('Benchmark file: {0}'.format(args.csv_file))
-    print('ElasticSearch URL: {0}'.format(args.url))
+    print(f'Benchmark file: {args.csv_file}')
+    print(f'ElasticSearch URL: {args.url}')
     return args
 
 
 def build_index_name(index_prefix: str, d: datetime.date) -> str:
     today = d.strftime('%Y-%m-%d')
-    index = '{0}-{1}'.format(index_prefix, today)
-    print('Index: {0}'.format(index))
+    index = f'{index_prefix}-{today}'
+    print(f'Index: {index}')
     return index
 
 
@@ -114,4 +114,4 @@ if __name__ == "__main__":
 
     processed = process_data(cmd_args.csv_file, index=index_name,
                              process_func=lambda actions: helpers.bulk(es, actions))
-    print('Indexed {0} benchmarks'.format(processed))
+    print(f'Indexed {processed} benchmarks')

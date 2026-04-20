@@ -15,7 +15,8 @@ import inspect
 import os
 import time
 from datetime import UTC, datetime
-from typing import Callable, Set, Union, List, Tuple, Any
+from typing import Any
+from collections.abc import Callable
 
 import psutil
 from memory_profiler import memory_usage
@@ -38,7 +39,7 @@ except FileNotFoundError:
 SYS_CPU_FREQ = SYS_CPU_FREQ.current if SYS_CPU_FREQ else None
 SYS_CPU_COUNT = psutil.cpu_count()
 SYS_MEM_TOTAL = psutil.virtual_memory().total
-SYS_OS_NAME = '{0} {1} ({2})'.format(SYS_OS_UNAME.sysname, SYS_OS_UNAME.release, SYS_OS_UNAME.version)
+SYS_OS_NAME = f'{SYS_OS_UNAME.sysname} {SYS_OS_UNAME.release} ({SYS_OS_UNAME.version})'
 SYS_NODE_NAME = SYS_OS_UNAME.nodename
 SYS_ARCH = SYS_OS_UNAME.machine
 
@@ -73,9 +74,9 @@ def iter_test_data_text_and_tuple(file_name: str = None, call_stack_offset: int 
     """
     if not file_name:
         file_name = this_test_data_path(create_dirs=False, caller_stack_offset=2 + call_stack_offset)
-    print('\n\nLoading test data:\n{0}\n'.format(file_name))
+    print(f'\n\nLoading test data:\n{file_name}\n')
 
-    with open(file_name, 'r', encoding='utf-8') as f:
+    with open(file_name, encoding='utf-8') as f:
         reader = csv.DictReader(f)
 
         input_columns = [col for col in reader.fieldnames if col.startswith('input_')]
@@ -264,14 +265,13 @@ def test_extraction_func_on_test_data(func: Callable,
             print(problem)
         elif debug_print:
             print('================================================================================================\n'
-                  'Actual:\n{0}\n\n'
-                  'Expected:\n{1}\n'
+                  f'Actual:\n{fmt_results(actual)}\n\n'
+                  f'Expected:\n{fmt_results(expected)}\n'
                   '================================================================================================\n'
-                  .format(fmt_results(actual), fmt_results(expected)))
+                  )
 
     if problems:
-        raise AssertionError('Testing NLP function {0} failed. See log for problems:\n{1}'.format(benchmark_name,
-                                                                                             FN_PROBLEMS))
+        raise AssertionError(f'Testing NLP function {benchmark_name} failed. See log for problems:\n{FN_PROBLEMS}')
 
 
 def test_extraction_func(expected, func: Callable, text,
@@ -316,7 +316,7 @@ def benchmark_extraction_func(func: Callable, text, **kwargs):
 
 def benchmark_decorator(function, *args, **kwargs):
     def wrapper():
-        benchmark_name = '{}(args={} kwargs={})'.format(function.__name__, args, kwargs)
+        benchmark_name = f'{function.__name__}(args={args} kwargs={kwargs})'
         res = benchmark(benchmark_name, function, *args, **kwargs)
         return res
     return wrapper
@@ -344,21 +344,21 @@ def benchmark(benchmark_name: str, func: Callable, *args, benchmark_file: str = 
         writer.writerow((datetime.now(UTC).isoformat(), benchmark_name, text_size, exec_time, max_memory_usage,
                          SYS_CPU_COUNT, SYS_CPU_FREQ, SYS_MEM_TOTAL,
                          SYS_OS_NAME, SYS_NODE_NAME, SYS_ARCH))
-        print('{3}\n{4}\nText size: {0:5d}, Exec Time (s): {1:4.4f}, Max Memory (mb): {2:4.4f}\n'
-              .format(text_size, exec_time, max_memory_usage, benchmark_name, fmt_short_text(text, 100)))
+        print(f'{benchmark_name}\n{fmt_short_text(text, 100)}\nText size: {text_size:5d}, Exec Time (s): {exec_time:4.4f}, Max Memory (mb): {max_memory_usage:4.4f}\n'
+              )
 
     return res
 
 
 def assert_set_equal(function_name: str,
                      text: str,
-                     actual_results: Set,
-                     expected_results: Set,
+                     actual_results: set,
+                     expected_results: set,
                      problems_file: str = FN_PROBLEMS,
                      do_raise: bool = True,
                      do_write_to_file: bool = True,
                      debug_print: bool = True,
-                     test_data_file: str = None) -> Union[str, None]:
+                     test_data_file: str = None) -> str | None:
     if not expected_results and not actual_results:
         return None
     exx = None
@@ -368,7 +368,7 @@ def assert_set_equal(function_name: str,
         exx = ex
 
     if exx:
-        title = 'Function {0} returns wrong results on "{1}"'.format(function_name, fmt_short_text(text))
+        title = f'Function {function_name} returns wrong results on "{fmt_short_text(text)}"'
         body = """
 -----------------------------------------------------------------------------------------------------------------------
 {data_file_note}*Problem:*
@@ -398,7 +398,7 @@ If the expected data is correct then fix the function. Otherwise, fix the expect
                    text=text,
                    actual=fmt_results(actual_results),
                    expected=fmt_results(expected_results),
-                   data_file_note='Test data file: {0}\n\n'.format(os.path.relpath(test_data_file, DIR_ROOT))
+                   data_file_note=f'Test data file: {os.path.relpath(test_data_file, DIR_ROOT)}\n\n'
                    if test_data_file else '')
         problem = title + body
 
@@ -427,18 +427,18 @@ def fmt_short_text(text: str, max_len: int = 40):
     return text
 
 
-def fmt_results(results: Union[Set, List, Tuple]):
+def fmt_results(results: set | list | tuple):
     return '\n'.join([str(r) for r in results]) if results else ''
 
 
 def assert_in(function_name: str,
               text: str,
               expected_in,
-              actual_results: Set,
+              actual_results: set,
               problems_file: str = FN_PROBLEMS,
               do_raise: bool = True,
               do_write_to_file: bool = True,
-              test_data_file: str = None) -> Union[str, None]:
+              test_data_file: str = None) -> str | None:
     exx = None
     try:
         assert expected_in in actual_results
@@ -446,7 +446,7 @@ def assert_in(function_name: str,
         exx = ex
 
     if exx:
-        title = 'Function {0} returns wrong results on "{1}"'.format(function_name, fmt_short_text(text))
+        title = f'Function {function_name} returns wrong results on "{fmt_short_text(text)}"'
         body = """
 -----------------------------------------------------------------------------------------------------------------------
 {data_file_note}*Problem:*
@@ -476,7 +476,7 @@ If the expected data is correct then fix the function. Otherwise, fix the expect
                    text=text,
                    actual=fmt_results(actual_results),
                    expected_in=expected_in,
-                   data_file_note='Test data file: {0}\n\n'.format(os.path.relpath(test_data_file, DIR_ROOT))
+                   data_file_note=f'Test data file: {os.path.relpath(test_data_file, DIR_ROOT)}\n\n'
                    if test_data_file else '')
         problem = title + body
 

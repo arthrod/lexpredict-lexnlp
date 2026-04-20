@@ -11,7 +11,6 @@ import os
 import shutil
 
 import pandas
-from typing import Tuple, List
 from zipfile import ZipFile
 
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
@@ -65,7 +64,7 @@ class LayeredDefinitionDetector:
         shutil.rmtree(temp_folder)
         self.initialized = True
 
-    def get_annotations(self, sentence: str) -> List[DefinitionAnnotation]:
+    def get_annotations(self, sentence: str) -> list[DefinitionAnnotation]:
         annotations = []  # type: List[DefinitionAnnotation]
         # we go from term to definition because term is a simplier object to locate
         terms = list(self.model_term.predict_text(

@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Pattern, Callable
 
 from lexnlp.extract.common.annotations.duration_annotation import DurationAnnotation
 
@@ -30,7 +29,7 @@ class DurationParser:
         cls,
         text: str,
         float_digits: int = 4,
-    ) -> List[DurationAnnotation]:
+    ) -> list[DurationAnnotation]:
         all_ants = cls.get_all_annotations(text, float_digits)
         if len(all_ants) < 2:
             return all_ants
@@ -40,8 +39,8 @@ class DurationParser:
         # grouped durations are:
         # - bigger timeframe to less timeframe
         # - are separated by punctuation, spaces and conjunctions only
-        ant_group: List[DurationAnnotation] = [all_ants[0]]
-        all_grouped: List[List[DurationAnnotation]] = [ant_group]
+        ant_group: list[DurationAnnotation] = [all_ants[0]]
+        all_grouped: list[list[DurationAnnotation]] = [ant_group]
 
         for a in all_ants[1:]:
             if cls.check_ant_continues_group(ant_group, a, text):
@@ -51,7 +50,7 @@ class DurationParser:
                 all_grouped.append(ant_group)
 
         # sum group annotations
-        annotations: List = []
+        annotations: list = []
         for grp in all_grouped:
             if len(grp) == 1:
                 annotations.append(grp[0])
@@ -63,7 +62,7 @@ class DurationParser:
     @classmethod
     def sum_annotations(
         cls,
-        ant_group: List[DurationAnnotation],
+        ant_group: list[DurationAnnotation],
     ) -> DurationAnnotation:
         coords = (ant_group[0].coords[0], ant_group[-1].coords[1])
         rst: DurationAnnotation = DurationAnnotation(
@@ -87,7 +86,7 @@ class DurationParser:
     @classmethod
     def check_ant_continues_group(
         cls,
-        ant_group: List[DurationAnnotation],
+        ant_group: list[DurationAnnotation],
         ant: DurationAnnotation,
         text: str,
     ) -> bool:
@@ -112,5 +111,5 @@ class DurationParser:
         cls,
         text: str,
         float_digits: int = 4,
-    ) -> List[DurationAnnotation]:
+    ) -> list[DurationAnnotation]:
         raise NotImplementedError()

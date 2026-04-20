@@ -19,7 +19,7 @@ __email__ = "support@contraxsuite.com"
 # pylint: disable=W0612
 
 import string
-from typing import Generator, Optional, Tuple
+from collections.abc import Generator
 import nltk
 
 from lexnlp.extract.en.entities.nltk_re import RE_PARTY_AS
@@ -41,7 +41,7 @@ def get_company_annotations(
         use_gnp: bool = False,
         count_unique: bool = False,
         name_upper: bool = False,
-        banlist_usage: Optional[BanListUsage] = None) -> Generator[CompanyAnnotation, None, None]:
+        banlist_usage: BanListUsage | None = None) -> Generator[CompanyAnnotation]:
     yield from default_company_detector.get_company_annotations(
         text, strict, use_gnp, count_unique, name_upper, banlist_usage)
 
@@ -106,7 +106,7 @@ def get_companies(text: str,
                   name_upper: bool = False,
                   parse_name_abbr: bool = False,
                   return_source: bool = False,
-                  banlist_usage: Optional[BanListUsage] = None):
+                  banlist_usage: BanListUsage | None = None):
     return default_company_detector.get_companies(
         text, strict, use_gnp, detail_type, count_unique, name_upper,
         parse_name_abbr, return_source, banlist_usage)
@@ -118,7 +118,7 @@ def get_persons(text: str, strict=False, return_source=False, window=2) -> Gener
 
 # pylint: disable=unused-argument
 def get_parties_as(text: str, detail_type=False) -> \
-        Generator[Tuple[str, str, str, str], None, None]:
+        Generator[tuple[str, str, str, str]]:
     """
     :param text: source text to search for companies
     :param detail_type: obsolete

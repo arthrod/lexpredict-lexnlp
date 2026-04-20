@@ -1,6 +1,5 @@
 # Imports
 import tarfile
-from typing import List
 
 # Packages
 from lexnlp.nlp.en.segments.sentences import get_sentences
@@ -10,7 +9,7 @@ from lexnlp.nlp.en.tokens import get_stems
 from gensim.models.word2vec import Word2Vec
 
 
-def process_sentence(sentence: str) -> List[str]:
+def process_sentence(sentence: str) -> list[str]:
     return [
         stem for stem in get_stems(sentence, stopword=True, lowercase=True)
         if stem.isalpha()

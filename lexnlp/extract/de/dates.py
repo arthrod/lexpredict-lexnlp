@@ -7,13 +7,10 @@ __email__ = "support@contraxsuite.com"
 
 
 import os
-from datetime import datetime
-from typing import Generator, List, Optional
 
 import joblib
 
 from lexnlp.extract.all_locales.languages import Locale
-from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
 from lexnlp.extract.de.date_model import DATE_MODEL_CHARS, DE_ALPHA_CHAR_SET
 
 # Setup path

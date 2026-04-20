@@ -9,15 +9,15 @@ __email__ = "support@contraxsuite.com"
 # pylint: disable=unused-import
 
 from shutil import copyfile
-from typing import Dict, Any
+from typing import Any
 from collections import OrderedDict
 import os
 
 
 def ensure_documents_in_folder(
-        document_paths: Dict[str, Any],
+        document_paths: dict[str, Any],
         target_folder: str,
-        folder_alias: 'OrderedDict[str, str]') -> Dict[str, Any]:
+        folder_alias: 'OrderedDict[str, str]') -> dict[str, Any]:
     """
     Example call:
       ensure_documents_in_folder([{'./data/agreements/agreement01.txt': [10, 57, 121]},

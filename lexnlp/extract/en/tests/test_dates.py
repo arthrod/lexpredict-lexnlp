@@ -22,7 +22,6 @@ __email__ = "support@contraxsuite.com"
 
 # Imports
 from unittest import TestCase
-from typing import List, Tuple
 
 import pytest
 import datetime
@@ -57,7 +56,7 @@ def expected_data_converter(expected):
             ret.append(datetime.datetime.strptime(d, DATETIME_FORMAT))
         else:
             if len(d) == 5:
-                d = '{}-{}'.format(datetime.date.today().year, d)
+                d = f'{datetime.date.today().year}-{d}'
             ret.append(datetime.datetime.strptime(d, DATE_FORMAT).date())
     return ret
 
@@ -125,7 +124,7 @@ class TestDates(TestCase):
                      random.randint(1, 31)) for _ in range(100)]
         self.check_dates_set(date_src)
 
-    def check_dates_set(self, date_src: List[Tuple[int, int, int]]):
+    def check_dates_set(self, date_src: list[tuple[int, int, int]]):
         """
         Test date extraction with provided dates.
         """
@@ -136,7 +135,7 @@ class TestDates(TestCase):
                 continue
 
             # Try three versions
-            text = """on {0}-{1}-{2}""".format(year, month, day)
+            text = f"""on {year}-{month}-{day}"""
 
             dates = get_dates_list(text)
             self.assertEqual(1, len(dates))

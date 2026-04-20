@@ -7,10 +7,11 @@ __email__ = "support@contraxsuite.com"
 
 
 try:
-    from collections import Iterable
+    from collections.abc import Iterable
 except ImportError:
     from collections.abc import Iterable
-from typing import Callable, Any
+from typing import Any
+from collections.abc import Callable
 
 
 def collapse_sequence(sequence: Iterable,

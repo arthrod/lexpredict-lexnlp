@@ -15,7 +15,6 @@ Covers changes introduced in the PR:
 
 from unittest.mock import patch
 
-import pytest
 
 from lexnlp.utils.amount_delimiting import infer_delimiters
 
@@ -38,7 +37,6 @@ def _mock_de_de_conventions(
         grouping = [3, 3, 0]
 
     # locale.localeconv() is called inside the LocaleContextManager context.
-    import locale
 
     fake_conventions = {
         "decimal_point": decimal_delimiter,
@@ -242,7 +240,6 @@ def _mock_locale_conventions(
     grouping: list,
 ):
     """Patch LocaleContextManager + locale.localeconv to return the given values."""
-    import locale as _locale_mod
 
     fake_conventions = {
         "decimal_point": decimal_delimiter,

@@ -16,7 +16,8 @@ __email__ = "support@contraxsuite.com"
 import os
 import pickle
 import regex as re
-from typing import Any, Generator, List
+from typing import Any
+from collections.abc import Generator
 
 # NLTK imports
 import nltk
@@ -30,9 +31,9 @@ STOPWORDS = pickle.load(open(os.path.join(MODULE_PATH, "stopwords.pickle"), "rb"
 # Collocations
 COLLOCATION_SIZE = 10000
 BIGRAM_COLLOCATIONS = pickle.load(
-    open(os.path.join(MODULE_PATH, "collocation_bigrams_{0}.pickle".format(COLLOCATION_SIZE)), "rb"))
+    open(os.path.join(MODULE_PATH, f"collocation_bigrams_{COLLOCATION_SIZE}.pickle"), "rb"))
 TRIGRAM_COLLOCATIONS = pickle.load(
-    open(os.path.join(MODULE_PATH, "collocation_trigrams_{0}.pickle".format(COLLOCATION_SIZE)), "rb"))
+    open(os.path.join(MODULE_PATH, f"collocation_trigrams_{COLLOCATION_SIZE}.pickle"), "rb"))
 
 # Setup default stemmer for English
 DEFAULT_STEMMER = nltk.stem.snowball.EnglishStemmer()
@@ -103,7 +104,7 @@ def get_tokens(text: str, lowercase=False, stopword=False, preserve_line=True) -
 
 
 def get_token_list(text: str, lowercase: bool = False, stopword: bool = False,
-                   preserve_line: bool = True) -> List:
+                   preserve_line: bool = True) -> list:
     """
     Get token list from text.
     :param text:
@@ -130,7 +131,7 @@ def get_stems(text, lowercase=False, stopword=False, stemmer=DEFAULT_STEMMER) ->
         yield stemmer.stem(token)
 
 
-def get_stem_list(text, lowercase=False, stopword=False, stemmer=DEFAULT_STEMMER) -> List:
+def get_stem_list(text, lowercase=False, stopword=False, stemmer=DEFAULT_STEMMER) -> list:
     """
     Get stems materialized from text.
     N.B.: when stemmer is SnowballStemmer, lowercase is always returned no matter the parameter.
@@ -179,7 +180,7 @@ def get_lemmas(text, lowercase=False, stopword=False, lemmatizer=DEFAULT_LEMMATI
                 yield lemmatizer.lemmatize(token, wn_pos) if wn_pos else lemmatizer.lemmatize(token)
 
 
-def get_lemma_list(text, lowercase=False, stopword=False, lemmatizer=DEFAULT_LEMMATIZER) -> List:
+def get_lemma_list(text, lowercase=False, stopword=False, lemmatizer=DEFAULT_LEMMATIZER) -> list:
     """
     Get lemmas materialized from text.
     """

@@ -7,7 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import regex as re
-from typing import Generator, List
+from collections.abc import Generator
 from decimal import Decimal
 from lexnlp.extract.common.annotations.percent_annotation import PercentAnnotation
 from lexnlp.extract.de.amounts import AmountParserDE
@@ -22,13 +22,13 @@ PERCENT_UNITS_MAP = {
     '%': Decimal(0.01),
 }
 
-PERCENT_PTN = r"""
-(?P<text>(?P<num_text>{num_ptn})\s*(?P<unit_name>\w*prozent|%))(?:\W|$)
-""".format(num_ptn=amounts_parser.NUM_PTN)
+PERCENT_PTN = rf"""
+(?P<text>(?P<num_text>{amounts_parser.NUM_PTN})\s*(?P<unit_name>\w*prozent|%))(?:\W|$)
+"""
 PERCENT_PTN_RE = re.compile(PERCENT_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
 
-def get_percents(text: str, float_digits: int = 4) -> Generator[dict, None, None]:
+def get_percents(text: str, float_digits: int = 4) -> Generator[dict]:
     """
     Get percent usages within text.
     :param text:
@@ -49,7 +49,7 @@ def get_percents(text: str, float_digits: int = 4) -> Generator[dict, None, None
 def get_percent_annotations(
     text: str,
     float_digits: int = 4
-) -> Generator[PercentAnnotation, None, None]:
+) -> Generator[PercentAnnotation]:
     """
     Get percent usages within text.
     :param text:
@@ -82,12 +82,12 @@ def get_percent_annotations(
         )
 
 
-def get_percent_list(text: str, float_digits: int = 4) -> List[dict]:
+def get_percent_list(text: str, float_digits: int = 4) -> list[dict]:
     return list(get_percents(text, float_digits))
 
 
 def get_percent_annotation_list(
     text: str,
     float_digits: int = 4,
-) -> List[PercentAnnotation]:
+) -> list[PercentAnnotation]:
     return list(get_percent_annotations(text, float_digits))

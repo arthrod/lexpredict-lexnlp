@@ -7,7 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from nltk import word_tokenize, pos_tag
-from typing import Tuple, Generator
+from collections.abc import Generator
 
 from lexnlp.extract.common.text_beautifier import TextBeautifier
 
@@ -15,7 +15,7 @@ from lexnlp.extract.common.text_beautifier import TextBeautifier
 class SpanTokenizer:
     @staticmethod
     def get_token_spans(txt: str) -> \
-            Generator[Tuple[str, str, int, int], None, None]:
+            Generator[tuple[str, str, int, int]]:
         """
         returns: [('word', 'token', (word_start, word_end)), ...]
         """

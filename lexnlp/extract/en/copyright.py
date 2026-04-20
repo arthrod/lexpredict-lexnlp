@@ -15,7 +15,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import string
-from typing import Generator, List, Tuple, Union
+from collections.abc import Generator
 
 from lexnlp.extract.common.copyrights.copyright_en_style_parser import CopyrightEnStyleParser
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
@@ -47,14 +47,14 @@ np_extractor = CopyrightNPExtractor(grammar=grammar)
 
 class CopyrightEnParser(CopyrightEnStyleParser):
     @classmethod
-    def extract_phrases_with_coords(cls, sentence: str) -> List[Tuple[str, int, int]]:
+    def extract_phrases_with_coords(cls, sentence: str) -> list[tuple[str, int, int]]:
         return np_extractor.get_np_with_coords(sentence)
 
 
 def get_copyrights(
     text: str,
     return_sources: bool = False
-) -> Generator[Union[Tuple[str, str, str], Tuple[str, str, str, str]], None, None]:
+) -> Generator[tuple[str, str, str] | tuple[str, str, str, str]]:
     """
     Gets copyrights.
 
@@ -78,7 +78,7 @@ def get_copyrights(
 def get_copyright_list(
     text: str,
     return_sources: bool = False
-) -> List[Union[Tuple[str, str, str], Tuple[str, str, str, str]]]:
+) -> list[tuple[str, str, str] | tuple[str, str, str, str]]:
     """
     Gets copyrights.
 
@@ -98,7 +98,7 @@ def get_copyright_list(
 def get_copyright_annotations(
     text: str,
     return_sources=False,
-) -> Generator[CopyrightAnnotation, None, None]:
+) -> Generator[CopyrightAnnotation]:
     """
     Gets copyright annotations.
 
@@ -117,7 +117,7 @@ def get_copyright_annotations(
         yield ant
 
 
-def get_copyright_annotation_list(text: str, return_sources: bool = False) -> List[CopyrightAnnotation]:
+def get_copyright_annotation_list(text: str, return_sources: bool = False) -> list[CopyrightAnnotation]:
     """
     Gets a list of copyright annotations.
 

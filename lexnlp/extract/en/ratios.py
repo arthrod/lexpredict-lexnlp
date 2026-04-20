@@ -16,7 +16,7 @@ __email__ = "support@contraxsuite.com"
 
 from decimal import Decimal
 import regex as re
-from typing import Generator, Union, Tuple, List
+from collections.abc import Generator
 from lexnlp.extract.common.annotations.ratio_annotation import RatioAnnotation
 from lexnlp.extract.en.amounts import get_amounts, NUM_PTN
 
@@ -36,7 +36,7 @@ def get_ratios(
     text: str,
     return_sources: bool = False,
     float_digits: int = 4,
-) -> Generator[Union[Tuple[Decimal, Decimal, Decimal], Tuple[Decimal, Decimal, Decimal, str]], None, None]:
+) -> Generator[tuple[Decimal, Decimal, Decimal] | tuple[Decimal, Decimal, Decimal, str]]:
     for ant in get_ratio_annotations(text, float_digits=float_digits):
         if return_sources:
             yield ant.left, ant.right, ant.ratio, ant.text
@@ -48,7 +48,7 @@ def get_ratio_list(
     text: str,
     return_sources: bool = False,
     float_digits: int = 4,
-) -> List[Union[Tuple[Decimal, Decimal, Decimal], Tuple[Decimal, Decimal, Decimal, str]]]:
+) -> list[tuple[Decimal, Decimal, Decimal] | tuple[Decimal, Decimal, Decimal, str]]:
     """
     """
     return list(get_ratios(text, return_sources, float_digits))
@@ -57,12 +57,12 @@ def get_ratio_list(
 def get_ratio_annotations(
     text: str,
     float_digits: int = 4,
-) -> Generator[RatioAnnotation, None, None]:
+) -> Generator[RatioAnnotation]:
     for match in RATIO_PTN_RE.finditer(text.lower()):
         source_text, ratio_1_text, ratio_2_text = match.groups()
-        amount_1: List[Decimal] = \
+        amount_1: list[Decimal] = \
             list(get_amounts(ratio_1_text, float_digits=float_digits))
-        amount_2: List[Decimal] = \
+        amount_2: list[Decimal] = \
             list(get_amounts(ratio_2_text, float_digits=float_digits))
         if len(amount_1) != 1 or len(amount_2) != 1:
             continue
@@ -84,5 +84,5 @@ def get_ratio_annotations(
 def get_ratio_annotation_list(
     text: str,
     float_digits: int = 4,
-) -> List[RatioAnnotation]:
+) -> list[RatioAnnotation]:
     return list(get_ratio_annotations(text, float_digits))

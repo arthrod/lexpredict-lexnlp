@@ -10,7 +10,8 @@ __email__ = "support@contraxsuite.com"
 
 
 # standard library
-from typing import Generator, Iterable, List, Optional, Union, Tuple
+from typing import Optional
+from collections.abc import Generator, Iterable
 
 # LexNLP
 from lexnlp.ml.normalizers import Normalizer
@@ -80,15 +81,15 @@ class TransformerVectorizer(BaseEstimator, TransformerMixin):
             vectorizers (Iterable[Vectorizer]):
                 An iterable of Vectorizers which will vectorize X.
         """
-        self.vectorizers: Tuple[Vectorizer] = tuple(vectorizers)
+        self.vectorizers: tuple[Vectorizer] = tuple(vectorizers)
 
     # noinspection PyPep8Naming
     def fit(self, X, y: Optional = None) -> 'TransformerVectorizer':
         return self
 
     # noinspection PyPep8Naming
-    def transform(self, X, y: Optional = None) -> Tuple[ndarray, ...]:
-        vectors: List[ndarray] = []
+    def transform(self, X, y: Optional = None) -> tuple[ndarray, ...]:
+        vectors: list[ndarray] = []
         for document in X:  # type: str
             vector: ndarray = concatenate(
                 [
@@ -128,7 +129,7 @@ class TransformerPreprocessor(BaseEstimator, TransformerMixin):
             )
         self.head_character_n: int = head_character_n
 
-    def _sentence_counter(self, sentences: Iterable[str]) -> Generator[str, None, None]:
+    def _sentence_counter(self, sentences: Iterable[str]) -> Generator[str]:
         character_count: int = 0
         for sentence in sentences:
             character_count += len(sentence)
@@ -136,14 +137,14 @@ class TransformerPreprocessor(BaseEstimator, TransformerMixin):
             if character_count >= self.head_character_n:
                 break
 
-    def _handle_block_text(self, text: str) -> Generator[str, None, None]:
+    def _handle_block_text(self, text: str) -> Generator[str]:
         if self.head_character_n > 0:
-            text: Generator[str, None, None] = get_sentences(text)
+            text: Generator[str] = get_sentences(text)
             yield from self._sentence_counter(text)
         else:
             yield from get_sentences(text)
 
-    def preprocess(self, text: Union[str, Iterable[str]]) -> str:
+    def preprocess(self, text: str | Iterable[str]) -> str:
         """
         Args:
             text (Union[str, Iterable[str]]):
@@ -154,17 +155,17 @@ class TransformerPreprocessor(BaseEstimator, TransformerMixin):
         Returns:
             A preprocessed string.
         """
-        document: List[str] = []
+        document: list[str] = []
 
         if isinstance(text, str):
-            text: Generator[str, None, None] = self._handle_block_text(text)
+            text: Generator[str] = self._handle_block_text(text)
         else:
             if self.head_character_n > 0:
-                text: Generator[str, None, None] = self._sentence_counter(text)
+                text: Generator[str] = self._sentence_counter(text)
 
         # strangely, functions passed to the Normalizer perform poorly on individual sentences.
         # ...instead, we concatenate sentences into one string and then split again on newlines after normalization.
-        text: List[str] = self.normalizer('\n'.join(text)).split('\n')
+        text: list[str] = self.normalizer('\n'.join(text)).split('\n')
 
         for sentence in text:
             lemmas: str = ' '.join(
@@ -182,7 +183,7 @@ class TransformerPreprocessor(BaseEstimator, TransformerMixin):
         return self
 
     # noinspection PyPep8Naming
-    def transform(self, X, y: Optional = None) -> Tuple[str, ...]:
+    def transform(self, X, y: Optional = None) -> tuple[str, ...]:
         return tuple(
             self.preprocess(text)
             for text in X  # type: Union[str, Iterable[str]]

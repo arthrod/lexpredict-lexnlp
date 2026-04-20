@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Optional
 
 import numpy
 import os
@@ -52,8 +51,8 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
                          digit_set=None,
                          punc_set=None,
                          symbol_set=None,
-                         pre_window: Optional[int] = None,
-                         post_window: Optional[int] = None):
+                         pre_window: int | None = None,
+                         post_window: int | None = None):
         """
         Return set of features for a character tokenizer.
         """
@@ -82,11 +81,11 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
                               'mask']
 
         for pos in SPACY_POS_LIST:
-            token_feature_list.append("is_pos_{0}".format(pos))
+            token_feature_list.append(f"is_pos_{pos}")
         for tag in SPACY_TAG_LIST:
-            token_feature_list.append("is_tag_{0}".format(tag))
+            token_feature_list.append(f"is_tag_{tag}")
         for dep in SPACY_DEP_LIST:
-            token_feature_list.append("is_dep_{0}".format(dep))
+            token_feature_list.append(f"is_dep_{dep}")
         token_feature_list.append("is_pos_other")
         token_feature_list.append("is_tag_other")
         token_feature_list.append("is_dep_other")
@@ -160,7 +159,7 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
 
     def get_feature_data(self,
                          text: str,
-                         feature_mask: List[int] = None):
+                         feature_mask: list[int] = None):
         """
         Get features based on character model.
         """

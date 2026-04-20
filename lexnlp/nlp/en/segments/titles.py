@@ -14,7 +14,7 @@ __email__ = "support@contraxsuite.com"
 
 import os
 import string
-from typing import Generator
+from collections.abc import Generator
 
 # Packages
 import joblib

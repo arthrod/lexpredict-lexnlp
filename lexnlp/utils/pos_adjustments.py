@@ -9,7 +9,7 @@ __email__ = "support@contraxsuite.com"
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
-from typing import Callable, Tuple
+from collections.abc import Callable
 
 
 @dataclass
@@ -48,7 +48,7 @@ class TokenPosTagAdjustment:
     to_token: Callable = lambda token: token
     to_pos: Callable = lambda pos: pos
 
-    def __call__(self, token_pos: Tuple[str, str]) -> Tuple[str, str]:
+    def __call__(self, token_pos: tuple[str, str]) -> tuple[str, str]:
         """
         Args:
             token_pos: a tuple of (token, pos);

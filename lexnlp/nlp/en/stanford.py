@@ -14,7 +14,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import os
-from typing import Generator, List
+from collections.abc import Generator
 
 # NLTK imports
 from nltk.tag import StanfordPOSTagger
@@ -51,7 +51,7 @@ def check_stanford():
                            " No Stanford functionality available.")
 
 
-def get_tokens_list(text, lowercase=False, stopword=False) -> List:
+def get_tokens_list(text, lowercase=False, stopword=False) -> list:
     """
     Get token list form text using Stanford libraries.
     :param text:

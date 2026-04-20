@@ -7,7 +7,8 @@ __email__ = "support@contraxsuite.com"
 
 
 from abc import abstractmethod
-from typing import Optional, Tuple, Union, List, Any, Generator
+from typing import Any
+from collections.abc import Generator
 import string
 
 import num2words
@@ -35,7 +36,7 @@ class ArtifactDetector:
         self.model = BaseTokenSequenceClassifierModel.load_from_stream(stream)
 
     def predict(self, sample_df: pandas.DataFrame,
-                size_limit: int = 0) -> Tuple[numpy.ndarray, numpy.ndarray]:
+                size_limit: int = 0) -> tuple[numpy.ndarray, numpy.ndarray]:
         if size_limit:
             sample_df = sample_df.head(size_limit)
         test_feature_data, test_target_data = self.process_sample(sample_df, build_target_data=True)
@@ -45,13 +46,13 @@ class ArtifactDetector:
     @abstractmethod
     def process_sample(self,
                        sample_df: pandas.DataFrame,
-                       build_target_data: bool = False) -> Union[numpy.ndarray, Tuple[numpy.ndarray, numpy.ndarray]]:
+                       build_target_data: bool = False) -> numpy.ndarray | tuple[numpy.ndarray, numpy.ndarray]:
         raise NotImplementedError('process_sample() should be implemented in derived class')
 
     def predict_text(self,
                      text: str,
                      join_settings: PhraseConstructorSettings = None,
-                     feature_mask: List[int] = None) -> Generator[Tuple[int, int], None, None]:
+                     feature_mask: list[int] = None) -> Generator[tuple[int, int]]:
         feature_data, tokens = self.model.get_feature_data(text, feature_mask)
         predicted_class = self.model.model.predict(feature_data)
         join_settings = join_settings or self.join_token_settings
@@ -84,12 +85,12 @@ class ArtifactDetector:
                                       compress=compress)
 
     def train_and_save_on_tokens(self,
-                                 tokens: List[str],
+                                 tokens: list[str],
                                  save_path: str,
                                  settings: DetectingSettings,
                                  train_sample_df: pandas.DataFrame,
                                  punc_set: str = ".,/-",
-                                 symbol_set: Optional[str] = None,
+                                 symbol_set: str | None = None,
                                  string_checks: bool = False,
                                  compress: bool = False):
         self.model = BaseTokenSequenceClassifierModel.get_classifier(
@@ -126,7 +127,7 @@ class ArtifactDetector:
             train_sample_df = train_sample_df.head(train_size)
         return train_sample_df
 
-    def build_amount_tokens(self) -> List[str]:
+    def build_amount_tokens(self) -> list[str]:
         amount_tokens = []
         for day in range(1, 101):
             amount_tokens.extend([num2words.num2words(day, to='ordinal'),

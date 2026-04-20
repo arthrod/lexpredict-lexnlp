@@ -9,7 +9,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Generator, Tuple
+from collections.abc import Generator
 from lexnlp.extract.common.copyrights.copyright_en_style_parser import CopyrightEnStyleParser
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
 from lexnlp.extract.es.language_tokens import EsLanguageTokens
@@ -30,7 +30,7 @@ class CopyrightEsParser(CopyrightEnStyleParser):
             line_split_params=split_params)
 
     @classmethod
-    def extract_phrases_with_coords(cls, sentence: str) -> List[Tuple[str, int, int]]:
+    def extract_phrases_with_coords(cls, sentence: str) -> list[tuple[str, int, int]]:
         return [(t.text, t.start, t.get_end()) for t in
                 cls.line_processor.split_text_on_line_with_endings(sentence)]
 
@@ -38,20 +38,20 @@ class CopyrightEsParser(CopyrightEnStyleParser):
 CopyrightEsParser.init_parser()
 
 
-def get_copyright_annotations(text: str, return_sources=False) -> Generator[CopyrightAnnotation, None, None]:
+def get_copyright_annotations(text: str, return_sources=False) -> Generator[CopyrightAnnotation]:
     for ant in CopyrightEsParser.get_copyright_annotations(text, return_sources):
         ant.locale = 'es'
         yield ant
 
 
-def get_copyright_annotation_list(text: str, return_sources=False) -> List[CopyrightAnnotation]:
+def get_copyright_annotation_list(text: str, return_sources=False) -> list[CopyrightAnnotation]:
     return list(get_copyright_annotations(text, return_sources))
 
 
-def get_copyrights(text: str, return_sources=False) -> Generator[dict, None, None]:
+def get_copyrights(text: str, return_sources=False) -> Generator[dict]:
     for ant in get_copyright_annotations(text, return_sources):
         yield ant.to_dictionary()
 
 
-def get_copyright_list(text: str, return_sources=False) -> List[dict]:
+def get_copyright_list(text: str, return_sources=False) -> list[dict]:
     return list(get_copyrights(text, return_sources))

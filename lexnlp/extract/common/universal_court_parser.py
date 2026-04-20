@@ -10,7 +10,7 @@ __email__ = "support@contraxsuite.com"
 
 import re
 import pandas
-from typing import Callable, Generator, List, Optional, Tuple
+from collections.abc import Callable, Generator
 
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
 from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams, LineOrPhrase
@@ -22,16 +22,16 @@ class ParserInitParams:
     UniversalCourtsParser initialization parameters
     """
     def __init__(self):
-        self.court_pattern_checker: Optional[re.Pattern] = None
+        self.court_pattern_checker: re.Pattern | None = None
         self.column_names = {
             'type': 'Court Type',
             'name': 'Court Name',
             'jurisdiction': 'Jurisdiction',
             'alias': 'Alias'
         }
-        self.dataframe_paths: List[str] = []
-        self.split_ptrs: Optional[LineSplitParams] = None
-        self.key_word_preproc_func: Optional[Callable[[str], str]] = None
+        self.dataframe_paths: list[str] = []
+        self.split_ptrs: LineSplitParams | None = None
+        self.key_word_preproc_func: Callable[[str], str] | None = None
 
 
 class MatchFound:
@@ -122,7 +122,7 @@ class UniversalCourtsParser:
         self.jurisdiction_column = ptrs.column_names['jurisdiction']
         self.proc: LineProcessor = LineProcessor(line_split_params=ptrs.split_ptrs)
         self.courts: pandas.DataFrame = self.load_courts(ptrs.dataframe_paths)
-        self.locale: Optional[str] = None
+        self.locale: str | None = None
 
         # unique columns
         self.finder_court_alias = (
@@ -148,7 +148,7 @@ class UniversalCourtsParser:
             ptrs.key_word_preproc_func,
         )
 
-    def parse(self, text: str, locale: str = None) -> Generator[CourtAnnotation, None, None]:
+    def parse(self, text: str, locale: str = None) -> Generator[CourtAnnotation]:
         """
         Args:
             text (str):
@@ -169,7 +169,7 @@ class UniversalCourtsParser:
             'Extracted Entity Court Type': 'Verfassungsgericht',
             'Extracted Entity Court Jurisdiction': 'Sachsen'}
         """
-        self.locale: Optional[str] = locale
+        self.locale: str | None = locale
         yield from self.find_courts_by_alias_in_whole_text(text)
 
         # if the whole text doesn't contain the key word (-gericht), skip all the following
@@ -186,7 +186,7 @@ class UniversalCourtsParser:
             if annotation:
                 yield annotation
 
-    def load_courts(self, dataframe_paths: List[str]) -> pandas.DataFrame:
+    def load_courts(self, dataframe_paths: list[str]) -> pandas.DataFrame:
         frames = []
         dtypes = {
             self.court_type_column: str,
@@ -202,7 +202,7 @@ class UniversalCourtsParser:
             return pandas.concat(frames)
         return pandas.DataFrame()
 
-    def find_courts_by_alias_in_whole_text(self, text: str) -> Generator[CourtAnnotation, None, None]:
+    def find_courts_by_alias_in_whole_text(self, text: str) -> Generator[CourtAnnotation]:
         if self.finder_court_alias:
             for m in self.finder_court_alias.find_word(text):
                 alias = m[0]
@@ -210,7 +210,7 @@ class UniversalCourtsParser:
                 match_found = MatchFound(rows, m[1], m[2], text[m[1]:m[2]])
                 yield self.create_annotation(match_found)
 
-    def find_court_by_any_key(self, phrase: LineOrPhrase) -> Optional[CourtAnnotation]:
+    def find_court_by_any_key(self, phrase: LineOrPhrase) -> CourtAnnotation | None:
         # find by court names
         matches = []
         matches += self.find_court_by_name(phrase)
@@ -222,7 +222,7 @@ class UniversalCourtsParser:
             annotation = self.create_annotation(matches[0])
             return annotation
 
-    def find_court_by_name(self, phrase: LineOrPhrase) -> List[MatchFound]:
+    def find_court_by_name(self, phrase: LineOrPhrase) -> list[MatchFound]:
         match = self.find_court_by_key_column(phrase, self.finder_court_name, self.court_name_column)
         if match is None:
             return []
@@ -235,7 +235,7 @@ class UniversalCourtsParser:
         phrase: LineOrPhrase,
         phrase_finder: PhraseFinder,
         column: str,
-    ) -> Optional[Tuple[MatchFound, List[PhraseMatch]]]:
+    ) -> tuple[MatchFound, list[PhraseMatch]] | None:
         found_substrings = phrase_finder.find_word(phrase.text, True)
         if len(found_substrings) == 0:
             return None
@@ -251,7 +251,7 @@ class UniversalCourtsParser:
                            phrase.text[start:end])
         return match, found_substrings
 
-    def find_court_by_type_and_jurisdiction(self, phrase: LineOrPhrase) -> List[MatchFound]:
+    def find_court_by_type_and_jurisdiction(self, phrase: LineOrPhrase) -> list[MatchFound]:
         court_types = self.finder_court_type.find_word(phrase.text, True)
         if len(court_types) == 0:
             return []

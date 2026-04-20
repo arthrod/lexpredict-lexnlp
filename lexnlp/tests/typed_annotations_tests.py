@@ -14,7 +14,8 @@ import regex as re
 from ast import literal_eval as make_tuple
 from collections import OrderedDict
 from datetime import date, datetime
-from typing import Callable, Type, List, Any, Tuple, Union
+from typing import Any
+from collections.abc import Callable
 
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.extract.common.base_path import lexnlp_test_path
@@ -64,7 +65,7 @@ class TypedFieldCheck:
 
     def __init__(self,
                  index: int = 0,
-                 path: List[str] = None,
+                 path: list[str] = None,
                  value: str = '',
                  comparison: str = '=',
                  check_all: bool = False):
@@ -104,7 +105,7 @@ class TypedFieldCheck:
                 val = getattr(val, part)
         return None if val == ant else val
 
-    def compare_values(self, val: Any) -> Tuple[bool, bool]:
+    def compare_values(self, val: Any) -> tuple[bool, bool]:
         if val is None:
             if not self.value:
                 return self.compare_equal, True
@@ -139,7 +140,7 @@ class TypedFieldCheck:
             self.last_error = f'{self.path_string}: cannot cast "{self.value}" to {type(val).__name__}'
             return False, False
 
-    def parse_date(self, val_type: Type) -> Union[date, datetime]:
+    def parse_date(self, val_type: type) -> date | datetime:
         if not self.value:
             return None
         if val_type == date:
@@ -227,7 +228,7 @@ class TypedAnnotationsTester:
     def test_and_raise_errors(self,
                               parsing_method: Callable,
                               file_name: str,
-                              entity_type: Type):
+                              entity_type: type):
         print(f'Testing {entity_type}, file: "{file_name}"\n')
         self.test_parser(parsing_method, file_name, entity_type)
         if self.tests_failed:
@@ -259,7 +260,7 @@ class TypedAnnotationsTester:
     def test_parser(self,
                     parsing_method: Callable,
                     file_name: str,
-                    entity_type: Type):
+                    entity_type: type):
 
         self.file_path = file_name
         if not os.path.isfile(self.file_path):
@@ -275,7 +276,7 @@ class TypedAnnotationsTester:
         self.read_cases()
         self.process_cases()
 
-    def process_cases(self) -> Tuple[int, int]:
+    def process_cases(self) -> tuple[int, int]:
         for case_index in range(len(self.test_cases)):
             case = self.test_cases[case_index]
             try:
@@ -300,7 +301,7 @@ class TypedAnnotationsTester:
         return self.tests_passed, self.tests_failed
 
     def check_case_annotations(self,
-                               ants: List[TextAnnotation],
+                               ants: list[TextAnnotation],
                                case: TypedAntTestCase,
                                case_index: int):
         count = len(ants)

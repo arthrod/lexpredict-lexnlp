@@ -7,7 +7,6 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
-from typing import Tuple, List
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -21,7 +20,7 @@ class RatioAnnotation(TextAnnotation):
 
     def __init__(
         self,
-        coords: Tuple[int, int],
+        coords: tuple[int, int],
         locale: str = 'en',
         text: str = None,
         left: Decimal = None,
@@ -38,7 +37,7 @@ class RatioAnnotation(TextAnnotation):
         self.right: Decimal = right
         self.ratio: Decimal = ratio
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [str(self.left or ''),
                  str(self.right or '')]
         return parts

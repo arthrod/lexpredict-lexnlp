@@ -13,7 +13,6 @@ import io
 import sys
 import zipfile
 from pathlib import Path
-from typing import Sequence
 from unittest.mock import patch
 
 import pytest
@@ -25,11 +24,11 @@ _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-import bootstrap_assets  # noqa: E402  (module-level import after sys.path tweak)
+import bootstrap_assets
 
 
 # ---------------------------------------------------------------------------
-# download_file – URL scheme validation
+# download_file - URL scheme validation
 # ---------------------------------------------------------------------------
 
 
@@ -96,10 +95,10 @@ class TestDownloadFileSchemeValidation:
             mock_urlopen.assert_not_called()
 
     def test_scheme_error_message_contains_scheme_and_url(self, tmp_path: Path) -> None:
-        """ValueError message should name the offending scheme."""
+        """ValueError message should name the offending scheme and URL."""
         destination = tmp_path / "out.zip"
         with patch("bootstrap_assets.urlopen") as mock_urlopen:
-            with pytest.raises(ValueError, match="'ftp'"):
+            with pytest.raises(ValueError, match="'ftp'") as exc_info:
                 bootstrap_assets.download_file(
                     "ftp://example.com/resource",
                     destination,
@@ -107,12 +106,13 @@ class TestDownloadFileSchemeValidation:
                     dry_run=False,
                     timeout=5,
                 )
+            assert "ftp://example.com/resource" in str(exc_info.value)
             mock_urlopen.assert_not_called()
 
     def test_dry_run_skips_scheme_check(self, tmp_path: Path) -> None:
         """In dry-run mode the scheme check is not reached; no error expected."""
         destination = tmp_path / "out.zip"
-        # dry_run=True logs and returns before the scheme check – no error.
+        # dry_run=True logs and returns before the scheme check - no error.
         bootstrap_assets.download_file(
             "ftp://example.com/file.zip",
             destination,
@@ -138,7 +138,7 @@ class TestDownloadFileSchemeValidation:
 
 
 # ---------------------------------------------------------------------------
-# extract_zip – zip-slip protection
+# extract_zip - zip-slip protection
 # ---------------------------------------------------------------------------
 
 
@@ -239,7 +239,7 @@ class TestLambdaClosureFix:
         all_tasks: bool = False,
         contract_model: bool = False,
         contract_type_model: bool = False,
-    ) -> "bootstrap_assets.argparse.Namespace":
+    ) -> bootstrap_assets.argparse.Namespace:
         import argparse
 
         ns = argparse.Namespace(

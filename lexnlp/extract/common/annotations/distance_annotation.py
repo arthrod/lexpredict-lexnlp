@@ -7,7 +7,6 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
-from typing import Tuple, List
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -20,7 +19,7 @@ class DistanceAnnotation(TextAnnotation):
 
     def __init__(
         self,
-        coords: Tuple[int, int],
+        coords: tuple[int, int],
         locale: str = 'en',
         text: str = None,
         amount: Decimal = None,
@@ -35,7 +34,7 @@ class DistanceAnnotation(TextAnnotation):
         self.amount: Decimal = amount
         self.distance_type: str = distance_type
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [str(self.amount or ''),
                  self.distance_type or '']
         return parts

@@ -6,7 +6,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, List, Dict, Any
+from typing import Any
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -19,7 +19,7 @@ class CitationAnnotation(TextAnnotation):
     record_type = 'citation'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
                  text: str = '',
                  volume: int = None,
@@ -63,7 +63,7 @@ class CitationAnnotation(TextAnnotation):
         self.part = part
         self.year_str = year_str
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         pages = str(self.page_range or self.page or '')
         parts = [self.source or '',
                  str(self.volume or ''),
@@ -98,7 +98,7 @@ class CitationAnnotation(TextAnnotation):
 
         return df
 
-    def to_dictionary_legacy(self) -> Dict[str, Any]:
+    def to_dictionary_legacy(self) -> dict[str, Any]:
         return {
             'citation_str': str(self.source),
             'court': self.court,

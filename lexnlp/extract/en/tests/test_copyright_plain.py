@@ -10,7 +10,7 @@ import codecs
 import os
 from unittest import TestCase
 
-from typing import Generator
+from collections.abc import Generator
 
 from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
@@ -62,5 +62,5 @@ signatures, to be effective as of the date set forth above.
 
 
 def get_copyright_verbose_annotations(text: str) -> \
-        Generator[CopyrightAnnotation, None, None]:
+        Generator[CopyrightAnnotation]:
     yield from get_copyright_annotations(text, return_sources=True)

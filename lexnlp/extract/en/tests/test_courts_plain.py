@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -10,7 +9,6 @@ __email__ = "support@contraxsuite.com"
 
 import csv
 import os
-from typing import List
 from unittest import TestCase
 
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
@@ -36,10 +34,10 @@ class TestCourtsPlain(TestCase):
         courts = list(get_court_annotations(text))
         self.assertEqual(2, len(courts))
 
-    def build_courts_config(self) -> List[DictionaryEntry]:
+    def build_courts_config(self) -> list[DictionaryEntry]:
         courts_config_fn = os.path.join(DIR_ROOT, 'test_data/lexnlp/extract/en/tests/test_courts/us_courts.csv')
         courts_config_list = []
-        with open(courts_config_fn, 'r', encoding='utf8') as f:
+        with open(courts_config_fn, encoding='utf8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 aliases = []

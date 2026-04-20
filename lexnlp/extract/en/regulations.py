@@ -16,7 +16,7 @@ __email__ = "support@contraxsuite.com"
 
 import regex as re
 
-from typing import Dict, Generator, List, Tuple, Union
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.regulation_annotation import RegulationAnnotation
 
@@ -51,7 +51,7 @@ def get_regulations(
     text: str,
     return_source: bool = False,
     as_dict: bool = False,
-) -> Generator[Union[Tuple, Dict], None, None]:
+) -> Generator[tuple | dict]:
     """
     Get regulations.
     :param text:
@@ -70,13 +70,13 @@ def get_regulations(
             yield ant.to_dictionary_legacy()
 
 
-def get_regulation_list(text: str, return_source: bool = False, as_dict: bool = False) -> List[Union[Tuple, Dict]]:
+def get_regulation_list(text: str, return_source: bool = False, as_dict: bool = False) -> list[tuple | dict]:
     """
     """
     return list(get_regulations(text, return_source, as_dict))
 
 
-def get_regulation_annotations(text: str) -> Generator[RegulationAnnotation, None, None]:
+def get_regulation_annotations(text: str) -> Generator[RegulationAnnotation]:
     """
     Get regulations.
     :param text:
@@ -117,7 +117,7 @@ def get_regulation_annotations(text: str) -> Generator[RegulationAnnotation, Non
         yield ant
 
 
-def get_regulation_annotation_list(text: str) -> List[RegulationAnnotation]:
+def get_regulation_annotation_list(text: str) -> list[RegulationAnnotation]:
     """
     """
     return list(get_regulation_annotations(text))

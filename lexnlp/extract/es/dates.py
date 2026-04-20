@@ -12,16 +12,14 @@ __email__ = "support@contraxsuite.com"
 
 
 # pylint: disable=bare-except
-import datetime
 import string
-from typing import Optional, Dict, Any, Generator
+from typing import Any
 import regex as re
 
 # noinspection PyUnresolvedReferences
 from dateparser.data.date_translation_data.es import info
 
 from lexnlp.extract.all_locales.languages import Locale
-from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
 from lexnlp.extract.common.dates import DateParser
 
 
@@ -48,11 +46,11 @@ class ESDateParser(DateParser):
     ]
 
     def __init__(self,
-                 text: Optional[str] = None,
+                 text: str | None = None,
                  locale: Locale = Locale('en-US'),
-                 dateparser_settings: Optional[Dict[str, Any]] = None,
+                 dateparser_settings: dict[str, Any] | None = None,
                  enable_classifier_check: bool = False,
-                 classifier_model: Optional[Any] = None,
+                 classifier_model: Any | None = None,
                  classifier_threshold: float = 0.5):
         super().__init__(DATE_MODEL_CHARS, text, locale, dateparser_settings,
                          enable_classifier_check, classifier_model, classifier_threshold)

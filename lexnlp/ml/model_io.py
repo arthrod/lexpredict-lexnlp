@@ -97,28 +97,30 @@ def load_model(path: Path, *, trusted: bool = False) -> Any:
     if is_skops_path(path):
         return _load_skops(path, trusted=trusted)
 
-    if path.suffix.lower() in _LEGACY_SUFFIXES or path.suffix == "":
+    if path.suffix.lower() in _LEGACY_SUFFIXES:
         LOGGER.debug("Loading legacy model via pickle-family loader: %s", path)
         return _load_legacy(path)
 
-    # Fall back: attempt skops, then pickle. This matches what callers
-    # expect when the suffix is unfamiliar but the content may still be
-    # a valid artifact in one of the supported formats.
+    # Unknown suffixes must not silently fall back to pickle-family loaders
+    # because that broadens the unsafe deserialization surface. Try skops
+    # (some skops artifacts may not use the canonical suffix); otherwise
+    # surface a ValueError listing the supported suffixes.
     try:
         return _load_skops(path, trusted=trusted)
-    except Exception:  # noqa: BLE001 - fall through to legacy pickle loader
-        LOGGER.debug("skops.io failed to load %s; retrying with pickle", path)
-        return _load_legacy(path)
+    except Exception as exc:
+        raise ValueError(
+            f"Unsupported model suffix '{path.suffix}'. "
+            f"Use '{CANONICAL_SUFFIX}' or one of {sorted(_LEGACY_SUFFIXES)}."
+        ) from exc
 
 
 def _load_skops(path: Path, *, trusted: bool) -> Any:
     """Invoke :func:`skops.io.load` with a ``trusted`` argument that
     matches the current skops API (list of allowed custom type names)."""
 
-    # ``get_untrusted_types`` returns every custom type referenced by
-    # the artifact. When the caller passes ``trusted=True`` we treat
-    # every referenced type as trusted; otherwise we still enumerate
-    # the types so load fails closed if a non-sklearn surprise lands
-    # in the archive.
+    # When the caller passes ``trusted=True`` we explicitly accept every
+    # custom type referenced by the artifact. Otherwise pass an empty
+    # list so skops enforces its own default trusted set and raises
+    # UntrustedTypesFoundException if unknown types appear.
     untrusted = list(get_untrusted_types(file=path) or [])
-    return _skops_load(path, trusted=untrusted if (trusted or untrusted) else [])
+    return _skops_load(path, trusted=untrusted if trusted else [])

@@ -9,7 +9,8 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any
+from collections.abc import Sequence
 
 
 DEFAULT_FIXTURE = Path(
@@ -113,12 +114,12 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def load_fixture(path: Path) -> Tuple[List[str], List[str]]:
+def load_fixture(path: Path) -> tuple[list[str], list[str]]:
     if not path.exists():
         raise FileNotFoundError(f"Fixture file not found: {path}")
 
-    texts: List[str] = []
-    labels: List[str] = []
+    texts: list[str] = []
+    labels: list[str] = []
 
     with path.open("r", encoding="utf-8", newline="") as fixture_file:
         reader = csv.DictReader(fixture_file)
@@ -156,7 +157,7 @@ def load_pipeline_for_tag(tag: str):
         return load(model_file)
 
 
-def score_pipeline(pipeline, texts: List[str], labels: List[str], *, top_n: int) -> Dict[str, float]:
+def score_pipeline(pipeline, texts: list[str], labels: list[str], *, top_n: int) -> dict[str, float]:
     import numpy as np
     from sklearn.metrics import accuracy_score, f1_score
 
@@ -191,7 +192,7 @@ def score_pipeline(pipeline, texts: List[str], labels: List[str], *, top_n: int)
     }
 
 
-def parse_metrics(raw: Dict[str, Any], source: str) -> Dict[str, float]:
+def parse_metrics(raw: dict[str, Any], source: str) -> dict[str, float]:
     raw = dict(raw)
     # Backward compatibility: older baseline JSON used accuracy_top3.
     if "accuracy_topn" not in raw and "accuracy_top3" in raw:
@@ -204,7 +205,7 @@ def parse_metrics(raw: Dict[str, Any], source: str) -> Dict[str, float]:
     return {key: float(raw[key]) for key in REQUIRED_METRIC_KEYS}
 
 
-def load_baseline_metrics(path: Path) -> Dict[str, Any]:
+def load_baseline_metrics(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Baseline metrics file not found: {path}")
 
@@ -239,7 +240,7 @@ def main(argv: Sequence[str]) -> int:
 
     baseline_source = "tag"
     baseline_metrics_source = None
-    baseline_metrics_file: Dict[str, Any] | None = None
+    baseline_metrics_file: dict[str, Any] | None = None
 
     if args.baseline_metrics_json:
         baseline_source = "metrics-json"

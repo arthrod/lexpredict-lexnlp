@@ -12,7 +12,7 @@ __email__ = "support@contraxsuite.com"
 
 import os
 import re
-from typing import Generator, Tuple, List
+from collections.abc import Generator
 
 from lexnlp.extract.en.addresses import address_features
 from lexnlp.extract.en.preprocessing.span_tokenizer import SpanTokenizer
@@ -38,8 +38,7 @@ class Address:
         self.addr2 = addr2 if addr2 != addr1 else None
 
     def __str__(self) -> str:
-        return '{0}, {1}, {2}, {3}, {4}, {5}'.format(self.addr1, self.addr2, self.city, self.state,
-                                                     self.country, self.zip_code)
+        return f'{self.addr1}, {self.addr2}, {self.city}, {self.state}, {self.country}, {self.zip_code}'
 
     def members(self):
         return self.zip_code, self.country, self.state, self.city, self.addr1, self.addr2
@@ -110,7 +109,7 @@ def prepare_ngrams_in_text(
     text: str,
     window_half_width: int,
     window_step: int
-) -> Generator[Tuple[List[int], str, int, int], None, None]:
+) -> Generator[tuple[list[int], str, int, int]]:
     words2 = []
 
     for word, pos_token, word_start_pos, word_end_pos in TOKENIZER.get_token_spans(text):
@@ -141,7 +140,7 @@ def cleanup(address: str) -> str:
     return address
 
 
-def get_address_annotations(text: str) -> Generator[AddressAnnotation, None, None]:
+def get_address_annotations(text: str) -> Generator[AddressAnnotation]:
     for address, start, end in get_address_spans(text):
         yield AddressAnnotation(
             coords=(start, end),
@@ -151,12 +150,12 @@ def get_address_annotations(text: str) -> Generator[AddressAnnotation, None, Non
         )
 
 
-def get_addresses(text: str) -> Generator[str, None, None]:
+def get_addresses(text: str) -> Generator[str]:
     for addr, _start, _end in get_address_spans(text):
         yield addr
 
 
-def get_address_spans(text: str) -> Generator[Tuple[str, int, int], None, None]:
+def get_address_spans(text: str) -> Generator[tuple[str, int, int]]:
     possible_address_start = None
     possible_address_end = None
     margin = 0

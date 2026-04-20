@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Tuple
 
 from lexnlp.extract.common.special_characters import SpecialCharacters
 
@@ -32,7 +31,7 @@ class IntroductoryWordsDetector:
 
     @staticmethod
     def remove_term_introduction(
-            term: str, term_pos: List[Tuple[str, str, int, int]]) -> str:
+            term: str, term_pos: list[tuple[str, str, int, int]]) -> str:
         """
         so called "champerty' => "champerty'
         :param term: source phrase

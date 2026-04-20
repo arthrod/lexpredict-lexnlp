@@ -7,7 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from pandas import DataFrame
-from typing import Generator, List, Optional
+from collections.abc import Generator
 
 from lexnlp.extract.de.language_tokens import DeLanguageTokens
 from lexnlp.extract.common.annotations.law_annotation import LawAnnotation
@@ -60,7 +60,7 @@ class LawsParser:
             preformed_entity=preformed_entity,
             line_processor=proc)
 
-    def parse(self, text: str, locale: str = 'de') -> Generator[LawAnnotation, None, None]:
+    def parse(self, text: str, locale: str = 'de') -> Generator[LawAnnotation]:
 
         for entity in self.gesetze_parser.get_entity_list(text):
             annotation = LawAnnotation(
@@ -90,23 +90,23 @@ class LawsParser:
             yield annotation
 
 
-parser: Optional[LawsParser] = None
+parser: LawsParser | None = None
 
 
-def get_law_annotations(text: str, language: str = 'de') -> Generator[LawAnnotation, None, None]:
+def get_law_annotations(text: str, language: str = 'de') -> Generator[LawAnnotation]:
     if not parser:
         return None
     yield from parser.parse(text, language)
 
 
-def get_law_annotation_list(text: str, language: str = 'de') -> List[LawAnnotation]:
+def get_law_annotation_list(text: str, language: str = 'de') -> list[LawAnnotation]:
     return list(get_law_annotations(text, language))
 
 
-def get_laws(text: str, language: str = 'de') -> Generator[dict, None, None]:
+def get_laws(text: str, language: str = 'de') -> Generator[dict]:
     for annotation in get_law_annotations(text, language):
         yield annotation.to_dictionary()
 
 
-def get_law_list(text: str, language: str = 'de') -> List[dict]:
+def get_law_list(text: str, language: str = 'de') -> list[dict]:
     return list(get_laws(text, language))

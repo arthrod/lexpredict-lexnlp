@@ -8,7 +8,6 @@ __email__ = "support@contraxsuite.com"
 
 from unittest import TestCase
 
-from typing import List
 
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
 from lexnlp.extract.es.copyrights import get_copyright_list, get_copyrights, get_copyright_annotations, \
@@ -49,5 +48,5 @@ class TestParseEsCourts(TestCase):
             CopyrightAnnotation)
 
 
-def get_verbose_copyright_annotations(text: str) -> List[CopyrightAnnotation]:
+def get_verbose_copyright_annotations(text: str) -> list[CopyrightAnnotation]:
     return list(get_copyright_annotations(text, return_sources=True))

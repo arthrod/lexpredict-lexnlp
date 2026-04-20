@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, List
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -19,7 +18,7 @@ class ActAnnotation(TextAnnotation):
     record_type = 'act'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
                  act_name: str = '',
                  section: str = '',
@@ -37,7 +36,7 @@ class ActAnnotation(TextAnnotation):
         self.year = year
         self.ambiguous = ambiguous
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [self.act_name or '',
                  self.section or '',
                  str(self.year or '')]

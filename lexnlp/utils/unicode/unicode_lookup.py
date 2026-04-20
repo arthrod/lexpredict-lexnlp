@@ -22,8 +22,8 @@ def _load_table(fn: str, ignore_error: bool):
     try:
         with open(fn, 'rb') as f:
             return pickle.load(f)
-    except IOError as e:
-        print('Unable to load unicode lookup table: {0}'.format(fn))
+    except OSError as e:
+        print(f'Unable to load unicode lookup table: {fn}')
         if ignore_error:
             return None
         raise e

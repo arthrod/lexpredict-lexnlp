@@ -12,7 +12,8 @@ import hashlib
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, Iterable, Sequence
+from typing import Any
+from collections.abc import Iterable, Sequence
 
 
 DEFAULT_MANIFEST = Path("test_data/model_quality/release_asset_manifest.json")
@@ -43,7 +44,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def load_manifest(path: Path) -> Dict[str, Any]:
+def load_manifest(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Manifest file not found: {path}")
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -63,7 +64,7 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def iter_assets(payload: Dict[str, Any]) -> Iterable[Dict[str, Any]]:
+def iter_assets(payload: dict[str, Any]) -> Iterable[dict[str, Any]]:
     for item in payload["assets"]:
         if not isinstance(item, dict):
             raise ValueError("Manifest assets must be objects")

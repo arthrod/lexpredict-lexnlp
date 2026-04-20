@@ -18,7 +18,8 @@ __email__ = "support@contraxsuite.com"
 import os
 import re
 import warnings
-from typing import Any, Generator, List, Optional, Tuple
+from typing import Any
+from collections.abc import Generator
 
 from lexnlp.extract.common.base_path import lexnlp_base_path
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
@@ -32,11 +33,11 @@ from lexnlp.extract.all_locales.languages import LANG_ES
 
 def _get_courts(
     text: str,
-    court_config_list: List[DictionaryEntry],
+    court_config_list: list[DictionaryEntry],
     priority: bool = False,
-    text_languages: Optional[List[str]] = None,
+    text_languages: list[str] | None = None,
     simplified_normalization: bool = False,
-) -> Generator[Tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
+) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     """
     TODO: remove this function
     See lexnlp/extract/en/tests/test_courts.py
@@ -67,18 +68,18 @@ def setup_es_parser():
 parser = setup_es_parser()
 
 
-def get_court_annotations(text: str, language: str = 'es') -> Generator[CourtAnnotation, None, None]:
+def get_court_annotations(text: str, language: str = 'es') -> Generator[CourtAnnotation]:
     yield from parser.parse(text, language)
 
 
-def get_court_annotation_list(text: str, language: str = 'es') -> List[CourtAnnotation]:
+def get_court_annotation_list(text: str, language: str = 'es') -> list[CourtAnnotation]:
     return list(get_court_annotations(text, language))
 
 
-def get_courts(text: str, language: str = 'es') -> Generator[dict, None, None]:
+def get_courts(text: str, language: str = 'es') -> Generator[dict]:
     for court_annotation in parser.parse(text, language):
         yield court_annotation.to_dictionary()
 
 
-def get_court_list(text: str, language: str = 'es') -> List[CourtAnnotation]:
+def get_court_list(text: str, language: str = 'es') -> list[CourtAnnotation]:
     return list(parser.parse(text, language))

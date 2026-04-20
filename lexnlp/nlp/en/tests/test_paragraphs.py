@@ -83,10 +83,10 @@ class TestParagraphs(TestCase):
         for text, expected_lines, expected_spans in data:
             actual_lines, actual_spans = splitlines_with_spans(text)
             assert actual_lines == expected_lines, (
-                "Actual lines do not match the expected lines for text:\n{0}".format(text)
+                f"Actual lines do not match the expected lines for text:\n{text}"
             )
             assert actual_spans == expected_spans, (
-                "Actual spans do not match the expected spans for text:\n{0}".format(text)
+                f"Actual spans do not match the expected spans for text:\n{text}"
             )
 
     def test_document_distribution_1_lc(self):

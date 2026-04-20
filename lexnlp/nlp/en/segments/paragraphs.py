@@ -20,7 +20,8 @@ import os
 import string
 import unicodedata
 from re import Pattern, compile as re_compile
-from typing import Dict, Final, Generator, List, Set, Tuple, Union, Optional
+from typing import Final
+from collections.abc import Generator
 
 # third-party imports
 import joblib
@@ -43,13 +44,13 @@ RE_NEW_LINE: Final[Pattern] = re_compile(r'(?P<line>[^\r\n]*)((\r\n)|(\n\r)|\n|\
 
 
 def build_paragraph_break_features(
-    lines: List[str],
+    lines: list[str],
     line_id: int,
     line_window_pre: int,
     line_window_post: int,
     characters=string.printable,
     include_doc=None,
-) -> Dict[str, Union[int, bool]]:
+) -> dict[str, int | bool]:
     """
     Build a feature vector for a given line ID with given parameters.
     """
@@ -72,17 +73,17 @@ def build_paragraph_break_features(
             continue
 
         # Count length
-        feature_vector["line_len_{0}".format(i)] = len(line)
-        feature_vector["line_lenstrip_{0}".format(i)] = len(line.strip())
-        feature_vector["line_title_case_{0}".format(i)] = line == line.title()
-        feature_vector["line_upper_case_{0}".format(i)] = line == line.upper()
+        feature_vector[f"line_len_{i}"] = len(line)
+        feature_vector[f"line_lenstrip_{i}"] = len(line.strip())
+        feature_vector[f"line_title_case_{i}"] = line == line.title()
+        feature_vector[f"line_upper_case_{i}"] = line == line.upper()
 
         # Count characters
-        feature_vector["line_n_alpha_{0}".format(i)] = sum([1 for c in line if unicodedata.category(c).startswith("L")])
-        feature_vector["line_n_number_{0}".format(i)] = sum(
+        feature_vector[f"line_n_alpha_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("L")])
+        feature_vector[f"line_n_number_{i}"] = sum(
             [1 for c in line if unicodedata.category(c).startswith("N")])
-        feature_vector["line_n_punct_{0}".format(i)] = sum([1 for c in line if unicodedata.category(c).startswith("P")])
-        feature_vector["line_n_whitespace_{0}".format(i)] = sum(
+        feature_vector[f"line_n_punct_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("P")])
+        feature_vector[f"line_n_whitespace_{i}"] = sum(
             [1 for c in line if unicodedata.category(c).startswith("Z")])
 
     # Simple checks
@@ -96,7 +97,7 @@ def build_paragraph_break_features(
 
     # Build character vector
     for character in characters:
-        feature_vector["char_{0}".format(character)] = lines[line_id].count(character)
+        feature_vector[f"char_{character}"] = lines[line_id].count(character)
 
     # Add doc if requested
     if include_doc:
@@ -111,12 +112,12 @@ def get_paragraph_break_feature_names(
     line_window_post: int,
     characters=string.printable,
     include_doc=None
-) -> Set[str]:
+) -> set[str]:
     """
     Build a feature vector for a given line ID with given parameters.
     """
     # Feature vector
-    feature_vector: Set[str] = {
+    feature_vector: set[str] = {
         'first_char_punct',
         'last_char_punct',
         'first_char_number',
@@ -156,9 +157,9 @@ def get_paragraph_break_feature_names(
     return feature_vector
 
 
-def splitlines_with_spans(text: str) -> Tuple[List[str], List[Tuple[int, int]]]:
-    lines: List[str] = []
-    spans: List[Tuple[int, int]] = []
+def splitlines_with_spans(text: str) -> tuple[list[str], list[tuple[int, int]]]:
+    lines: list[str] = []
+    spans: list[tuple[int, int]] = []
     if text is None:
         return lines, spans
     # Start from offset 0 so single-line inputs without newlines keep full text.
@@ -177,13 +178,13 @@ def splitlines_with_spans(text: str) -> Tuple[List[str], List[Tuple[int, int]]]:
 
 def _form_potential_paragraph(
     pos0: int,
-    pos1: Optional[int],
+    pos1: int | None,
     text: str,
-    line_spans: List[Tuple[int, int]],
-) -> Optional[Tuple[int, int, str]]:
+    line_spans: list[tuple[int, int]],
+) -> tuple[int, int, str] | None:
     """
     """
-    span: Tuple[int, int] = (
+    span: tuple[int, int] = (
         line_spans[pos0][0],
         line_spans[pos1][0] if pos1 is not None else len(text)
     )
@@ -197,7 +198,7 @@ def get_paragraph_spans(
     window_pre=3,
     window_post=3,
     score_threshold=0.5,
-) -> Generator[Tuple[int, int, str], None, None]:
+) -> Generator[tuple[int, int, str]]:
     """
     Get paragraph spans (start, end, paragraph) from text.
 
@@ -216,9 +217,9 @@ def get_paragraph_spans(
             to be considered a valid paragraph break.
     """
     # Get document character distribution
-    doc_distribution: Dict[str, float] = build_document_line_distribution(text)
+    doc_distribution: dict[str, float] = build_document_line_distribution(text)
     lines, line_spans = splitlines_with_spans(text)
-    feature_data: List[Dict] = [
+    feature_data: list[dict] = [
         build_paragraph_break_features(
             lines=lines,
             line_id=line_id,
@@ -285,7 +286,7 @@ def get_paragraph_span_list(
     window_pre=3,
     window_post=3,
     score_threshold=0.5,
-) -> List[Tuple[int, int, str]]:
+) -> list[tuple[int, int, str]]:
     """
     Get a list of paragraph spans (start, end, paragraph) from text.
 
@@ -318,7 +319,7 @@ def get_paragraphs(
     window_pre=3,
     window_post=3,
     score_threshold=0.5,
-) -> Generator[str, None, None]:
+) -> Generator[str]:
     """
     Get paragraphs from text.
 
@@ -350,7 +351,7 @@ def get_paragraph_list(
     window_pre=3,
     window_post=3,
     score_threshold=0.5,
-) -> List[str]:
+) -> list[str]:
     """
     Get a list of paragraphs from text.
 

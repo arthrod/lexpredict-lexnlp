@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, Union, List
 from lexnlp.utils.map import Map
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
@@ -19,15 +18,15 @@ class CopyrightAnnotation(TextAnnotation):
     record_type = 'copyright'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
                  name: str = '',
                  sign: str = '',
                  company: str = '',
                  text: str = '',
                  date: str = '',
-                 year_start: Union[int, str] = '',
-                 year_end: Union[str, int] = ''):
+                 year_start: int | str = '',
+                 year_end: str | int = ''):
         super().__init__(
             name=name,
             coords=coords,
@@ -43,7 +42,7 @@ class CopyrightAnnotation(TextAnnotation):
         text = self.company or self.name or self.text or ''
         return f'{text}, ({self.coords[0]}, {self.coords[1]})'
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [self.company or self.name,
                  str(self.year_start) if self.year_start else '',
                  str(self.year_end) if self.year_end else '']

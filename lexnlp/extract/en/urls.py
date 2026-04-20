@@ -13,7 +13,8 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-from typing import Final, Generator, List
+from typing import Final
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.url_annotation import UrlAnnotation
 
@@ -44,7 +45,7 @@ URL_PTN = r"""
 URL_PTN_RE: Final[re.Pattern] = re.compile(URL_PTN, re.IGNORECASE | re.MULTILINE | re.VERBOSE)
 
 
-def get_urls(text: str) -> Generator[str, None, None]:
+def get_urls(text: str) -> Generator[str]:
     """
     Find urls in text.
     """
@@ -52,14 +53,14 @@ def get_urls(text: str) -> Generator[str, None, None]:
         yield ant.url
 
 
-def get_url_list(text: str) -> List[str]:
+def get_url_list(text: str) -> list[str]:
     """
     Get a list of URLs found in text.
     """
     return list(get_urls(text))
 
 
-def get_url_annotations(text: str) -> Generator[UrlAnnotation, None, None]:
+def get_url_annotations(text: str) -> Generator[UrlAnnotation]:
     """
     Get UrlAnnotations corresponding to URLs found in text.
     """
@@ -69,7 +70,7 @@ def get_url_annotations(text: str) -> Generator[UrlAnnotation, None, None]:
         yield ant
 
 
-def get_url_annotation_list(text: str) -> List[UrlAnnotation]:
+def get_url_annotation_list(text: str) -> list[UrlAnnotation]:
     """
     Get a list of UrlAnnotations corresponding to URLs found in text.
     """

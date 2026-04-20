@@ -67,7 +67,7 @@ if __name__ == "__main__":
     stopwords.update(all_token_count.iloc[0:cutoff_index].loc[:, "token"].tolist())
     
     # Serialize
-    print("Total stopwords: {0}".format(len(stopwords)))
+    print(f"Total stopwords: {len(stopwords)}")
 
     # Save the tokenizer
     with open("stopwords.pickle", "wb") as out_file:

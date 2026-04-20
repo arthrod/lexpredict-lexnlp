@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pickle
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -169,16 +169,17 @@ class TestLoadLegacy:
         joblib.dump({"jl": True}, path)
         assert _load_legacy(path) == {"jl": True}
 
-    def test_unknown_suffix_falls_back_to_pickle(self, tmp_path: Path) -> None:
-        """An unknown extension should still load if the content is a valid pickle."""
+    def test_unknown_suffix_raises_value_error(self, tmp_path: Path) -> None:
+        """Unknown extensions must be rejected rather than blindly pickle-loaded."""
         path = tmp_path / "model.bin"
         _write_pickle(path, "hello")
-        assert _load_legacy(path) == "hello"
+        with pytest.raises(ValueError, match="Unsupported file suffix"):
+            _load_legacy(path)
 
     def test_pickle_file_invalid_raises(self, tmp_path: Path) -> None:
         path = tmp_path / "corrupt.pickle"
         path.write_bytes(b"not a pickle")
-        with pytest.raises(Exception):
+        with pytest.raises(pickle.UnpicklingError):
             _load_legacy(path)
 
     def test_loads_cloudpickle_file(self, tmp_path: Path) -> None:
@@ -191,7 +192,7 @@ class TestLoadLegacy:
 
 
 # ---------------------------------------------------------------------------
-# load_model – routing logic
+# load_model - routing logic
 # ---------------------------------------------------------------------------
 
 
@@ -228,23 +229,22 @@ class TestLoadModel:
         loaded = load_model(path)
         assert loaded == {"jl": "data"}
 
-    def test_no_suffix_uses_legacy_loader(self, tmp_path: Path) -> None:
-        """A path with no suffix should be treated as a legacy pickle."""
+    def test_no_suffix_raises_value_error(self, tmp_path: Path) -> None:
+        """A path with no suffix must be rejected (no silent pickle fallback)."""
         path = tmp_path / "modelfile"
         _write_pickle(path, "bare_pickle")
-        loaded = load_model(path)
-        assert loaded == "bare_pickle"
+        with pytest.raises(ValueError, match="Unsupported model suffix"):
+            load_model(path)
 
-    def test_unknown_suffix_falls_back_to_pickle_when_skops_fails(
+    def test_unknown_suffix_raises_value_error(
         self, tmp_path: Path
     ) -> None:
-        """An unrecognised suffix whose content is a pickle should still load
-        after skops raises an exception."""
+        """An unrecognised suffix must be rejected to avoid widening
+        unsafe deserialization surface."""
         path = tmp_path / "model.bin"
         _write_pickle(path, "fallback")
-        # skops will fail on non-skops content; we expect the pickle fallback.
-        loaded = load_model(path, trusted=True)
-        assert loaded == "fallback"
+        with pytest.raises(ValueError, match="Unsupported model suffix"):
+            load_model(path, trusted=True)
 
     def test_accepts_string_path(self, tmp_path: Path) -> None:
         obj = [10, 20]
@@ -273,7 +273,7 @@ class TestLoadModel:
 
 
 # ---------------------------------------------------------------------------
-# _load_skops – trusted type resolution
+# _load_skops - trusted type resolution
 # ---------------------------------------------------------------------------
 
 

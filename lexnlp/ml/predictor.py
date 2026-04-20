@@ -13,7 +13,7 @@ __email__ = "support@contraxsuite.com"
 import os
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 # third-party imports
 from cloudpickle import load
@@ -57,7 +57,7 @@ class ProbabilityPredictor(ABC):
     """
 
     _DEFAULT_PIPELINE: str = NotImplemented
-    _DEFAULT_PIPELINE_ENV_VAR: Optional[str] = None
+    _DEFAULT_PIPELINE_ENV_VAR: str | None = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -65,7 +65,7 @@ class ProbabilityPredictor(ABC):
             raise NotImplementedError('Class attribute `_DEFAULT_PIPELINE` not implemented.')
 
     # noinspection PyProtectedMember
-    def __init__(self, pipeline: Optional[Pipeline] = None) -> None:
+    def __init__(self, pipeline: Pipeline | None = None) -> None:
         """
         Args:
             pipeline (Optional[Pipeline]=None):

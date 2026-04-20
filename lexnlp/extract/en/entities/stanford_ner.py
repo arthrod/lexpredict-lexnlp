@@ -20,7 +20,7 @@ __email__ = "support@contraxsuite.com"
 import os
 import string
 
-from typing import Generator
+from collections.abc import Generator
 
 from nltk.tag import StanfordNERTagger
 

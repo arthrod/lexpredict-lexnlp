@@ -7,7 +7,6 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
-from typing import Tuple, List
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -20,7 +19,7 @@ class AmountAnnotation(TextAnnotation):
 
     def __init__(
         self,
-        coords: Tuple[int, int],
+        coords: tuple[int, int],
         locale: str = 'en',
         value: Decimal = Decimal('0.0'),
         text: str = ''
@@ -33,7 +32,7 @@ class AmountAnnotation(TextAnnotation):
         )
         self.value: Decimal = value
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         return [str(self.value)] if self.value else []
 
     def get_dictionary_values(self) -> dict:

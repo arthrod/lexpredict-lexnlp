@@ -19,7 +19,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Any
+from typing import Any
 
 from lexnlp.extract.en.entities.company_detector import get_noun_phrases
 from lexnlp.extract.en.entities.nltk_maxent import get_geopolitical, get_companies, get_persons
@@ -58,7 +58,7 @@ def test_companies_count():
                                                        for c in actual])
 
 
-def empty_string_converter(data: List[Any]):
+def empty_string_converter(data: list[Any]):
     # [('AMERICAN RESIDENTIAL GAP', 'LLC', 'LLC', 'Company', ''), ... ]  =>
     # # [('AMERICAN RESIDENTIAL GAP', 'LLC', 'LLC', 'Company', None), ... ]
     if not data:

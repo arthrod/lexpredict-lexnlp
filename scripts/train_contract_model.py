@@ -11,7 +11,7 @@ import subprocess
 import sys
 import tarfile
 from pathlib import Path
-from typing import Dict, Iterable, List, Mapping, Sequence, Tuple
+from collections.abc import Iterable, Mapping, Sequence
 
 from cloudpickle import load
 from sklearn.ensemble import RandomForestClassifier
@@ -22,11 +22,11 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 
 
-DEFAULT_POSITIVE_TAGS: Tuple[str, ...] = (
+DEFAULT_POSITIVE_TAGS: tuple[str, ...] = (
     "corpus/contract-types/0.1",
     "corpus/atticus-cuad-v1-plaintext/0.1",
 )
-DEFAULT_NEGATIVE_TAGS: Tuple[str, ...] = (
+DEFAULT_NEGATIVE_TAGS: tuple[str, ...] = (
     "corpus/uspto-sample/0.1",
     "corpus/sec-edgar-forms-3-4-5-8k-10k-sample/0.1",
     "corpus/arxiv-abstracts-with-agreement/0.1",
@@ -205,7 +205,7 @@ def patch_legacy_estimator_attributes(pipeline: Pipeline) -> None:
         transform.clip = hasattr(transform, "clip") and transform.clip
 
 
-def load_pipeline_for_tag(tag: str) -> Tuple[Path, Pipeline]:
+def load_pipeline_for_tag(tag: str) -> tuple[Path, Pipeline]:
     path = ensure_tag_downloaded(tag)
     with path.open("rb") as model_file:
         pipeline = load(model_file)
@@ -238,10 +238,10 @@ def collect_corpus_samples(
     label: bool,
     max_docs_per_tag: int,
     head_character_n: int,
-) -> Tuple[List[str], List[bool], Dict[str, int]]:
-    texts: List[str] = []
-    labels: List[bool] = []
-    counts: Dict[str, int] = {}
+) -> tuple[list[str], list[bool], dict[str, int]]:
+    texts: list[str] = []
+    labels: list[bool] = []
+    counts: dict[str, int] = {}
 
     for tag in tags:
         archive_path = ensure_tag_downloaded(tag)
@@ -281,7 +281,7 @@ def make_estimator(name: str, *, random_state: int, max_workers: int):
 
 
 def build_candidate_pipeline(
-    feature_steps: Sequence[Tuple[str, object]],
+    feature_steps: Sequence[tuple[str, object]],
     estimator_name: str,
     *,
     random_state: int,
@@ -298,7 +298,7 @@ def score_pipeline(
     labels: Sequence[bool],
     *,
     min_probability: float,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     probabilities = pipeline.predict_proba(texts)[:, 1]
     predictions = probabilities >= min_probability
     return {
@@ -309,7 +309,7 @@ def score_pipeline(
     }
 
 
-def choose_best(scores: Mapping[str, Dict[str, float]]) -> str:
+def choose_best(scores: Mapping[str, dict[str, float]]) -> str:
     ranked = sorted(
         scores.items(),
         key=lambda item: (
@@ -413,8 +413,8 @@ def main(argv: Sequence[str]) -> int:
         stratify=labels,
     )
 
-    estimator_scores: Dict[str, Dict[str, float]] = {}
-    fitted_pipelines: Dict[str, Pipeline] = {}
+    estimator_scores: dict[str, dict[str, float]] = {}
+    fitted_pipelines: dict[str, Pipeline] = {}
     for estimator_name in args.estimators:
         candidate = build_candidate_pipeline(
             feature_steps,

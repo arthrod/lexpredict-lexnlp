@@ -1,5 +1,5 @@
 """
-Utilities to build and load a Python 3.11-compatible contract-type classifier.
+Utilities to build and load a Python 3.13+ compatible contract-type classifier.
 """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
@@ -15,7 +15,7 @@ import logging
 import tarfile
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Iterable, List, Sequence, Tuple
+from collections.abc import Iterable, Sequence
 
 # third-party imports
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -68,15 +68,15 @@ def collect_contract_type_samples(
     *,
     max_docs_per_label: int,
     head_character_n: int,
-) -> Tuple[List[str], List[str], Dict[str, int]]:
+) -> tuple[list[str], list[str], dict[str, int]]:
     if max_docs_per_label <= 0:
         raise ValueError("max_docs_per_label must be > 0")
     if head_character_n <= 0:
         raise ValueError("head_character_n must be > 0")
 
-    texts: List[str] = []
-    labels: List[str] = []
-    counts: Dict[str, int] = defaultdict(int)
+    texts: list[str] = []
+    labels: list[str] = []
+    counts: dict[str, int] = defaultdict(int)
 
     with tarfile.open(archive_path, mode="r:*") as archive:
         # Sort member names for deterministic sampling across environments.
@@ -158,7 +158,7 @@ def write_pipeline_to_catalog(
     pipeline: Pipeline,
     target_tag: str,
     force: bool,
-) -> Tuple[Path, bool]:
+) -> tuple[Path, bool]:
     """
     Returns:
         A ``(destination_path, wrote)`` tuple where ``wrote`` is ``True`` when

@@ -9,7 +9,8 @@ __email__ = "support@contraxsuite.com"
 
 
 import types
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 
 
 def safe_failure(func):

@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Tuple, Optional, Union
 
 
 class TextBeautifier:
@@ -51,8 +50,8 @@ class TextBeautifier:
         return resulted
 
     @staticmethod
-    def strip_pair_symbols(term_coords: Union[str, Tuple[str, int, int]]) -> \
-            Union[str, Tuple[str, int, int]]:
+    def strip_pair_symbols(term_coords: str | tuple[str, int, int]) -> \
+            str | tuple[str, int, int]:
         if not term_coords:
             return term_coords
         # build stack of pair quotes and brackets
@@ -125,7 +124,7 @@ class TextBeautifier:
 
     @staticmethod
     def unify_quotes_braces_coords(
-            text: str, start: int, end: int, empty_replacement: str = '') -> Tuple[str, int, int]:
+            text: str, start: int, end: int, empty_replacement: str = '') -> tuple[str, int, int]:
         try:
             return TextBeautifier.unify_quotes_braces_unsafe(
                 text, start, end, empty_replacement)
@@ -134,7 +133,7 @@ class TextBeautifier:
 
     @staticmethod
     def unify_quotes_braces_unsafe(text: str, start: int, end: int,
-                                   empty_replacement: str = '') -> Tuple[str, int, int]:
+                                   empty_replacement: str = '') -> tuple[str, int, int]:
         """
         :param text: source text to "beautify"
         :param start: start coordinate of the text
@@ -212,8 +211,8 @@ class TextBeautifier:
 
     @staticmethod
     def find_pair_among_apostrophe(text: str,
-                                   apos_coords: List[int],
-                                   quote: Tuple[str, int]) -> int:
+                                   apos_coords: list[int],
+                                   quote: tuple[str, int]) -> int:
 
         # find the nearest apostrophe to pair it with dub quote
         # but prefer those separated by spaces
@@ -235,7 +234,7 @@ class TextBeautifier:
 
     @staticmethod
     def find_transformed_word(txt: str, word: str, offset: int) \
-            -> Optional[Tuple[str, int]]:
+            -> tuple[str, int] | None:
         """
         Searches for transformed word into text, returns
         transformed words with its start position
@@ -258,7 +257,7 @@ class TextBeautifier:
     def strip_string_coords(text: str,
                             start: int,
                             end: int,
-                            trim_symbols: Optional[str] = None) -> Tuple[str, int, int]:
+                            trim_symbols: str | None = None) -> tuple[str, int, int]:
         text_trimmed = text.lstrip(trim_symbols) if trim_symbols else text.lstrip()
         start = start + len(text) - len(text_trimmed)
         text = text_trimmed
@@ -272,7 +271,7 @@ class TextBeautifier:
     def lstrip_string_coords(text: str,
                             start: int,
                             end: int,
-                            trim_symbols: Optional[str] = None) -> Tuple[str, int, int]:
+                            trim_symbols: str | None = None) -> tuple[str, int, int]:
         text_trimmed = text.lstrip(trim_symbols) if trim_symbols else text.lstrip()
         start = start + len(text) - len(text_trimmed)
         text = text_trimmed
@@ -282,7 +281,7 @@ class TextBeautifier:
     def rstrip_string_coords(text: str,
                             start: int,
                             end: int,
-                            trim_symbols: Optional[str] = None) -> Tuple[str, int, int]:
+                            trim_symbols: str | None = None) -> tuple[str, int, int]:
         text_trimmed = text.rstrip(trim_symbols) if trim_symbols else text.rstrip()
         end = end - len(text) + len(text_trimmed)
         text = text_trimmed

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -8,7 +7,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Optional
 
 import regex as re
 import pandas as pd
@@ -107,7 +105,7 @@ class EntityBanListItem:
 
 class BanListUsage:
     def __init__(self,
-                 banlist: Optional[List[EntityBanListItem]] = None,
+                 banlist: list[EntityBanListItem] | None = None,
                  use_default_banlist: bool = True,
                  append_to_default: bool = False):
         self.banlist = banlist

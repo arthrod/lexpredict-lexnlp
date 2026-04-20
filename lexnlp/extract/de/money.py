@@ -14,7 +14,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from collections import OrderedDict
-from typing import Generator, List, Tuple, Union
+from collections.abc import Generator
 
 from lexnlp.extract.common.money_detector import MoneyDetector
 from lexnlp.extract.common.annotations.money_annotation import MoneyAnnotation
@@ -56,7 +56,7 @@ def get_money(
     text: str,
     return_sources: bool = False,
     float_digits: int = 4,
-) -> Generator[Union[Tuple[str, str, str], Tuple[str, str]], None, None]:
+) -> Generator[tuple[str, str, str] | tuple[str, str]]:
     """
     """
     yield from money_detector.get_money(text, return_sources, float_digits)
@@ -66,14 +66,14 @@ def get_money_list(
     text: str,
     return_sources: bool = False,
     float_digits: int = 4,
-) -> List[Union[Tuple[str, str, str], Tuple[str, str]]]:
+) -> list[tuple[str, str, str] | tuple[str, str]]:
     return list(money_detector.get_money(text, return_sources, float_digits))
 
 
 def get_money_annotations(
     text: str,
     float_digits: int = 4,
-) -> Generator[MoneyAnnotation, None, None]:
+) -> Generator[MoneyAnnotation]:
     """
     """
     yield from money_detector.get_money_annotations(text, float_digits)
@@ -82,5 +82,5 @@ def get_money_annotations(
 def get_money_annotation_list(
     text: str,
     float_digits: int = 4,
-) -> List[MoneyAnnotation]:
+) -> list[MoneyAnnotation]:
     return list(money_detector.get_money_annotations(text, float_digits))

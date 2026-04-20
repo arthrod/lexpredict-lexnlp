@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List
 
 from lexnlp.tests.values_comparer import values_look_equal
 
@@ -22,8 +21,8 @@ class DictionaryComparer:
 
     def compare_list_of_dicts(
             self,
-            expected: List[dict],
-            actual: List[dict]) -> List[str]:
+            expected: list[dict],
+            actual: list[dict]) -> list[str]:
         errors = []
         if len(expected) != len(actual):
             errors.append('Parsed items counts missmatch: ' +
@@ -54,7 +53,7 @@ class DictionaryComparer:
         return errors
 
     def check_dicts_equal(self,
-                          expected: dict, actual: dict) -> List[str]:
+                          expected: dict, actual: dict) -> list[str]:
         errors = []
 
         for key in expected:

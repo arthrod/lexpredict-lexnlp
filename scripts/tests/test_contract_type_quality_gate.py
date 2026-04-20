@@ -11,7 +11,6 @@ from __future__ import annotations
 import csv
 import sys
 from pathlib import Path
-from typing import List
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -24,7 +23,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-import contract_type_quality_gate  # noqa: E402
+import contract_type_quality_gate
 
 
 # ---------------------------------------------------------------------------
@@ -87,7 +86,7 @@ class TestParseArgs:
 class _DummyPipeline:
     """Minimal sklearn-like pipeline stub."""
 
-    def __init__(self, classes: List[str], top1_predictions: List[str], probas: np.ndarray):
+    def __init__(self, classes: list[str], top1_predictions: list[str], probas: np.ndarray):
         self._classes = classes
         self._top1 = top1_predictions
         self._probas = probas
@@ -103,7 +102,7 @@ class _DummyPipeline:
 class TestScorePipeline:
     def _make_pipeline(
         self, n: int = 4, n_classes: int = 3
-    ) -> tuple[_DummyPipeline, List[str], List[str]]:
+    ) -> tuple[_DummyPipeline, list[str], list[str]]:
         rng = np.random.default_rng(42)
         classes = [f"class_{i}" for i in range(n_classes)]
         labels = [classes[i % n_classes] for i in range(n)]

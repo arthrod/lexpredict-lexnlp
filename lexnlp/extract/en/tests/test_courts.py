@@ -98,7 +98,7 @@ def test_courts_longest_match():
     """
     courts_config_fn = os.path.join(os.path.dirname(lexnlp_tests.this_test_data_path()), 'us_courts.csv')
     courts_config_list = []
-    with open(courts_config_fn, 'r', encoding='utf8') as f:
+    with open(courts_config_fn, encoding='utf8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             aliases = []

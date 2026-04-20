@@ -7,7 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import regex as re
-from typing import Generator, List
+from collections.abc import Generator
 from decimal import Decimal
 from fractions import Fraction
 from lexnlp.extract.common.durations.durations_parser import DurationParser
@@ -60,12 +60,12 @@ class DeDurationParser(DurationParser):
     duration_items_joined = '|'.join(duration_items)
     DURATION_MAP_RE = re.compile(duration_items_joined)
 
-    DURATION_PTN = r"""
-    (?P<text>(?P<num_text>{num_ptn})?
+    DURATION_PTN = rf"""
+    (?P<text>(?P<num_text>{amounts_parser.NUM_PTN})?
     (?P<unit_prefix>(?:kalend[ae]r|lebens|actual))?
-    (?P<unit_name>{unit_names}))
+    (?P<unit_name>{duration_items_joined}))
     (?:\W|$)
-    """.format(num_ptn=amounts_parser.NUM_PTN, unit_names=duration_items_joined)
+    """
 
     DURATION_PTN_RE = re.compile(DURATION_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
@@ -80,8 +80,8 @@ class DeDurationParser(DurationParser):
         cls,
         text: str,
         float_digits: int = 4
-    ) -> List[DurationAnnotation]:
-        all_annotations: List[DurationAnnotation] = []
+    ) -> list[DurationAnnotation]:
+        all_annotations: list[DurationAnnotation] = []
         for match in cls.DURATION_PTN_RE.finditer(text):
             capture = match.capturesdict()
             amount_text = ''.join(capture.get('num_text', ''))
@@ -141,16 +141,16 @@ def get_durations(text: str, float_digits: int = 4) -> Generator:
 def get_duration_annotations(
     text: str,
     float_digits: int = 4
-) -> Generator[DurationAnnotation, None, None]:
+) -> Generator[DurationAnnotation]:
     yield from DeDurationParser.get_annotations(text, float_digits)
 
 
 def get_duration_annotations_list(
     text: str,
     float_digits: int = 4
-) -> List[DurationAnnotation]:
+) -> list[DurationAnnotation]:
     return DeDurationParser.get_annotations(text, float_digits)
 
 
-def get_duration_list(text: str, float_digits: int = 4) -> List:
+def get_duration_list(text: str, float_digits: int = 4) -> list:
     return list(get_durations(text, float_digits))

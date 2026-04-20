@@ -7,7 +7,6 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
-from typing import Tuple, List
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -20,7 +19,7 @@ class DurationAnnotation(TextAnnotation):
 
     def __init__(
         self,
-        coords: Tuple[int, int],
+        coords: tuple[int, int],
         locale: str = 'en',
         text: str = None,
         amount: Decimal = None,
@@ -45,7 +44,7 @@ class DurationAnnotation(TextAnnotation):
         self.is_complex: bool = is_complex
         self.value_dict: dict = value_dict
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [str(self.amount or ''),
                  self.duration_type or '']
         return parts

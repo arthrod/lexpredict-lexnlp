@@ -19,7 +19,7 @@ import os
 import string
 import unicodedata
 
-from typing import Generator
+from collections.abc import Generator
 
 # Packages
 import pandas
@@ -66,14 +66,14 @@ def build_page_break_features(lines,
             continue
 
         # Count length
-        feature_vector["line_len_{0}".format(i)] = len(line)
+        feature_vector[f"line_len_{i}"] = len(line)
 
         # Count characters
-        feature_vector["line_n_alpha_{0}".format(i)] = sum([1 for c in line if unicodedata.category(c).startswith("L")])
-        feature_vector["line_n_number_{0}".format(i)] = sum(
+        feature_vector[f"line_n_alpha_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("L")])
+        feature_vector[f"line_n_number_{i}"] = sum(
             [1 for c in line if unicodedata.category(c).startswith("N")])
-        feature_vector["line_n_punct_{0}".format(i)] = sum([1 for c in line if unicodedata.category(c).startswith("P")])
-        feature_vector["line_n_whitespace_{0}".format(i)] = sum(
+        feature_vector[f"line_n_punct_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("P")])
+        feature_vector[f"line_n_whitespace_{i}"] = sum(
             [1 for c in line if unicodedata.category(c).startswith("Z")])
 
     # Simple checks
@@ -92,7 +92,7 @@ def build_page_break_features(lines,
 
     # Build character vector
     for character in characters:
-        feature_vector["char_{0}".format(character)] = lines[line_id].count(character)
+        feature_vector[f"char_{character}"] = lines[line_id].count(character)
 
     # Add doc if requested
     if include_doc:

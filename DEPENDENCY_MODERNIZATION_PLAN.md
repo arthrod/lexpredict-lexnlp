@@ -27,7 +27,7 @@
 - [ ] Define a **100% pass target** as: all collected tests pass on a fully provisioned runner, including Stanford-gated tests when required assets are present.
 - [ ] Add a **skip-audit check** in CI that fails if new skip/xfail markers are introduced without an approved issue link and expiry date.
 - [ ] Consolidate packaging to `pyproject.toml` + lockfile and deprecate conflicting manifests (`Pipfile`, split requirements variants) after parity is captured.
-- [ ] Standardize runtime on modern Python (default 3.11) and align metadata/docs/CI to that policy.
+- [x] Standardize runtime on modern Python (default 3.13) and align metadata/docs/CI to that policy.
 - [ ] Replace brittle setup scripts with deterministic bootstrap steps for NLTK corpora, contract pipeline artifacts, Java/Stanford assets, and optional Tika.
 - [ ] Run compatibility validation for serialized ML pipelines against upgraded `scikit-learn`; retrain/re-export artifacts when incompatible, with explicit version tags.
 - [ ] Add a model quality gate: compare old vs new models on fixed evaluation fixtures and accept upgrades only when metrics improve or regressions are within strict tolerance.
@@ -54,6 +54,6 @@
 
 - Default judgment: this should be done now.
 - Default policy: no test disabling for convenience; failures are fixed, not hidden.
-- Default Python target: 3.11 (with compatibility checks for adjacent supported versions).
+- Default Python target: 3.13 (with forward compat to 3.14).
 - Default model policy: prefer newer models/methods only when measured outputs are better.
 - Default blocker handling: if an external dependency outage prevents completion, build is marked blocked/failing with explicit root-cause notes, not treated as pass.

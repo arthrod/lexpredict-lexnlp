@@ -9,7 +9,7 @@ import os
 import sys
 import zipfile
 from pathlib import Path
-from typing import Iterable, List, Sequence, Tuple
+from collections.abc import Iterable, Sequence
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
@@ -53,7 +53,7 @@ def resolve_contract_type_model_tag() -> str:
 
 CONTRACT_MODEL_TAG = resolve_contract_model_tag()
 
-STANFORD_DOWNLOADS: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
+STANFORD_DOWNLOADS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     (
         "stanford-postagger-full-2017-06-09.zip",
         "https://nlp.stanford.edu/software/stanford-postagger-full-2017-06-09.zip",
@@ -72,7 +72,7 @@ STANFORD_DOWNLOADS: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
     ),
 )
 
-TIKA_DOWNLOADS: Tuple[Tuple[str, str], ...] = (
+TIKA_DOWNLOADS: tuple[tuple[str, str], ...] = (
     (
         "tika-app-1.16.jar",
         "https://archive.apache.org/dist/tika/tika-app-1.16.jar",
@@ -232,7 +232,7 @@ def download_file(
 
 
 def download_many(
-    downloads: Iterable[Tuple[str, str]],
+    downloads: Iterable[tuple[str, str]],
     destination_dir: Path,
     *,
     force: bool,
@@ -429,7 +429,7 @@ def run_selected_tasks(args: argparse.Namespace) -> None:
     run_stanford = args.all or args.stanford
     run_tika = args.all or args.tika
 
-    tasks: List[Tuple[str, object]] = []
+    tasks: list[tuple[str, object]] = []
     if run_nltk:
         tasks.append(("nltk", lambda: bootstrap_nltk(dry_run=args.dry_run)))
     if run_contract_model:
@@ -482,7 +482,7 @@ def run_selected_tasks(args: argparse.Namespace) -> None:
             )
         )
 
-    failures: List[str] = []
+    failures: list[str] = []
     for name, task in tasks:
         LOGGER.info("Starting task: %s", name)
         try:

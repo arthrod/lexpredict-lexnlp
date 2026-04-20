@@ -8,7 +8,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Pattern, List, Tuple
 # pylint: enable=unused-import
 import regex as re
 from lexnlp.extract.common import year_parser
@@ -41,7 +40,7 @@ class CopyrightParsingMethods:
             r"(%s)\s+\d{4}([–\s-]+\d{4})?[^\b;\.]+" % self.trigger_words,
             re.UNICODE | re.IGNORECASE)
 
-    def match_word_c_years(self, phrase: str) -> List[PatternFound]:
+    def match_word_c_years(self, phrase: str) -> list[PatternFound]:
         """
         :param phrase: © Siemens 1996 – 2019
         :return: {name: '© Siemens 1996 – 2019', probability: 100, ...}
@@ -58,7 +57,7 @@ class CopyrightParsingMethods:
         patterns = self.pre_process_found_matches(dfs, 'start')
         return patterns
 
-    def match_c_years_word(self, phrase: str) -> List[PatternFound]:
+    def match_c_years_word(self, phrase: str) -> list[PatternFound]:
         """
         :param phrase: Copyright 1996 – 2019, Siemens
         :return: {name: '1996 – 2019, Siemens', probability: 100, ...}
@@ -75,8 +74,8 @@ class CopyrightParsingMethods:
         patterns = self.pre_process_found_matches(dfs, 'end')
         return patterns
 
-    def pre_process_found_matches(self, matches: List[PatternFound],
-                                  company_search_options: str) -> List[CopyrightPatternFound]:
+    def pre_process_found_matches(self, matches: list[PatternFound],
+                                  company_search_options: str) -> list[CopyrightPatternFound]:
         rst = []
         for match in matches:
             ptrn = CopyrightPatternFound(match)
@@ -100,7 +99,7 @@ class CopyrightParsingMethods:
 
     def get_company_name_from_match(self, text: str,
                                     company_search_options: str,
-                                    years: List[Tuple[int, int, int]]) -> str:
+                                    years: list[tuple[int, int, int]]) -> str:
         start = 0
         end = -1
         if company_search_options == 'start':

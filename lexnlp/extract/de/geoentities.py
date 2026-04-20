@@ -6,7 +6,8 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Tuple, Generator, Optional, Dict, Any
+from typing import Any
+from collections.abc import Generator
 
 import pandas as pd
 
@@ -19,17 +20,16 @@ from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
 def get_geoentity_annotations_custom_settings(
         text: str,
         config: pd.DataFrame,
-        alias_columns: Optional[List[DictionaryEntryAlias]] = None,
-        priority_sort_column: Optional[str] = 'Entity Priority',
+        alias_columns: list[DictionaryEntryAlias] | None = None,
+        priority_sort_column: str | None = 'Entity Priority',
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: List[str] = None,
-        min_alias_len: Optional[int] = None,
-        prepared_alias_ban_list: Optional[
-            Dict[str, Tuple[List[str], List[str]]]] = None,
+        text_languages: list[str] = None,
+        min_alias_len: int | None = None,
+        prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False,
-        local_name_column: Optional[str] = None,
-        extra_columns: Optional[Dict[str, str]] = None) -> Generator[GeoAnnotation, None, None]:
+        local_name_column: str | None = None,
+        extra_columns: dict[str, str] | None = None) -> Generator[GeoAnnotation]:
     entries = DictionaryEntry.load_entities_from_single_df(
         config,
         LANG_DE.code,
@@ -51,14 +51,13 @@ def get_geoentity_annotations_custom_settings(
 
 def get_geoentity_annotations(
         text: str,
-        geo_config_list: List[DictionaryEntry],
+        geo_config_list: list[DictionaryEntry],
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: List[str] = None,
-        min_alias_len: Optional[int] = None,
-        prepared_alias_ban_list: Optional[
-            Dict[str, Tuple[List[str], List[str]]]] = None,
-        simplified_normalization: bool = False) -> Generator[GeoAnnotation, None, None]:
+        text_languages: list[str] = None,
+        min_alias_len: int | None = None,
+        prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
+        simplified_normalization: bool = False) -> Generator[GeoAnnotation]:
 
     min_alias_len = min_alias_len if min_alias_len else 2
     locator = GeoEntityLocator(LANG_DE.code,
@@ -76,18 +75,17 @@ def get_geoentity_annotations(
 def get_geoentities_custom_settings(
         text: str,
         config: pd.DataFrame,
-        alias_columns: Optional[List[DictionaryEntryAlias]] = None,
-        priority_sort_column: Optional[str] = 'Entity Priority',
+        alias_columns: list[DictionaryEntryAlias] | None = None,
+        priority_sort_column: str | None = 'Entity Priority',
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: List[str] = None,
-        min_alias_len: Optional[int] = None,
-        prepared_alias_ban_list: Optional[
-            Dict[str, Tuple[List[str], List[str]]]] = None,
+        text_languages: list[str] = None,
+        min_alias_len: int | None = None,
+        prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False,
-        local_name_column: Optional[str] = None,
-        extra_columns: Optional[Dict[str, str]] = None) -> \
-        Generator[Dict[str, Any], Any, Any]:
+        local_name_column: str | None = None,
+        extra_columns: dict[str, str] | None = None) -> \
+        Generator[dict[str, Any], Any, Any]:
 
     for ant in get_geoentity_annotations_custom_settings(
             text,
@@ -107,14 +105,13 @@ def get_geoentities_custom_settings(
 
 def get_geoentities(
         text: str,
-        geo_config_list: List[DictionaryEntry],
+        geo_config_list: list[DictionaryEntry],
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: List[str] = None,
-        min_alias_len: Optional[int] = None,
-        prepared_alias_ban_list: Optional[
-            Dict[str, Tuple[List[str], List[str]]]] = None,
-        simplified_normalization: bool = False) -> Generator[Dict[str, Any], None, None]:
+        text_languages: list[str] = None,
+        min_alias_len: int | None = None,
+        prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
+        simplified_normalization: bool = False) -> Generator[dict[str, Any]]:
 
     min_alias_len = min_alias_len if min_alias_len else 2
     locator = GeoEntityLocator(LANG_DE.code,

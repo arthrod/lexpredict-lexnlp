@@ -6,7 +6,8 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Callable, Dict, Set, List, Any, Tuple
+from typing import Any
+from collections.abc import Callable
 from enum import Enum
 
 from lexnlp.extract.common.annotation_type import AnnotationType
@@ -117,8 +118,8 @@ class FactExtractor:
                    lang: str,
                    result_fmt: ExtractorResultFormat = ExtractorResultFormat.fmt_class,
                    extract_all: bool = True,
-                   include_types: Set[AnnotationType] = None,
-                   exclude_types: Set[AnnotationType] = None) -> Dict[AnnotationType, List[Any]]:
+                   include_types: set[AnnotationType] = None,
+                   exclude_types: set[AnnotationType] = None) -> dict[AnnotationType, list[Any]]:
         if lang not in FactExtractor.func_by_lang:
             langs = ', '.join(FactExtractor.func_by_lang)
             raise Exception(f'Language "{lang}" was not found among {langs}')
@@ -166,7 +167,7 @@ class FactExtractor:
 
     @staticmethod
     def ensure_parser_arguments_en(
-            geo_config: List[Any] = None) -> None:
+            geo_config: list[Any] = None) -> None:
         for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_EN,
                                                   fmt,
@@ -175,7 +176,7 @@ class FactExtractor:
 
     @staticmethod
     def ensure_parser_arguments_de(
-            geo_config: List[Any] = None) -> None:
+            geo_config: list[Any] = None) -> None:
         for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_DE,
                                                   fmt,
@@ -192,7 +193,7 @@ class FactExtractor:
     def ensure_parser_arguments(lang: str,
                                 result_fmt: ExtractorResultFormat,
                                 ant_type: AnnotationType,
-                                func_args: Tuple) -> None:
+                                func_args: tuple) -> None:
         lang_args = FactExtractor.parser_extra_arguments.get(lang)
         if not lang_args:
             lang_args = {}
@@ -413,7 +414,7 @@ class FactExtractor:
         FactExtractor.store_functions(all_functs, FactExtractor.LANGUAGE_ES)
 
     @staticmethod
-    def store_functions(all_functs: List[ExtractingFunction], lang: str):
+    def store_functions(all_functs: list[ExtractingFunction], lang: str):
         func_by_ret_fmt = {}  # { "class": { "amount": <routine>, ...
         for func in all_functs:
             func.lang = lang

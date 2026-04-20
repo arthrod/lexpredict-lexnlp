@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -8,7 +7,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Generator, List, Optional, Tuple, Dict
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
 from lexnlp.extract.en.dict_entities import DictionaryEntry
@@ -26,14 +25,13 @@ ROUTINE_BY_LOCALE = {
 def get_geoentity_annotations(
         locale: str,
         text: str,
-        geo_config_list: List[DictionaryEntry],
+        geo_config_list: list[DictionaryEntry],
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: List[str] = None,
-        min_alias_len: Optional[int] = None,
-        prepared_alias_ban_list: Optional[
-            Dict[str, Tuple[List[str], List[str]]]] = None,
-        simplified_normalization: bool = False) -> Generator[GeoAnnotation, None, None]:
+        text_languages: list[str] = None,
+        min_alias_len: int | None = None,
+        prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
+        simplified_normalization: bool = False) -> Generator[GeoAnnotation]:
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
     yield from routine(text, geo_config_list, conflict_resolving_field,
                        priority_direction, text_languages, min_alias_len,

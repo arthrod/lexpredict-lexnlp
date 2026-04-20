@@ -17,7 +17,7 @@ __email__ = "support@contraxsuite.com"
 # pylint: disable=bare-except
 
 import regex as re
-from typing import Dict, Generator, List
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.extract.common.annotations.citation_annotation import CitationAnnotation
@@ -59,7 +59,7 @@ class DeCitationParser:
 
     @classmethod
     def get_citation_annotations(cls, text: str) -> \
-            Generator[CitationAnnotation, None, None]:
+            Generator[CitationAnnotation]:
         """
         Get citations containing "BGBl"
         :param text: str
@@ -116,15 +116,15 @@ class DeCitationParser:
 
 
 def get_citation_annotations(text: str) -> \
-        Generator[CitationAnnotation, None, None]:
+        Generator[CitationAnnotation]:
     yield from DeCitationParser.get_citation_annotations(text)
 
 
-def get_citation_annotation_list(text: str) -> List[CitationAnnotation]:
+def get_citation_annotation_list(text: str) -> list[CitationAnnotation]:
     return list(get_citation_annotations(text))
 
 
-def get_citations(text: str) -> Generator[Dict, None, None]:
+def get_citations(text: str) -> Generator[dict]:
     """
     Get citations containing "BGBl"
     :param text: str
@@ -148,5 +148,5 @@ def get_citations(text: str) -> Generator[Dict, None, None]:
         )
 
 
-def get_citation_list(text) -> List[Dict]:
+def get_citation_list(text) -> list[dict]:
     return list(get_citations(text))

@@ -16,7 +16,6 @@ __email__ = "support@contraxsuite.com"
 import datetime
 from unittest import TestCase
 
-from typing import List
 
 import pytest
 
@@ -166,7 +165,7 @@ class TestDeDatesPlain(TestCase):
         train_default_model(save=True, verbose=False, check_date_strings=True)
 
 
-def get_dates_ordered(text: str) -> List[DateAnnotation]:
+def get_dates_ordered(text: str) -> list[DateAnnotation]:
     dates = list(get_date_annotations(text))
     dates.sort(key=lambda d: d.coords[0])
     return dates

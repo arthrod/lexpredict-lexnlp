@@ -27,7 +27,8 @@ __email__ = "support@contraxsuite.com"
 
 import csv
 import re
-from typing import Union, List, Dict, Set, Tuple, Callable, Generator, Any, Optional
+from typing import Any
+from collections.abc import Callable, Generator
 
 import pandas as pd
 
@@ -44,7 +45,7 @@ class DictionaryEntryAlias:
                  alias: str = '',
                  language: str = '',
                  is_abbreviation: bool = False,
-                 alias_id: Optional[int] = None,
+                 alias_id: int | None = None,
                  normalized_alias: str = ''):
         self.alias = alias  # 'Mississippi'
         self.language = language  # 'fr'
@@ -65,7 +66,7 @@ class DictionaryEntryAlias:
 
     def has_closer_locale(self,
                           alias: 'DictionaryEntryAlias',
-                          text_languages: Optional[List[str]]) -> bool:
+                          text_languages: list[str] | None) -> bool:
         # does 'self' have its locale higher on the passed 'text_languages' list?
         if not text_languages:
             return False
@@ -88,10 +89,10 @@ class DictionaryEntry:
                  name: str = '',
                  priority: int = 0,
                  name_is_alias: bool = True,
-                 aliases: Optional[List[DictionaryEntryAlias]] = None,
+                 aliases: list[DictionaryEntryAlias] | None = None,
                  entity_name: str = '',
                  category: str = '',
-                 extra_columns: Optional[Dict[str, str]] = None):
+                 extra_columns: dict[str, str] | None = None):
         self.id = id
         self.name = name
         self.priority = priority
@@ -111,17 +112,17 @@ class DictionaryEntry:
         return f'"{self.name}": #{self.id}'
 
     @classmethod
-    def load_entities_from_files(cls, entities_fn: str, aliases_fn: str) -> List['DictionaryEntry']:
+    def load_entities_from_files(cls, entities_fn: str, aliases_fn: str) -> list['DictionaryEntry']:
         entities = {}
 
-        with open(entities_fn, 'r', encoding='utf8') as f:
+        with open(entities_fn, encoding='utf8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 entities[row['id']] = DictionaryEntry(
                     id=int(row['id']), name=row['name'], priority=int(row['priority']) if row['priority'] else 0,
                     name_is_alias=True)
 
-        with open(aliases_fn, 'r', encoding='utf8') as f:
+        with open(aliases_fn, encoding='utf8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 entity: DictionaryEntry = entities.get(row['entity_id'])
@@ -141,7 +142,7 @@ class DictionaryEntry:
             cls,
             config: pd.DataFrame,
             language: str,
-            alias_columns: Optional[List[DictionaryEntryAlias]] = None,  # columns (values) to search for in text
+            alias_columns: list[DictionaryEntryAlias] | None = None,  # columns (values) to search for in text
             entity_id_column: str = 'Entity ID',
             entity_category_column: str = 'Entity Category',
             # source_column: str = '',
@@ -149,9 +150,9 @@ class DictionaryEntry:
             local_name_column: str = '',  # 'German Name' etc
             priority_column: str = 'Entity Priority',
             # { 'column_name': 'annotation attribute name', ... }
-            extra_columns: Optional[Dict[str, str]] = None) -> List['DictionaryEntry']:
+            extra_columns: dict[str, str] | None = None) -> list['DictionaryEntry']:
 
-        records: List['DictionaryEntry'] = []
+        records: list[DictionaryEntry] = []
         local_name_column = local_name_column or name_column
         extra_columns = extra_columns if extra_columns is not None else \
             {'ISO-3166-2': 'iso_3166_2', 'ISO-3166-3': 'iso_3166_3'}
@@ -188,7 +189,7 @@ class DictionaryEntry:
 class AliasBanRecord:
     def __init__(self,
                  alias: str = '',
-                 lang: Optional[str] = '',
+                 lang: str | None = '',
                  is_abbrev: bool = False):
         self.alias = alias
         self.lang = lang
@@ -201,8 +202,8 @@ class AliasBanRecord:
 
 class AliasBanList:
     def __init__(self,
-                 aliases: Optional[List[str]] = None,
-                 abbreviations: Optional[List[str]] = None):
+                 aliases: list[str] | None = None,
+                 abbreviations: list[str] | None = None):
         self.aliases = aliases or []
         self.abbreviations = abbreviations or []
 
@@ -234,14 +235,14 @@ class SearchResultPosition:
     def add_entity(self,
                    entity: DictionaryEntry,
                    alias: DictionaryEntryAlias,
-                   alias_language_order: Optional[List[str]]) -> 'SearchResultPosition':
+                   alias_language_order: list[str] | None) -> 'SearchResultPosition':
         if entity:
             existing = self.entities_dict.get(entity.id)
             if not existing or not existing[1].has_closer_locale(alias, alias_language_order):
                 self.entities_dict[entity.id] = (entity, alias)
         return self
 
-    def get_entities_aliases(self) -> List[Tuple[DictionaryEntry, DictionaryEntryAlias]]:
+    def get_entities_aliases(self) -> list[tuple[DictionaryEntry, DictionaryEntryAlias]]:
         return list(self.entities_dict.values())
 
     def overlaps(self, other: 'SearchResultPosition') -> bool:
@@ -294,7 +295,7 @@ def normalize_text_with_map(
         spaces_after_dots: bool = True,
         lowercase: bool = True,
         use_stemmer: bool = False,
-        simple_tokenization: bool = False) -> Tuple[str, List[int]]:
+        simple_tokenization: bool = False) -> tuple[str, list[int]]:
     """
     Almost like normalize_text, but also returns source-to-resulted char index map:
     map[i] = I, where i is the character coordinate within the source text,
@@ -339,7 +340,7 @@ def normalize_text_with_map(
 
 
 def reverse_src_to_dest_map(
-        conv_map: List[int], normalized_text_len=0) -> List[int]:
+        conv_map: list[int], normalized_text_len=0) -> list[int]:
     """       1         2         3         4         5
     012345678901234567890123456789012345678901234567890
     One one Bankr. E.D.N.C. two two two.
@@ -362,7 +363,7 @@ def reverse_src_to_dest_map(
     return reversed
 
 
-def alias_is_banlisted(alias_ban_list: Optional[Dict[str, AliasBanList]],
+def alias_is_banlisted(alias_ban_list: dict[str, AliasBanList] | None,
                        norm_alias: str,
                        alias_lang: str,
                        is_abbrev: bool) -> bool:
@@ -380,13 +381,13 @@ def alias_is_banlisted(alias_ban_list: Optional[Dict[str, AliasBanList]],
 def _find_entity_positions(normalized_text: str,
                            normalized_text_lowercase: str,
                            entity: DictionaryEntry,
-                           text_languages: Union[List[str], Tuple[str], Set[str]],
-                           alias_language_order: Optional[List[str]],
-                           context: Dict[int, SearchResultPosition] = None,
+                           text_languages: list[str] | tuple[str] | set[str],
+                           alias_language_order: list[str] | None,
+                           context: dict[int, SearchResultPosition] = None,
                            use_stemmer: bool = False,
                            abbrev_uppercase_check_range: int = 20,
                            min_alias_len: int = None,
-                           alias_ban_list: Union[None, Dict[str, AliasBanList]] = None,
+                           alias_ban_list: None | dict[str, AliasBanList] = None,
                            simplified_normalization: bool = False):
     """
     Searches for all occurrences of name/alias of the specified entity in the specified text and fills the
@@ -473,7 +474,7 @@ def _find_entity_positions(normalized_text: str,
 
 
 class DictionaryEntity:
-    def __init__(self, entity: Any, coords: Tuple[int, int]):
+    def __init__(self, entity: Any, coords: tuple[int, int]):
         self.entity = entity
         self.coords = coords
 
@@ -490,18 +491,18 @@ class DictionaryEntity:
 
 
 def find_dict_entities(text: str,
-                       all_possible_entities: List[DictionaryEntry],
+                       all_possible_entities: list[DictionaryEntry],
                        default_language: str,
-                       text_languages: Union[List[str], Tuple[str], Set[str]] = None,
-                       conflict_resolving_func: Callable[[List[Tuple[DictionaryEntry, DictionaryEntryAlias]], str],
-                                                         List[Tuple[DictionaryEntry, DictionaryEntryAlias]]] = None,
+                       text_languages: list[str] | tuple[str] | set[str] = None,
+                       conflict_resolving_func: Callable[[list[tuple[DictionaryEntry, DictionaryEntryAlias]], str],
+                                                         list[tuple[DictionaryEntry, DictionaryEntryAlias]]] = None,
                        priority_direction: str = 'asc',
                        use_stemmer: bool = False,
                        remove_time_am_pm: bool = True,
                        min_alias_len: int = None,
-                       prepared_alias_ban_list: Optional[Dict[str, AliasBanList]] = None,
+                       prepared_alias_ban_list: dict[str, AliasBanList] | None = None,
                        simplified_normalization: bool = False)\
-        -> Generator[DictionaryEntity, None, None]:
+        -> Generator[DictionaryEntity]:
     """
     Find all entities defined in the 'all_possible_entities' list appeared in the source text.
     This method takes care of leaving only the longest matching search result for the case of multiple
@@ -608,7 +609,7 @@ def find_dict_entities(text: str,
     prev_pos = None  # type: Optional[SearchResultPosition]
 
     def resolve_conflicts(pos: SearchResultPosition) \
-            -> List[DictionaryEntity]:
+            -> list[DictionaryEntity]:
         """
         Takes SearchResultPosition (multiple found entities+aliases at the same position in the text)
         and return a single entity+its alias which should be returned for this position or their smaller list.
@@ -664,9 +665,9 @@ def find_dict_entities(text: str,
 
 
 def conflicts_take_first_by_id(
-        conflicting_entities_aliases: List[Tuple[DictionaryEntry, DictionaryEntryAlias]],
+        conflicting_entities_aliases: list[tuple[DictionaryEntry, DictionaryEntryAlias]],
         priority_direction: str = 'asc') \
-        -> List[Tuple[DictionaryEntry, DictionaryEntryAlias]]:
+        -> list[tuple[DictionaryEntry, DictionaryEntryAlias]]:
     """
     Default conflict resolving function for dropping all entities detected at the same position excepting the one
     having the smallest id. To be used in find_dict_entities() method.
@@ -676,9 +677,9 @@ def conflicts_take_first_by_id(
 
 
 def conflicts_top_by_priority(
-        conflicting_entities_aliases: List[Tuple[DictionaryEntry, DictionaryEntryAlias]],
+        conflicting_entities_aliases: list[tuple[DictionaryEntry, DictionaryEntryAlias]],
         priority_direction: str = 'asc') \
-        -> List[Tuple[DictionaryEntry, DictionaryEntryAlias]]:
+        -> list[tuple[DictionaryEntry, DictionaryEntryAlias]]:
     """
     Default conflict resolving function for dropping all entities detected at the same position excepting the one
     having the smallest id. To be used in find_dict_entities() method.
@@ -689,9 +690,9 @@ def conflicts_top_by_priority(
         key=lambda entity_alias_pair: entity_alias_pair[0].priority)]
 
 
-def prepare_alias_banlist_dict(alias_banlist: List[AliasBanRecord],
+def prepare_alias_banlist_dict(alias_banlist: list[AliasBanRecord],
                                use_stemmer: bool = False) \
-        -> Optional[Dict[str, AliasBanList]]:
+        -> dict[str, AliasBanList] | None:
     """
     Prepare alias ban list for providing it to find_dict_entities() function.
     :param alias_banlist: Non-normalized form of the banlist: [(alias, lang, is_abbrev), ...]

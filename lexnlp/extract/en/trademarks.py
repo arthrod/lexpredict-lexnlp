@@ -13,7 +13,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-from typing import Generator, List
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotations.trademark_annotation import TrademarkAnnotation
 from lexnlp.extract.en.utils import NPExtractor
@@ -33,7 +33,7 @@ grammar = r"""
 np_extractor = NPExtractor(grammar=grammar)
 
 
-def get_trademarks(text: str) -> Generator[str, None, None]:
+def get_trademarks(text: str) -> Generator[str]:
     """
     Find trademarks in text.
     """
@@ -41,13 +41,13 @@ def get_trademarks(text: str) -> Generator[str, None, None]:
         yield ant.trademark
 
 
-def get_trademark_list(text: str) -> List[str]:
+def get_trademark_list(text: str) -> list[str]:
     """
     """
     return list(get_trademarks(text))
 
 
-def get_trademark_annotations(text: str) -> Generator[TrademarkAnnotation, None, None]:
+def get_trademark_annotations(text: str) -> Generator[TrademarkAnnotation]:
     """
     Find trademarks in text.
     """
@@ -69,7 +69,7 @@ def get_trademark_annotations(text: str) -> Generator[TrademarkAnnotation, None,
             yield ant
 
 
-def get_trademark_annotation_list(text: str) -> List[TrademarkAnnotation]:
+def get_trademark_annotation_list(text: str) -> list[TrademarkAnnotation]:
     """
     """
     return list(get_trademark_annotations(text))

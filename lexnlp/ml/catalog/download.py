@@ -16,7 +16,8 @@ from pathlib import Path
 from hashlib import md5
 from base64 import b64encode
 from math import floor, log, pow
-from typing import Any, Dict, Generator, Iterator, Union
+from typing import Any
+from collections.abc import Generator, Iterator
 
 # third-party libraries
 from tqdm import tqdm
@@ -47,12 +48,12 @@ class ChecksumError(Exception):
     pass
 
 
-def _build_github_headers(headers: Dict[str, str]) -> Dict[str, str]:
+def _build_github_headers(headers: dict[str, str]) -> dict[str, str]:
     """
     Augment request headers with an optional GitHub token for higher API limits.
     """
     token: str = (os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN") or "").strip()
-    merged_headers: Dict[str, str] = dict(headers)
+    merged_headers: dict[str, str] = dict(headers)
     if token:
         merged_headers["Authorization"] = f"Bearer {token}"
     return merged_headers
@@ -65,7 +66,7 @@ class GitHubReleaseDownloader:
     @classmethod
     def download_release(cls, tag: str):
         response: Response = cls.get_tag(tag)
-        asset: Dict[str, Any] = cls.get_asset(response)
+        asset: dict[str, Any] = cls.get_asset(response)
         destination_directory: Path = CATALOG / tag
         cls.download_asset(asset, destination_directory)
 
@@ -83,9 +84,9 @@ class GitHubReleaseDownloader:
         return response
 
     @staticmethod
-    def get_asset(response: Response, index: int = 0) -> Dict[str, Any]:
+    def get_asset(response: Response, index: int = 0) -> dict[str, Any]:
         try:
-            asset: Dict[str, Any] = response.json()['assets'][index]
+            asset: dict[str, Any] = response.json()['assets'][index]
         except KeyError as key_error:
             raise KeyError(f'Available keys: {response.json().keys()}') from key_error
         return asset
@@ -95,7 +96,7 @@ class GitHubReleaseDownloader:
         content_iterator: Iterator,
         content_length: int,
         chunk_size: int,
-    ) -> Generator[bytes, None, None]:
+    ) -> Generator[bytes]:
         """
         Args:
             content_iterator:
@@ -124,8 +125,8 @@ class GitHubReleaseDownloader:
     @classmethod
     def download_asset(
         cls,
-        asset: Dict[str, Any],
-        destination_directory: Union[Path, str],
+        asset: dict[str, Any],
+        destination_directory: Path | str,
         *,
         # TODO: is there a way to infer optimum chunk_size? Filesystem chunks?
         chunk_size: int = 8192,
@@ -171,7 +172,7 @@ class GitHubReleaseDownloader:
 
     @staticmethod
     def verify_md5(
-        filepath: Union[Path, str],
+        filepath: Path | str,
         checksum: str,
     ) -> None:
         """
@@ -232,7 +233,7 @@ def download_github_release(tag: str, prompt_user: bool = True) -> None:
         else:
             raise ValueError("User input must be 'Y' or 'n'.")
 
-    def _get_asset() -> Dict[str, Any]:
+    def _get_asset() -> dict[str, Any]:
         response: Response = GitHubReleaseDownloader.get_tag(tag)
         return GitHubReleaseDownloader.get_asset(response)
 
@@ -251,7 +252,7 @@ def download_github_release(tag: str, prompt_user: bool = True) -> None:
         models_repo = get_models_repo()
         answer_download = _input_yes_no(f'Download `{tag}` from {models_repo}? [Y/n]')
         if answer_download:
-            asset: Dict[str, Any] = _get_asset()
+            asset: dict[str, Any] = _get_asset()
             try:
                 content_length: int = asset['size']
             except KeyError as key_error:
@@ -269,5 +270,5 @@ def download_github_release(tag: str, prompt_user: bool = True) -> None:
             print(f'Not downloading `{tag}`. Exiting.')
 
     else:
-        asset: Dict[str, Any] = _get_asset()
+        asset: dict[str, Any] = _get_asset()
         _download_asset()

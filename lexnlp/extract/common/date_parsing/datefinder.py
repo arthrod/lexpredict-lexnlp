@@ -12,7 +12,6 @@ import logging
 import dateparser
 import regex as re
 from dateutil import tz, parser
-from typing import Tuple, List, Dict, Optional
 
 from lexnlp.extract.all_locales.languages import Locale
 
@@ -34,8 +33,8 @@ class DateFragment:
         self.matches_count = 0
 
     def __repr__(self):
-        str_capt = ', '.join(['"{}": [{}]'.format(c, self.captures[c]) for c in self.captures])
-        return '{} [{}, {}]\nCaptures: {}'.format(self.match_str, self.indices[0], self.indices[1], str_capt)
+        str_capt = ', '.join([f'"{c}": [{self.captures[c]}]' for c in self.captures])
+        return f'{self.match_str} [{self.indices[0]}, {self.indices[1]}]\nCaptures: {str_capt}'
 
     def get_captures_count(self):
         return sum([len(self.captures[m]) for m in self.captures])
@@ -84,7 +83,7 @@ class DateFinder:
     UNIT_PATTERN = 'second|minute|hour|day|week|month|year'
 
     ## Time pattern is used independently, so specified here.
-    TIME_PATTERN = r"""
+    TIME_PATTERN = rf"""
     (?P<time>
         ## Captures in format XX:YY(:ZZ) (PM) (EST)
         (
@@ -93,22 +92,19 @@ class DateFinder:
             (?P<minutes>\d{{1,2}})
             (\:(?<seconds>\d{{1,2}}))?
             ([\.\,](?<microseconds>\d{{1,6}}))?
-            (\s*(?P<time_periods>{time_periods}))?
-            (\s*(?P<timezones>{timezones}))?
+            (\s*(?P<time_periods>{TIME_PERIOD_PATTERN}))?
+            (\s*(?P<timezones>{ALL_TIMEZONES_PATTERN}))?
         )
         |
         ## Captures in format 11 AM (EST)
         ## Note with single digit capture requires time period
         (
             (?P<hours>\d{{1,2}})
-            (\s*(?P<time_periods>{time_periods}))
-            (\s*(?P<timezones>{timezones}))*
+            (\s*(?P<time_periods>{TIME_PERIOD_PATTERN}))
+            (\s*(?P<timezones>{ALL_TIMEZONES_PATTERN}))*
         )
     )
-    """.format(
-        time_periods=TIME_PERIOD_PATTERN,
-        timezones=ALL_TIMEZONES_PATTERN
-    )
+    """
 
     DATES_PATTERN = r"""
     (
@@ -195,9 +191,9 @@ class DateFinder:
     def __init__(self, base_date=None):
         self.base_date = base_date
 
-    def tokenize_string(self, text: str) -> List[Tuple[str, str, Dict[str, List[str]]]]:
+    def tokenize_string(self, text: str) -> list[tuple[str, str, dict[str, list[str]]]]:
         last_index: int = 0
-        items: List[Tuple[str, str, Dict[str, List[str]]]] = []
+        items: list[tuple[str, str, dict[str, list[str]]]] = []
 
         for match in self.DATE_REGEX.finditer(text):
             match_str = match.group(0)
@@ -215,9 +211,9 @@ class DateFinder:
             items.append((text[last_index:len(text)], '', {}))
         return items
 
-    def merge_tokens(self, tokens: List[Tuple[str, str]]) -> List[DateFragment]:
+    def merge_tokens(self, tokens: list[tuple[str, str]]) -> list[DateFragment]:
         MIN_MATCHES = 2
-        fragments: List[DateFragment] = []
+        fragments: list[DateFragment] = []
         frag = DateFragment()
 
         start_char, total_chars = 0, 0
@@ -262,7 +258,7 @@ class DateFinder:
         return fragments
 
     @staticmethod
-    def get_token_group(captures: Dict[str, List[str]]) -> str:
+    def get_token_group(captures: dict[str, list[str]]) -> str:
         for gr in DateFinder.ALL_GROUPS:
             lst = captures.get(gr)
             if lst and len(lst) > 0:
@@ -280,8 +276,7 @@ class DateFinder:
                 range_strings.extend(self.extract_date_strings_inner(range_str[0],
                                                                      range_str[1][0],
                                                                      strict=strict))
-            for range_string in range_strings:
-                yield range_string
+            yield from range_strings
             return
 
         tokens = self.tokenize_string(text)
@@ -331,8 +326,8 @@ class DateFinder:
     @classmethod
     def strip_string_entry(cls,
                            text: str,
-                           text_coords: Tuple[int, int],
-                           strip_chars: Optional[str] = None) -> Tuple[str, Tuple[int, int]]:
+                           text_coords: tuple[int, int],
+                           strip_chars: str | None = None) -> tuple[str, tuple[int, int]]:
         ln = len(text)
         text = text.rstrip(strip_chars)
         text_coords = (text_coords[0], text_coords[1] - ln + len(text),)
@@ -343,7 +338,7 @@ class DateFinder:
         return text, text_coords
 
     @staticmethod
-    def split_date_range(text: str) -> List[Tuple[str, Tuple[int, int]]]:
+    def split_date_range(text: str) -> list[tuple[str, tuple[int, int]]]:
         st_matches = DateFinder.RANGE_SPLIT_REGEX.finditer(text)
         start = 0
         parts = []  # List[Tuple[str, Tuple[int, int]]]
@@ -381,7 +376,7 @@ class DateFinder:
 
     def parse_date_string(self,
                           date_string: str,
-                          captures: Dict[str, List],
+                          captures: dict[str, list],
                           locale: Locale):
         # For well formatted string, we can already let dateparser parse them
         # otherwise self._find_and_replace method might corrupt them
@@ -428,7 +423,7 @@ class DateFinder:
                 return None
 
             try:
-                debug_msg = 'Parsing {} with dateutil'.format(date_string)
+                debug_msg = f'Parsing {date_string} with dateutil'
                 logger.debug(debug_msg)
                 as_dt = parser.parse(date_string, default=self.base_date)
             except Exception as e:  # pylint: disable=broad-except

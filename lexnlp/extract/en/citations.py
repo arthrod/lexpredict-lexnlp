@@ -16,7 +16,7 @@ __email__ = "support@contraxsuite.com"
 
 # pylint: disable=bare-except
 
-from typing import Dict, Generator, List, Tuple, Union
+from collections.abc import Generator
 
 import regex as re
 from reporters_db import EDITIONS, REPORTERS
@@ -42,7 +42,7 @@ def get_citations(
     text: str,
     return_source: bool = False,
     as_dict: bool = False,
-) -> Generator[Union[Dict, Tuple], None, None]:
+) -> Generator[dict | tuple]:
     """
     Get a list of citations.
 
@@ -79,7 +79,7 @@ def get_citation_list(
     text: str,
     return_source: bool = False,
     as_dict: bool = False,
-) -> List[Union[Dict, Tuple]]:
+) -> list[dict | tuple]:
     """
     Get a list of citations.
 
@@ -105,7 +105,7 @@ def get_citation_list(
     )
 
 
-def get_citation_annotations(text: str) -> Generator[CitationAnnotation, None, None]:
+def get_citation_annotations(text: str) -> Generator[CitationAnnotation]:
     """
     Get citation annotations.
 
@@ -147,7 +147,7 @@ def get_citation_annotations(text: str) -> Generator[CitationAnnotation, None, N
             pass
 
 
-def get_citation_annotation_list(text: str) -> List[CitationAnnotation]:
+def get_citation_annotation_list(text: str) -> list[CitationAnnotation]:
     """
     Get citation annotations.
 

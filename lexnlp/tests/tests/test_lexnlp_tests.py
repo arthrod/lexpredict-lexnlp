@@ -39,8 +39,8 @@ class Test(TestCase):
                 actual.append((i, text, input_args, expected))
             a2 = actual[0]
             e2 = (2, 'text2', {'text_languages': 'l2', 'arg': True, 'int1': 22}, [('e21', 'e22')])
-            print('Actual: {0}'.format(a2))
-            print('Expected: {0}'.format(e2))
+            print(f'Actual: {a2}')
+            print(f'Expected: {e2}')
 
             self.assertEqual(a2[0], e2[0])
             self.assertEqual(a2[1], e2[1])

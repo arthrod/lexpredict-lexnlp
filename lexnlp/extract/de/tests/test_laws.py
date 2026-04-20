@@ -9,7 +9,6 @@ __email__ = "support@contraxsuite.com"
 import os
 from unittest import TestCase
 import pandas as pd
-from typing import List
 
 from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.common.annotations.law_annotation import LawAnnotation
@@ -78,7 +77,7 @@ class TestParseDeLaws(TestCase):
             LawAnnotation)
 
 
-def get_ordered_law_annotations(text: str) -> List[LawAnnotation]:
+def get_ordered_law_annotations(text: str) -> list[LawAnnotation]:
     ants = list(parser.parse(text))
     ants.sort(key=lambda a: a.coords[0])
     return ants

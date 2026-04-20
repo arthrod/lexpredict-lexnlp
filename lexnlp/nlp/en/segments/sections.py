@@ -19,7 +19,8 @@ import os
 import string
 import unicodedata
 
-from typing import Generator, List, Optional, Tuple, Any, Union
+from typing import Any
+from collections.abc import Generator
 
 # Packages
 import pandas
@@ -105,17 +106,17 @@ def build_section_break_features(
             continue
 
         # Count length
-        feature_vector['line_len_{0}'.format(i)] = len(line)
-        feature_vector['line_lenstrip_{0}'.format(i)] = len(line.strip())
-        feature_vector['line_title_case_{0}'.format(i)] = line == line.title()
-        feature_vector['line_upper_case_{0}'.format(i)] = line == line.upper()
+        feature_vector[f'line_len_{i}'] = len(line)
+        feature_vector[f'line_lenstrip_{i}'] = len(line.strip())
+        feature_vector[f'line_title_case_{i}'] = line == line.title()
+        feature_vector[f'line_upper_case_{i}'] = line == line.upper()
 
         # Count characters
-        feature_vector['line_n_alpha_{0}'.format(i)] = sum([1 for c in line if unicodedata.category(c).startswith('L')])
-        feature_vector['line_n_number_{0}'.format(i)] = sum(
+        feature_vector[f'line_n_alpha_{i}'] = sum([1 for c in line if unicodedata.category(c).startswith('L')])
+        feature_vector[f'line_n_number_{i}'] = sum(
             [1 for c in line if unicodedata.category(c).startswith('N')])
-        feature_vector['line_n_punct_{0}'.format(i)] = sum([1 for c in line if unicodedata.category(c).startswith('P')])
-        feature_vector['line_n_whitespace_{0}'.format(i)] = sum(
+        feature_vector[f'line_n_punct_{i}'] = sum([1 for c in line if unicodedata.category(c).startswith('P')])
+        feature_vector[f'line_n_whitespace_{i}'] = sum(
             [1 for c in line if unicodedata.category(c).startswith('Z')])
 
     # Simple checks
@@ -137,7 +138,7 @@ def build_section_break_features(
 
     # Build character vector
     for character in characters:
-        feature_vector["char_{0}".format(character)] = line.count(character)
+        feature_vector[f"char_{character}"] = line.count(character)
 
     # Add doc if requested
     if include_doc:
@@ -298,8 +299,8 @@ def get_section_spans(text: str,
                       use_ml=True,
                       return_text=True,
                       skip_empty_headers=False,
-                      sections_hierarchy: Optional[List[Any]] = None) -> \
-        Generator[DocumentSection, None, None]:
+                      sections_hierarchy: list[Any] | None = None) -> \
+        Generator[DocumentSection]:
     """
     Get sections from text.
     Use NLP-based detection OR regex-bases detection of sections - see use_ml param.
@@ -360,7 +361,7 @@ class SectionLevelParser:
         r'\([\p{L}\d]+\)'
     ]
 
-    def __init__(self, sections_hierarchy: Optional[List[str]] = None):
+    def __init__(self, sections_hierarchy: list[str] | None = None):
         if not sections_hierarchy:
             sections_hierarchy = self.DEFAULT_SECTION_HIERARCHY
         self.default_sections_hierarchy = [Map(regex=re.compile(i),
@@ -376,7 +377,7 @@ class SectionLevelParser:
     def current_sections_hierarchy(self):
         return [i for i in self.default_sections_hierarchy if i.rel_level]
 
-    def detect(self, title: str) -> Tuple[int, int]:
+    def detect(self, title: str) -> tuple[int, int]:
         self.title = title
         if not title:
             return 0, 0
@@ -389,7 +390,7 @@ class SectionLevelParser:
         self.get_from_default()
         return self.level, self.abs_level
 
-    def get_from_detected(self) -> Optional[Tuple[int, int]]:
+    def get_from_detected(self) -> tuple[int, int] | None:
         for level_data in self.current_sections_hierarchy:
             if level_data.regex.match(self.title):
                 self.level = level_data.rel_level
@@ -413,8 +414,8 @@ class SectionLevelParser:
 
 def get_document_sections_with_titles(
         full_text: str,
-        sentence_list: List[Union[Tuple[int, int], Tuple[int, int, str]]],
-        use_ml=False) -> List[DocumentSection]:
+        sentence_list: list[tuple[int, int] | tuple[int, int, str]],
+        use_ml=False) -> list[DocumentSection]:
     """
     The method takes large text and a list of sentence bounds ([start, end]).
     The method searches for sections and fills 'title' value for each section.
@@ -431,8 +432,8 @@ def get_document_sections_with_titles(
     return sections
 
 
-def find_section_titles(sections: List[DocumentSection],
-                        sentences: List[Union[Tuple[int, int], Tuple[int, int, str]]],
+def find_section_titles(sections: list[DocumentSection],
+                        sentences: list[tuple[int, int] | tuple[int, int, str]],
                         full_text: str) -> None:
     """
     Methods tries to pick section titles as first sentences of

@@ -6,7 +6,8 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import List, Match, Callable
+from re import Match
+from collections.abc import Callable
 import regex as re
 from lexnlp.extract.common.definitions.universal_definition_parser import UniversalDefinitionsParser
 from lexnlp.extract.common.pattern_found import PatternFound
@@ -18,7 +19,7 @@ class CommonDefinitionPatterns:
     reg_acronyms = re.compile(r"\(\p{Lu}\p{L}*\p{Lu}\)", re.UNICODE)
 
     @staticmethod
-    def match_acronyms(phrase: str) -> List[PatternFound]:
+    def match_acronyms(phrase: str) -> list[PatternFound]:
         """
         :param phrase: rompió el silencio tras ser despedido del Canal del Fútbol (CDF).
         :return: {name: 'CDF', probability: 100, ...}
@@ -77,7 +78,7 @@ class CommonDefinitionPatterns:
         return acr_start if uppercases > 1 and acr_index < 0 else -1
 
     @staticmethod
-    def match_es_def_by_semicolon(phrase: str) -> List[PatternFound]:
+    def match_es_def_by_semicolon(phrase: str) -> list[PatternFound]:
         """
         :param phrase: "Modern anatomy human": a human of modern anatomy.
         :return: {name: 'Modern anatomy human', probability: 100, ...}
@@ -101,7 +102,7 @@ class CommonDefinitionPatterns:
                          match: Match,
                          start_func: Callable[[str, Match, Match], int],
                          end_func: Callable[[str, Match, Match], int],
-                         match_prob: int) -> List[PatternFound]:
+                         match_prob: int) -> list[PatternFound]:
         """
         :param phrase: the whole text, may be used for getting the definition's text length
         :param match: the matched part of the phrase that may contain several quote-packed definitions
@@ -130,7 +131,7 @@ class CommonDefinitionPatterns:
                                                  quoted_def_end: Callable[[str, Match, Match], int],
                                                  def_start: Callable[[str, Match], int],
                                                  def_end: Callable[[str, Match], int]
-                                                 ) -> List[PatternFound]:
+                                                 ) -> list[PatternFound]:
         """
         First, find all matches by 'reg' ptr
         Second, go through matches
@@ -168,7 +169,7 @@ class CommonDefinitionPatterns:
     def collect_regex_matches(phrase: str, reg: re, prob: int,
                               def_start: Callable[[str, Match], int],
                               def_end: Callable[[str, Match], int]
-                              ) -> List[PatternFound]:
+                              ) -> list[PatternFound]:
         """
         find all matches by 'reg' ptr
         :param quoted_def_start: (phrase, match, quoted_match) -> definition's start

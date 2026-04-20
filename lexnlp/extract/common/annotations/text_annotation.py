@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, List
 from html import escape
 from lexnlp.utils.map import Map
 
@@ -30,7 +29,7 @@ class TextAnnotation:
     def __init__(self,
                  name: str,
                  locale: str,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  text: str = ''):
         self.coords = coords
         self.name = name
@@ -50,7 +49,7 @@ class TextAnnotation:
             path += val
         return "/" + "/".join([escape(p) for p in path if p])
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         # should be overriden in derived classes
         return [self.name]
 

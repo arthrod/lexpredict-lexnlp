@@ -22,7 +22,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-import asset_drift_check  # noqa: E402  # imported after sys.path mutation above for test-only script import
+import asset_drift_check  # imported after sys.path mutation above for test-only script import
 
 
 # ---------------------------------------------------------------------------

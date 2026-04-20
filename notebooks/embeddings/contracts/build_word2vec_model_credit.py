@@ -6,8 +6,8 @@ import tarfile
 sys.path.append("/data/workspace/lexpredict-contraxsuite-core/")
 
 # Packages
-from lexnlp.nlp.en.segments import get_sentences, get_paragraphs, get_pages
-from lexnlp.nlp.en.tokens import get_stem_generator, get_stems
+from lexnlp.nlp.en.segments import get_sentences
+from lexnlp.nlp.en.tokens import get_stems
 
 # Gensim
 from gensim.models.word2vec import Word2Vec

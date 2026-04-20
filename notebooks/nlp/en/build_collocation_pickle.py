@@ -1,7 +1,6 @@
 # Imports
 import itertools
 import tarfile
-import pandas
 import pickle
 
 # Sklearn imports
@@ -92,7 +91,7 @@ if __name__ == "__main__":
         print((n, len(bigram_collocations), bigram_collocations[-1]))
 
         # Save the tokenizer
-        with open("collocation_bigrams_{0}.pickle".format(n), "wb") as out_file:
+        with open(f"collocation_bigrams_{n}.pickle", "wb") as out_file:
             pickle.dump(bigram_collocations, out_file)
 
         # Apply filter and output
@@ -102,5 +101,5 @@ if __name__ == "__main__":
         print((n, len(trigram_collocations), trigram_collocations[-1]))
 
         # Save the tokenizer
-        with open("collocation_trigrams_{0}.pickle".format(n), "wb") as out_file:
+        with open(f"collocation_trigrams_{n}.pickle", "wb") as out_file:
             pickle.dump(trigram_collocations, out_file)

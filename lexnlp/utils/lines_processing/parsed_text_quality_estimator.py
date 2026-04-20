@@ -106,7 +106,7 @@ class ParsedTextQualityEstimator:
         current_seq = 0
         total_extra_breaks = 0
 
-        for indx in range(0, len(self.lines)):
+        for indx in range(len(self.lines)):
             if self.check_line_followed_by_unnecessary_break(indx):
                 total_extra_breaks += 1
                 current_seq += 1

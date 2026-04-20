@@ -6,7 +6,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Generator, List, Tuple
+from collections.abc import Generator
 
 from lexnlp.extract.common.annotation_locator_type import AnnotationLocatorType
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
@@ -27,7 +27,7 @@ def get_definitions_in_sentence(sentence: str,
             yield df.name
 
 
-def get_definition_objects_list(text, decode_unicode=True) -> List[DefinitionCaught]:
+def get_definition_objects_list(text, decode_unicode=True) -> list[DefinitionCaught]:
     """
     :param text: text to search for definitions
     :param decode_unicode:
@@ -45,7 +45,7 @@ parser_ml_classifier = LayeredDefinitionDetector()
 
 def get_definition_annotations(text: str,
                                **kwargs) \
-        -> Generator[DefinitionAnnotation, None, None]:
+        -> Generator[DefinitionAnnotation]:
     decode_unicode = kwargs.get('decode_unicode', True)
     locator_type = kwargs.get('locator_type', AnnotationLocatorType.RegexpBased)
 

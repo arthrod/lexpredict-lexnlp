@@ -190,8 +190,8 @@ class SectionSegmentizerTrainManager:
         # Build character vector
         v = {}
         for c in characters:
-            v["doc_char_{0}".format(c)] = text.count(c)
-            v["doc_startchar_{0}".format(c)] = 0
+            v[f"doc_char_{c}"] = text.count(c)
+            v[f"doc_startchar_{c}"] = 0
         v["doc_startchar_other"] = 0
 
         # Build line start vector
@@ -200,7 +200,7 @@ class SectionSegmentizerTrainManager:
                 c = line.strip()[0]
 
                 if c in characters:
-                    v["doc_startchar_{0}".format(c)] += 1
+                    v[f"doc_startchar_{c}"] += 1
                 else:
                     v["doc_startchar_other"] += 1
             else:
@@ -211,7 +211,7 @@ class SectionSegmentizerTrainManager:
             total_char = float(sum([b for a, b in v.items() if a.startswith("doc_char")]))
             total_startchar = float(sum([b for a, b in v.items() if a.startswith("doc_startchar")]))
 
-            for k in v.keys():
+            for k in v:
                 if k.startswith("doc_char"):
                     v[k] = v[k] / total_char
                 elif k.startswith("doc_startchar"):
@@ -247,16 +247,16 @@ class SectionSegmentizerTrainManager:
                 continue
 
             # Count length
-            v["line_len_{0}".format(i)] = len(line)
-            v["line_lenstrip_{0}".format(i)] = len(line.strip())
-            v["line_title_case_{0}".format(i)] = line == line.title()
-            v["line_upper_case_{0}".format(i)] = line == line.upper()
+            v[f"line_len_{i}"] = len(line)
+            v[f"line_lenstrip_{i}"] = len(line.strip())
+            v[f"line_title_case_{i}"] = line == line.title()
+            v[f"line_upper_case_{i}"] = line == line.upper()
 
             # Count characters
-            v["line_n_alpha_{0}".format(i)] = sum([1 for c in line if unicodedata.category(c).startswith("L")])
-            v["line_n_number_{0}".format(i)] = sum([1 for c in line if unicodedata.category(c).startswith("N")])
-            v["line_n_punct_{0}".format(i)] = sum([1 for c in line if unicodedata.category(c).startswith("P")])
-            v["line_n_whitespace_{0}".format(i)] = sum([1 for c in line if unicodedata.category(c).startswith("Z")])
+            v[f"line_n_alpha_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("L")])
+            v[f"line_n_number_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("N")])
+            v[f"line_n_punct_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("P")])
+            v[f"line_n_whitespace_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("Z")])
 
         # Simple checks
         v["section"] = 1 if "section" in line else 0
@@ -274,7 +274,7 @@ class SectionSegmentizerTrainManager:
 
         # Build character vector
         for c in characters:
-            v["char_{0}".format(c)] = lines[line_id].count(c)
+            v[f"char_{c}"] = lines[line_id].count(c)
 
         # Add doc if requested
         if include_doc:

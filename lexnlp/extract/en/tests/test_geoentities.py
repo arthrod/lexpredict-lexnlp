@@ -16,7 +16,8 @@ __email__ = "support@contraxsuite.com"
 
 
 import os
-from typing import List, Optional, Tuple, Dict, Generator, Any
+from typing import Any
+from collections.abc import Generator
 
 from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.en.dict_entities import prepare_alias_banlist_dict, AliasBanRecord, DictionaryEntry, \
@@ -37,15 +38,14 @@ _CONFIG = list(load_entities_dict())
 
 def get_geoentities_routine(
         text: str,
-        geo_config_list: List[DictionaryEntry],
+        geo_config_list: list[DictionaryEntry],
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: Optional[str] = None,
-        min_alias_len: Optional[int] = None,
-        prepared_alias_ban_list: Optional[
-            Dict[str, Tuple[List[str], List[str]]]] = None,
+        text_languages: str | None = None,
+        min_alias_len: int | None = None,
+        prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False) -> \
-        Generator[Tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
+        Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     yield from get_geoentities(text,
                                geo_config_list,
                                conflict_resolving_field,

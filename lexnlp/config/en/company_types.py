@@ -20,7 +20,6 @@ import csv
 import os
 
 
-from typing import Dict
 
 
 _COMPANY_TYPES = [
@@ -56,7 +55,7 @@ class CompanyDescriptor:
 default_company_types_file_path = os.path.join(os.path.dirname(__file__), 'company_types.csv')
 
 
-def get_company_types(file_path=None) -> Dict[str, CompanyDescriptor]:
+def get_company_types(file_path=None) -> dict[str, CompanyDescriptor]:
     ret = {}
     file_path = file_path or default_company_types_file_path
     with open(file_path, encoding="utf-8") as f:

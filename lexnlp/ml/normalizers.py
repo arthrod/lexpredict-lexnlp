@@ -10,7 +10,7 @@ __email__ = "support@contraxsuite.com"
 
 
 # standard library
-from typing import Callable, Generator, Iterable, Tuple
+from collections.abc import Callable, Generator, Iterable
 
 # LexNLP
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
@@ -37,7 +37,7 @@ class Normalizer:
 
     def __init__(
         self,
-        normalizations: Iterable[Tuple[Callable[[str], Generator[TextAnnotation, None, None]], str]],
+        normalizations: Iterable[tuple[Callable[[str], Generator[TextAnnotation]], str]],
     ) -> None:
         """
 
@@ -57,9 +57,9 @@ class Normalizer:
     def _find_replace(
         cls,
         text: str,
-        function: Callable[[str], Generator[TextAnnotation, None, None]],
+        function: Callable[[str], Generator[TextAnnotation]],
         replacement: str,
-    ) -> Generator[str, None, None]:
+    ) -> Generator[str]:
         i: int = 0
         try:
             for annotation in function(text):  # type: TextAnnotation
@@ -75,7 +75,7 @@ class Normalizer:
             yield text
 
     @staticmethod
-    def _get_strip_offsets(text: str) -> Tuple[int, int]:
+    def _get_strip_offsets(text: str) -> tuple[int, int]:
         """
         Args:
             text (str):

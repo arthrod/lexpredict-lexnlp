@@ -8,7 +8,8 @@ __email__ = "support@contraxsuite.com"
 
 import os
 # pylint: disable=unused-import
-from typing import List, Pattern, Generator
+from re import Pattern
+from collections.abc import Generator
 # pylint: enable=unused-import
 import regex as re
 from pandas import DataFrame, read_csv
@@ -31,8 +32,8 @@ class RegulationsParser:
         :param regulations_dataframe: a pandas dataframe with 2 columns: trigger: str, position: str
         """
         self.regulations_dataframe = regulations_dataframe
-        self.start_triggers: List[str] = []
-        self.reg_start_triggers: List[Pattern] = []
+        self.start_triggers: list[str] = []
+        self.reg_start_triggers: list[Pattern] = []
         self.load_trigger_words()
         self.setup_regexes()
 
@@ -61,7 +62,7 @@ class RegulationsParser:
         tuples = [tuple(x) for x in subset.values]
         self.start_triggers = [t[0] for t in tuples if t[1] == 'start']
 
-    def parse(self, text: str, locale: str = 'es') -> Generator[RegulationAnnotation, None, None]:
+    def parse(self, text: str, locale: str = 'es') -> Generator[RegulationAnnotation]:
         """
         Find annotations in text passed and return them as a list of objects
         """
@@ -82,18 +83,18 @@ class RegulationsParser:
 parser = RegulationsParser()
 
 
-def get_regulation_annotations(text: str, language: str = 'es') -> Generator[RegulationAnnotation, None, None]:
+def get_regulation_annotations(text: str, language: str = 'es') -> Generator[RegulationAnnotation]:
     yield from parser.parse(text, language)
 
 
-def get_regulation_annotation_list(text: str, language: str = 'es') -> List[RegulationAnnotation]:
+def get_regulation_annotation_list(text: str, language: str = 'es') -> list[RegulationAnnotation]:
     return list(parser.parse(text, language))
 
 
-def get_regulations(text: str, language: str = 'es') -> Generator[dict, None, None]:
+def get_regulations(text: str, language: str = 'es') -> Generator[dict]:
     for reg in parser.parse(text, language):
         yield reg.to_dictionary()
 
 
-def get_regulation_list(text: str, language: str = None) -> List[dict]:
+def get_regulation_list(text: str, language: str = None) -> list[dict]:
     return list(get_regulations(text, language))

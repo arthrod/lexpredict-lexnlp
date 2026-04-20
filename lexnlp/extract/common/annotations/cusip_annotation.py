@@ -6,7 +6,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Tuple, Dict, Any, List
+from typing import Any
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -19,7 +19,7 @@ class CusipAnnotation(TextAnnotation):
     record_type = 'cusip'
 
     def __init__(self,
-                 coords: Tuple[int, int],
+                 coords: tuple[int, int],
                  locale: str = 'en',
                  name: str = '',
                  text: str = None,
@@ -44,7 +44,7 @@ class CusipAnnotation(TextAnnotation):
         self.issue_id = issue_id
         self.issuer_id = issuer_id
 
-    def get_cite_value_parts(self) -> List[str]:
+    def get_cite_value_parts(self) -> list[str]:
         parts = [self.code or '',
                  self.ppn or '',
                  # self.tba or '',
@@ -72,7 +72,7 @@ class CusipAnnotation(TextAnnotation):
 
         return df
 
-    def to_dictionary_legacy(self) -> Dict[str, Any]:
+    def to_dictionary_legacy(self) -> dict[str, Any]:
         return {'location_start': self.coords[0],
                 'location_end': self.coords[1],
                 'text': self.code,

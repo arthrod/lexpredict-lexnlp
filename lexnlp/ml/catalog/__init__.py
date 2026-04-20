@@ -13,7 +13,6 @@ __email__ = "support@contraxsuite.com"
 import os
 import threading
 from pathlib import Path
-from typing import Dict, Optional
 
 # NLTK
 import nltk.data
@@ -64,11 +63,11 @@ def _resolve_catalog_dir() -> Path:
 
 CATALOG: Path = _resolve_catalog_dir()
 
-_TAG_DICT_CACHE: Optional[Dict[str, Path]] = None
+_TAG_DICT_CACHE: dict[str, Path] | None = None
 _TAG_DICT_LOCK = threading.Lock()
 
 
-def _build_tag_dict() -> Dict[str, Path]:
+def _build_tag_dict() -> dict[str, Path]:
     """
     Builds a dictionary with the following structure:
 
@@ -98,7 +97,7 @@ def invalidate_catalog_cache() -> None:
         _TAG_DICT_CACHE = None
 
 
-def _get_tag_dict_cached() -> Dict[str, Path]:
+def _get_tag_dict_cached() -> dict[str, Path]:
     global _TAG_DICT_CACHE
     if _TAG_DICT_CACHE is None:
         with _TAG_DICT_LOCK:
@@ -115,8 +114,8 @@ def get_path_from_catalog(tag: str) -> Path:
     Returns:
         A file path.
     """
-    d: Dict[str, Path] = _get_tag_dict_cached()
-    path: Optional[Path] = d.get(tag)
+    d: dict[str, Path] = _get_tag_dict_cached()
+    path: Path | None = d.get(tag)
 
     # If a tag was downloaded after the cache was built, refresh on miss.
     if path is None:
