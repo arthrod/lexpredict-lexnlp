@@ -7,17 +7,16 @@ __email__ = "support@contraxsuite.com"
 
 
 import datetime
-import regex as re
 from collections.abc import Generator
 
+import regex as re
 import zahlwort2num as w2n
 
 from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
 from lexnlp.extract.common.dates import DateParser
-from lexnlp.extract.common.dates_classifier_model import split_date_words, REG_NUMBER
-from lexnlp.extract.de.date_model import MONTH_NAMES, DE_ALPHA_CHAR_SET
-
+from lexnlp.extract.common.dates_classifier_model import REG_NUMBER, split_date_words
+from lexnlp.extract.de.date_model import DE_ALPHA_CHAR_SET, MONTH_NAMES
 
 MONTH_NAMES_LOWER = set([m.lower() for m in MONTH_NAMES])
 MONTH_NAMES_SHORT = set([m[:3].lower() for m in MONTH_NAMES])
@@ -125,7 +124,7 @@ class DeDateParser(DateParser):
         return parts
 
     def get_date_annotations(self,
-                             text: str = None,
+                             text: str | None = None,
                              locale: Locale | None = None,
                              strict: bool = True) -> \
             Generator[DateAnnotation]:

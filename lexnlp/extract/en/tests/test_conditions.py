@@ -23,6 +23,6 @@ from lexnlp.tests import lexnlp_tests
 
 
 def test_condition_fixed_example():
-    lexnlp_tests.test_extraction_func_on_test_data(get_conditions,
-                                                   actual_data_converter=lambda t: [elem[0] for elem in t],
-                                                   test_only_expected_in=True)
+    lexnlp_tests.test_extraction_func_on_test_data(
+        get_conditions, actual_data_converter=lambda t: [elem[0] for elem in t], test_only_expected_in=True
+    )

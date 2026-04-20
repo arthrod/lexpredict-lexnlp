@@ -16,8 +16,8 @@ __email__ = "support@contraxsuite.com"
 # Standard imports
 import os
 import string
-import joblib
 
+import joblib
 
 # Setup path
 

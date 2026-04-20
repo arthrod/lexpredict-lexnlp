@@ -9,11 +9,12 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-import pandas
 from collections.abc import Callable, Generator
 
+import pandas
+
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
-from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams, LineOrPhrase
+from lexnlp.utils.lines_processing.line_processor import LineOrPhrase, LineProcessor, LineSplitParams
 from lexnlp.utils.lines_processing.phrase_finder import PhraseFinder, PhraseMatch
 
 
@@ -148,7 +149,7 @@ class UniversalCourtsParser:
             ptrs.key_word_preproc_func,
         )
 
-    def parse(self, text: str, locale: str = None) -> Generator[CourtAnnotation]:
+    def parse(self, text: str, locale: str | None = None) -> Generator[CourtAnnotation]:
         """
         Args:
             text (str):

@@ -14,13 +14,12 @@ __email__ = "support@contraxsuite.com"
 # pylint: disable=bare-except,broad-except,unused-argument
 import datetime
 import re
-from importlib import import_module
-
 import string
+from collections.abc import Generator
+from importlib import import_module
+from typing import Any
 
 from dateparser.search import search_dates
-from typing import Any
-from collections.abc import Generator
 
 from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
@@ -140,7 +139,7 @@ class DateParser:
                    'source': ant.text}
 
     def get_date_annotations(self,
-                             text: str = None,
+                             text: str | None = None,
                              locale: Locale | None = None,
                              strict: bool = True) -> \
             Generator[DateAnnotation]:
@@ -191,7 +190,7 @@ class DateParser:
 
     def get_date_annotation_list(
         self,
-        text: str = None,
+        text: str | None = None,
         locale: Locale | None = None,
         strict: bool = True,
     ) -> list[DateAnnotation]:

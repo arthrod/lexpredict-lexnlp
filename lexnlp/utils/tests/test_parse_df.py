@@ -7,11 +7,11 @@ __email__ = "support@contraxsuite.com"
 
 
 import io
-import pandas as pd
 from unittest import TestCase
 
-from lexnlp.utils.parse_df import DataframeEntityParser
+import pandas as pd
 
+from lexnlp.utils.parse_df import DataframeEntityParser
 
 sample_csv = '''
 "name","alias"

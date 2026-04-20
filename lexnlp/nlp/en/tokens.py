@@ -15,12 +15,12 @@ __email__ = "support@contraxsuite.com"
 
 import os
 import pickle
-import regex as re
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
 # NLTK imports
 import nltk
+import regex as re
 from nltk.corpus import wordnet
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))

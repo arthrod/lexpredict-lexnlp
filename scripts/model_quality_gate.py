@@ -8,10 +8,9 @@ import csv
 import json
 import os
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
-from collections.abc import Sequence
-
 
 DEFAULT_FIXTURE = Path(
     "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv"
@@ -145,6 +144,7 @@ def load_pipeline_for_tag(tag: str):
 
 def score_pipeline(pipeline, texts: list[str], labels: list[bool], min_probability: float) -> dict[str, float]:
     from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+
     from lexnlp.extract.en.contracts.predictors import ProbabilityPredictorIsContract
 
     predictor = ProbabilityPredictorIsContract(pipeline=pipeline)

@@ -13,7 +13,7 @@ from unittest import TestCase
 
 import pytest
 
-from lexnlp import is_stanford_enabled, enable_stanford, disable_stanford
+from lexnlp import disable_stanford, enable_stanford, is_stanford_enabled
 
 
 class TestStanfordMissing(TestCase):

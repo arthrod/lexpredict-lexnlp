@@ -6,8 +6,9 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import regex as re
 from collections.abc import Generator
+
+import regex as re
 
 from lexnlp.extract.common import year_parser
 from lexnlp.extract.common.annotations.court_citation_annotation import CourtCitationAnnotation
@@ -169,7 +170,7 @@ class CourtCitationsParser:
     @staticmethod
     def split_text_by_keywords(text: str) -> list[tuple[str, int]]:
         # noinspection PyTypeChecker
-        matches: tuple[re.Match] = tuple(CourtCitationsParser.reg_split_by_registry.finditer(text))
+        matches: tuple[re.Match, ...] = tuple(CourtCitationsParser.reg_split_by_registry.finditer(text))
         chunks = []
         for i, match in enumerate(matches):
             ending = -1

@@ -6,15 +6,15 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from shutil import copyfile
-import tempfile
-from unittest import TestCase
 import os
+import tempfile
+from shutil import copyfile
+from unittest import TestCase
 
 import joblib
 
 from lexnlp import get_module_path
-from lexnlp.nlp.en.segments.sections import get_section_spans, SectionSegmenterModel
+from lexnlp.nlp.en.segments.sections import SectionSegmenterModel, get_section_spans
 from lexnlp.nlp.train.en.train_section_segmanizer import SectionSegmentizerTrainManager
 
 

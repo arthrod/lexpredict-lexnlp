@@ -13,7 +13,6 @@ from typing import NamedTuple
 
 from lexnlp.extract.all_locales.languages import LocaleContextManager
 
-
 # https://en.wikipedia.org/wiki/Decimal_separator
 
 

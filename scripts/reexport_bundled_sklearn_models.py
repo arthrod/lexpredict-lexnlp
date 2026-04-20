@@ -11,12 +11,11 @@ import argparse
 import io
 import pickle
 import warnings
-from pathlib import Path
 from collections.abc import Iterable, Sequence
-from zipfile import ZipFile, ZIP_STORED
+from pathlib import Path
+from zipfile import ZIP_STORED, ZipFile
 
 import joblib
-
 
 BUNDLED_MODEL_PATHS: tuple[Path, ...] = (
     Path("lexnlp/extract/de/date_model.pickle"),

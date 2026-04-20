@@ -14,15 +14,14 @@ import csv
 import inspect
 import os
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
-from collections.abc import Callable
 
 import psutil
 from memory_profiler import memory_usage
 
 from lexnlp.extract.common.base_path import lexnlp_test_path
-
 
 DIR_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 DIR_BENCHMARKS = os.path.join(DIR_ROOT, 'benchmarks')
@@ -63,7 +62,7 @@ def this_test_data_path(create_dirs: bool = False, caller_stack_offset: int = 1)
     return file_name
 
 
-def iter_test_data_text_and_tuple(file_name: str = None, call_stack_offset: int = 0):
+def iter_test_data_text_and_tuple(file_name: str | None = None, call_stack_offset: int = 0):
     """
     Reads test data from external file and iterates through pairs of text -> expected value.
     Types of values are lost during write-read to csv operations and they all are returned as strings.
@@ -218,13 +217,13 @@ def build_extraction_func_name(func: Callable, **kwargs):
 
 
 def test_extraction_func_on_test_data(func: Callable,
-                                      benchmark_name: str = None,
+                                      benchmark_name: str | None = None,
                                       expected_data_converter: Callable = None,
                                       actual_data_converter: Callable = None,
                                       test_only_expected_in: bool = False,
                                       debug_print: bool = False,
-                                      start_from_csv_line: int = None,
-                                      test_data_path: str = None,
+                                      start_from_csv_line: int | None = None,
+                                      test_data_path: str | None = None,
                                       **kwargs):
     """
     Tests the provided function against the test data loaded from external file.
@@ -275,8 +274,8 @@ def test_extraction_func_on_test_data(func: Callable,
 
 
 def test_extraction_func(expected, func: Callable, text,
-                         benchmark_name: str = None,
-                         test_data_file: str = None,
+                         benchmark_name: str | None = None,
+                         test_data_file: str | None = None,
                          expected_data_converter: Callable = None,
                          actual_data_converter: Callable = None,
                          do_raise: bool = True,
@@ -358,7 +357,7 @@ def assert_set_equal(function_name: str,
                      do_raise: bool = True,
                      do_write_to_file: bool = True,
                      debug_print: bool = True,
-                     test_data_file: str = None) -> str | None:
+                     test_data_file: str | None = None) -> str | None:
     if not expected_results and not actual_results:
         return None
     exx = None
@@ -438,7 +437,7 @@ def assert_in(function_name: str,
               problems_file: str = FN_PROBLEMS,
               do_raise: bool = True,
               do_write_to_file: bool = True,
-              test_data_file: str = None) -> str | None:
+              test_data_file: str | None = None) -> str | None:
     exx = None
     try:
         assert expected_in in actual_results

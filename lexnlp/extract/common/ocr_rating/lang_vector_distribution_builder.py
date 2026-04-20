@@ -7,11 +7,12 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import pandas
 import codecs
 from collections.abc import Iterable
-from lexnlp.extract.common.ocr_rating.ocr_rating_calculator import BaseOcrRatingCalculator
 
+import pandas
+
+from lexnlp.extract.common.ocr_rating.ocr_rating_calculator import BaseOcrRatingCalculator
 
 # class builds language reference vectors that are used
 # to compare N-gram distribution in a text given with

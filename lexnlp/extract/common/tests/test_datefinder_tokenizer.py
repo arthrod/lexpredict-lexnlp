@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from unittest import TestCase
+
 # from datefinder import DateFinder as DateFinderOld
 from lexnlp.extract.common.date_parsing.datefinder import DateFinder
 
@@ -17,7 +18,7 @@ class TestDateTokenizer(TestCase):
         dtok = DateFinder()
         tokens = dtok.tokenize_string(text)
         self.assertEqual(11, len(tokens))
-        self.assertEqual('delimiters', tokens[7][1])
+        self.assertEqual("delimiters", tokens[7][1])
 
     def test_get_date_time(self):
         text = "March 20, 2015 3:30 pm GMT "
@@ -32,9 +33,9 @@ class TestDateTokenizer(TestCase):
         tokens = dtok.tokenize_string(text)
         merged = dtok.merge_tokens(tokens)
         self.assertEqual(1, len(merged))
-        self.assertEqual('At 1997, 20 FEB ', merged[0].match_str)
+        self.assertEqual("At 1997, 20 FEB ", merged[0].match_str)
         self.assertEqual((0, 16), merged[0].indices)
-        self.assertEqual('At', merged[0].captures['extra_tokens'][0].strip())
+        self.assertEqual("At", merged[0].captures["extra_tokens"][0].strip())
 
     def test_get_date_strings(self):
         text = """
@@ -48,12 +49,12 @@ class TestDateTokenizer(TestCase):
         dtok = DateFinder()
         dstrs = list(dtok.extract_date_strings(text, True))
         self.assertEqual(4, len(dstrs))
-        self.assertEqual('until July 18, 2002', dstrs[1][0])
+        self.assertEqual("until July 18, 2002", dstrs[1][0])
         self.assertEqual((118, 137), dstrs[1][1])
         groups = dstrs[1][2]
-        self.assertEqual([], groups['time'])
-        self.assertEqual('18', groups['digits'][0])
-        self.assertEqual('2002', groups['digits'][1])
+        self.assertEqual([], groups["time"])
+        self.assertEqual("18", groups["digits"][0])
+        self.assertEqual("2002", groups["digits"][1])
 
     # def test_compare_date_string(self):
     #     text = """

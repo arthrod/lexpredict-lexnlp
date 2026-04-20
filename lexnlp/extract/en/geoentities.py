@@ -13,15 +13,14 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
-from lexnlp.extract.all_locales.languages import LANG_EN
-from lexnlp.extract.common.geoentity_detector import GeoEntityLocator
-from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
 from lexnlp.config.en import geoentities_config
-from lexnlp.extract.en.dict_entities import prepare_alias_banlist_dict, DictionaryEntry, DictionaryEntryAlias
-
+from lexnlp.extract.all_locales.languages import LANG_EN
+from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
+from lexnlp.extract.common.geoentity_detector import GeoEntityLocator
+from lexnlp.extract.en.dict_entities import DictionaryEntry, DictionaryEntryAlias, prepare_alias_banlist_dict
 
 _ALIAS_BAN_LIST_PREPARED = prepare_alias_banlist_dict(geoentities_config.ALIAS_BLACK_LIST)
 
@@ -31,7 +30,7 @@ def get_geoentities(
     geo_config_list: list[DictionaryEntry],
     conflict_resolving_field: str = 'none',
     priority_direction: str = 'asc',
-    text_languages: list[str] = None,
+    text_languages: list[str] | None = None,
     min_alias_len: int | None = None,
     prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
     simplified_normalization: bool = False,
@@ -65,7 +64,7 @@ def get_geoentity_list(
     geo_config_list: list[DictionaryEntry],
     conflict_resolving_field: str = 'none',
     priority_direction: str = 'asc',
-    text_languages: list[str] = None,
+    text_languages: list[str] | None = None,
     min_alias_len: int | None = None,
     prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
     simplified_normalization: bool = False,
@@ -91,7 +90,7 @@ def get_geoentity_annotations(
     geo_config_list: list[DictionaryEntry],
     conflict_resolving_field: str = 'none',
     priority_direction: str = 'asc',
-    text_languages: list[str] = None,
+    text_languages: list[str] | None = None,
     min_alias_len: int | None = None,
     prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
     simplified_normalization: bool = False,
@@ -124,7 +123,7 @@ def get_geoentity_annotation_list(
     geo_config_list: list[DictionaryEntry],
     conflict_resolving_field: str = 'none',
     priority_direction: str = 'asc',
-    text_languages: list[str] = None,
+    text_languages: list[str] | None = None,
     min_alias_len: int | None = None,
     prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
     simplified_normalization: bool = False,

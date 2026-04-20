@@ -8,9 +8,10 @@ __email__ = "support@contraxsuite.com"
 
 
 import joblib
-from pandas import Series
 from gensim.models.doc2vec import Doc2Vec
+from pandas import Series
 from sklearn.ensemble import RandomForestClassifier
+
 from lexnlp.nlp.en.tokens import get_tokens
 
 

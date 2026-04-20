@@ -19,8 +19,8 @@ class PhoneAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 text: str = None,
-                 phone: str = None):
+                 text: str | None = None,
+                 phone: str | None = None):
         super().__init__(
             name='',
             locale=locale,

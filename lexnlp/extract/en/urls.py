@@ -13,11 +13,10 @@ __email__ = "support@contraxsuite.com"
 
 
 import re
-from typing import Final
 from collections.abc import Generator
+from typing import Final
 
 from lexnlp.extract.common.annotations.url_annotation import UrlAnnotation
-
 
 URL_PTN = r"""
 (?xi)

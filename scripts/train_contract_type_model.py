@@ -7,8 +7,8 @@ import argparse
 import json
 import sys
 from collections import Counter
-from pathlib import Path
 from collections.abc import Sequence
+from pathlib import Path
 
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split

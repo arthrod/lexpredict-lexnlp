@@ -23,7 +23,6 @@ from reporters_db import EDITIONS, REPORTERS
 
 from lexnlp.extract.common.annotations.citation_annotation import CitationAnnotation
 
-
 CITATION_PTN = r"""
 (?:[\s,:\(]|^)
 (

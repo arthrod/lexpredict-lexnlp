@@ -28,11 +28,11 @@ class LocaleContextManager:
         self.category: int = category
         self.locale: str = _locale
 
-    def __enter__(self) -> str | str:
+    def __enter__(self) -> str | None:
         try:
             return locale.setlocale(self.category, self.locale)
         except locale.Error:
-            ...
+            return None
 
     def __exit__(self, type, value, traceback) -> None:
         locale.setlocale(self.category, self._original_locale)

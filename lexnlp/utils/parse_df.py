@@ -153,7 +153,7 @@ class DataframeEntityParser:
 
 def get_entities(text: str,
                  config: pd.DataFrame,
-                 parse_columns: list[str] | tuple[str],
+                 parse_columns: list[str] | tuple[str, ...],
                  result_columns: dict | None = None,
                  preformed_entity: dict | None = None,
                  priority_sort_column: str | None = None,
@@ -175,7 +175,7 @@ def get_entities(text: str,
 
 def get_entity_list(text: str,
                     config: pd.DataFrame,
-                    parse_columns: list[str] | tuple[str],
+                    parse_columns: list[str] | tuple[str, ...],
                     result_columns: dict | None = None,
                     preformed_entity: dict | None = None,
                     priority_sort_column: str | None = None,

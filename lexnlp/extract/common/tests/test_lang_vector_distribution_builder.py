@@ -11,19 +11,18 @@ from tempfile import NamedTemporaryFile
 from unittest import TestCase
 
 from lexnlp.extract.common.ocr_rating.lang_vector_distribution_builder import LangVectorDistributionBuilder
-from lexnlp.extract.common.ocr_rating.ocr_rating_calculator \
-    import CosineSimilarityOcrRatingCalculator
+from lexnlp.extract.common.ocr_rating.ocr_rating_calculator import CosineSimilarityOcrRatingCalculator
 
 
 class TestLangVectorDistributionBuilder(TestCase):
     def test_build_from_texts(self):
-        sample = 'chi ka nu chi nu kachika kanu unka'
-        file_even_dist = NamedTemporaryFile(mode='w', delete=False)
+        sample = "chi ka nu chi nu kachika kanu unka"
+        file_even_dist = NamedTemporaryFile(mode="w", delete=False)
         file_even_dist.writelines(sample * 200)
         file_even_dist.close()
 
-        sample = 'uka'
-        file_odd_dist = NamedTemporaryFile(mode='w', delete=False)
+        sample = "uka"
+        file_odd_dist = NamedTemporaryFile(mode="w", delete=False)
         file_odd_dist.writelines(sample * 600)
         file_odd_dist.close()
 
@@ -36,16 +35,16 @@ class TestLangVectorDistributionBuilder(TestCase):
 
         # test texts
         calc = CosineSimilarityOcrRatingCalculator()
-        calc.distribution_by_lang['chi'] = distr
+        calc.distribution_by_lang["chi"] = distr
 
-        sample_text = 'Chika ka nuunchi chi ka' * 5000
-        grade = calc.get_rating(sample_text, 'chi')
+        sample_text = "Chika ka nuunchi chi ka" * 5000
+        grade = calc.get_rating(sample_text, "chi")
         self.assertGreater(grade, 5)
 
     def collect_paths(self, root: str, paths: list[str]):
         for path in os.listdir(root):
             full_path = os.path.join(root, path)
-            if path.endswith('.txt'):
+            if path.endswith(".txt"):
                 paths.append(full_path)
                 continue
             if os.path.isdir(full_path):

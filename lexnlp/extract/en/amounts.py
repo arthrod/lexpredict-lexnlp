@@ -36,16 +36,15 @@ __email__ = "support@contraxsuite.com"
 # pylint: disable=bare-except
 
 import string
-from decimal import Decimal, DecimalTuple, InvalidOperation
 from collections.abc import Generator
+from decimal import Decimal, DecimalTuple, InvalidOperation
 
 import nltk
 import regex as re
 from num2words import num2words
 
-from lexnlp.utils.amount_delimiting import infer_delimiters
 from lexnlp.extract.common.annotations.amount_annotation import AmountAnnotation
-
+from lexnlp.utils.amount_delimiting import infer_delimiters
 
 # Define small numbers
 

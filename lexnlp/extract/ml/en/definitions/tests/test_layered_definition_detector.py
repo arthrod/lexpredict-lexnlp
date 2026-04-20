@@ -9,10 +9,9 @@ __email__ = "support@contraxsuite.com"
 import os
 from unittest import TestCase
 
+from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.ml.en.definitions.layered_definition_detector import LayeredDefinitionDetector
 from lexnlp.extract.ml.environment import ENV_EN_DATA_DIRECTORY
-from lexnlp.extract.common.base_path import lexnlp_test_path
-
 
 TRAINED_MODEL_PATH = os.path.join(ENV_EN_DATA_DIRECTORY, 'definition_model_layered.pickle.gzip')
 

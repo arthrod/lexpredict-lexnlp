@@ -8,10 +8,10 @@ __email__ = "support@contraxsuite.com"
 
 # pylint: disable=unused-import
 
+import os
+from collections import OrderedDict
 from shutil import copyfile
 from typing import Any
-from collections import OrderedDict
-import os
 
 
 def ensure_documents_in_folder(

@@ -20,9 +20,10 @@ __email__ = "support@contraxsuite.com"
 # standard library imports
 from decimal import Decimal
 
+from lexnlp.extract.en.amounts import get_amounts
+
 # LexNLP imports
 from lexnlp.tests import lexnlp_tests
-from lexnlp.extract.en.amounts import get_amounts
 
 
 def test_get_amount():

@@ -14,13 +14,11 @@ from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestDefinitionsTemplate(TestCase):
-
     def test_file_samples(self):
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
-            get_definitions_sorted,
-            'lexnlp/typed_annotations/en/definition/definitions.txt',
-            DefinitionAnnotation)
+            get_definitions_sorted, "lexnlp/typed_annotations/en/definition/definitions.txt", DefinitionAnnotation
+        )
 
 
 def get_definitions_sorted(text: str):

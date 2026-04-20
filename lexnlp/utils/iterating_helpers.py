@@ -6,12 +6,8 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-try:
-    from collections.abc import Iterable
-except ImportError:
-    from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from typing import Any
-from collections.abc import Callable
 
 
 def collapse_sequence(sequence: Iterable,

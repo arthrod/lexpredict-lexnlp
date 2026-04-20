@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from unittest import TestCase
+
 import numpy as np
 
 from lexnlp.extract.ml.detector.phrase_constructor import PhraseConstructor

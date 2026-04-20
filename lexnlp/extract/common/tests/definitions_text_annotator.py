@@ -7,11 +7,9 @@ __email__ = "support@contraxsuite.com"
 
 
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
-from lexnlp.tests.utility_for_testing import save_test_document, annotate_text
+from lexnlp.tests.utility_for_testing import annotate_text, save_test_document
 
 
-def annotate_definitions_text(text: str,
-                              definitions: list[DefinitionAnnotation],
-                              save_path: str) -> None:
+def annotate_definitions_text(text: str, definitions: list[DefinitionAnnotation], save_path: str) -> None:
     markup = annotate_text(text, definitions)
     save_test_document(save_path, markup)

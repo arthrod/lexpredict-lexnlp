@@ -16,10 +16,9 @@ __email__ = "support@contraxsuite.com"
 from collections import OrderedDict
 from collections.abc import Generator
 
-from lexnlp.extract.common.money_detector import MoneyDetector
 from lexnlp.extract.common.annotations.money_annotation import MoneyAnnotation
+from lexnlp.extract.common.money_detector import MoneyDetector
 from lexnlp.extract.de.amounts import CURRENCY_PREFIX_MAP, CURRENCY_SYMBOL_MAP, amount_parser, get_amounts
-
 
 CURRENCY_TOKEN_MAP = OrderedDict([
     ('chinesische yuan', 'CNY'),

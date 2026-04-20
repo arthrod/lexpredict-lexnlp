@@ -19,8 +19,8 @@ class UrlAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 text: str = None,
-                 url: str = None):
+                 text: str | None = None,
+                 url: str | None = None):
         super().__init__(
             name='',
             locale=locale,

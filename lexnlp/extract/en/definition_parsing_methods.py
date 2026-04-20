@@ -17,19 +17,20 @@ __email__ = "support@contraxsuite.com"
 # pylint: disable=broad-except,bare-except
 
 
-import regex as re
-import unidecode
 from collections import Counter
 from re import Pattern
 
+import regex as re
+import unidecode
+
 from lexnlp.extract.common.annotations.phrase_position_finder import PhrasePositionFinder
+from lexnlp.extract.common.special_characters import SpecialCharacters
 from lexnlp.extract.common.text_beautifier import TextBeautifier
+from lexnlp.extract.en.en_language_tokens import EnLanguageTokens
 from lexnlp.extract.en.introductory_words_detector import IntroductoryWordsDetector
 from lexnlp.extract.en.preprocessing.span_tokenizer import SpanTokenizer
-from lexnlp.extract.common.special_characters import SpecialCharacters
-from lexnlp.extract.en.en_language_tokens import EnLanguageTokens
-from lexnlp.utils.lines_processing.line_processor import LineProcessor
 from lexnlp.utils.iterating_helpers import count_sequence_matches
+from lexnlp.utils.lines_processing.line_processor import LineProcessor
 
 
 class DefinitionCaught:
@@ -120,13 +121,11 @@ EXTRACT_PTN_RE = re.compile(EXTRACT_PTN, re.UNICODE | re.DOTALL | re.MULTILINE |
 ARTICLES = ['the', 'a', 'an']
 
 # Case 2. Term inside quotes and brackets (the "Term") or ("Term")
-PAREN_QUOTE_PTN = rf"""\((?:each(?:,)?\s+)?(?:(?:{join_collection(ARTICLES)})\s+)?['"“](.{{1,{MAX_TERM_CHARS}}}?)\.?['"”]\)""" \
-    
+PAREN_QUOTE_PTN = rf"""\((?:each(?:,)?\s+)?(?:(?:{join_collection(ARTICLES)})\s+)?['"“](.{{1,{MAX_TERM_CHARS}}}?)\.?['"”]\)"""
 PAREN_QUOTE_PTN_RE_OPTIONS = re.IGNORECASE | re.UNICODE | re.DOTALL | re.MULTILINE | re.VERBOSE
 
 # Case 2.5. Term inside brackets (TERM) or (Term), starts with uppercase
-PAREN_PTN = rf"""\((?:E|each(?:,)?\s+)?(?:(?:{join_collection(ARTICLES)})\s+)?([A-Z][^\)]{{1,{MAX_TERM_CHARS}}}?)\.?\)""" \
-    
+PAREN_PTN = rf"""\((?:E|each(?:,)?\s+)?(?:(?:{join_collection(ARTICLES)})\s+)?([A-Z][^\)]{{1,{MAX_TERM_CHARS}}}?)\.?\)"""
 PAREN_PTN_RE_OPTIONS = re.UNICODE | re.DOTALL | re.MULTILINE | re.VERBOSE
 
 # Case 3. Term is without quotes, is preceded by word|term|phrase or :,.^
@@ -179,8 +178,7 @@ ANCHOR = ['called', 'herein', 'herein as', 'collectively(?:,)?', 'collectively a
           'known as', 'designated as', 'hereinafter', 'hereinafter as', 'hereafter', 'hereafter as', 'its', 'our',
           'your', 'any of the foregoing,', 'in such capacity,', 'in this section,', 'in this paragraph,',
           r'in this \(noun\),', 'each such', 'this']
-ANCHOR_QUOTES_PTN = rf"""(?:(?:{join_collection(ANCHOR)})\s+)(?:(?:{join_collection(ARTICLES)})\s+)?['"“](.{{1,{MAX_TERM_CHARS}}}?)['"”]""" \
-    
+ANCHOR_QUOTES_PTN = rf"""(?:(?:{join_collection(ANCHOR)})\s+)(?:(?:{join_collection(ARTICLES)})\s+)?['"“](.{{1,{MAX_TERM_CHARS}}}?)['"”]"""
 ANCHOR_QUOTE_RE_OPTIONS = re.IGNORECASE | re.UNICODE | re.DOTALL | re.MULTILINE | re.VERBOSE
 
 # Case 6: phrase such|any such|together + subject + term in quotes
@@ -189,8 +187,7 @@ ANCHOR = ['such', 'any such', 'together']
 ANCHOR_SUBJECT_QUOTES_PTN = rf"(?:(?:{join_collection(ANCHOR)})\s+?)(?:.{{1,{MAX_TERM_CHARS}}}\s+?)(?:(?:{join_collection(ARTICLES)})\s+)?" \
                             rf"(('(.{{1,{MAX_TERM_CHARS}}}?)')|" \
                             rf"(\"(.{{1,{MAX_TERM_CHARS}}}?)\")|" \
-                            rf"(“(.{{1,{MAX_TERM_CHARS}}}?)”))" \
-    
+                            rf"(“(.{{1,{MAX_TERM_CHARS}}}?)”))"
 ANCHOR_SUBJECT_QUOTES_RE_OPTIONS = re.IGNORECASE | re.UNICODE | re.DOTALL | re.MULTILINE | re.VERBOSE
 
 TRIGGER_QUOTED_DEFINITION_PATTERN = rf"""['"“][^'"“]{{1,{MAX_TERM_CHARS}}}['"”]"""

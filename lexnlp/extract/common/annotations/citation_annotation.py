@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from typing import Any
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -22,23 +23,23 @@ class CitationAnnotation(TextAnnotation):
                  coords: tuple[int, int],
                  locale: str = 'en',
                  text: str = '',
-                 volume: int = None,
-                 volume_str: str = None,
-                 year: int = None,
-                 reporter: str = None,
-                 reporter_full_name: str = None,
-                 page: int = None,
-                 page_range: str = None,
-                 court: str = None,
-                 source: str = None,
-                 article: int = None,
-                 paragraph: str = None,
-                 subparagraph: str = None,
-                 letter: str = None,
-                 sentence: int = None,
-                 date: str = None,
-                 part: str = None,
-                 year_str: str = None):
+                 volume: int | None = None,
+                 volume_str: str | None = None,
+                 year: int | None = None,
+                 reporter: str | None = None,
+                 reporter_full_name: str | None = None,
+                 page: int | None = None,
+                 page_range: str | None = None,
+                 court: str | None = None,
+                 source: str | None = None,
+                 article: int | None = None,
+                 paragraph: str | None = None,
+                 subparagraph: str | None = None,
+                 letter: str | None = None,
+                 sentence: int | None = None,
+                 date: str | None = None,
+                 part: str | None = None,
+                 year_str: str | None = None):
         super().__init__(
             name='',
             locale=locale,

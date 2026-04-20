@@ -11,10 +11,9 @@ import argparse
 import hashlib
 import json
 import sys
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any
-from collections.abc import Iterable, Sequence
-
 
 DEFAULT_MANIFEST = Path("test_data/model_quality/release_asset_manifest.json")
 

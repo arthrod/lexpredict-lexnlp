@@ -16,13 +16,13 @@ __email__ = "support@contraxsuite.com"
 
 # Imports
 import calendar
-import regex as re
 import string
-from typing import Any
 from collections.abc import Generator
+from typing import Any
+
+import regex as re
 
 from lexnlp.extract.common.annotations.cusip_annotation import CusipAnnotation
-
 
 CUSIP_PTN = r"""
 (?:\W|^)

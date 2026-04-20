@@ -38,10 +38,10 @@ def test_get_ratios():
             (
                 Decimal(numerator) if numerator else None,
                 Decimal(consequent) if consequent else None,
-                Decimal(decimal) if decimal else None
+                Decimal(decimal) if decimal else None,
             )
             for numerator, consequent, decimal in expected
-        ]
+        ],
     )
 
 
@@ -61,5 +61,5 @@ def test_get_ratios_source():
                 source,
             )
             for numerator, consequent, decimal, source in expected
-        ]
+        ],
     )

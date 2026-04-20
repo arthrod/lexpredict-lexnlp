@@ -24,7 +24,6 @@ if str(_SCRIPTS_DIR) not in sys.path:
 
 import asset_drift_check  # imported after sys.path mutation above for test-only script import
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -83,7 +82,8 @@ class TestErrorMessageFormat:
                 "lexnlp.ml.catalog.download": dl_mock,
             },
         ):
-            import io, contextlib
+            import contextlib
+            import io
 
             stderr_capture = io.StringIO()
             with contextlib.redirect_stderr(stderr_capture):
@@ -195,7 +195,8 @@ class TestSha256Comparison:
                 "lexnlp.ml.catalog.download": dl_mock,
             },
         ):
-            import io, contextlib
+            import contextlib
+            import io
 
             stderr_capture = io.StringIO()
             with contextlib.redirect_stderr(stderr_capture):

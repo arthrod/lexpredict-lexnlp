@@ -22,7 +22,7 @@ class ActAnnotation(TextAnnotation):
                  locale: str = 'en',
                  act_name: str = '',
                  section: str = '',
-                 year: int = None,
+                 year: int | None = None,
                  ambiguous: bool = False,
                  text: str = ''):
         super().__init__(

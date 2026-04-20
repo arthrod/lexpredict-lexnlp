@@ -14,10 +14,8 @@ from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestConditionsPlain(TestCase):
-
     def test_file_samples(self):
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
-            get_condition_annotations,
-            'lexnlp/typed_annotations/en/condition/conditions.txt',
-            ConditionAnnotation)
+            get_condition_annotations, "lexnlp/typed_annotations/en/condition/conditions.txt", ConditionAnnotation
+        )

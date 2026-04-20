@@ -22,6 +22,7 @@ __email__ = "support@contraxsuite.com"
 # Imports
 import os
 from unittest import TestCase
+
 from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.en.regulations import get_regulations
 from lexnlp.tests import lexnlp_tests
@@ -45,40 +46,40 @@ class TestRegulations(TestCase):
         Test default get regulations behavior.
         :return:
         """
-        test_data_path = os.path.join(lexnlp_test_path,
-                                      'lexnlp/extract/en/tests/test_regulations/test_get_regulations.csv')
-        lexnlp_tests.test_extraction_func_on_test_data(get_regulations,
-                                                       expected_data_converter=lambda d:
-                                                       [(reg_type, reg_code) for reg_type, reg_code, _reg_str in d],
-                                                       return_source=False,
-                                                       as_dict=False,
-                                                       test_data_path=test_data_path)
-        lexnlp_tests.test_extraction_func_on_test_data(get_regulations,
-                                                       expected_data_converter=lambda d:
-                                                       [(reg_type, reg_code, reg_str) for reg_type, reg_code, reg_str in d],
-                                                       return_source=True,
-                                                       as_dict=False,
-                                                       test_data_path=test_data_path)
+        test_data_path = os.path.join(
+            lexnlp_test_path, "lexnlp/extract/en/tests/test_regulations/test_get_regulations.csv"
+        )
+        lexnlp_tests.test_extraction_func_on_test_data(
+            get_regulations,
+            expected_data_converter=lambda d: [(reg_type, reg_code) for reg_type, reg_code, _reg_str in d],
+            return_source=False,
+            as_dict=False,
+            test_data_path=test_data_path,
+        )
+        lexnlp_tests.test_extraction_func_on_test_data(
+            get_regulations,
+            expected_data_converter=lambda d: [(reg_type, reg_code, reg_str) for reg_type, reg_code, reg_str in d],
+            return_source=True,
+            as_dict=False,
+            test_data_path=test_data_path,
+        )
 
         cmp = DictionaryComparer(check_order=True)
         errors = []
 
-        for (i, text, _input_args, expected) in \
-                lexnlp_tests.iter_test_data_text_and_tuple(file_name=test_data_path):
-            expected = [{'regulation_type': reg_type,
-                         'regulation_code': reg_code,
-                         'regulation_text': reg_str}
-                        for reg_type, reg_code, reg_str in expected]
-            actual = list(lexnlp_tests.benchmark_extraction_func(get_regulations,
-                                                                 text,
-                                                                 return_source=True,
-                                                                 as_dict=True))
+        for i, text, _input_args, expected in lexnlp_tests.iter_test_data_text_and_tuple(file_name=test_data_path):
+            expected = [
+                {"regulation_type": reg_type, "regulation_code": reg_code, "regulation_text": reg_str}
+                for reg_type, reg_code, reg_str in expected
+            ]
+            actual = list(
+                lexnlp_tests.benchmark_extraction_func(get_regulations, text, return_source=True, as_dict=True)
+            )
 
             line_errors = cmp.compare_list_of_dicts(expected, actual)
             if line_errors:
-                line_errors_str = '\n'.join(line_errors)
-                errors.append(f'Regulation tests, line [{i + 1}] errors:\n' +
-                              line_errors_str)
+                line_errors_str = "\n".join(line_errors)
+                errors.append(f"Regulation tests, line [{i + 1}] errors:\n" + line_errors_str)
 
         if errors:
-            raise Exception('\n\n'.join(errors))
+            raise Exception("\n\n".join(errors))

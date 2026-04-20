@@ -6,8 +6,8 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from lexnlp.utils.map import Map
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
+from lexnlp.utils.map import Map
 
 
 class CopyrightAnnotation(TextAnnotation):

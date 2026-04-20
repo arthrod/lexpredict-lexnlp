@@ -7,14 +7,13 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from datetime import datetime
 from collections.abc import Generator
+from datetime import datetime
 
-from lexnlp.extract.all_locales.languages import LANG_EN, LANG_DE, DEFAULT_LANGUAGE, Locale
+from lexnlp.extract.all_locales.languages import DEFAULT_LANGUAGE, LANG_DE, LANG_EN, Locale
 from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
-from lexnlp.extract.en.dates import get_date_annotations as get_date_annotations_en
 from lexnlp.extract.de.dates import get_date_annotations as get_date_annotations_de
-
+from lexnlp.extract.en.dates import get_date_annotations as get_date_annotations_en
 
 ROUTINE_BY_LOCALE = {
     LANG_EN.code: get_date_annotations_en,

@@ -42,7 +42,7 @@ def test_get_percents():
             )
             for unit, value_units, value_decimal in expected
             if unit or value_units or value_decimal
-        ]
+        ],
     )
 
 
@@ -63,5 +63,5 @@ def test_get_percents_source():
             )
             for unit, value_units, value_decimal, source in expected
             if unit or value_units or value_decimal or source
-        ]
+        ],
     )

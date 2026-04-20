@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from datetime import date as _date
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -20,9 +21,9 @@ class DateAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 text: str = None,
+                 text: str | None = None,
                  date: _date = None,
-                 score: float = None):
+                 score: float | None = None):
         super().__init__(
             name='',
             locale=locale,

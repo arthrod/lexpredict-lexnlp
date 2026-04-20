@@ -16,31 +16,28 @@ from lexnlp.extract.common.ocr_rating.ocr_rating_calculator import build_cs_quad
 class TestOcrGrade(TestCase):
     def test_empty_text(self):
         calc = build_cs_quad_rating_calculator()
-        rating = calc.get_rating('', '')
+        rating = calc.get_rating("", "")
         self.assertEqual(0, rating)
 
     def test_pretty_text(self):
-        file_path = os.path.join(
-            lexnlp_test_path, 'lexnlp/extract/common/ocr_grade/pretty_en_file.txt')
+        file_path = os.path.join(lexnlp_test_path, "lexnlp/extract/common/ocr_grade/pretty_en_file.txt")
         calc = build_cs_quad_rating_calculator()
-        rating = calc.get_file_rating(file_path, 'en')
+        rating = calc.get_file_rating(file_path, "en")
         self.assertGreater(rating, 8)
 
     def test_lorem_ipsum(self):
-        file_path = os.path.join(
-            lexnlp_test_path, 'lexnlp/extract/common/ocr_grade/lorem_ipsum.txt')
+        file_path = os.path.join(lexnlp_test_path, "lexnlp/extract/common/ocr_grade/lorem_ipsum.txt")
         calc = build_cs_quad_rating_calculator()
-        rating = calc.get_file_rating(file_path, 'en')
+        rating = calc.get_file_rating(file_path, "en")
         self.assertLess(rating, 7)
 
     def test_deutsche(self):
-        file_path = os.path.join(
-            lexnlp_test_path, 'lexnlp/extract/common/ocr_grade/totem_und_tabu.txt')
+        file_path = os.path.join(lexnlp_test_path, "lexnlp/extract/common/ocr_grade/totem_und_tabu.txt")
         calc = build_cs_quad_rating_calculator()
-        rating_en = calc.get_file_rating(file_path, 'en')
+        rating_en = calc.get_file_rating(file_path, "en")
         self.assertGreater(rating_en, 0)
         self.assertLess(rating_en, 7)
 
-        rating_de = calc.get_file_rating(file_path, 'de')
+        rating_de = calc.get_file_rating(file_path, "de")
         self.assertGreater(rating_de, rating_en)
         self.assertGreater(rating_de, 6)

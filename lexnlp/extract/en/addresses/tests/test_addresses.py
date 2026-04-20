@@ -6,7 +6,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from lexnlp.extract.en.addresses.addresses import get_address_spans, _safe_index
+from lexnlp.extract.en.addresses.addresses import _safe_index, get_address_spans
 from lexnlp.tests import lexnlp_tests
 
 

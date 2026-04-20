@@ -14,8 +14,7 @@ import os
 
 import nltk
 
-from lexnlp.nlp.en.tokens import get_tokens, get_stems
-
+from lexnlp.nlp.en.tokens import get_stems, get_tokens
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 

@@ -19,6 +19,7 @@ __email__ = "support@contraxsuite.com"
 
 # Imports
 from decimal import Decimal
+
 from lexnlp.extract.en.distances import get_distances
 from lexnlp.tests import lexnlp_tests
 
@@ -33,10 +34,7 @@ def test_get_distance():
     lexnlp_tests.test_extraction_func_on_test_data(
         func=get_distances,
         return_sources=False,
-        expected_data_converter=lambda expected: [
-            (Decimal(distance), units)
-            for distance, units in expected
-        ]
+        expected_data_converter=lambda expected: [(Decimal(distance), units) for distance, units in expected],
     )
 
 
@@ -49,7 +47,6 @@ def test_get_distance_source():
         func=get_distances,
         return_sources=True,
         expected_data_converter=lambda expected: [
-            (Decimal(distance), units, source)
-            for distance, units, source in expected
-        ]
+            (Decimal(distance), units, source) for distance, units, source in expected
+        ],
     )

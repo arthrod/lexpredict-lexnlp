@@ -13,13 +13,12 @@ from lexnlp.extract.all_locales.languages import LANG_DE, Locale
 from lexnlp.extract.common.annotations.court_citation_annotation import CourtCitationAnnotation
 from lexnlp.extract.de.court_citations import get_court_citation_annotations as get_court_citation_annotations_de
 
-
 ROUTINE_BY_LOCALE = {
     LANG_DE.code: get_court_citation_annotations_de
 }
 
 
-def get_court_citation_annotations(locale: str, text: str, language: str = None) -> \
+def get_court_citation_annotations(locale: str, text: str, language: str | None = None) -> \
         Generator[CourtCitationAnnotation]:
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[LANG_DE.code])
     yield from routine(text, language)

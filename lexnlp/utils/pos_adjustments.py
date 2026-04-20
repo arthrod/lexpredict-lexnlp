@@ -8,8 +8,8 @@ __email__ = "support@contraxsuite.com"
 
 # -*- coding: utf-8 -*-
 
-from dataclasses import dataclass
 from collections.abc import Callable
+from dataclasses import dataclass
 
 
 @dataclass

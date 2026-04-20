@@ -8,10 +8,9 @@ import csv
 import json
 import os
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
-from collections.abc import Sequence
-
 
 DEFAULT_FIXTURE = Path(
     "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_contract_type.csv"

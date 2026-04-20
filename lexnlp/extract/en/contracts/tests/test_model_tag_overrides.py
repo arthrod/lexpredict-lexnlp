@@ -1,10 +1,10 @@
 import pytest
 
+from lexnlp.extract.en.contracts import runtime_model
 from lexnlp.extract.en.contracts.predictors import (
     ProbabilityPredictorContractType,
     ProbabilityPredictorIsContract,
 )
-from lexnlp.extract.en.contracts import runtime_model
 from lexnlp.ml import catalog as ml_catalog
 from lexnlp.ml.predictor import ProbabilityPredictor
 

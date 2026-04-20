@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from html import escape
+
 from lexnlp.utils.map import Map
 
 

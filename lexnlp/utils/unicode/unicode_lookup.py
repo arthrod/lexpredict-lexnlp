@@ -11,7 +11,6 @@ import pickle
 
 import pandas
 
-
 _MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 _FN_UNICODE_CHAR_CATEGORIES = os.path.join(_MODULE_PATH, 'unicode_character_categories.pickle')
 _FN_UNICODE_CHAR_CATEGORY_MAPPING = os.path.join(_MODULE_PATH, 'unicode_character_category_mapping.pickle')
@@ -37,7 +36,7 @@ UNICODE_CHAR_TOP_CATEGORY_MAPPING = _load_table(_FN_UNICODE_CHAR_TOP_CATEGORY_MA
 def build_lookup_tables(fn_char_categories,
                         fn_char_category_mapping,
                         fn_char_top_category_mapping,
-                        table_source: str = None):
+                        table_source: str | None = None):
     """
     https://www.unicode.org/reports/tr44/#General_Category
     https://www.unicode.org/reports/tr44/#General_Category_Values

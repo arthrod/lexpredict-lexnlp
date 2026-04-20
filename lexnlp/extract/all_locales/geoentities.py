@@ -9,12 +9,11 @@ __email__ = "support@contraxsuite.com"
 
 from collections.abc import Generator
 
+from lexnlp.extract.all_locales.languages import DEFAULT_LANGUAGE, LANG_DE, LANG_EN, Locale
 from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
-from lexnlp.extract.en.dict_entities import DictionaryEntry
-from lexnlp.extract.all_locales.languages import LANG_EN, LANG_DE, DEFAULT_LANGUAGE, Locale
-from lexnlp.extract.en.geoentities import get_geoentity_annotations as get_geoentity_annotations_en
 from lexnlp.extract.de.geoentities import get_geoentity_annotations as get_geoentity_annotations_de
-
+from lexnlp.extract.en.dict_entities import DictionaryEntry
+from lexnlp.extract.en.geoentities import get_geoentity_annotations as get_geoentity_annotations_en
 
 ROUTINE_BY_LOCALE = {
     LANG_EN.code: get_geoentity_annotations_en,
@@ -28,7 +27,7 @@ def get_geoentity_annotations(
         geo_config_list: list[DictionaryEntry],
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: list[str] = None,
+        text_languages: list[str] | None = None,
         min_alias_len: int | None = None,
         prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False) -> Generator[GeoAnnotation]:

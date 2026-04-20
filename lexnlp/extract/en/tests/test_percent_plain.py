@@ -6,15 +6,15 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from unittest import TestCase
 from decimal import Decimal
+from unittest import TestCase
+
 from lexnlp.extract.common.annotations.percent_annotation import PercentAnnotation
-from lexnlp.extract.en.percents import get_percents, get_percent_annotations
+from lexnlp.extract.en.percents import get_percent_annotations, get_percents
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestPercentPlain(TestCase):
-
     def test_percent(self):
         text = "I'm 146.5 percent sure (or just 100%)"
         ds = list(get_percents(text))
@@ -22,11 +22,11 @@ class TestPercentPlain(TestCase):
 
         ants = list(get_percent_annotations(text))
         self.assertEqual(2, len(ants))
-        self.assertEqual('en', ants[0].locale)
-        self.assertEqual('percent', ants[0].sign)
+        self.assertEqual("en", ants[0].locale)
+        self.assertEqual("percent", ants[0].sign)
         self.assertEqual(146.5, ants[0].amount)
 
-        self.assertEqual('%', ants[1].sign)
+        self.assertEqual("%", ants[1].sign)
         self.assertEqual(100.0, ants[1].amount)
 
     def test_percent_amount(self):
@@ -34,28 +34,27 @@ class TestPercentPlain(TestCase):
         ants = list(get_percent_annotations(text))
         self.assertEqual(1, len(ants))
         self.assertEqual(30, ants[0].amount)
-        self.assertEqual(Decimal('0.3'), ants[0].fraction)
+        self.assertEqual(Decimal("0.3"), ants[0].fraction)
 
     def test_percent_fraction(self):
-        text = '1/2 %'
+        text = "1/2 %"
         ants = list(get_percent_annotations(text))
         self.assertEqual(1, len(ants))
-        self.assertEqual(Decimal('0.005'), ants[0].fraction)
+        self.assertEqual(Decimal("0.005"), ants[0].fraction)
 
-        text = '2 ⅗ percent'
+        text = "2 ⅗ percent"
         ants = list(get_percent_annotations(text))
         self.assertEqual(1, len(ants))
-        self.assertEqual(Decimal('0.026'), ants[0].fraction)
+        self.assertEqual(Decimal("0.026"), ants[0].fraction)
 
     def test_percent_mix_fraction(self):
-        text = '020 ⅗%'
+        text = "020 ⅗%"
         ants = list(get_percent_annotations(text))
         self.assertEqual(1, len(ants))
-        self.assertEqual(Decimal('0.206'), ants[0].fraction)
+        self.assertEqual(Decimal("0.206"), ants[0].fraction)
 
     def test_file_samples(self):
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
-            get_percent_annotations,
-            'lexnlp/typed_annotations/en/percent/percents.txt',
-            PercentAnnotation)
+            get_percent_annotations, "lexnlp/typed_annotations/en/percent/percents.txt", PercentAnnotation
+        )

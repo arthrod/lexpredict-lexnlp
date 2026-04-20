@@ -9,7 +9,6 @@ __email__ = "support@contraxsuite.com"
 import codecs
 
 
-
 class LanguageDictionaryReader:
     """
     This class reads text files, where values are separated by <line_breaks>,

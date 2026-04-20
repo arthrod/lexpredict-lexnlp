@@ -9,11 +9,10 @@ __email__ = "support@contraxsuite.com"
 
 from collections.abc import Generator
 
-from lexnlp.extract.all_locales.languages import LANG_EN, LANG_DE, DEFAULT_LANGUAGE, Locale
+from lexnlp.extract.all_locales.languages import DEFAULT_LANGUAGE, LANG_DE, LANG_EN, Locale
 from lexnlp.extract.common.annotations.amount_annotation import AmountAnnotation
-from lexnlp.extract.en.amounts import get_amount_annotations as get_amount_annotations_en
 from lexnlp.extract.de.amounts import get_amount_annotations as get_amount_annotations_de
-
+from lexnlp.extract.en.amounts import get_amount_annotations as get_amount_annotations_en
 
 ROUTINE_BY_LOCALE = {
     LANG_EN.code: get_amount_annotations_en,

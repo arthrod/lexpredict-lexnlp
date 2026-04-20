@@ -6,8 +6,8 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from lexnlp.utils.map import Map
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
+from lexnlp.utils.map import Map
 
 
 class CourtCitationAnnotation(TextAnnotation):
@@ -21,9 +21,9 @@ class CourtCitationAnnotation(TextAnnotation):
                  coords: tuple[int, int],
                  locale: str = 'en',
                  name: str = '',
-                 short_name: str = None,
-                 text: str = None,
-                 translated_name: str = None):
+                 short_name: str | None = None,
+                 text: str | None = None,
+                 translated_name: str | None = None):
         super().__init__(
             coords=coords,
             name=name,

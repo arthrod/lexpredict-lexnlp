@@ -11,6 +11,7 @@ import datetime
 import os
 import time
 from unittest import TestCase
+
 from lexnlp.extract.common.date_parsing.datefinder import DateFinder
 
 
@@ -21,8 +22,7 @@ class TestDateFinder(TestCase):
  -                     569                -                     15                  -                     -                     -                     -                     -                     -                     -                     -                     -                     +
  1,195             1,339             3,019             1,820             13,831
         """
-        base_date = datetime.datetime.now().replace(
-            day=1, month=1, hour=0, minute=0, second=0, microsecond=0)
+        base_date = datetime.datetime.now().replace(day=1, month=1, hour=0, minute=0, second=0, microsecond=0)
 
         # Find potential dates
         date_finder = DateFinder(base_date=base_date)
@@ -31,12 +31,11 @@ class TestDateFinder(TestCase):
 
     def test_parse_time(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        file_path = dir_path + '/../../../../test_data/long_parsed_text.txt'
-        with codecs.open(file_path, 'r', encoding='utf-8') as fr:
+        file_path = dir_path + "/../../../../test_data/long_parsed_text.txt"
+        with codecs.open(file_path, "r", encoding="utf-8") as fr:
             text = fr.read()
 
-        base_date = datetime.datetime.now().replace(
-            day=1, month=1, hour=0, minute=0, second=0, microsecond=0)
+        base_date = datetime.datetime.now().replace(day=1, month=1, hour=0, minute=0, second=0, microsecond=0)
         date_finder = DateFinder(base_date=base_date)
         t1 = time.time()
         _ = list(date_finder.extract_date_strings(text, strict=False))

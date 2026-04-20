@@ -19,10 +19,10 @@ class ConstraintAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 constraint: str = None,
-                 pre: str = None,
-                 post: str = None,
-                 text: str = None):
+                 constraint: str | None = None,
+                 pre: str | None = None,
+                 post: str | None = None,
+                 text: str | None = None):
         super().__init__(
             name='',
             locale=locale,

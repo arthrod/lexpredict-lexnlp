@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from typing import Any
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -22,14 +23,14 @@ class CusipAnnotation(TextAnnotation):
                  coords: tuple[int, int],
                  locale: str = 'en',
                  name: str = '',
-                 text: str = None,
-                 code: str = None,
-                 internal: bool = None,
-                 ppn: str = None,
-                 tba: dict = None,
-                 checksum: str = None,
-                 issue_id: str = None,
-                 issuer_id: str = None):
+                 text: str | None = None,
+                 code: str | None = None,
+                 internal: bool | None = None,
+                 ppn: str | None = None,
+                 tba: dict | None = None,
+                 checksum: str | None = None,
+                 issue_id: str | None = None,
+                 issuer_id: str | None = None):
         super().__init__(
             name=name,
             locale=locale,

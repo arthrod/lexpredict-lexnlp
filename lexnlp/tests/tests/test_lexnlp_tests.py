@@ -11,9 +11,10 @@ __email__ = "support@contraxsuite.com"
 
 
 import os
-import pytest
 import tempfile
 from unittest import TestCase
+
+import pytest
 
 from lexnlp.tests import lexnlp_tests
 

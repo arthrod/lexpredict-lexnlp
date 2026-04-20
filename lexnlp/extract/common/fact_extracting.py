@@ -6,33 +6,11 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Any
 from collections.abc import Callable
 from enum import Enum
+from typing import Any
 
 from lexnlp.extract.common.annotation_type import AnnotationType
-from lexnlp.extract.en.acts import get_acts_annotations, get_acts
-from lexnlp.extract.en.amounts import get_amounts, get_amount_annotations
-from lexnlp.extract.en.citations import get_citation_annotations, get_citations
-from lexnlp.extract.en.conditions import get_condition_annotations, get_conditions
-from lexnlp.extract.en.constraints import get_constraint_annotations, get_constraints
-from lexnlp.extract.en.copyright import get_copyright_annotations, get_copyrights
-from lexnlp.extract.en.courts import get_court_annotations, get_courts
-from lexnlp.extract.en.cusip import get_cusip_annotations, get_cusip
-from lexnlp.extract.en.dates import get_date_annotations, get_dates
-from lexnlp.extract.en.definitions import get_definition_annotations, get_definitions
-from lexnlp.extract.en.distances import get_distance_annotations, get_distances
-from lexnlp.extract.en.durations import get_duration_annotations, get_durations
-from lexnlp.extract.en.geoentities import get_geoentity_annotations, get_geoentities
-from lexnlp.extract.en.money import get_money_annotations, get_money
-from lexnlp.extract.en.percents import get_percent_annotations, get_percents
-from lexnlp.extract.en.pii import get_pii_annotations, get_pii, get_us_phone_annotations, \
-    get_us_phones, get_ssn_annotations, get_ssns
-from lexnlp.extract.en.ratios import get_ratio_annotations, get_ratios
-from lexnlp.extract.en.regulations import get_regulation_annotations, get_regulations
-from lexnlp.extract.en.trademarks import get_trademark_annotations, get_trademarks
-from lexnlp.extract.en.urls import get_url_annotations, get_urls
-
 from lexnlp.extract.de.amounts import get_amount_annotations as get_de_amount_annotations
 from lexnlp.extract.de.amounts import get_amounts as get_de_amounts
 from lexnlp.extract.de.citations import get_citation_annotations as get_de_citation_annotations
@@ -49,13 +27,39 @@ from lexnlp.extract.de.definitions import get_definition_annotations as get_de_d
 from lexnlp.extract.de.definitions import get_definitions as get_de_definitions
 from lexnlp.extract.de.durations import get_duration_annotations as get_de_duration_annotations
 from lexnlp.extract.de.durations import get_durations as get_de_durations
-from lexnlp.extract.de.geoentities import get_geoentity_annotations as get_de_geoentity_annotations, \
-    get_geoentities as get_de_geoentities
+from lexnlp.extract.de.geoentities import get_geoentities as get_de_geoentities
+from lexnlp.extract.de.geoentities import get_geoentity_annotations as get_de_geoentity_annotations
 from lexnlp.extract.de.laws import get_law_annotations as get_de_law_annotations
 from lexnlp.extract.de.laws import get_laws as get_de_laws
 from lexnlp.extract.de.percents import get_percent_annotations as get_de_percent_annotations
 from lexnlp.extract.de.percents import get_percents as get_de_percents
-
+from lexnlp.extract.en.acts import get_acts, get_acts_annotations
+from lexnlp.extract.en.amounts import get_amount_annotations, get_amounts
+from lexnlp.extract.en.citations import get_citation_annotations, get_citations
+from lexnlp.extract.en.conditions import get_condition_annotations, get_conditions
+from lexnlp.extract.en.constraints import get_constraint_annotations, get_constraints
+from lexnlp.extract.en.copyright import get_copyright_annotations, get_copyrights
+from lexnlp.extract.en.courts import get_court_annotations, get_courts
+from lexnlp.extract.en.cusip import get_cusip, get_cusip_annotations
+from lexnlp.extract.en.dates import get_date_annotations, get_dates
+from lexnlp.extract.en.definitions import get_definition_annotations, get_definitions
+from lexnlp.extract.en.distances import get_distance_annotations, get_distances
+from lexnlp.extract.en.durations import get_duration_annotations, get_durations
+from lexnlp.extract.en.geoentities import get_geoentities, get_geoentity_annotations
+from lexnlp.extract.en.money import get_money, get_money_annotations
+from lexnlp.extract.en.percents import get_percent_annotations, get_percents
+from lexnlp.extract.en.pii import (
+    get_pii,
+    get_pii_annotations,
+    get_ssn_annotations,
+    get_ssns,
+    get_us_phone_annotations,
+    get_us_phones,
+)
+from lexnlp.extract.en.ratios import get_ratio_annotations, get_ratios
+from lexnlp.extract.en.regulations import get_regulation_annotations, get_regulations
+from lexnlp.extract.en.trademarks import get_trademark_annotations, get_trademarks
+from lexnlp.extract.en.urls import get_url_annotations, get_urls
 from lexnlp.extract.es.copyrights import get_copyright_annotations as get_es_copyright_annotations
 from lexnlp.extract.es.copyrights import get_copyrights as get_es_copyrights
 from lexnlp.extract.es.courts import get_court_annotations as get_es_court_annotations
@@ -118,8 +122,8 @@ class FactExtractor:
                    lang: str,
                    result_fmt: ExtractorResultFormat = ExtractorResultFormat.fmt_class,
                    extract_all: bool = True,
-                   include_types: set[AnnotationType] = None,
-                   exclude_types: set[AnnotationType] = None) -> dict[AnnotationType, list[Any]]:
+                   include_types: set[AnnotationType] | None = None,
+                   exclude_types: set[AnnotationType] | None = None) -> dict[AnnotationType, list[Any]]:
         if lang not in FactExtractor.func_by_lang:
             langs = ', '.join(FactExtractor.func_by_lang)
             raise Exception(f'Language "{lang}" was not found among {langs}')
@@ -167,7 +171,7 @@ class FactExtractor:
 
     @staticmethod
     def ensure_parser_arguments_en(
-            geo_config: list[Any] = None) -> None:
+            geo_config: list[Any] | None = None) -> None:
         for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_EN,
                                                   fmt,
@@ -176,7 +180,7 @@ class FactExtractor:
 
     @staticmethod
     def ensure_parser_arguments_de(
-            geo_config: list[Any] = None) -> None:
+            geo_config: list[Any] | None = None) -> None:
         for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_DE,
                                                   fmt,

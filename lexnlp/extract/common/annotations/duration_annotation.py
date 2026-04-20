@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -21,14 +22,14 @@ class DurationAnnotation(TextAnnotation):
         self,
         coords: tuple[int, int],
         locale: str = 'en',
-        text: str = None,
-        amount: Decimal = None,
-        prefix: str = None,
-        duration_days: Decimal = None,
-        duration_type: str = None,
-        duration_type_en: str = None,
+        text: str | None = None,
+        amount: Decimal | None = None,
+        prefix: str | None = None,
+        duration_days: Decimal | None = None,
+        duration_type: str | None = None,
+        duration_type_en: str | None = None,
         is_complex: bool = False,
-        value_dict: dict = None
+        value_dict: dict | None = None
     ) -> None:
         super().__init__(
             name='',

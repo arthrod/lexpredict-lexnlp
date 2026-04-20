@@ -19,23 +19,22 @@ __email__ = "support@contraxsuite.com"
 
 # standard library imports
 from decimal import Decimal
+from unittest import TestCase
 
 # LexNLP imports
 from lexnlp.extract.en.money import get_money
 from lexnlp.tests import lexnlp_tests
-from unittest import TestCase
 
 
 class MoneyTest(TestCase):
-
     def test_get_money_order(self):
         """
         At some moment there was a problem: get_money() was returning money in reversed order.
         This test is ensures the order is straight.
         :return:
         """
-        text = ''' $96,844.00 per month ($31.00 per square foot per year), beginning on the date which is 90 days after 
-        the Commencement Date and ending on the Expiration Date.'''
+        text = """ $96,844.00 per month ($31.00 per square foot per year), beginning on the date which is 90 days after 
+        the Commencement Date and ending on the Expiration Date."""
         actual = list(get_money(text, return_sources=False, float_digits=6))
         self.assertEqual(actual[0][0], 96844.0)
 
@@ -44,9 +43,9 @@ class MoneyTest(TestCase):
         Problem: it was returning 23.6 instead of 23.62 for such cases.
         :return:
         """
-        text = '''Exercise Price per Share: 23.62'''
+        text = """Exercise Price per Share: 23.62"""
         actual = list(get_money(text, return_sources=False, float_digits=6))
-        self.assertEqual(actual[0][0], Decimal('23.62'))
+        self.assertEqual(actual[0][0], Decimal("23.62"))
 
 
 def test_get_money():
@@ -58,12 +57,8 @@ def test_get_money():
         func=get_money,
         return_sources=False,
         expected_data_converter=lambda expected: [
-            (
-                Decimal(amount) if amount else None,
-                currency
-            )
-            for amount, currency in expected
-        ]
+            (Decimal(amount) if amount else None, currency) for amount, currency in expected
+        ],
     )
 
 
@@ -76,12 +71,8 @@ def test_get_money_source():
         func=get_money,
         return_sources=True,
         expected_data_converter=lambda expected: [
-            (
-                Decimal(amount) if amount else None,
-                currency,
-                source
-            )
+            (Decimal(amount) if amount else None, currency, source)
             for amount, currency, source in expected
             if amount or currency or source
-        ]
+        ],
     )

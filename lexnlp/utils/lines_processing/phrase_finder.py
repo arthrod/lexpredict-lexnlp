@@ -8,7 +8,6 @@ __email__ = "support@contraxsuite.com"
 
 import re
 
-
 PhraseMatch = tuple[str, int, int]
 
 

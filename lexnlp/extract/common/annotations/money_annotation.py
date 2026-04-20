@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -21,9 +22,9 @@ class MoneyAnnotation(TextAnnotation):
         self,
         coords: tuple[int, int],
         locale: str = 'en',
-        text: str = None,
-        amount: Decimal = None,
-        currency: str = None
+        text: str | None = None,
+        amount: Decimal | None = None,
+        currency: str | None = None
     ) -> None:
         super().__init__(
             name='',

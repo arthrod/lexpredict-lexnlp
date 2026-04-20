@@ -6,9 +6,8 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from enum import Enum
-
 from collections.abc import Generator
+from enum import Enum
 
 
 class PhraseConstructorMethod(Enum):
@@ -58,7 +57,7 @@ class PhraseConstructor:
     @staticmethod
     def join_tokens(tokens,
                     predicted_class,
-                    feature_mask: list[int] = None,
+                    feature_mask: list[int] | None = None,
                     settings: PhraseConstructorSettings = None,
                     token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:
         settings = settings or PhraseConstructor.DEFAULT_CONSTRUCTOR_SETTINGS
@@ -112,7 +111,7 @@ class PhraseConstructor:
     def join_tokens_by_score(
             tokens,
             predicted_class,
-            feature_mask: list[int] = None,
+            feature_mask: list[int] | None = None,
             max_zeros: int = 2,
             min_token_score: int = 2,
             token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:

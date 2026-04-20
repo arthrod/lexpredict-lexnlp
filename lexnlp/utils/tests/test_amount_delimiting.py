@@ -15,9 +15,7 @@ Covers changes introduced in the PR:
 
 from unittest.mock import patch
 
-
 from lexnlp.utils.amount_delimiting import infer_delimiters
-
 
 # ---------------------------------------------------------------------------
 # Helpers

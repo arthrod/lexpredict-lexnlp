@@ -10,12 +10,13 @@ import ast
 import codecs
 import os
 import types
-import regex as re
 from ast import literal_eval as make_tuple
 from collections import OrderedDict
+from collections.abc import Callable
 from datetime import date, datetime
 from typing import Any
-from collections.abc import Callable
+
+import regex as re
 
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.extract.common.base_path import lexnlp_test_path
@@ -65,7 +66,7 @@ class TypedFieldCheck:
 
     def __init__(self,
                  index: int = 0,
-                 path: list[str] = None,
+                 path: list[str] | None = None,
                  value: str = '',
                  comparison: str = '=',
                  check_all: bool = False):

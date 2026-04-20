@@ -12,7 +12,6 @@ __email__ = "support@contraxsuite.com"
 import os
 import tempfile
 from datetime import datetime
-
 from unittest import TestCase
 
 from lexnlp.tests import lexnlp_tests, upload_benchmarks

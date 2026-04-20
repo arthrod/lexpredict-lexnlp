@@ -14,8 +14,19 @@ from unittest import TestCase
 from nltk.corpus import wordnet
 
 from lexnlp.nlp.en.segments.sentences import get_sentence_list
-from lexnlp.nlp.en.tokens import get_adjectives, get_adverbs, get_lemmas, get_lemma_list, get_nouns, \
-    get_stem_list, get_tokens, get_token_list, get_verbs, get_wordnet_pos, get_tokens_by_regex
+from lexnlp.nlp.en.tokens import (
+    get_adjectives,
+    get_adverbs,
+    get_lemma_list,
+    get_lemmas,
+    get_nouns,
+    get_stem_list,
+    get_token_list,
+    get_tokens,
+    get_tokens_by_regex,
+    get_verbs,
+    get_wordnet_pos,
+)
 from lexnlp.tests import lexnlp_tests
 
 

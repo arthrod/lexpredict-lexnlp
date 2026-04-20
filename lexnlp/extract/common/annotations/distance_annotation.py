@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -21,9 +22,9 @@ class DistanceAnnotation(TextAnnotation):
         self,
         coords: tuple[int, int],
         locale: str = 'en',
-        text: str = None,
-        amount: Decimal = None,
-        distance_type: str = None,
+        text: str | None = None,
+        amount: Decimal | None = None,
+        distance_type: str | None = None,
     ) -> None:
         super().__init__(
             name='',

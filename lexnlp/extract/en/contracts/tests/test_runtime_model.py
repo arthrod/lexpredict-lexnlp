@@ -97,9 +97,8 @@ def test_write_pipeline_to_catalog_returns_false_when_artifact_exists(monkeypatc
     When the destination already exists and force=False, the function must
     NOT overwrite it and must return (path, False).
     """
-    from lexnlp.extract.en.contracts import runtime_model
-
     import lexnlp.ml.catalog as catalog_mod
+    from lexnlp.extract.en.contracts import runtime_model
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     # Pre-create the destination file.
@@ -127,10 +126,9 @@ def test_write_pipeline_to_catalog_force_overwrites_existing(monkeypatch, tmp_pa
     When force=True, an existing artifact must be overwritten and (path, True)
     must be returned.
     """
+    import lexnlp.ml.catalog as catalog_mod
     from lexnlp.extract.en.contracts import runtime_model
     from lexnlp.ml.model_io import load_model
-
-    import lexnlp.ml.catalog as catalog_mod
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     target_dir = tmp_path / "pipeline" / "test" / "0.2"
@@ -156,9 +154,8 @@ def test_write_pipeline_to_catalog_creates_parent_directories(monkeypatch, tmp_p
     """
     The function must create any missing parent directories for the destination.
     """
-    from lexnlp.extract.en.contracts import runtime_model
-
     import lexnlp.ml.catalog as catalog_mod
+    from lexnlp.extract.en.contracts import runtime_model
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     # Ensure the nested tag directories do not exist yet.
@@ -180,9 +177,8 @@ def test_write_pipeline_to_catalog_skips_when_legacy_file_exists(monkeypatch, tm
     When force=False and the legacy artifact exists, the function must
     return (legacy_path, False) without writing a new file.
     """
-    from lexnlp.extract.en.contracts import runtime_model
-
     import lexnlp.ml.catalog as catalog_mod
+    from lexnlp.extract.en.contracts import runtime_model
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     # Pre-create a legacy .cloudpickle artifact (not the new .skops filename).
@@ -213,10 +209,9 @@ def test_write_pipeline_to_catalog_force_true_overwrites_even_with_legacy(monkey
     When force=True, even a legacy artifact must be overwritten with a new
     .skops file and (path, True) returned.
     """
+    import lexnlp.ml.catalog as catalog_mod
     from lexnlp.extract.en.contracts import runtime_model
     from lexnlp.ml.model_io import load_model
-
-    import lexnlp.ml.catalog as catalog_mod
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     target_dir = tmp_path / "pipeline" / "test" / "force"

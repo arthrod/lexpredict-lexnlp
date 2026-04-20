@@ -9,8 +9,8 @@ __email__ = "support@contraxsuite.com"
 import codecs
 from os import listdir
 from os.path import isfile, join
-
 from unittest import TestCase
+
 from lexnlp.nlp.en.segments.sentences import pre_process_document
 from lexnlp.tests.utility_for_testing import load_resource_document
 from lexnlp.utils.lines_processing.parsed_text_corrector import ParsedTextCorrector

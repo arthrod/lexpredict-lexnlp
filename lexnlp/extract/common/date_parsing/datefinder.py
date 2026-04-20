@@ -11,10 +11,9 @@ import logging
 
 import dateparser
 import regex as re
-from dateutil import tz, parser
+from dateutil import parser, tz
 
 from lexnlp.extract.all_locales.languages import Locale
-
 
 logger = logging.getLogger('datefinder')
 

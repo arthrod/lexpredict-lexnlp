@@ -8,7 +8,6 @@ __email__ = "support@contraxsuite.com"
 
 import string
 
-
 DE_UNICODE_ALPHAS = 'äöüẞ'
 DE_ALPHA_CHAR_SET = set(string.ascii_letters + DE_UNICODE_ALPHAS + DE_UNICODE_ALPHAS.upper())
 

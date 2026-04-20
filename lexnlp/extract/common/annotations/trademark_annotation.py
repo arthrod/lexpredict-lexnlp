@@ -19,7 +19,7 @@ class TrademarkAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 text: str = None,
+                 text: str | None = None,
                  trademark: str = ''):
         super().__init__(
             name='',

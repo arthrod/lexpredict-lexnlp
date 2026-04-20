@@ -21,7 +21,8 @@ __email__ = "support@contraxsuite.com"
 
 
 import regex as re
-from lexnlp.config.en.company_types import COMPANY_TYPES, COMPANY_DESCRIPTIONS, CompanyDescriptor
+
+from lexnlp.config.en.company_types import COMPANY_DESCRIPTIONS, COMPANY_TYPES, CompanyDescriptor
 
 
 def get_company_type_pipe(company_type_list: None | list[str] | dict[str, CompanyDescriptor] = None) -> str:

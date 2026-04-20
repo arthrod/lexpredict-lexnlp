@@ -17,15 +17,14 @@ from unittest.mock import patch
 import pytest
 
 from lexnlp.ml.model_io import (
-    CANONICAL_SUFFIX,
     _LEGACY_SUFFIXES,
+    CANONICAL_SUFFIX,
     _load_legacy,
     _load_skops,
     dump_model,
     is_skops_path,
     load_model,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

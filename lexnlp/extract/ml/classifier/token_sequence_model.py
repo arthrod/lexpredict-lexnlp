@@ -131,7 +131,7 @@ class TokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
     # TODO: add "hints" alongside with the text? areas with special
     def get_feature_data(self,
                          text: str,
-                         feature_mask: list[int] = None):
+                         feature_mask: list[int] | None = None):
         """
         Get features based on character model.
         feature_mask - array of numbers, has the same length as text

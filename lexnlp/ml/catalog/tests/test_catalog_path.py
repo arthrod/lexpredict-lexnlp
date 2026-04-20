@@ -4,6 +4,7 @@ import threading
 
 def test_catalog_path_resolves_on_fresh_environment(tmp_path):
     import nltk.data
+
     import lexnlp.ml.catalog as catalog
 
     original_paths = list(nltk.data.path)
@@ -12,7 +13,7 @@ def test_catalog_path_resolves_on_fresh_environment(tmp_path):
         nltk.data.path = [str(candidate_root)]
         importlib.reload(catalog)
 
-        assert catalog.CATALOG == candidate_root / "lexpredict-lexnlp"
+        assert candidate_root / "lexpredict-lexnlp" == catalog.CATALOG
         assert not catalog.CATALOG.exists()
     finally:
         nltk.data.path = original_paths
@@ -21,6 +22,7 @@ def test_catalog_path_resolves_on_fresh_environment(tmp_path):
 
 def test_catalog_path_falls_back_to_home_when_nltk_path_empty(tmp_path, monkeypatch):
     import nltk.data
+
     import lexnlp.ml.catalog as catalog
 
     original_paths = list(nltk.data.path)
@@ -120,6 +122,7 @@ def test_invalidate_catalog_cache_is_thread_safe(tmp_path, monkeypatch):
     None (invalidated) or a fresh dict (rebuilt), never a stale/corrupt value.
     """
     from concurrent.futures import ThreadPoolExecutor
+
     import lexnlp.ml.catalog as catalog
 
     monkeypatch.setattr(catalog, "CATALOG", tmp_path)
@@ -132,9 +135,7 @@ def test_invalidate_catalog_cache_is_thread_safe(tmp_path, monkeypatch):
         catalog._get_tag_dict_cached()
 
     with ThreadPoolExecutor(max_workers=10) as pool:
-        futures = [pool.submit(do_invalidate) for _ in range(5)] + [
-            pool.submit(do_read) for _ in range(5)
-        ]
+        futures = [pool.submit(do_invalidate) for _ in range(5)] + [pool.submit(do_read) for _ in range(5)]
         for future in futures:
             future.result()
 

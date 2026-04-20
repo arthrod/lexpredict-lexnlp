@@ -7,21 +7,19 @@ __email__ = "support@contraxsuite.com"
 
 
 import codecs
-import joblib
 import os
 import string
 import unicodedata
-
 from collections import OrderedDict
 
+import joblib
 import pandas
 import sklearn
+import sklearn.ensemble
 import sklearn.linear_model
 import sklearn.svm
-import sklearn.ensemble
 
 from lexnlp.nlp.train.train_data_manager import ensure_documents_in_folder
-
 
 SECTION_BREAK_POSITIONS = {
     '/samples/agreements/construction/1002047_1999-08-31_CONSTRUCTION MANAGEMENT AGREEMENT.txt':
@@ -213,9 +211,9 @@ class SectionSegmentizerTrainManager:
 
             for k in v:
                 if k.startswith("doc_char"):
-                    v[k] = v[k] / total_char
+                    v[k] = v[k] / total_char if total_char else 0.0
                 elif k.startswith("doc_startchar"):
-                    v[k] = v[k] / total_startchar
+                    v[k] = v[k] / total_startchar if total_startchar else 0.0
 
         return v
 

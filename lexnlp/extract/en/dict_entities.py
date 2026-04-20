@@ -27,15 +27,14 @@ __email__ = "support@contraxsuite.com"
 
 import csv
 import re
-from typing import Any
 from collections.abc import Callable, Generator
+from typing import Any
 
 import pandas as pd
 
 from lexnlp.extract.all_locales.languages import DEFAULT_LANGUAGE
 from lexnlp.extract.common.annotations.phrase_position_finder import PhrasePositionFinder
-from lexnlp.nlp.en.tokens import get_token_list, get_stem_list
-
+from lexnlp.nlp.en.tokens import get_stem_list, get_token_list
 
 reg_space = re.compile(r'\s+')
 
@@ -59,7 +58,7 @@ class DictionaryEntryAlias:
         return f'{self.alias}, lang: {self.language}'
 
     @classmethod
-    def entity_alias(cls, alias: str, language: str = None, is_abbreviation: bool = False, alias_id: int = None) \
+    def entity_alias(cls, alias: str, language: str | None = None, is_abbreviation: bool = False, alias_id: int | None = None) \
             -> 'DictionaryEntryAlias':
         normalized_alias = normalize_text(alias, lowercase=not is_abbreviation)
         return DictionaryEntryAlias(alias, language, is_abbreviation, alias_id, normalized_alias)
@@ -383,10 +382,10 @@ def _find_entity_positions(normalized_text: str,
                            entity: DictionaryEntry,
                            text_languages: list[str] | tuple[str] | set[str],
                            alias_language_order: list[str] | None,
-                           context: dict[int, SearchResultPosition] = None,
+                           context: dict[int, SearchResultPosition] | None = None,
                            use_stemmer: bool = False,
                            abbrev_uppercase_check_range: int = 20,
-                           min_alias_len: int = None,
+                           min_alias_len: int | None = None,
                            alias_ban_list: None | dict[str, AliasBanList] = None,
                            simplified_normalization: bool = False):
     """
@@ -493,13 +492,13 @@ class DictionaryEntity:
 def find_dict_entities(text: str,
                        all_possible_entities: list[DictionaryEntry],
                        default_language: str,
-                       text_languages: list[str] | tuple[str] | set[str] = None,
+                       text_languages: list[str] | tuple[str] | set[str] | None = None,
                        conflict_resolving_func: Callable[[list[tuple[DictionaryEntry, DictionaryEntryAlias]], str],
                                                          list[tuple[DictionaryEntry, DictionaryEntryAlias]]] = None,
                        priority_direction: str = 'asc',
                        use_stemmer: bool = False,
                        remove_time_am_pm: bool = True,
-                       min_alias_len: int = None,
+                       min_alias_len: int | None = None,
                        prepared_alias_ban_list: dict[str, AliasBanList] | None = None,
                        simplified_normalization: bool = False)\
         -> Generator[DictionaryEntity]:

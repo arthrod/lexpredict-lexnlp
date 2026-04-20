@@ -19,10 +19,10 @@ class ConditionAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 text: str = None,
-                 condition: str = None,
-                 pre: str = None,
-                 post: str = None):
+                 text: str | None = None,
+                 condition: str | None = None,
+                 pre: str | None = None,
+                 post: str | None = None):
         super().__init__(
             name='',
             locale=locale,

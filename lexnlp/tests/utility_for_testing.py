@@ -6,12 +6,12 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import os
 import codecs
+import os
 from html import escape
 
-from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
+from lexnlp.extract.common.base_path import lexnlp_test_path
 
 
 def load_resource_document(doc_path: str, encoding: str = "ascii") -> str:

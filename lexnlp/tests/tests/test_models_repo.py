@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from lexnlp import DEFAULT_MODELS_REPO, get_models_repo
 
 

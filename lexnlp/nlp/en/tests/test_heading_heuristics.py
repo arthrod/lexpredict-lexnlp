@@ -6,15 +6,15 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
+import codecs
 import json
+import os
 from typing import Any
 from unittest import TestCase
-import os
-import codecs
 
 from lexnlp.extract.common.base_path import lexnlp_test_path
 from lexnlp.nlp.en.segments.heading_heuristics import HeadingHeuristics
-from lexnlp.nlp.en.segments.sections import find_section_titles, DocumentSection
+from lexnlp.nlp.en.segments.sections import DocumentSection, find_section_titles
 
 
 class TestHeadingHeuristics(TestCase):

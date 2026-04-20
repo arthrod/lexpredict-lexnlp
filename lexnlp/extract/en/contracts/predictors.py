@@ -21,7 +21,6 @@ from pandas import Series
 # LexNLP
 from lexnlp.ml.predictor import ProbabilityPredictor
 
-
 LOGGER = logging.getLogger(__name__)
 
 

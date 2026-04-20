@@ -10,8 +10,8 @@ __email__ = "support@contraxsuite.com"
 from collections.abc import Generator
 
 from lexnlp.extract.all_locales.languages import Locale
-from lexnlp.extract.en.dict_entities import DictionaryEntry, find_dict_entities, conflicts_take_first_by_id
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
+from lexnlp.extract.en.dict_entities import DictionaryEntry, conflicts_take_first_by_id, find_dict_entities
 
 
 def get_court_annotations(

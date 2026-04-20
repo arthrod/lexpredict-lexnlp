@@ -19,12 +19,13 @@ __email__ = "support@contraxsuite.com"
 
 import os
 import re
-from typing import Any
 from collections.abc import Generator
+from typing import Any
+
+import joblib
 
 # Packages
-from nltk.tokenize.punkt import PunktTrainer, PunktSentenceTokenizer
-import joblib
+from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktTrainer
 
 from lexnlp.extract.en.en_language_tokens import EnLanguageTokens
 

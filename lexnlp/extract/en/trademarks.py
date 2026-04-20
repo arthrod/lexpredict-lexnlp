@@ -18,7 +18,6 @@ from collections.abc import Generator
 from lexnlp.extract.common.annotations.trademark_annotation import TrademarkAnnotation
 from lexnlp.extract.en.utils import NPExtractor
 
-
 TRADEMARK_PTN = r"[A-Z0-9][^\)]+(?:[a-z]TM|[ \(]TM(?:\W|$)|™|\s*\(R\)|Ⓡ|®)"
 TRADEMARK_PTN_RE = re.compile(TRADEMARK_PTN)
 

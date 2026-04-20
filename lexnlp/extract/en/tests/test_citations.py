@@ -28,16 +28,20 @@ def test_get_citations():
     Test default get citation behavior.
     :return:
     """
-    for (_i, text, _input_args, expected) in lexnlp_tests.iter_test_data_text_and_tuple():
-        expected = [(int(volume) if volume else None,
-                     reporter,
-                     reporter_full_name,
-                     int(page) if page else None,
-                     page2,
-                     court,
-                     int(year) if year else None,
-                     source_text)
-                    for volume, reporter, reporter_full_name, page, page2, court, year, source_text in expected]
+    for _i, text, _input_args, expected in lexnlp_tests.iter_test_data_text_and_tuple():
+        expected = [
+            (
+                int(volume) if volume else None,
+                reporter,
+                reporter_full_name,
+                int(page) if page else None,
+                page2,
+                court,
+                int(year) if year else None,
+                source_text,
+            )
+            for volume, reporter, reporter_full_name, page, page2, court, year, source_text in expected
+        ]
 
         expected_without_sources = [v[:-1] for v in expected]
         expected_with_sources = expected
@@ -47,22 +51,23 @@ def test_get_citations():
 
 
 def test_get_citations_as_dict():
-    text = 'bob lissner v. test 1 F.2d 1, 2-5 (2d Cir., 1982)'
-    expected = [{'citation_str': '1 F.2d 1, 2-5 (2d Cir., 1982)',
-                 'court': '2d Cir.',
-                 'page': 1,
-                 'page2': '2-5',
-                 'reporter': 'F.2d',
-                 'reporter_full_name': 'Federal Reporter',
-                 'volume': 1,
-                 'year': 1982}]
-    actual = list(lexnlp_tests.benchmark_extraction_func(get_citations,
-                                                         text,
-                                                         return_source=True,
-                                                         as_dict=True))
+    text = "bob lissner v. test 1 F.2d 1, 2-5 (2d Cir., 1982)"
+    expected = [
+        {
+            "citation_str": "1 F.2d 1, 2-5 (2d Cir., 1982)",
+            "court": "2d Cir.",
+            "page": 1,
+            "page2": "2-5",
+            "reporter": "F.2d",
+            "reporter_full_name": "Federal Reporter",
+            "volume": 1,
+            "year": 1982,
+        }
+    ]
+    actual = list(lexnlp_tests.benchmark_extraction_func(get_citations, text, return_source=True, as_dict=True))
 
     cmp = DictionaryComparer(check_order=True)
     errors = cmp.compare_list_of_dicts(expected, actual)
     if errors:
-        errors_str = '\n'.join(errors)
-        raise Exception('Citations test has errors:\n' + errors_str)
+        errors_str = "\n".join(errors)
+        raise Exception("Citations test has errors:\n" + errors_str)

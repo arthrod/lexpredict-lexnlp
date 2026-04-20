@@ -7,12 +7,12 @@ __email__ = "support@contraxsuite.com"
 
 
 
-import numpy
 import os
+
+import numpy
 import spacy
 
 from lexnlp.extract.ml.classifier.base_token_sequence_classifier_model import BaseTokenSequenceClassifierModel
-
 
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
 NLP_EN = spacy.load('en_core_web_sm')
@@ -159,7 +159,7 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
 
     def get_feature_data(self,
                          text: str,
-                         feature_mask: list[int] = None):
+                         feature_mask: list[int] | None = None):
         """
         Get features based on character model.
         """

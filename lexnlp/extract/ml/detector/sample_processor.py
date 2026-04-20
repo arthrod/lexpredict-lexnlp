@@ -6,8 +6,9 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Any
 from collections.abc import Callable
+from typing import Any
+
 import numpy
 import pandas
 

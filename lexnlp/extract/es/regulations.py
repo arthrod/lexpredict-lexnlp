@@ -7,15 +7,17 @@ __email__ = "support@contraxsuite.com"
 
 
 import os
+from collections.abc import Generator
+
 # pylint: disable=unused-import
 from re import Pattern
-from collections.abc import Generator
+
 # pylint: enable=unused-import
 import regex as re
 from pandas import DataFrame, read_csv
 
-from lexnlp.extract.common.base_path import lexnlp_base_path
 from lexnlp.extract.common.annotations.regulation_annotation import RegulationAnnotation
+from lexnlp.extract.common.base_path import lexnlp_base_path
 
 
 class RegulationsParser:
@@ -96,5 +98,5 @@ def get_regulations(text: str, language: str = 'es') -> Generator[dict]:
         yield reg.to_dictionary()
 
 
-def get_regulation_list(text: str, language: str = None) -> list[dict]:
-    return list(get_regulations(text, language))
+def get_regulation_list(text: str, language: str | None = None) -> list[dict]:
+    return list(get_regulations(text, language or 'es'))

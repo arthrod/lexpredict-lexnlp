@@ -10,8 +10,11 @@ from collections.abc import Generator
 
 from lexnlp.extract.common.annotation_locator_type import AnnotationLocatorType
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
-from lexnlp.extract.en.definition_parsing_methods import DefinitionCaught, get_definition_list_in_sentence, \
-    filter_definitions_for_self_repeating
+from lexnlp.extract.en.definition_parsing_methods import (
+    DefinitionCaught,
+    filter_definitions_for_self_repeating,
+    get_definition_list_in_sentence,
+)
 from lexnlp.extract.ml.en.definitions.layered_definition_detector import LayeredDefinitionDetector
 from lexnlp.nlp.en.segments.sentences import get_sentence_span
 

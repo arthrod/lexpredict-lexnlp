@@ -16,7 +16,7 @@ class AddressAnnotation(TextAnnotation):
     """
     record_type = 'address'
 
-    def __int__(
+    def __init__(
         self,
         coords: tuple[int, int],
         locale: str = 'en',

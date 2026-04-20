@@ -18,17 +18,21 @@ __email__ = "support@contraxsuite.com"
 import os
 import re
 import warnings
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
-from lexnlp.extract.common.base_path import lexnlp_base_path
+from lexnlp.extract.all_locales.languages import LANG_ES
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
-from lexnlp.extract.en.dict_entities import find_dict_entities, conflicts_take_first_by_id, DictionaryEntry, \
-    DictionaryEntryAlias
-from lexnlp.extract.common.universal_court_parser import UniversalCourtsParser, ParserInitParams
+from lexnlp.extract.common.base_path import lexnlp_base_path
+from lexnlp.extract.common.universal_court_parser import ParserInitParams, UniversalCourtsParser
+from lexnlp.extract.en.dict_entities import (
+    DictionaryEntry,
+    DictionaryEntryAlias,
+    conflicts_take_first_by_id,
+    find_dict_entities,
+)
 from lexnlp.extract.es.language_tokens import EsLanguageTokens
 from lexnlp.utils.lines_processing.line_processor import LineSplitParams
-from lexnlp.extract.all_locales.languages import LANG_ES
 
 
 def _get_courts(

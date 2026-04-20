@@ -7,12 +7,17 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
 from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
-from lexnlp.extract.en.dict_entities import DictionaryEntry, find_dict_entities, DictionaryEntryAlias, \
-    conflicts_take_first_by_id, conflicts_top_by_priority
+from lexnlp.extract.en.dict_entities import (
+    DictionaryEntry,
+    DictionaryEntryAlias,
+    conflicts_take_first_by_id,
+    conflicts_top_by_priority,
+    find_dict_entities,
+)
 
 
 class GeoEntityLocator:
@@ -28,7 +33,7 @@ class GeoEntityLocator:
             prepared_alias_ban_list: None | dict[str, tuple[list[str], list[str]]],
             conflict_resolving_field: str = 'none',
             priority_direction: str = 'asc',
-            text_languages: list[str] = None,
+            text_languages: list[str] | None = None,
             min_alias_len: int = 2,
             simplified_normalization: bool = False):
         """

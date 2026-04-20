@@ -10,13 +10,14 @@ __email__ = "support@contraxsuite.com"
 
 
 # standard library
-from os import PathLike
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
+from os import PathLike
+
+from gensim.models.doc2vec import Doc2Vec
 
 # third-party imports
 from numpy import fromiter, ndarray
-from gensim.models.doc2vec import Doc2Vec
 
 
 class Vectorizer(ABC):

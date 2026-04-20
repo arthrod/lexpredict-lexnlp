@@ -10,21 +10,20 @@ __email__ = "support@contraxsuite.com"
 
 
 # standard library
-from typing import Optional
 from collections.abc import Generator, Iterable
+from typing import Optional
+
+# third-party imports
+from joblib import Parallel, delayed
+from numpy import ceil, concatenate, ndarray
+from scipy.sparse import issparse, vstack
+from sklearn.base import BaseEstimator, TransformerMixin
 
 # LexNLP
 from lexnlp.ml.normalizers import Normalizer
 from lexnlp.ml.vectorizers import Vectorizer
-from lexnlp.nlp.en.tokens import get_lemmas
 from lexnlp.nlp.en.segments.sentences import get_sentences
-
-# third-party imports
-from joblib import delayed, Parallel
-from scipy.sparse import issparse, vstack
-from numpy import ceil, concatenate, ndarray
-from sklearn.base import BaseEstimator, TransformerMixin
-
+from lexnlp.nlp.en.tokens import get_lemmas
 
 # -----------------------------------------------------------------------------
 # Parallelization Utility Functions

@@ -18,8 +18,8 @@ import calendar
 import datetime
 import os
 import random
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
 # Third-party packages
 import regex as re
@@ -30,8 +30,7 @@ from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
 from lexnlp.extract.common.date_parsing.datefinder import DateFinder
 from lexnlp.extract.common.dates import DateParser
 from lexnlp.extract.common.dates_classifier_model import build_date_model, get_date_features
-from lexnlp.extract.en.date_model import MODEL_DATE, MODULE_PATH, DATE_MODEL_CHARS
-
+from lexnlp.extract.en.date_model import DATE_MODEL_CHARS, MODEL_DATE, MODULE_PATH
 
 # Distance in characters to use to merge two date strings
 
@@ -239,7 +238,7 @@ def get_raw_dates(text, strict=False, base_date=None,
                     try:
                         date = date_finder.parse_date_string(date_string, date_props, locale=locale)
                     # pylint: disable=broad-except
-                    except:
+                    except Exception:
                         date = None
                     if date:
                         break

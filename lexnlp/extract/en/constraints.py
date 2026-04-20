@@ -22,7 +22,6 @@ import regex as re
 from lexnlp.extract.common.annotations.constraint_annotation import ConstraintAnnotation
 from lexnlp.nlp.en.segments.sentences import get_sentence_list
 
-
 CONSTRAINT_PHRASES = ['after', 'at least', 'at most', 'before', 'equal to', 'exactly', 'first of', 'greater',
                       'greater of', 'greater than', 'greater than or equal to', 'greatest of', 'last of', 'least of',
                       'lesser', 'lesser of', 'lesser than', 'less than', 'less than or equal to', 'maximum of',

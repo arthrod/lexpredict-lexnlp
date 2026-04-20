@@ -9,12 +9,11 @@ import os
 import pickle
 import subprocess
 import sys
-from datetime import datetime, timezone, UTC
-from pathlib import Path
 from collections.abc import Sequence
+from datetime import UTC, datetime
+from pathlib import Path
 
 from cloudpickle import load
-
 
 DEFAULT_FIXTURE = Path(
     "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv"
@@ -208,10 +207,11 @@ def main(argv: Sequence[str]) -> int:
     if args.source_tag == args.target_tag:
         raise ValueError("--source-tag and --target-tag must differ")
 
+    from sklearn import __version__ as sklearn_version
+
     from lexnlp import __version__ as lexnlp_version
     from lexnlp.extract.en.contracts.predictors import ProbabilityPredictorIsContract
     from lexnlp.ml.catalog import CATALOG
-    from sklearn import __version__ as sklearn_version
 
     source_path = ensure_tag_downloaded(args.source_tag)
     destination_dir = CATALOG / args.target_tag

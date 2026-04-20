@@ -21,7 +21,7 @@ class DefinitionAnnotation(TextAnnotation):
                  coords: tuple[int, int],
                  locale: str = 'en',
                  name: str = '',
-                 text: str = None):
+                 text: str | None = None):
         super().__init__(
             name=name,
             locale=locale,

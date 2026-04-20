@@ -10,8 +10,8 @@ import gzip
 import os
 import pickle
 from abc import abstractmethod
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
 from lexnlp.utils.unpickler import renamed_load
 
@@ -103,7 +103,7 @@ class BaseTokenSequenceClassifierModel:
         raise NotImplementedError('get_feature_list() should be implemented in derived class')
 
     @abstractmethod
-    def get_feature_data(self, text: str, feature_mask: list[int] = None):
+    def get_feature_data(self, text: str, feature_mask: list[int] | None = None):
         raise NotImplementedError('get_feature_data() should be implemented in derived class')
 
     def train_model(self, model, feature_data, target_data):
@@ -114,7 +114,7 @@ class BaseTokenSequenceClassifierModel:
 
     def run_model(self, text: str, outer_class=0,
                   start_class=1, inner_class=2, end_class=3, strict=True,
-                  feature_mask: list[int] = None)\
+                  feature_mask: list[int] | None = None)\
             -> Generator[tuple[int, int]]:
         """
         Run model on text

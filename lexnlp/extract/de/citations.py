@@ -16,11 +16,12 @@ __email__ = "support@contraxsuite.com"
 
 # pylint: disable=bare-except
 
-import regex as re
 from collections.abc import Generator
 
-from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
+import regex as re
+
 from lexnlp.extract.common.annotations.citation_annotation import CitationAnnotation
+from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.extract.en.dates import get_dates
 
 

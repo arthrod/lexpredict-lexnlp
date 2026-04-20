@@ -12,7 +12,7 @@ __email__ = "support@contraxsuite.com"
 from unittest import TestCase
 
 from lexnlp.nlp.en.transforms.characters import get_character_distribution
-from lexnlp.nlp.en.transforms.tokens import get_token_distribution, get_stem_distribution
+from lexnlp.nlp.en.transforms.tokens import get_stem_distribution, get_token_distribution
 
 
 class TestTransforms(TestCase):

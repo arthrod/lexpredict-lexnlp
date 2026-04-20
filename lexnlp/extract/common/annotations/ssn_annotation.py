@@ -19,8 +19,8 @@ class SsnAnnotation(TextAnnotation):
     def __init__(self,
                  coords: tuple[int, int],
                  locale: str = 'en',
-                 text: str = None,
-                 number: str = None):
+                 text: str | None = None,
+                 number: str | None = None):
         super().__init__(
             name='',
             locale=locale,

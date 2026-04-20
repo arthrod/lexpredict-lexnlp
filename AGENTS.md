@@ -43,12 +43,12 @@ This document is a quick-start guide for coding agents working in this repositor
 
 ## Environment Setup (Recommended: uv)
 
-Use Python 3.11 in a local `.venv`.
+Use Python 3.13 (the declared minimum) in a local `.venv`.
 
 ```bash
 cd /path/to/LexNLP
-uv python install 3.11
-uv venv --python 3.11 .venv
+uv python install 3.13
+uv venv --python 3.13 .venv
 uv sync --frozen --python .venv/bin/python --extra dev --extra test
 ```
 

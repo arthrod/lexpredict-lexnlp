@@ -7,11 +7,12 @@ __email__ = "support@contraxsuite.com"
 
 
 from abc import abstractmethod
-from itertools import groupby
 from collections.abc import Callable, Generator
+from itertools import groupby
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.extract.common.pattern_found import PatternFound
-from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams, LineOrPhrase
+from lexnlp.utils.lines_processing.line_processor import LineOrPhrase, LineProcessor, LineSplitParams
 
 
 class TextPatternCollector:
@@ -30,7 +31,7 @@ class TextPatternCollector:
         self.proc = LineProcessor(line_split_params=self.split_params)
         self.prohibited_words = {}    # words that are Not definitions per se
 
-    def parse(self, text: str, locale: str = None) -> Generator[TextAnnotation]:
+    def parse(self, text: str, locale: str | None = None) -> Generator[TextAnnotation]:
         """
         :param locale: 'En', 'De', 'Es', ...
         :param text: En este acuerdo, el término "Software" se refiere a: (i) el programa informático

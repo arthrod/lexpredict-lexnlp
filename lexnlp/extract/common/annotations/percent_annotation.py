@@ -7,6 +7,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from decimal import Decimal
+
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.utils.map import Map
 
@@ -22,10 +23,10 @@ class PercentAnnotation(TextAnnotation):
         self,
         coords: tuple[int, int],
         locale: str = 'en',
-        text: str = None,
-        amount: Decimal = None,
-        sign: str = None,
-        fraction: Decimal = None
+        text: str | None = None,
+        amount: Decimal | None = None,
+        sign: str | None = None,
+        fraction: Decimal | None = None
     ) -> None:
         super().__init__(
             name='',

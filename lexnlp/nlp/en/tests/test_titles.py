@@ -9,13 +9,14 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import os
-import requests
 import codecs
+import os
+from unittest import TestCase
+
+import requests
 
 from lexnlp import get_module_path
 from lexnlp.nlp.en.segments.titles import get_titles
-from unittest import TestCase
 
 
 class TestTitles(TestCase):

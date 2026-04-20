@@ -6,15 +6,15 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from unittest import TestCase
 from decimal import Decimal
+from unittest import TestCase
+
 from lexnlp.extract.common.annotations.amount_annotation import AmountAnnotation
-from lexnlp.extract.en.amounts import get_amounts, get_amount_annotations
+from lexnlp.extract.en.amounts import get_amount_annotations, get_amounts
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestAmountsPlain(TestCase):
-
     def test_amounts(self):
         text = """
         2. Amendment to Interest Rate. Beginning on February 1, 1998, and
@@ -25,25 +25,22 @@ class TestAmountsPlain(TestCase):
                 interest rate shall be adjusted again on July 18, 2002.
         """
         amts = list(get_amounts(text))
-        str_vals = ', '.join([str(f) for f in amts])
-        self.assertEqual(
-            '2.0, 1.0, 1998.0, 18.0, 2002.0, 5.0, 7.38, 200.0, 5.0, 23.0, 1998.0, 18.0, 2002.0',
-            str_vals)
+        str_vals = ", ".join([str(f) for f in amts])
+        self.assertEqual("2.0, 1.0, 1998.0, 18.0, 2002.0, 5.0, 7.38, 200.0, 5.0, 23.0, 1998.0, 18.0, 2002.0", str_vals)
 
     def test_fraction_symbol(self):
         text = "1½ of apple"
         amts = list(get_amount_annotations(text))
         self.assertEqual(1, len(amts))
-        self.assertEqual(Decimal('1.5'), amts[0].value)
+        self.assertEqual(Decimal("1.5"), amts[0].value)
 
-        text = '2 ⅗'
+        text = "2 ⅗"
         amts = list(get_amount_annotations(text))
         self.assertEqual(1, len(amts))
-        self.assertEqual(Decimal('2.6'), amts[0].value)
+        self.assertEqual(Decimal("2.6"), amts[0].value)
 
     def test_file_samples(self):
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
-            get_amount_annotations,
-            'lexnlp/typed_annotations/en/amount/amounts.txt',
-            AmountAnnotation)
+            get_amount_annotations, "lexnlp/typed_annotations/en/amount/amounts.txt", AmountAnnotation
+        )

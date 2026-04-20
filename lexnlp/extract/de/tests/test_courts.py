@@ -9,14 +9,14 @@ __email__ = "support@contraxsuite.com"
 from unittest import TestCase
 
 from lexnlp.extract.common.annotations.court_annotation import CourtAnnotation
-from lexnlp.extract.de.courts import get_court_list, get_court_annotations, get_court_annotation_list
-from lexnlp.tests.utility_for_testing import load_resource_document
+from lexnlp.extract.de.courts import get_court_annotation_list, get_court_annotations, get_court_list
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
+from lexnlp.tests.utility_for_testing import load_resource_document
 
 
 class TestParseDeCourts(TestCase):
     def test_parse_empty_text(self):
-        ret = get_court_list('')
+        ret = get_court_list("")
         self.assertEqual(0, len(ret))
         ret = get_court_list("""
 
@@ -34,13 +34,13 @@ class TestParseDeCourts(TestCase):
         text = "Bei dir läuft, deine Verfassungsgerichtshof des Freistaates Sachsen rauchen Joints vor der Kamera. Amtsgerichte - arbeit nicht frei."
         ret = get_court_list(text)
         self.assertEqual(2, len(ret))
-        self.assertEqual('Verfassungsgerichtshof des Freistaates Sachsen',
-                         ret[0]["tags"]["Extracted Entity Court Name"])
-        self.assertEqual('Amtsgerichte',
-                         ret[1]["tags"]["Extracted Entity Court Name"])
+        self.assertEqual(
+            "Verfassungsgerichtshof des Freistaates Sachsen", ret[0]["tags"]["Extracted Entity Court Name"]
+        )
+        self.assertEqual("Amtsgerichte", ret[1]["tags"]["Extracted Entity Court Name"])
 
     def test_load_courts(self):
-        text = load_resource_document('lexnlp/extract/de/sample_de_courts01.txt', 'utf-8')
+        text = load_resource_document("lexnlp/extract/de/sample_de_courts01.txt", "utf-8")
         ret = get_court_annotation_list(text, "y")
         self.assertEqual(4, len(ret))
         self.assertEqual("y", ret[0].locale)
@@ -51,7 +51,7 @@ class TestParseDeCourts(TestCase):
         self.assertEqual(2, len(ret))
 
     def test_load_courts_with_toponyms(self):
-        text = load_resource_document('lexnlp/extract/de/sample_de_courts02.txt', 'utf-8')
+        text = load_resource_document("lexnlp/extract/de/sample_de_courts02.txt", "utf-8")
         ret = get_court_list(text)
         self.assertEqual(2, len(ret))
         jurisdiction = ret[0]["tags"]["Extracted Entity Court Jurisdiction"]
@@ -60,6 +60,5 @@ class TestParseDeCourts(TestCase):
     def test_file_samples(self):
         tester = TypedAnnotationsTester()
         tester.test_and_raise_errors(
-            get_court_annotations,
-            'lexnlp/typed_annotations/de/court/courts.txt',
-            CourtAnnotation)
+            get_court_annotations, "lexnlp/typed_annotations/de/court/courts.txt", CourtAnnotation
+        )

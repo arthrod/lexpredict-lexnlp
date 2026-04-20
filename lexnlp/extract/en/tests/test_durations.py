@@ -21,6 +21,7 @@ __email__ = "support@contraxsuite.com"
 
 # Imports
 from decimal import Decimal
+
 from lexnlp.extract.en.durations import get_durations
 from lexnlp.tests import lexnlp_tests
 
@@ -40,7 +41,7 @@ def test_get_durations():
                 Decimal(duration_days),
             )
             for unit, duration_units, duration_days in expected
-        ]
+        ],
     )
 
 
@@ -60,5 +61,5 @@ def test_get_durations_source():
                 source,
             )
             for unit, duration_units, duration_days, source in expected
-        ]
+        ],
     )

@@ -24,21 +24,24 @@ import os
 from unittest import TestCase
 
 from lexnlp.extract.common.annotation_locator_type import AnnotationLocatorType
+from lexnlp.extract.en.definition_parsing_methods import NOUN_PTN_RE, get_definition_list_in_sentence, trim_defined_term
+from lexnlp.extract.en.definitions import (
+    get_definition_annotations,
+    get_definitions,
+    get_definitions_explicit,
+    get_definitions_in_sentence,
+    parser_ml_classifier,
+)
 from lexnlp.extract.ml.environment import ENV_EN_DATA_DIRECTORY
-from lexnlp.extract.en.definition_parsing_methods import trim_defined_term, NOUN_PTN_RE, get_definition_list_in_sentence
-from lexnlp.extract.en.definitions import \
-    get_definitions_explicit, get_definitions_in_sentence, get_definition_annotations, parser_ml_classifier, \
-    get_definitions
 from lexnlp.tests.utility_for_testing import load_resource_document
 
-
-TRAINED_MODEL_PATH = os.path.join(ENV_EN_DATA_DIRECTORY, 'definition_model_layered.pickle.gzip')
+TRAINED_MODEL_PATH = os.path.join(ENV_EN_DATA_DIRECTORY, "definition_model_layered.pickle.gzip")
 parser_ml_classifier.load_compressed(TRAINED_MODEL_PATH)
 
 
 class TestEnglishDefinitions(TestCase):
     def test_catastrophic_repetative_text(self):
-        text = 'X' * 500
+        text = "X" * 500
         start = datetime.datetime.now()
         defs = get_definition_list_in_sentence((0, len(text), text), False)
         elapsed = (datetime.datetime.now() - start).total_seconds()
@@ -48,53 +51,62 @@ class TestEnglishDefinitions(TestCase):
     def test_trim_defined_term(self):
         term = 'this "Deed of Trust"'
         term_cleared, _, _, _ = trim_defined_term(term, 5, 31)
-        self.assertEqual('Deed of Trust', term_cleared)
+        self.assertEqual("Deed of Trust", term_cleared)
 
     def test_definition_quoted(self):
-        sentence = '''THIS DEED OF TRUST, ASSIGNMENT, SECURITY AGREEMENT AND FINANCING
+        sentence = """THIS DEED OF TRUST, ASSIGNMENT, SECURITY AGREEMENT AND FINANCING
 STATEMENT (this "Deed of Trust") dated August 29, 1997, is executed and
 delivered by Trustor for good and valuable consideration, the receipt and
-adequacy of which are hereby acknowledge by Trustor.'''
+adequacy of which are hereby acknowledge by Trustor."""
         definitions = list(get_definitions_explicit(sentence))
-        self.assertEqual('Deed of Trust', definitions[0][0])
+        self.assertEqual("Deed of Trust", definitions[0][0])
 
     def test_definition_quoted_new_line(self):
-        sentence = '''THIS DEED OF TRUST, ASSIGNMENT, SECURITY AGREEMENT AND FINANCING
+        sentence = """THIS DEED OF TRUST, ASSIGNMENT, SECURITY AGREEMENT AND FINANCING
     STATEMENT (this "Deed
 of Trust") dated August 29, 1997, is executed and
     delivered by Trustor for good and valuable consideration, the receipt and
-    adequacy of which are hereby acknowledge by Trustor.'''
+    adequacy of which are hereby acknowledge by Trustor."""
         definitions = list(get_definitions_explicit(sentence))
-        self.assertEqual(definitions[0][0], 'Deed of Trust')
+        self.assertEqual(definitions[0][0], "Deed of Trust")
 
     def test_definitions_simple(self):
-        sentence = '''Visual Networks Operations, Inc., a Delaware corporation with offices at 2092 Gaither 
+        sentence = """Visual Networks Operations, Inc., a Delaware corporation with offices at 2092 Gaither 
                     Road, Rockville, Maryland 20850("Licensor.") and is made retroactive to December 3, 2002 
-                    ("Effective Date").'''
+                    ("Effective Date")."""
         definitions = list(get_definition_annotations(sentence))
         self.assertEqual(2, len(definitions))
 
     def test_obvious_embraced_definition(self):
-        text = "and will be payable from Loan Repayments made by Stanford Health Care (the \"Corporation\") " + \
-               "under the Loan Agreement and from certain funds\n" + "held under the Indenture."
+        text = (
+            'and will be payable from Loan Repayments made by Stanford Health Care (the "Corporation") '
+            + "under the Loan Agreement and from certain funds\n"
+            + "held under the Indenture."
+        )
         definitions = list(get_definition_annotations(text))
         self.assertEqual(1, len(definitions))
 
     def test_noun_pattern_false_positive(self):
         ptrn = NOUN_PTN_RE
-        text = "Bonds in a commercial paper mode are remarketed for various periods that can be no longer than " + \
-               "270 days and are established at the beginning of each commercial paper rate period."
+        text = (
+            "Bonds in a commercial paper mode are remarketed for various periods that can be no longer than "
+            + "270 days and are established at the beginning of each commercial paper rate period."
+        )
         matches = list(ptrn.finditer(text))
         self.assertEqual(0, len(matches))
 
     def test_capitalized_false_positive(self):
-        text = "Costs incurred by the Corporation in providing these services are reflected in the respective " + \
-               "categories in the consolidated statements of operations and changes in net assets."
+        text = (
+            "Costs incurred by the Corporation in providing these services are reflected in the respective "
+            + "categories in the consolidated statements of operations and changes in net assets."
+        )
         definitions = list(get_definition_annotations(text))
         self.assertEqual(0, len(definitions))
 
-        text = "Bonds in a commercial paper mode are remarketed for various periods that can be no longer than " + \
-               "270 days and are established at the beginning of each commercial paper rate period."
+        text = (
+            "Bonds in a commercial paper mode are remarketed for various periods that can be no longer than "
+            + "270 days and are established at the beginning of each commercial paper rate period."
+        )
         definitions = list(get_definition_annotations(text))
         self.assertEqual(0, len(definitions))
 
@@ -123,25 +135,33 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         definitions = list(get_definition_annotations(text))
         self.assertEqual(3, len(definitions))
         for df in definitions:
-            self.assertTrue('Obligation' in df.name)
+            self.assertTrue("Obligation" in df.name)
 
     def test_capitalized_with_trigger(self):
-        text = "Beneficial Owner means any Person which has or shares the power, directly " + \
-               "or indirectly, to make\ninvestment decisions"
+        text = (
+            "Beneficial Owner means any Person which has or shares the power, directly "
+            + "or indirectly, to make\ninvestment decisions"
+        )
         definitions = list(get_definition_annotations(text))
         self.assertEqual(1, len(definitions))
 
     def test_capitalized_with_trigger_in_the_middle_of_sentense(self):
-        text = "This is the intro Required Lenders means the people that agree to do the thing " \
-               "with the detectthis and the quick brown fox jumps over the lazy dog."
+        text = (
+            "This is the intro Required Lenders means the people that agree to do the thing "
+            "with the detectthis and the quick brown fox jumps over the lazy dog."
+        )
         definitions = list(get_definition_annotations(text))
         self.assertEqual(1, len(definitions))
-        text = 'This is the intro\n"Required Lenders" means the people that agree to do the thing ' \
-               'with the detectthis and the quick brown fox jumps over the lazy dog.'
+        text = (
+            'This is the intro\n"Required Lenders" means the people that agree to do the thing '
+            "with the detectthis and the quick brown fox jumps over the lazy dog."
+        )
         definitions = list(get_definition_annotations(text))
         self.assertEqual(1, len(definitions))
-        text = 'This is the intro “Required Lenders” means the people that agree to do the thing ' \
-               'with the detectthis and the quick brown fox jumps over the lazy dog.'
+        text = (
+            "This is the intro “Required Lenders” means the people that agree to do the thing "
+            "with the detectthis and the quick brown fox jumps over the lazy dog."
+        )
         definitions = list(get_definition_annotations(text))
         self.assertEqual(1, len(definitions))
 
@@ -149,7 +169,7 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         text = "Bonds shall be deemed to have been paid pursuant to the provisions of the Indenture"
         _ = list(get_definition_annotations(text))
         # self.assertEqual(0, len(definitions))
-        print('Bonds shall be deemed to: false positive but OK for now')
+        print("Bonds shall be deemed to: false positive but OK for now")
 
     def test_reffered_to_def(self):
         text = """any such excess being referred to as a "Combined EBIDATA Deficit" """
@@ -161,9 +181,11 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         self.assertEqual(1, len(defs))
 
     def test_reffered_to_def_excess_words(self):
-        text = '“Aggregate Delayed Draw Term Loan Ending Commitment” shall mean the combined Revolving Loan ' + \
-               'Commitments of the Revolving Lenders, which shall initially on the Closing Date be in the amount ' + \
-               'of $99,000,000, as such amount may be increased in accordance with Section 9.92(b).'
+        text = (
+            "“Aggregate Delayed Draw Term Loan Ending Commitment” shall mean the combined Revolving Loan "
+            + "Commitments of the Revolving Lenders, which shall initially on the Closing Date be in the amount "
+            + "of $99,000,000, as such amount may be increased in accordance with Section 9.92(b)."
+        )
         defs = list(get_definition_annotations(text))
         self.assertEqual(0, len(defs))
 
@@ -182,23 +204,27 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         self.assertEqual(1, len(defs))
 
     def test_parse_in_extra_quotes(self):
-        text = '''""Consolidated EBITDA" means, for any period, for the Company and its Subsidiaries ''' + \
-               '''on a consolidated basis, an amount equal to Consolidated Net Income for such period'''
+        text = (
+            """""Consolidated EBITDA" means, for any period, for the Company and its Subsidiaries """
+            + """on a consolidated basis, an amount equal to Consolidated Net Income for such period"""
+        )
         defs = list(get_definition_annotations(text))
         self.assertEqual(1, len(defs))
 
     def test_annotations(self):
-        text = '''""Consolidated EBITDA" means, for any period, for the Company and its Subsidiaries ''' + \
-               '''on a consolidated basis, an amount equal to Consolidated Net Income for such period'''
+        text = (
+            """""Consolidated EBITDA" means, for any period, for the Company and its Subsidiaries """
+            + """on a consolidated basis, an amount equal to Consolidated Net Income for such period"""
+        )
         ants = list(get_definition_annotations(text))
         self.assertEqual(1, len(ants))
         cite = ants[0].get_cite()
-        self.assertEqual('/en/definition/Consolidated EBITDA', cite)
+        self.assertEqual("/en/definition/Consolidated EBITDA", cite)
 
     def test_definitions_in_sentences_text(self):
         text = load_resource_document(
-            'lexnlp/extract/en/tests/test_definitions/test_definition_in_sentences.csv',
-            'utf-8')
+            "lexnlp/extract/en/tests/test_definitions/test_definition_in_sentences.csv", "utf-8"
+        )
         defs = list(get_definition_annotations(text))
         self.assertGreater(len(defs), 16)
         self.assertLess(len(defs), 25)
@@ -207,40 +233,38 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         sentence = 'The "Pope": the head of the Catholic Church.'
         definitions = list(get_definitions_in_sentence(sentence, return_sources=False))
         self.assertEqual(1, len(definitions))
-        self.assertEqual('Pope', definitions[0].strip(' :"'))
+        self.assertEqual("Pope", definitions[0].strip(' :"'))
 
         definitions = list(get_definitions_in_sentence(sentence, return_sources=True))
         self.assertEqual(1, len(definitions))
-        self.assertEqual('Pope', definitions[0][0].strip(' :"'))
+        self.assertEqual("Pope", definitions[0][0].strip(' :"'))
 
     def test_definition_fixed(self):
-        text = load_resource_document(
-            'lexnlp/extract/en/tests/test_definitions/test_definition_fixed.csv',
-            'utf-8')
+        text = load_resource_document("lexnlp/extract/en/tests/test_definitions/test_definition_fixed.csv", "utf-8")
         defs = list(get_definition_annotations(text))
         self.assertGreater(len(defs), 12)
         self.assertLess(len(defs), 25)
         for df in defs:
-            txt = df.name.strip('''"[]'{}.\t ''')
+            txt = df.name.strip(""""[]'{}.\t """)
             self.assertGreater(len(txt), 0)
-            txt = df.name.strip('''"[]'{}.\t ''')
+            txt = df.name.strip(""""[]'{}.\t """)
             self.assertGreater(len(txt), 0)
 
     def test_apostrophe_in_definition(self):
-        text = '''“Bankers’ Acceptance” or “BA” means a time draft'''
+        text = """“Bankers’ Acceptance” or “BA” means a time draft"""
         definitions = sorted(list(get_definition_annotations(text)), key=lambda i: i.coords[0])
         self.assertEqual(definitions[0].name, "Bankers' Acceptance")
-        self.assertEqual(definitions[1].name, 'BA')
+        self.assertEqual(definitions[1].name, "BA")
 
     def test_dot_in_definition(self):
-        text = '''“U.S. Person” means any Person that is a “United States Person” as defined 
-                  in Section 7701(a)(30) of the Code.'''
+        text = """“U.S. Person” means any Person that is a “United States Person” as defined 
+                  in Section 7701(a)(30) of the Code."""
         definitions = list(get_definition_annotations(text))
-        self.assertEqual(definitions[0].name, 'U.S. Person')
+        self.assertEqual(definitions[0].name, "U.S. Person")
 
     def test_trigger_word_fullmatches(self):
-        text = '''(i)\nThe meanings given to terms defined herein shall be equally applicable to both\n
-                  the singular and plural forms of such terms.'''
+        text = """(i)\nThe meanings given to terms defined herein shall be equally applicable to both\n
+                  the singular and plural forms of such terms."""
         definitions = list(get_definition_annotations(text))
         self.assertEqual(len(definitions), 0)
 
@@ -266,8 +290,8 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         self.assertEqual(0, len(definitions))
 
     def test_the(self):
-        text = '''The mean-\ning of our English term has shifted\nfrom character to actions-to 
-              external\nacts, manner of life, conduct, or\nhabits.'''
+        text = """The mean-\ning of our English term has shifted\nfrom character to actions-to 
+              external\nacts, manner of life, conduct, or\nhabits."""
         definitions = list(get_definitions_in_sentence(text))
         self.assertEqual(len(definitions), 0)
 
@@ -275,7 +299,7 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         text = """Understanding SBA (the "Administrator') is directed to refer"""
         definitions = list(get_definition_annotations(text))
         self.assertEqual(len(definitions), 1)
-        self.assertEqual('Administrator', definitions[0].name)
+        self.assertEqual("Administrator", definitions[0].name)
 
     def test_def_called(self):
         text = """4. Contracts whereby one party unrelated (___
@@ -285,7 +309,7 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
         as diligently where he knows that his future expenses of the suit (so called "champerty')."""
         definitions = list(get_definition_annotations(text))
         self.assertEqual(len(definitions), 1)
-        self.assertEqual('champerty', definitions[0].name)
+        self.assertEqual("champerty", definitions[0].name)
         # normalize quotes?
         # remove "called, so called, collectively called ..."
 
@@ -296,11 +320,10 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
             of--"""
         definitions = list(get_definition_annotations(text))
         self.assertEqual(len(definitions), 1)
-        self.assertEqual("Contractor's managerial personnel",
-                         definitions[0].name)
+        self.assertEqual("Contractor's managerial personnel", definitions[0].name)
 
     def test_abbr_strip(self):
-        text = '“U.S.” mean the United States of America. '
+        text = "“U.S.” mean the United States of America. "
         definitions = list(get_definition_annotations(text))
         self.assertEqual(len(definitions), 1)
 
@@ -309,23 +332,25 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
                 so-called 'authorized" and unauthre\nofferor. """
         definitions = list(get_definition_annotations(text))
         self.assertEqual(len(definitions), 1)
-        self.assertEqual('authorized', definitions[0].name)
+        self.assertEqual("authorized", definitions[0].name)
 
-        text = "(b) In the exercise of the authorities gcanted in subsection ' + \
-            '(a) of this section, the term \"Agency\n" + \
-            "head' shall mean the Director, the Deputy Director, or the Executive of the Agency."
+        text = (
+            "(b) In the exercise of the authorities gcanted in subsection ' + \
+            '(a) of this section, the term \"Agency\n"
+            + "head' shall mean the Director, the Deputy Director, or the Executive of the Agency."
+        )
         definitions = list(get_definition_annotations(text))
         self.assertEqual(len(definitions), 0)
 
     def test_emma(self):
-        text = '''This website, emma.msrb.org, including the Electronic Municipal 
+        text = """This website, emma.msrb.org, including the Electronic Municipal 
         Market Access (EMMA®) system and all subdomains and areas of this website, (the "Website")  
-        is administered by the Municipal Securities Rulemaking Board ("MSRB", "we", "us" or "our").'''
+        is administered by the Municipal Securities Rulemaking Board ("MSRB", "we", "us" or "our")."""
         definitions = list(get_definition_annotations(text))
         self.assertEqual(len(definitions), 6)
 
     def test_misbrackets(self):
-        text = '''
+        text = """
 (bq) Subject to paragraph (e) below, a party may not take any step to:
 (i) have an administrator appointed to the Trustee;
 (ii) have a receiver appointed to the Trustee, other than a receiver of all or part of the assets of the Fund only;
@@ -336,12 +361,12 @@ to time in the Gross Revenue Fund established under the Master Indenture. """
 (B) right to combine or consolidate accounts; or
 (C) banker's lien,
 against the Trustee in connection with the Trustee's obligations under or in connection with this document.
-        '''
+        """
         definitions = list(get_definition_annotations(text))
         self.assertEqual(0, len(definitions))
 
     def test_unpared_brackets(self):
-        text = '''
+        text = """
          FATCA Application Date means:                                                                                                                                                                                                            
          0. in relation to a "withholdable payment" described in s 1473(1)(A)(i) of the Code (which relates
          to payments of interest and certain other payments from sources within the US), 1 July 2014;
@@ -352,10 +377,10 @@ against the Trustee in connection with the Trustee's obligations under or in con
          (a) or (b), 1 January 2019,
          or, in each case, such other date from which such payment may become subject to a deduction or withholding
          required by FATCA as a result of any change in FATCA after the date of this Agreement.
-        '''
+        """
         definitions = list(get_definition_annotations(text))
         self.assertEqual(1, len(definitions))
-        self.assertEqual('FATCA Application Date', definitions[0].name)
+        self.assertEqual("FATCA Application Date", definitions[0].name)
 
     def test_merge_defs(self):
         text = '("MSRB", "we", "us" or "our").'
@@ -363,7 +388,7 @@ against the Trustee in connection with the Trustee's obligations under or in con
         self.assertEqual(4, len(definitions))
 
     def test_merge_defs_consumed(self):
-        text = '(each an “Obligation” and collectively, the “Obligations”)'
+        text = "(each an “Obligation” and collectively, the “Obligations”)"
         definitions = list(get_definition_annotations(text))
         self.assertEqual(2, len(definitions))
 
@@ -379,25 +404,29 @@ of income of the Borrower for such period.
         definitions = list(get_definition_annotations(text))
         self.assertEqual(3, len(definitions))
 
-        text = "“Interest Coverage Ratio” means, for any period of four consecutive fiscal quarters of the Borrower, " + \
-               "the ratio of Adjusted Funds From Operations for such period to Net Interest Expense for such period. " + \
-               "“Interest Expense” means, for any " + \
-               "period, “interest expense” as shown on a consolidated statement of income of the Borrower for such " + \
-               "period prepared in accordance with GAAP plus Interest Expense to Affiliates for such period. " + \
-               "“Interest Expense to Affiliates” means, for any period, “Interest Expense to Affiliates” as shown " + \
-               "on a consolidated statement of income of the Borrower for such period."
+        text = (
+            "“Interest Coverage Ratio” means, for any period of four consecutive fiscal quarters of the Borrower, "
+            + "the ratio of Adjusted Funds From Operations for such period to Net Interest Expense for such period. "
+            + "“Interest Expense” means, for any "
+            + "period, “interest expense” as shown on a consolidated statement of income of the Borrower for such "
+            + "period prepared in accordance with GAAP plus Interest Expense to Affiliates for such period. "
+            + "“Interest Expense to Affiliates” means, for any period, “Interest Expense to Affiliates” as shown "
+            + "on a consolidated statement of income of the Borrower for such period."
+        )
 
         definitions = list(get_definition_annotations(text))
         self.assertEqual(3, len(definitions))
 
     def test_enquoted(self):
-        text = 'increase or otherwise modify Facility LCs ("Modify," and each such action a "Modification") ' + \
-               'for the Borrower, from time to time from the date'
+        text = (
+            'increase or otherwise modify Facility LCs ("Modify," and each such action a "Modification") '
+            + "for the Borrower, from time to time from the date"
+        )
         definitions = list(get_definition_annotations(text))
         self.assertEqual(3, len(definitions))
 
     def test_quotes_removed(self):
-        text = '(each an “Obligation” and collectively, the “Obligations”)'
+        text = "(each an “Obligation” and collectively, the “Obligations”)"
         definitions = list(get_definition_annotations(text))
         definitions.sort(key=lambda d: d.coords[0])
         self.assertEqual(2, len(definitions))
@@ -405,18 +434,16 @@ of income of the Borrower for such period.
         self.assertEqual((45, 56), definitions[1].coords)
 
     def test_definition_ml(self):
-        sentence = '''THIS DEED OF TRUST, ASSIGNMENT, SECURITY AGREEMENT AND FINANCING
+        sentence = """THIS DEED OF TRUST, ASSIGNMENT, SECURITY AGREEMENT AND FINANCING
         STATEMENT (this "Deed of Trust") dated August 29, 1997, is executed and
         delivered by Trustor for good and valuable consideration, the receipt and
-        adequacy of which are hereby acknowledge by Trustor.'''
-        _ = list(get_definition_annotations(sentence,
-                                            locator_type=AnnotationLocatorType.MlWordVectorBased))
+        adequacy of which are hereby acknowledge by Trustor."""
+        _ = list(get_definition_annotations(sentence, locator_type=AnnotationLocatorType.MlWordVectorBased))
         # self.assertGreater(len(definitions), 0)
         # self.assertEqual('Deed of Trust', definitions[0].name)
 
     def test_overlapping_defs(self):
-        text = load_resource_document(
-            'lexnlp/extract/en/tests/test_definitions/bad_def.txt', 'utf-8')
+        text = load_resource_document("lexnlp/extract/en/tests/test_definitions/bad_def.txt", "utf-8")
         defs = list(get_definitions(text))
         self.assertGreater(len(defs), 12)
 
@@ -449,4 +476,3 @@ of income of the Borrower for such period.
         text = "“Definiendum”ₜ shall mean a word, phrase, or symbol which is the subject of a definition."
         definitions = list(get_definitions(text))
         self.assertEqual(1, len(definitions))
-

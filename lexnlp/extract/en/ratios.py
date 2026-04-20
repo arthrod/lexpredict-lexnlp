@@ -14,12 +14,13 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from decimal import Decimal
-import regex as re
 from collections.abc import Generator
-from lexnlp.extract.common.annotations.ratio_annotation import RatioAnnotation
-from lexnlp.extract.en.amounts import get_amounts, NUM_PTN
+from decimal import Decimal
 
+import regex as re
+
+from lexnlp.extract.common.annotations.ratio_annotation import RatioAnnotation
+from lexnlp.extract.en.amounts import NUM_PTN, get_amounts
 
 RATIO_PTN = r"""
 (({num_ptn_1})\s*

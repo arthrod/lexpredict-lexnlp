@@ -11,16 +11,17 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import regex as re
-from decimal import Decimal
 from collections.abc import Generator
+from decimal import Decimal
 
-from lexnlp.extract.en.ratios import get_ratio_annotations
+import regex as re
+
 from lexnlp.extract.common.annotations.percent_annotation import PercentAnnotation
 from lexnlp.extract.common.annotations.ratio_annotation import RatioAnnotation
-from .amounts import get_amounts, NUM_PTN, quantize_by_float_digit
-from .money import CURRENCY_SYMBOL_MAP, CURRENCY_PREFIX_MAP
+from lexnlp.extract.en.ratios import get_ratio_annotations
 
+from .amounts import NUM_PTN, get_amounts, quantize_by_float_digit
+from .money import CURRENCY_PREFIX_MAP, CURRENCY_SYMBOL_MAP
 
 PERCENT_UNIT_MAP: dict[str, Decimal] = {
     "%": Decimal('0.01'),

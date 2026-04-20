@@ -8,12 +8,14 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import regex as re
 from collections.abc import Generator
-from lexnlp.extract.common.copyrights.copyright_en_style_parser import CopyrightEnStyleParser
+
+import regex as re
+
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
+from lexnlp.extract.common.copyrights.copyright_en_style_parser import CopyrightEnStyleParser
 from lexnlp.extract.de.language_tokens import DeLanguageTokens
-from lexnlp.utils.lines_processing.line_processor import LineSplitParams, LineProcessor
+from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSplitParams
 
 
 class CopyrightDeParser(CopyrightEnStyleParser):

@@ -51,7 +51,7 @@ freely pick up security / feature releases.
 | pycountry | `22.3.5` | **24.6.1** | `>=23` | ISO 4217 updates (BYN, VES, SLE), ISO 3166 refresh, historic currency support |
 | python-dateutil | `2.8.2` | **2.9.0** | `>=2.9` | New year heuristics, tz fallback fixes, removed deprecated `tzlocal`, Py3.13 support |
 | requests | `2.28.1` | **2.32.5** | `>=2.32` | CVE-2024-35195 patched, charset_normalizer >=3.0, removed deprecated `chunked` param, `RequestField` improvements |
-| reporters-db | `3.2.32` | **3.2.63` | `>=3.2.61` | expanded US reporter coverage, federal/state updates, Canadian additions |
+| reporters-db | `3.2.32` | **3.2.63** | `>=3.2.61` | expanded US reporter coverage, federal/state updates, Canadian additions |
 | beautifulsoup4 | `4.11.1` | **4.14.3** | `>=4.12` | type hints, soupsieve 2.5 selectors, XML namespace fixes, warning on old parsers |
 | num2words | `0.5.12` | **0.5.14** | `>=0.5.13` | more locales (Vietnamese, Marathi), unit-aware numbers, ordinal forms, bugfixes |
 | psutil | `5.9.4` | **6.1.1** | `>=6` | Py3.13 support, Linux cgroup v2, new Windows counters, connection state refresh |
@@ -194,6 +194,37 @@ Upper caps retained:
 28. **Delete `Pipfile*`** once CI / docs reference `uv` only.
 
 ## 4. New functionality proposals (concrete designs)
+
+### 4.0 `lexnlp.extract.batch` — concurrent & Arrow-native extraction *(shipped)*
+
+The `claude/arthrod-lexpredict-pr-review-e1948` branch adds a brand-new
+`lexnlp.extract.batch` subpackage that operationalises several of the
+Python-3.13 wins listed above:
+
+* `extract_batch_async(extractor, texts, max_workers=...)` — a structured
+  concurrency helper built on `asyncio.TaskGroup` (PEP 654). Extractors
+  run on a bounded thread pool via `loop.run_in_executor`; failures either
+  propagate as an `ExceptionGroup` (`raise_on_error=True`) or are captured
+  per document in a `BatchExtractionResult` dataclass with an `ok`
+  property. A synchronous `extract_batch` wrapper drives the event loop
+  for scripts.
+* `annotations_to_dataframe(annotations, *, prefer_arrow=True)` — converts
+  any iterable of `TextAnnotation` subclasses into a
+  `pandas.DataFrame`. When PyArrow is available the frame uses the
+  `dtype_backend="pyarrow"` that became the supported entrypoint in
+  pandas 2.2, otherwise it silently falls back to the NumPy backend. Five
+  stable columns (`record_type`, `locale`, `text`, `start`, `end`) plus
+  user-provided `extra_columns` keep the surface small.
+* `find_fuzzy_dates(text, max_edits=1)` — ISO-style date detector that
+  leans on the ``regex`` 2024+ fuzzy engine (`{e<=n}`) to survive
+  single-character OCR errors. Matches emit both the surface form and a
+  safely parsed `datetime.date` (or `None` when outside the calendar).
+
+Every helper ships with ``slots=True`` / ``frozen=True`` dataclasses and
+uses PEP 695 ``def f[T](...)`` type-parameter syntax (Python 3.12+), so the
+subpackage is a reference for how to spell generic helpers in the rest of
+the repo. Coverage: 34 dedicated tests under
+`lexnlp/extract/batch/tests/`.
 
 ### 4.1 `lexnlp.ml.model_card` — automatic model cards
 

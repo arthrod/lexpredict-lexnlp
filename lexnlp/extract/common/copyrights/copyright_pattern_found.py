@@ -6,8 +6,9 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from lexnlp.extract.common.pattern_found import PatternFound
 import regex as re
+
+from lexnlp.extract.common.pattern_found import PatternFound
 
 
 class CopyrightPatternFound(PatternFound):

@@ -6,15 +6,15 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from typing import Any
 from collections.abc import Generator
+from typing import Any
 
 import pandas as pd
 
 from lexnlp.extract.all_locales.languages import LANG_DE
+from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
 from lexnlp.extract.common.geoentity_detector import GeoEntityLocator
 from lexnlp.extract.en.dict_entities import DictionaryEntry, DictionaryEntryAlias
-from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
 
 
 def get_geoentity_annotations_custom_settings(
@@ -24,7 +24,7 @@ def get_geoentity_annotations_custom_settings(
         priority_sort_column: str | None = 'Entity Priority',
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: list[str] = None,
+        text_languages: list[str] | None = None,
         min_alias_len: int | None = None,
         prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False,
@@ -54,7 +54,7 @@ def get_geoentity_annotations(
         geo_config_list: list[DictionaryEntry],
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: list[str] = None,
+        text_languages: list[str] | None = None,
         min_alias_len: int | None = None,
         prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False) -> Generator[GeoAnnotation]:
@@ -79,7 +79,7 @@ def get_geoentities_custom_settings(
         priority_sort_column: str | None = 'Entity Priority',
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: list[str] = None,
+        text_languages: list[str] | None = None,
         min_alias_len: int | None = None,
         prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False,
@@ -108,7 +108,7 @@ def get_geoentities(
         geo_config_list: list[DictionaryEntry],
         conflict_resolving_field: str = 'none',
         priority_direction: str = 'asc',
-        text_languages: list[str] = None,
+        text_languages: list[str] | None = None,
         min_alias_len: int | None = None,
         prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False) -> Generator[dict[str, Any]]:

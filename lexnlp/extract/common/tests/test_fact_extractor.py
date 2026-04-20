@@ -9,16 +9,16 @@ __email__ = "support@contraxsuite.com"
 import os
 from unittest import TestCase
 
-from lexnlp.extract.en.dict_entities import DictionaryEntry
 from lexnlp.extract.common.annotation_type import AnnotationType
-from lexnlp.extract.common.fact_extracting import FactExtractor, ExtractorResultFormat
+from lexnlp.extract.common.fact_extracting import ExtractorResultFormat, FactExtractor
+from lexnlp.extract.en.dict_entities import DictionaryEntry
 
 
 def make_geoconfig():
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    ge_path = dir_path + '/../../../../test_data/lexnlp/extract/en/tests/test_geoentities/'
-    entities_fn = ge_path + 'geoentities.csv'
-    aliases_fn = ge_path + 'geoaliases.csv'
+    ge_path = dir_path + "/../../../../test_data/lexnlp/extract/en/tests/test_geoentities/"
+    entities_fn = ge_path + "geoentities.csv"
+    aliases_fn = ge_path + "geoaliases.csv"
     return list(DictionaryEntry.load_entities_from_files(entities_fn, aliases_fn))
 
 
@@ -26,7 +26,6 @@ EN_GEO_CONFIG = make_geoconfig()
 
 
 class TestFactExtractor(TestCase):
-
     def test_one_fact_en(self):
         text = """
         Three people check into a hotel room. 
@@ -34,11 +33,13 @@ class TestFactExtractor(TestCase):
         Later the manager realizes the bill should only be $25. 
         To rectify this, he gives the bellhop $5 to return to the guests.
         """
-        facts = FactExtractor.parse_text(text,
-                                         FactExtractor.LANGUAGE_EN,
-                                         ExtractorResultFormat.fmt_class,
-                                         extract_all=False,
-                                         include_types={AnnotationType.money})
+        facts = FactExtractor.parse_text(
+            text,
+            FactExtractor.LANGUAGE_EN,
+            ExtractorResultFormat.fmt_class,
+            extract_all=False,
+            include_types={AnnotationType.money},
+        )
         self.assertTrue(AnnotationType.money in facts)
         facts = facts[AnnotationType.money]
         self.assertGreater(len(facts), 2)
@@ -50,15 +51,17 @@ class TestFactExtractor(TestCase):
         Later the manager realizes the bill should only be $25. 
         To rectify this, he gives the bellhop $5 to return to the guests.
         """
-        facts = FactExtractor.parse_text(text,
-                                         FactExtractor.LANGUAGE_EN,
-                                         ExtractorResultFormat.fmt_dict,
-                                         extract_all=False,
-                                         include_types={AnnotationType.money})
+        facts = FactExtractor.parse_text(
+            text,
+            FactExtractor.LANGUAGE_EN,
+            ExtractorResultFormat.fmt_dict,
+            extract_all=False,
+            include_types={AnnotationType.money},
+        )
         self.assertTrue(AnnotationType.money in facts)
         facts = facts[AnnotationType.money]
-        facts.sort(key=lambda f: f['attrs']['start'])
-        self.assertEqual(5.0, float(facts[-1]['tags']['Extracted Entity Value']))
+        facts.sort(key=lambda f: f["attrs"]["start"])
+        self.assertEqual(5.0, float(facts[-1]["tags"]["Extracted Entity Value"]))
 
     def test_one_fact_de(self):
         text = """
@@ -69,11 +72,13 @@ class TestFactExtractor(TestCase):
         von Daman und Diu (53,5 Prozent), Meghalaya (27,8 Prozent) und Arunachal Pradesh (25,9 Prozent).
         Nagaland verzeichnete die niedrigste Wachstumsrate von -0,5 Prozent.
         """
-        facts = FactExtractor.parse_text(text,
-                                         FactExtractor.LANGUAGE_DE,
-                                         ExtractorResultFormat.fmt_class,
-                                         extract_all=False,
-                                         include_types={AnnotationType.percent})
+        facts = FactExtractor.parse_text(
+            text,
+            FactExtractor.LANGUAGE_DE,
+            ExtractorResultFormat.fmt_class,
+            extract_all=False,
+            include_types={AnnotationType.percent},
+        )
         self.assertTrue(AnnotationType.percent in facts)
         facts = facts[AnnotationType.percent]
         self.assertGreater(len(facts), 2)
@@ -86,8 +91,7 @@ class TestFactExtractor(TestCase):
         To rectify this, he gives the bellhop $5 to return to the guests.
         """
         FactExtractor.ensure_parser_arguments_en(geo_config=EN_GEO_CONFIG)
-        facts = FactExtractor.parse_text(text,
-                                         FactExtractor.LANGUAGE_EN,
-                                         ExtractorResultFormat.fmt_class,
-                                         extract_all=True)
+        facts = FactExtractor.parse_text(
+            text, FactExtractor.LANGUAGE_EN, ExtractorResultFormat.fmt_class, extract_all=True
+        )
         self.assertTrue(AnnotationType.money in facts)
