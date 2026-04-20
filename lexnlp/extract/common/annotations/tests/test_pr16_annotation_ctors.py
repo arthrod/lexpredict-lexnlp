@@ -24,12 +24,7 @@ Covered classes:
 
 from __future__ import annotations
 
-__author__ = "ContraxSuite, LLC; LexPredict, LLC"
-__copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
-__license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
-__version__ = "2.3.0"
-__maintainer__ = "LexPredict, LLC"
-__email__ = "support@contraxsuite.com"
+from __future__ import annotations
 
 from datetime import date
 
@@ -45,6 +40,13 @@ from lexnlp.extract.common.annotations.geo_annotation import GeoAnnotation
 from lexnlp.extract.common.annotations.phone_annotation import PhoneAnnotation
 from lexnlp.extract.common.annotations.regulation_annotation import RegulationAnnotation
 from lexnlp.extract.common.annotations.ssn_annotation import SsnAnnotation
+
+__author__ = "ContraxSuite, LLC; LexPredict, LLC"
+__copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
+__license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
+__version__ = "2.3.0"
+__maintainer__ = "LexPredict, LLC"
+__email__ = "support@contraxsuite.com"
 
 
 # ---------------------------------------------------------------------------
