@@ -233,23 +233,29 @@ class TestFlattenEdgeCases:
 
 
 class TestBaseExceptionPropagation:
-    def test_keyboard_interrupt_kept_in_result(self) -> None:
-        """KeyboardInterrupt is a BaseException; it must be captured, not swallowed."""
+    """BaseException subclasses outside ``Exception`` must propagate.
 
+    The batch wrapper only captures :class:`Exception`, so signals such as
+    :class:`KeyboardInterrupt` and :class:`SystemExit` — which are
+    deliberately modelled outside the regular exception hierarchy —
+    surface to the caller instead of being silently stored in a
+    :class:`BatchExtractionResult`. This matches the CodeRabbit review
+    guidance and preserves structured-concurrency semantics.
+    """
+
+    def test_keyboard_interrupt_propagates(self) -> None:
         def interrupt(_: str) -> list[str]:
             raise KeyboardInterrupt("simulated interrupt")
 
-        results = extract_batch(interrupt, ["x"])
-        assert results[0].ok is False
-        assert isinstance(results[0].error, KeyboardInterrupt)
+        with pytest.raises(KeyboardInterrupt):
+            extract_batch(interrupt, ["x"])
 
-    def test_system_exit_kept_in_result(self) -> None:
+    def test_system_exit_propagates(self) -> None:
         def quitter(_: str) -> list[str]:
             raise SystemExit(1)
 
-        results = extract_batch(quitter, ["x"])
-        assert results[0].ok is False
-        assert isinstance(results[0].error, SystemExit)
+        with pytest.raises((SystemExit, BaseException)):
+            extract_batch(quitter, ["x"])
 
 
 # ---------------------------------------------------------------------------

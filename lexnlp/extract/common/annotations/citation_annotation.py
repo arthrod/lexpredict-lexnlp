@@ -41,31 +41,31 @@ class CitationAnnotation(TextAnnotation):
                  part: str | None = None,
                  year_str: str | None = None):
         """
-                 Initialize a CitationAnnotation with location, text, and parsed citation fields.
+        Initialize a CitationAnnotation with location, text, and parsed citation fields.
                  
-                 Parameters:
-                     coords (tuple[int, int]): Bounding coordinates of the annotation.
-                     locale (str): Locale/language of the annotation text.
-                     text (str): Extracted entity text for the citation.
-                     volume (int | None): Numeric volume number, if available.
-                     volume_str (str | None): Volume represented as a string (when non-numeric or formatted).
-                     year (int | None): Year associated with the citation.
-                     reporter (str | None): Short reporter abbreviation (e.g., "U.S.", "F.3d").
-                     reporter_full_name (str | None): Full reporter name.
-                     page (int | None): Page number within the reporter.
-                     page_range (str | None): Page range string (e.g., "123-125").
-                     court (str | None): Court identifier or name.
-                     source (str | None): Original source string for the citation.
-                     article (int | None): Article number within a source, when applicable.
-                     paragraph (str | None): Paragraph identifier within the cited document.
-                     subparagraph (str | None): Subparagraph identifier.
-                     letter (str | None): Lettered subunit identifier.
-                     sentence (int | None): Sentence number within the cited unit.
-                     date (str | None): Date string associated with the citation.
-                     part (str | None): Part identifier within the source (e.g., "Part I").
-                     year_str (str | None): Year represented as a string (when non-numeric or formatted).
-                 """
-                 super().__init__(
+        Parameters:
+        coords (tuple[int, int]): Bounding coordinates of the annotation.
+        locale (str): Locale/language of the annotation text.
+        text (str): Extracted entity text for the citation.
+        volume (int | None): Numeric volume number, if available.
+        volume_str (str | None): Volume represented as a string (when non-numeric or formatted).
+        year (int | None): Year associated with the citation.
+        reporter (str | None): Short reporter abbreviation (e.g., "U.S.", "F.3d").
+        reporter_full_name (str | None): Full reporter name.
+        page (int | None): Page number within the reporter.
+        page_range (str | None): Page range string (e.g., "123-125").
+        court (str | None): Court identifier or name.
+        source (str | None): Original source string for the citation.
+        article (int | None): Article number within a source, when applicable.
+        paragraph (str | None): Paragraph identifier within the cited document.
+        subparagraph (str | None): Subparagraph identifier.
+        letter (str | None): Lettered subunit identifier.
+        sentence (int | None): Sentence number within the cited unit.
+        date (str | None): Date string associated with the citation.
+        part (str | None): Part identifier within the source (e.g., "Part I").
+        year_str (str | None): Year represented as a string (when non-numeric or formatted).
+        """
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

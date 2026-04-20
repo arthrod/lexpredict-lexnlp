@@ -68,12 +68,12 @@ class FuzzyDateMatch:
 def _safe_parse(y: str, m: str, d: str) -> date | None:
     """
     Attempt to construct a datetime.date from numeric year, month, and day strings.
-    
+
     Parameters:
         y (str): Four-digit year string.
         m (str): One- or two-digit month string.
         d (str): One- or two-digit day string.
-    
+
     Returns:
         date | None: A datetime.date for the provided components, or `None` if conversion or date construction fails.
     """
@@ -109,7 +109,10 @@ def find_fuzzy_dates(
     if max_edits > 2:
         raise ValueError(f"max_edits > 2 produces unreliable results; got {max_edits}")
 
-    pattern = _BASE_PATTERN + f"{{e<={max_edits}}}" if max_edits else _BASE_PATTERN
+    # Wrap the base pattern in a non-capturing group so the fuzzy quantifier
+    # applies to the entire date expression, not just the day group. Without
+    # the wrapper, ``{e<=N}`` binds to the preceding atom only.
+    pattern = f"(?:{_BASE_PATTERN}){{e<={max_edits}}}" if max_edits else _BASE_PATTERN
     compiled = re.compile(pattern, flags=re.VERBOSE | re.BESTMATCH)
 
     for match in compiled.finditer(text):

@@ -57,7 +57,7 @@ class DictionaryEntryAlias:
         Provide a developer-friendly string representation of the alias including its language and optional alias_id.
         
         Returns:
-            repr_str (str): The alias text followed by "lang: <language>" and, when present, ", id: <alias_id>".
+        repr_str (str): The alias text followed by "lang: <language>" and, when present, ", id: <alias_id>".
         """
         if self.alias_id is not None:
             return f'{self.alias}, lang: {self.language}, id: {self.alias_id}'
@@ -67,18 +67,18 @@ class DictionaryEntryAlias:
     def entity_alias(cls, alias: str, language: str | None = None, is_abbreviation: bool = False, alias_id: int | None = None) \
             -> 'DictionaryEntryAlias':
         """
-            Create a DictionaryEntryAlias for the given alias and store its normalized form.
+        Create a DictionaryEntryAlias for the given alias and store its normalized form.
             
-            Parameters:
-                alias (str): The alias text to store.
-                language (str | None): Optional ISO language code for the alias.
-                is_abbreviation (bool): If True, the alias is treated as an abbreviation and normalization preserves case.
-                alias_id (int | None): Optional identifier for the alias variant.
+        Parameters:
+        alias (str): The alias text to store.
+        language (str | None): Optional ISO language code for the alias.
+        is_abbreviation (bool): If True, the alias is treated as an abbreviation and normalization preserves case.
+        alias_id (int | None): Optional identifier for the alias variant.
             
-            Returns:
-                DictionaryEntryAlias: A new alias record with `normalized_alias` produced by `normalize_text(alias, lowercase=not is_abbreviation)`.
-            """
-            normalized_alias = normalize_text(alias, lowercase=not is_abbreviation)
+        Returns:
+        DictionaryEntryAlias: A new alias record with `normalized_alias` produced by `normalize_text(alias, lowercase=not is_abbreviation)`.
+        """
+        normalized_alias = normalize_text(alias, lowercase=not is_abbreviation)
         return DictionaryEntryAlias(alias, language, is_abbreviation, alias_id, normalized_alias)
 
     def has_closer_locale(self,
@@ -316,7 +316,7 @@ def normalize_text_with_map(
     """
     Almost like normalize_text, but also returns source-to-resulted char index map:
     map[i] = I, where i is the character coordinate within the source text,
-                I is the same character's coordinate within the resulted text
+    I is the same character's coordinate within the resulted text
     """
     src_dest_map = []  # type: List[int]
     if use_stemmer:
@@ -361,9 +361,9 @@ def reverse_src_to_dest_map(
     """       1         2         3         4         5
     012345678901234567890123456789012345678901234567890
     One one Bankr. E.D.N.C. two two two.
-     One one Bankr . E . D . N . C . two two two . 
+    One one Bankr . E . D . N . C . two two two . 
     
-     0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 
+    0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,15,16,17,19  <- map
     [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,12,13,13  <- reversed
     """
@@ -407,23 +407,23 @@ def _find_entity_positions(normalized_text: str,
                            alias_ban_list: None | dict[str, AliasBanList] = None,
                            simplified_normalization: bool = False):
     """
-                           Populate a context mapping with positions in normalized text where the given entity's aliases appear.
+    Populate a context mapping with positions in normalized text where the given entity's aliases appear.
                            
-                           Searches for all aliases of `entity` in the provided normalized text (using `normalized_text` for abbreviation searches and `normalized_text_lowercase` for non-abbreviations) and records best matches into `context` keyed by normalized start index. If multiple aliases start at the same index, the context keeps the longest alias (with locale preference resolved via `alias_language_order`). This function mutates `context` and does not return a value.
+    Searches for all aliases of `entity` in the provided normalized text (using `normalized_text` for abbreviation searches and `normalized_text_lowercase` for non-abbreviations) and records best matches into `context` keyed by normalized start index. If multiple aliases start at the same index, the context keeps the longest alias (with locale preference resolved via `alias_language_order`). This function mutates `context` and does not return a value.
                            
-                           Parameters:
-                               normalized_text (str): Normalized source text preserving original case (used for abbreviation matching).
-                               normalized_text_lowercase (str): Lowercased normalized source text (used for non-abbreviation matching).
-                               entity (DictionaryEntry): The dictionary entry whose aliases will be searched.
-                               text_languages (list[str] | tuple[str] | set[str] | None): If set, only aliases whose `language` is in this collection are considered.
-                               alias_language_order (list[str] | None): Language preference ordering used to break ties when multiple aliases for the same entity match the same span.
-                               context (dict[int, SearchResultPosition] | None): Mutable mapping from normalized start index to `SearchResultPosition`. If None, a new mapping is created internally; otherwise this mapping is updated in-place.
-                               use_stemmer (bool): If true, use stemming during alias normalization when computing missing `normalized_alias`.
-                               abbrev_uppercase_check_range (int): Number of characters on each side of an abbreviation match to inspect; matches that lie inside an all-uppercase block are ignored to reduce false positives.
-                               min_alias_len (int | None): If set, aliases shorter than this length are skipped.
-                               alias_ban_list (dict[str, AliasBanList] | None): Optional precomputed banlist mapping language -> `AliasBanList`; aliases present in the banlist are excluded. The special key `None` represents language-agnostic bans.
-                               simplified_normalization (bool): If true, use simplified tokenization when computing a normalized alias for aliases that lack a precomputed `normalized_alias`.
-                           """
+    Parameters:
+    normalized_text (str): Normalized source text preserving original case (used for abbreviation matching).
+    normalized_text_lowercase (str): Lowercased normalized source text (used for non-abbreviation matching).
+    entity (DictionaryEntry): The dictionary entry whose aliases will be searched.
+    text_languages (list[str] | tuple[str] | set[str] | None): If set, only aliases whose `language` is in this collection are considered.
+    alias_language_order (list[str] | None): Language preference ordering used to break ties when multiple aliases for the same entity match the same span.
+    context (dict[int, SearchResultPosition] | None): Mutable mapping from normalized start index to `SearchResultPosition`. If None, a new mapping is created internally; otherwise this mapping is updated in-place.
+    use_stemmer (bool): If true, use stemming during alias normalization when computing missing `normalized_alias`.
+    abbrev_uppercase_check_range (int): Number of characters on each side of an abbreviation match to inspect; matches that lie inside an all-uppercase block are ignored to reduce false positives.
+    min_alias_len (int | None): If set, aliases shorter than this length are skipped.
+    alias_ban_list (dict[str, AliasBanList] | None): Optional precomputed banlist mapping language -> `AliasBanList`; aliases present in the banlist are excluded. The special key `None` represents language-agnostic bans.
+    simplified_normalization (bool): If true, use simplified tokenization when computing a normalized alias for aliases that lack a precomputed `normalized_alias`.
+    """
 
     def abbrev_in_uppercase_block(text: str, position: int, check_range: int):
         block = text[max(0, position - check_range): min(len(text), position + check_range)]
@@ -510,30 +510,30 @@ def find_dict_entities(text: str,
                        simplified_normalization: bool = False)\
         -> Generator[DictionaryEntity]:
     """
-                       Extract entities from `text` using the provided dictionary of candidate entities.
+    Extract entities from `text` using the provided dictionary of candidate entities.
                        
-                       Searches for alias occurrences of each element in `all_possible_entities`, respects `text_languages` and `default_language` when matching alias locales, prefers the longest overlapping match, and optionally resolves position-level conflicts using `conflict_resolving_func`. Also handles abbreviation-specific matching rules and can drop AM/PM tokens that are part of time expressions.
+    Searches for alias occurrences of each element in `all_possible_entities`, respects `text_languages` and `default_language` when matching alias locales, prefers the longest overlapping match, and optionally resolves position-level conflicts using `conflict_resolving_func`. Also handles abbreviation-specific matching rules and can drop AM/PM tokens that are part of time expressions.
                        
-                       Parameters:
-                           text: Source text to search.
-                           all_possible_entities: Iterable of DictionaryEntry objects to search for.
-                           default_language: Language preferred when choosing between aliases with different locale tags.
-                           text_languages: If set, restricts matches to aliases whose language is in this collection.
-                           conflict_resolving_func: Optional callable(conflicting_entities_aliases, priority_direction)
-                               -> list[tuple[DictionaryEntry, DictionaryEntryAlias]] used to pick which entities to keep
-                               when multiple entities with equally long aliases match the same position.
-                           priority_direction: 'asc' or 'desc', passed to the conflict resolver to influence tie-breaking.
-                           use_stemmer: If true, use stemming-based normalization for matching instead of tokenization.
-                           remove_time_am_pm: If true, drop matches of "am"/"pm" that appear to be part of time literals.
-                           min_alias_len: Minimum alias length to consider; shorter aliases are ignored when set.
-                           prepared_alias_ban_list: Optional mapping language -> AliasBanList of normalized aliases/abbreviations
-                               to exclude from matching.
-                           simplified_normalization: If true, avoid full tokenizer-based normalization.
+    Parameters:
+    text: Source text to search.
+    all_possible_entities: Iterable of DictionaryEntry objects to search for.
+    default_language: Language preferred when choosing between aliases with different locale tags.
+    text_languages: If set, restricts matches to aliases whose language is in this collection.
+    conflict_resolving_func: Optional callable(conflicting_entities_aliases, priority_direction)
+    -> list[tuple[DictionaryEntry, DictionaryEntryAlias]] used to pick which entities to keep
+    when multiple entities with equally long aliases match the same position.
+    priority_direction: 'asc' or 'desc', passed to the conflict resolver to influence tie-breaking.
+    use_stemmer: If true, use stemming-based normalization for matching instead of tokenization.
+    remove_time_am_pm: If true, drop matches of "am"/"pm" that appear to be part of time literals.
+    min_alias_len: Minimum alias length to consider; shorter aliases are ignored when set.
+    prepared_alias_ban_list: Optional mapping language -> AliasBanList of normalized aliases/abbreviations
+    to exclude from matching.
+    simplified_normalization: If true, avoid full tokenizer-based normalization.
                        
-                       Returns:
-                           Generator yielding DictionaryEntity objects representing each match; each DictionaryEntity contains
-                           the matched DictionaryEntry and a (start, end) tuple with source-text character indices.
-                       """
+    Returns:
+    Generator yielding DictionaryEntity objects representing each match; each DictionaryEntity contains
+    the matched DictionaryEntry and a (start, end) tuple with source-text character indices.
+    """
 
     if not text:
         return

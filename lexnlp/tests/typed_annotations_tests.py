@@ -42,11 +42,11 @@ class TypedFieldCheck:
     """
     Class is used to check one annotation's attribute against provided value
     E.g., "0)date.month<6" means:
-            - check first annotation within the sample
-            - check that annotation's month value strictly less than 6
+    - check first annotation within the sample
+    - check that annotation's month value strictly less than 6
 
-       or "..)coords.1>0" means:
-            - check that coords[1] > 0 for all (..) annotations in this sample
+    or "..)coords.1>0" means:
+    - check that coords[1] > 0 for all (..) annotations in this sample
     """
     datetime_formats = ['%Y.%m.%d %H:%M:%S', '%Y-%m-%d %H:%M:%S',
                         '%Y.%m.%d %H:%M', '%Y-%m-%d %H:%M']
@@ -71,23 +71,23 @@ class TypedFieldCheck:
                  comparison: str = '=',
                  check_all: bool = False):
         """
-                 Initialize a TypedFieldCheck that describes an expected value, where to find it, and how to compare it.
+        Initialize a TypedFieldCheck that describes an expected value, where to find it, and how to compare it.
                  
-                 Parameters:
-                     index (int): Annotation index within the sample. Ignored when `check_all` is True.
-                     path (list[str] | None): Dot/segment path describing how to extract the value from an annotation (e.g., attribute names, numeric indices, or method markers like `name()`); defaults to an empty list.
-                     value (str): Expected value to compare against (kept as a string until comparison/casting).
-                     comparison (str): Comparison operator to apply; one of '=', '!=', '<', '>', '<=', '>='.
-                     check_all (bool): If True, apply this check to all annotations (the `index` is ignored).
+        Parameters:
+        index (int): Annotation index within the sample. Ignored when `check_all` is True.
+        path (list[str] | None): Dot/segment path describing how to extract the value from an annotation (e.g., attribute names, numeric indices, or method markers like `name()`); defaults to an empty list.
+        value (str): Expected value to compare against (kept as a string until comparison/casting).
+        comparison (str): Comparison operator to apply; one of '=', '!=', '<', '>', '<=', '>='.
+        check_all (bool): If True, apply this check to all annotations (the `index` is ignored).
                  
-                 Attributes set:
-                     index, check_all, path, value, comparison, compare_equal, compare_not_equal, last_error
+        Attributes set:
+        index, check_all, path, value, comparison, compare_equal, compare_not_equal, last_error
                  
-                 Notes:
-                     compare_equal is True for '=', '<=', '>='; compare_not_equal is True for '!='.
-                     last_error is initialized to None and is populated when casting/parsing fails during comparison.
-                 """
-                 self.index = index  # annotation index within the sample
+        Notes:
+        compare_equal is True for '=', '<=', '>='; compare_not_equal is True for '!='.
+        last_error is initialized to None and is populated when casting/parsing fails during comparison.
+        """
+        self.index = index  # annotation index within the sample
         self.check_all = check_all  # check all annotations, index is ignored
         self.path = path or []  # checking value's path
         self.value = value  # value to compare

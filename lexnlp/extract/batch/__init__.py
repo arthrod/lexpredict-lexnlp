@@ -29,17 +29,33 @@ __email__ = "support@contraxsuite.com"
 
 from lexnlp.extract.batch.async_extract import (
     BatchExtractionResult,
+    adaptive_max_workers,
     extract_batch,
     extract_batch_async,
+    flatten,
+    group_successful,
 )
 from lexnlp.extract.batch.fuzzy_dates import FuzzyDateMatch, find_fuzzy_dates
+from lexnlp.extract.batch.fuzzy_patterns import (
+    FuzzyPatternMatch,
+    find_fuzzy_cusips,
+    find_fuzzy_money,
+)
 from lexnlp.extract.batch.pandas_output import annotations_to_dataframe
+from lexnlp.extract.batch.progress import extract_batch_with_progress
 
 __all__ = [
     "BatchExtractionResult",
     "FuzzyDateMatch",
+    "FuzzyPatternMatch",
+    "adaptive_max_workers",
     "annotations_to_dataframe",
     "extract_batch",
     "extract_batch_async",
+    "extract_batch_with_progress",
+    "find_fuzzy_cusips",
     "find_fuzzy_dates",
+    "find_fuzzy_money",
+    "flatten",
+    "group_successful",
 ]

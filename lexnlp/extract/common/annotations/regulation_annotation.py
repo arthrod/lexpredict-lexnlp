@@ -25,17 +25,17 @@ class RegulationAnnotation(TextAnnotation):
                  source: str = '',
                  country: str = ''):
         """
-                 Initialize a RegulationAnnotation with coordinates, locale, identifier text, and source/country metadata.
+        Initialize a RegulationAnnotation with coordinates, locale, identifier text, and source/country metadata.
                  
-                 Parameters:
-                     coords (tuple[int, int]): Character span (start, end) of the annotation in the source text.
-                     locale (str): Locale code for the annotation (default 'en').
-                     name (str): Identifier or code of the regulation (e.g., section number or code).
-                     text (str | None): Extracted annotation text; if None, the `name` may be used as display text.
-                     source (str): Issuing source or authority for the regulation (e.g., agency or publication).
-                     country (str): Issuing country for the external reference.
-                 """
-                 super().__init__(
+        Parameters:
+        coords (tuple[int, int]): Character span (start, end) of the annotation in the source text.
+        locale (str): Locale code for the annotation (default 'en').
+        name (str): Identifier or code of the regulation (e.g., section number or code).
+        text (str | None): Extracted annotation text; if None, the `name` may be used as display text.
+        source (str): Issuing source or authority for the regulation (e.g., agency or publication).
+        country (str): Issuing country for the external reference.
+        """
+        super().__init__(
             name=name,
             locale=locale,
             coords=coords,
