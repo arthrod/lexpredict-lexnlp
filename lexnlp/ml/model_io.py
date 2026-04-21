@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import logging
 import pickle
+import threading
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -33,6 +34,7 @@ LOGGER = logging.getLogger(__name__)
 
 CANONICAL_SUFFIX = ".skops"
 _LEGACY_SUFFIXES = frozenset({".pickle", ".pkl", ".cloudpickle", ".joblib"})
+_sklearn_patch_lock = threading.Lock()
 
 
 def is_skops_path(path: Path) -> bool:
@@ -138,31 +140,35 @@ def _patch_legacy_sklearn_estimator(obj: Any) -> Any:
 def _patched_sklearn_tree_loader():
     """Patch sklearn's tree-node validator so pre-1.3 models still load."""
 
+    _sklearn_patch_lock.acquire()
     try:
-        import numpy
-        from sklearn.tree import _tree
-    except ImportError:
-        yield
-        return
+        try:
+            import numpy
+            from sklearn.tree import _tree
+        except ImportError:
+            yield
+            return
 
-    original = _tree._check_node_ndarray
+        original = _tree._check_node_ndarray
 
-    def compat(node_ndarray, expected_dtype):
-        names = getattr(getattr(node_ndarray, "dtype", None), "names", None)
-        expected_names = getattr(expected_dtype, "names", None)
-        if names and expected_names and "missing_go_to_left" in expected_names and "missing_go_to_left" not in names:
-            patched = numpy.empty(node_ndarray.shape, dtype=expected_dtype)
-            for name in names:
-                patched[name] = node_ndarray[name]
-            patched["missing_go_to_left"] = 0
-            node_ndarray = patched
-        return original(node_ndarray, expected_dtype)
+        def compat(node_ndarray, expected_dtype):
+            names = getattr(getattr(node_ndarray, "dtype", None), "names", None)
+            expected_names = getattr(expected_dtype, "names", None)
+            if names and expected_names and "missing_go_to_left" in expected_names and "missing_go_to_left" not in names:
+                patched = numpy.empty(node_ndarray.shape, dtype=expected_dtype)
+                for name in names:
+                    patched[name] = node_ndarray[name]
+                patched["missing_go_to_left"] = 0
+                node_ndarray = patched
+            return original(node_ndarray, expected_dtype)
 
-    _tree._check_node_ndarray = compat
-    try:
-        yield
+        _tree._check_node_ndarray = compat
+        try:
+            yield
+        finally:
+            _tree._check_node_ndarray = original
     finally:
-        _tree._check_node_ndarray = original
+        _sklearn_patch_lock.release()
 
 
 def load_model(path: Path, *, trusted: bool = False) -> Any:
