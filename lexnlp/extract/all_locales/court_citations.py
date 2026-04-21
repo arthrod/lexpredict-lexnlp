@@ -32,5 +32,5 @@ def get_court_citation_annotations(locale: str, text: str, language: str | None 
         Returns:
             Generator[CourtCitationAnnotation]: An iterator yielding found court citation annotations.
         """
-        routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[LANG_DE.code])
+    routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[LANG_DE.code])
     yield from routine(text, language)

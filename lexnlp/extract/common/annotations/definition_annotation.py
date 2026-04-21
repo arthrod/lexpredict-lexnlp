@@ -31,7 +31,7 @@ class DefinitionAnnotation(TextAnnotation):
                      name (str): The label or name of the definition.
                      text (str | None): The extracted text for the definition; may be None if not available.
                  """
-                 super().__init__(
+        super().__init__(
             name=name,
             locale=locale,
             coords=coords,

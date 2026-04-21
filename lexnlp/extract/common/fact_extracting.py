@@ -138,7 +138,7 @@ class FactExtractor:
                    Returns:
                        dict[AnnotationType, list[Any]]: Mapping from each extracted `AnnotationType` to a list of extracted items (annotation objects or dictionaries depending on `result_fmt`).
                    """
-                   if lang not in FactExtractor.func_by_lang:
+        if lang not in FactExtractor.func_by_lang:
             langs = ', '.join(FactExtractor.func_by_lang)
             raise Exception(f'Language "{lang}" was not found among {langs}')
         lang_extractors = FactExtractor.func_by_lang[lang]
@@ -194,7 +194,7 @@ class FactExtractor:
             Parameters:
                 geo_config (list[Any] | None): Configuration passed to geoentity extractors; may be `None`.
             """
-            for fmt in ExtractorResultFormat:
+        for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_EN,
                                                   fmt,
                                                   AnnotationType.geoentity,
@@ -209,7 +209,7 @@ class FactExtractor:
             Parameters:
                 geo_config (list[Any] | None): Optional configuration object passed to German geoentity extractors; it is stored as the single extra-argument tuple `(geo_config,)`.
             """
-            for fmt in ExtractorResultFormat:
+        for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_DE,
                                                   fmt,
                                                   AnnotationType.geoentity,

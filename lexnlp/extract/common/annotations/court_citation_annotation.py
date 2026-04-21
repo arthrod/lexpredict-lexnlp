@@ -35,7 +35,7 @@ class CourtCitationAnnotation(TextAnnotation):
                      text (str | None): Optional extracted entity text; used as the displayed text when present.
                      translated_name (str | None): Optional translated version of the citation name.
                  """
-                 super().__init__(
+        super().__init__(
             coords=coords,
             name=name,
             locale=locale,

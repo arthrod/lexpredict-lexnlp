@@ -37,7 +37,7 @@ class ActAnnotation(TextAnnotation):
                      ambiguous (bool): Whether the extraction is ambiguous (True) or confidently identified (False).
                      text (str): The original text span covered by the annotation.
                  """
-                 super().__init__(
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

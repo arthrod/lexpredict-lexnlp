@@ -30,7 +30,7 @@ class UrlAnnotation(TextAnnotation):
                      text (str | None): Optional extracted or display text associated with the URL.
                      url (str | None): Optional URL value for the annotation; stored on the instance as `self.url`.
                  """
-                 super().__init__(
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

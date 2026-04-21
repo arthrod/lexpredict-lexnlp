@@ -144,8 +144,8 @@ class DateParser:
                           - value (datetime | Any): the parsed/normalized date value.
                           - source (str): the exact substring from the text that produced the date.
                   """
-                  strict = self.dateparser_settings.get('STRICT_PARSING',
-                                              self.DEFAULT_DATEPARSER_SETTINGS.get('STRICT_PARSING', False))
+        strict = self.dateparser_settings.get('STRICT_PARSING',
+                                    self.DEFAULT_DATEPARSER_SETTINGS.get('STRICT_PARSING', False))
         for ant in self.get_date_annotations(text, locale, strict=strict):
             yield {'location_start': ant.coords[0],
                    'location_end': ant.coords[1],
@@ -175,15 +175,17 @@ class DateParser:
                                  - Extraction first uses the dateparser searcher, then any custom extractions from `get_extra_dates`.
                                  - Candidate matches are filtered by general heuristics and, if enabled, by the classifier check; overlapping spans are suppressed.
                              """
-                             self.text = text.replace('\n', ' ') or self.text
+        self.text = text.replace('\n', ' ') or self.text
         self.locale.language = (locale.language if locale else "") or self.locale.language
 
         if not self.text or not self.locale.language:
             raise RuntimeError('Define text and language.')
 
-        # First try dateparser searcher
+        # First try dateparser searcher. Pass the newline-normalised text so
+        # dateparser does not split coordinated phrases like
+        # "28 de abril e 17 de\nnovembro de 1995".
         try:
-            self.dates = self.get_dateparser_dates(text, strict)
+            self.dates = self.get_dateparser_dates(self.text, strict)
         except Exception as e:
             # TODO: add logging
             print(str(e))

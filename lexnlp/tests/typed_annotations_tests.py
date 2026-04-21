@@ -87,7 +87,7 @@ class TypedFieldCheck:
                      compare_equal is True for '=', '<=', '>='; compare_not_equal is True for '!='.
                      last_error is initialized to None and is populated when casting/parsing fails during comparison.
                  """
-                 self.index = index  # annotation index within the sample
+        self.index = index  # annotation index within the sample
         self.check_all = check_all  # check all annotations, index is ignored
         self.path = path or []  # checking value's path
         self.value = value  # value to compare

@@ -1,3 +1,17 @@
+"""Definition extraction for Portuguese (pt-BR).
+
+Recognises the most common Brazilian legal definitional patterns:
+
+- ``doravante denominado "X"`` / ``a seguir denominado "X"`` — hereinafter
+  aliases, typical of contracts.
+- ``X significa Y`` / ``X refere-se a Y`` / ``X é definido como Y`` — explicit
+  definitions.
+- ``X é Y`` / ``X são Y`` — copula sentences.
+- Quoted labels in parentheses (e.g. ``(o "Contratante")``).
+- Acronyms: ``Empresa Brasileira de Correios (ECT)`` captured by the common
+  acronym matcher.
+"""
+
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -6,8 +20,9 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import re
 from collections.abc import Generator
+
+import regex as re
 
 from lexnlp.extract.common.annotations.definition_annotation import DefinitionAnnotation
 from lexnlp.extract.common.definitions.common_definition_patterns import CommonDefinitionPatterns
@@ -18,77 +33,117 @@ from lexnlp.utils.lines_processing.line_processor import LineSplitParams
 
 
 class PortugueseParsingMethods:
+    """Portuguese definition-candidate matchers.
+
+    Each ``match_*`` method has the signature ``(phrase: str) -> list[PatternFound]``
+    and delegates to :class:`CommonDefinitionPatterns` for quoted-chunk logic.
     """
-    the class contains methods with the same signature:
-        def method_name(phrase: str) -> List[DefinitionMatch]:
-    the methods are used for finding definition "candidates"
-    """
+
+    # hereinafter: "doravante denominado 'X'" / "a seguir denominado 'X'" / "doravante X"
     reg_hereafter = re.compile(
-        "(?<=((?:doravante|a seguir denominad[oa])[,\\s]))[\\w\\s*\\\"*]+",
+        r"(?<=((?:doravante|a seguir denominad[oa]|a seguir denominadas?|"
+        r"doravante denominad[oa]s?|doravante designad[oa]s?)[,\s]+))"
+        r"[\w\s\"'*]+",
         re.UNICODE | re.IGNORECASE,
     )
-    reg_reffered = re.compile("^.+(?=(?:refere-se a|significa))", re.UNICODE | re.IGNORECASE)
-    reg_first_word_is = re.compile(r"^.+?(?=é\s+\w+\W+\w+|são\s+\w+\W+\w+)", re.UNICODE | re.IGNORECASE)
+
+    # "X refere-se a Y" / "X significa Y" / "X é definido como Y" / "X quer dizer Y"
+    reg_reffered = re.compile(
+        r"^.+(?=(?:refere-se\s+a|refere-se\s+ao|significa|"
+        r"é\s+definid[oa]\s+como|quer\s+dizer|denota|compreende|"
+        r"corresponde\s+a|equivale\s+a))",
+        re.UNICODE | re.IGNORECASE,
+    )
+
+    # "X é Y" / "X são Y" — only captures when the RHS has at least two words
+    # so short copulas ("ele é alto") don't become definitions.
+    reg_first_word_is = re.compile(
+        r"^.+?(?=\bé\s+\w+\W+\w+|\bsão\s+\w+\W+\w+|\bé\s+um[ae]\s+\w+|\bé\s+aquil[oa]\s+\w+)",
+        re.UNICODE | re.IGNORECASE,
+    )
+
+    # Parenthesised quoted labels: ``(o "Contratante")``, ``(a "Contratada")``.
+    reg_parenthesised_label = re.compile(
+        r"\(\s*(?:o|a|os|as)\s+\"[^\"]+\"(?:\s+ou\s+\"[^\"]+\")*\s*\)",
+        re.UNICODE | re.IGNORECASE,
+    )
+
+    # Brazilian gazette convention: "X - para fins desta lei, significa Y"
+    reg_para_fins = re.compile(
+        r"(?<=(?:para\s+(?:os\s+)?(?:fins|efeitos)\s+(?:desta|deste|da\s+presente)\s+"
+        r"(?:lei|decreto|resolução|portaria|instrução|norma|cláusula),?\s))"
+        r"[\w\s*\"'*]+",
+        re.UNICODE | re.IGNORECASE,
+    )
 
     @staticmethod
     def match_pt_def_by_hereafter(phrase: str) -> list[PatternFound]:
-        """
-        :param phrase: as instruções de uso do software ou todas as descrições
-                       de uso do mesmo (doravante, a "Documentação");
-        :return: {name: 'Documentação', probability: 100, ...}
-        """
-        reg = PortugueseParsingMethods.reg_hereafter
-        dfs = CommonDefinitionPatterns. \
-            collect_regex_matches_with_quoted_chunks(phrase, reg, 100,
-                                                     lambda p, m, e: 0,
-                                                     lambda p, m, e: m.start() + e.end(),
-                                                     lambda p, m: 0,
-                                                     lambda p, m: m.end())
-        return dfs
+        """Hereinafter alias: ``(doravante "Licenciante")``."""
+        return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
+            phrase,
+            PortugueseParsingMethods.reg_hereafter,
+            100,
+            lambda p, m, e: 0,
+            lambda p, m, e: m.start() + e.end(),
+            lambda p, m: 0,
+            lambda p, m: m.end(),
+        )
 
     @staticmethod
     def match_pt_def_by_reffered(phrase: str) -> list[PatternFound]:
-        """
-        :param phrase: Neste acordo, o termo "Software" refere-se a: (i) o programa de computador
-                       que acompanha este Acordo e todos os seus componentes;
-        :return: definitions (objects)
-        """
-        reg = PortugueseParsingMethods.reg_reffered
-        dfs = CommonDefinitionPatterns. \
-            collect_regex_matches_with_quoted_chunks(phrase, reg, 100,
-                                                     lambda p, m, e: m.start() + e.start(),
-                                                     lambda p, m, e: len(phrase),
-                                                     lambda p, m: m.start(),
-                                                     lambda p, m: len(p))
-        return dfs
+        """``X refere-se a Y`` / ``X significa Y`` / ``X é definido como Y``."""
+        return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
+            phrase,
+            PortugueseParsingMethods.reg_reffered,
+            100,
+            lambda p, m, e: m.start() + e.start(),
+            lambda p, m, e: len(phrase),
+            lambda p, m: m.start(),
+            lambda p, m: len(p),
+        )
 
     @staticmethod
     def match_first_word_is(phrase: str) -> list[PatternFound]:
-        """
-        :param phrase: O tabagismo é o vício do tabaco, provocado principalmente.
-        :return: definitions (objects)
-        """
-        reg = PortugueseParsingMethods.reg_first_word_is
-        dfs = CommonDefinitionPatterns.\
-            collect_regex_matches_with_quoted_chunks(phrase, reg, 65,
-                                                     lambda p, m, e: m.start() + e.start(),
-                                                     lambda p, m, e: len(phrase),
-                                                     lambda p, m: m.start(),
-                                                     lambda p, m: len(p))
-        return dfs
+        """Copula sentences: ``Tabagismo é o vício do tabaco``."""
+        return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
+            phrase,
+            PortugueseParsingMethods.reg_first_word_is,
+            65,
+            lambda p, m, e: m.start() + e.start(),
+            lambda p, m, e: len(phrase),
+            lambda p, m: m.start(),
+            lambda p, m: len(p),
+        )
+
+    @staticmethod
+    def match_para_fins(phrase: str) -> list[PatternFound]:
+        """Para fins desta lei / deste contrato X significa Y — Brazilian
+        gazette style preamble."""
+        return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
+            phrase,
+            PortugueseParsingMethods.reg_para_fins,
+            95,
+            lambda p, m, e: 0,
+            lambda p, m, e: m.start() + e.end(),
+            lambda p, m: 0,
+            lambda p, m: m.end(),
+        )
 
 
-def make_pt_definitions_parser():
+def make_pt_definitions_parser() -> UniversalDefinitionsParser:
     split_params = LineSplitParams()
-    split_params.line_breaks = {'\n', '.', ';', '!', '?'}
+    split_params.line_breaks = {"\n", ".", ";", "!", "?"}
     split_params.abbreviations = PtLanguageTokens.abbreviations
     split_params.abbr_ignore_case = True
 
-    functions = [CommonDefinitionPatterns.match_es_def_by_semicolon,
-                 CommonDefinitionPatterns.match_acronyms,
-                 PortugueseParsingMethods.match_pt_def_by_hereafter,
-                 PortugueseParsingMethods.match_pt_def_by_reffered,
-                 PortugueseParsingMethods.match_first_word_is]
+    functions = [
+        CommonDefinitionPatterns.match_es_def_by_semicolon,
+        CommonDefinitionPatterns.match_acronyms,
+        PortugueseParsingMethods.match_pt_def_by_hereafter,
+        PortugueseParsingMethods.match_pt_def_by_reffered,
+        PortugueseParsingMethods.match_first_word_is,
+        PortugueseParsingMethods.match_para_fins,
+    ]
 
     return UniversalDefinitionsParser(functions, split_params)
 
@@ -96,18 +151,29 @@ def make_pt_definitions_parser():
 parser = make_pt_definitions_parser()
 
 
-def get_definition_annotations(text: str, language: str = 'pt') -> Generator[DefinitionAnnotation]:
+def get_definition_annotations(text: str, language: str = "pt") -> Generator[DefinitionAnnotation]:
     yield from parser.parse(text, language)
 
 
-def get_definition_annotation_list(text: str, language: str = 'pt') -> list[DefinitionAnnotation]:
+def get_definition_annotation_list(text: str, language: str = "pt") -> list[DefinitionAnnotation]:
     return list(get_definition_annotations(text, language))
 
 
-def get_definitions(text: str, language: str = 'pt') -> Generator[dict]:
+def get_definitions(text: str, language: str = "pt") -> Generator[dict]:
     for annotation in parser.parse(text, language):
         yield annotation.to_dictionary()
 
 
-def get_definition_list(text: str, language: str = 'pt') -> list[dict]:
+def get_definition_list(text: str, language: str = "pt") -> list[dict]:
     return list(get_definitions(text, language))
+
+
+__all__ = [
+    "PortugueseParsingMethods",
+    "get_definition_annotation_list",
+    "get_definition_annotations",
+    "get_definition_list",
+    "get_definitions",
+    "make_pt_definitions_parser",
+    "parser",
+]

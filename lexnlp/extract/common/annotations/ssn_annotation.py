@@ -30,7 +30,7 @@ class SsnAnnotation(TextAnnotation):
                      text (str | None): The extracted text corresponding to the annotation, if available.
                      number (str | None): The extracted Social Security Number value, if available.
                  """
-                 super().__init__(
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

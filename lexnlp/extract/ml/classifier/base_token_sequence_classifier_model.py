@@ -117,7 +117,7 @@ class BaseTokenSequenceClassifierModel:
                          Raises:
                              NotImplementedError: Always raised by the base implementation; subclasses must override this method.
                          """
-                         raise NotImplementedError('get_feature_list() should be implemented in derived class')
+        raise NotImplementedError('get_feature_list() should be implemented in derived class')
 
     @abstractmethod
     def get_feature_data(self, text: str, feature_mask: list[int] | None = None):

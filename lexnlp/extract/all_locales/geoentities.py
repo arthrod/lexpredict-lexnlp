@@ -47,7 +47,7 @@ def get_geoentity_annotations(
         Returns:
             Generator[GeoAnnotation]: Yields GeoAnnotation objects representing detected geographic entities in the text.
         """
-        routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
+    routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
     yield from routine(text, geo_config_list, conflict_resolving_field,
                        priority_direction, text_languages, min_alias_len,
                        prepared_alias_ban_list, simplified_normalization)

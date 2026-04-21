@@ -34,7 +34,7 @@ class ConstraintAnnotation(TextAnnotation):
                  	post (str | None): Text immediately following the constraint, if available.
                  	text (str | None): Full annotated text fragment; stored as the annotation's text attribute.
                  """
-                 super().__init__(
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

@@ -34,7 +34,7 @@ class ConditionAnnotation(TextAnnotation):
                  	pre (str | None): Text occurring immediately before the condition, if any.
                  	post (str | None): Text occurring immediately after the condition, if any.
                  """
-                 super().__init__(
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

@@ -49,7 +49,7 @@ class GeoAnnotation(TextAnnotation):
                      entity_id (int | None): External or internal identifier for the entity.
                      entity_priority (int | None): Priority or ranking for the entity when multiple matches exist.
                  """
-                 super().__init__(
+        super().__init__(
             name=name,
             locale=locale,
             coords=coords,

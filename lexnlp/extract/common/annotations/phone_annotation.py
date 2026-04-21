@@ -30,7 +30,7 @@ class PhoneAnnotation(TextAnnotation):
                      text (str | None): Extracted text covered by the annotation, if available.
                      phone (str | None): Extracted or normalized phone number associated with the annotation, if available.
                  """
-                 super().__init__(
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

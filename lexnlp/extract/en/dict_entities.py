@@ -78,7 +78,7 @@ class DictionaryEntryAlias:
             Returns:
                 DictionaryEntryAlias: A new alias record with `normalized_alias` produced by `normalize_text(alias, lowercase=not is_abbreviation)`.
             """
-            normalized_alias = normalize_text(alias, lowercase=not is_abbreviation)
+        normalized_alias = normalize_text(alias, lowercase=not is_abbreviation)
         return DictionaryEntryAlias(alias, language, is_abbreviation, alias_id, normalized_alias)
 
     def has_closer_locale(self,

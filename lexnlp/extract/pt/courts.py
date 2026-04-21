@@ -63,10 +63,13 @@ def setup_pt_parser():
     ptrs = ParserInitParams()
     ptrs.dataframe_paths = [os.path.join(lexnlp_base_path, 'lexnlp/config/pt/pt_courts.csv')]
     ptrs.split_ptrs = LineSplitParams()
-    ptrs.split_ptrs.line_breaks = {'\n', '.', ';', ','}.union(set(PtLanguageTokens.conjunctions))
+    # line_breaks is matched character-by-character; only multi-character
+    # conjunctions are no-ops there. Single-letter PT conjunctions ("e", "ou")
+    # would shatter phrases mid-word, so they are intentionally excluded.
+    ptrs.split_ptrs.line_breaks = {'\n', '.', ';', ','}
     ptrs.split_ptrs.abbreviations = PtLanguageTokens.abbreviations
     ptrs.split_ptrs.abbr_ignore_case = True
-    ptrs.court_pattern_checker = re.compile(r'tribunal|juízo|vara', re.IGNORECASE)
+    ptrs.court_pattern_checker = re.compile(r'tribunal|juízo|vara|turma|câmara|seção|plenário', re.IGNORECASE)
     return UniversalCourtsParser(ptrs)
 
 

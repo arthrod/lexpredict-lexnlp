@@ -47,7 +47,7 @@ class CusipAnnotation(TextAnnotation):
                      issue_id (str | None): Identifier for the specific issue.
                      issuer_id (str | None): Identifier for the issuer.
                  """
-                 super().__init__(
+        super().__init__(
             name=name,
             locale=locale,
             coords=coords,

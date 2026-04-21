@@ -24,7 +24,7 @@ def collapse_sequence(sequence: Iterable,
                       Returns:
                           Any: The final accumulator value after processing all items.
                       """
-                      for item in sequence:
+    for item in sequence:
         accumulator = predicate(item, accumulator)
     return accumulator
 

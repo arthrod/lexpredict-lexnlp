@@ -35,7 +35,7 @@ class RegulationAnnotation(TextAnnotation):
                      source (str): Issuing source or authority for the regulation (e.g., agency or publication).
                      country (str): Issuing country for the external reference.
                  """
-                 super().__init__(
+        super().__init__(
             name=name,
             locale=locale,
             coords=coords,

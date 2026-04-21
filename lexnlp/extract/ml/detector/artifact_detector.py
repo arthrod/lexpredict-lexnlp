@@ -63,7 +63,7 @@ class ArtifactDetector:
                      Returns:
                          Generator[tuple[int, int]]: Generator of (start_index, end_index) tuples representing the token-span positions of detected phrases in the input text.
                      """
-                     feature_data, tokens = self.model.get_feature_data(text, feature_mask)
+        feature_data, tokens = self.model.get_feature_data(text, feature_mask)
         predicted_class = self.model.model.predict(feature_data)
         join_settings = join_settings or self.join_token_settings
         yield from PhraseConstructor.join_tokens(

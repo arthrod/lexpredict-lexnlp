@@ -65,7 +65,7 @@ class CitationAnnotation(TextAnnotation):
                      part (str | None): Part identifier within the source (e.g., "Part I").
                      year_str (str | None): Year represented as a string (when non-numeric or formatted).
                  """
-                 super().__init__(
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

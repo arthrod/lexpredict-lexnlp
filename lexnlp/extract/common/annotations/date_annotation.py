@@ -34,7 +34,7 @@ class DateAnnotation(TextAnnotation):
                      date (datetime.date | None): Associated date value for the annotation, or None if unavailable.
                      score (float | None): Optional numeric confidence score for the annotation, or None if not provided.
                  """
-                 super().__init__(
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

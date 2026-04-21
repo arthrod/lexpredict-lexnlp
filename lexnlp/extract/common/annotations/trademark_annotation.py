@@ -30,7 +30,7 @@ class TrademarkAnnotation(TextAnnotation):
                      text (str | None): Optional full text covered by the annotation.
                      trademark (str): Extracted trademark value associated with this annotation.
                  """
-                 super().__init__(
+        super().__init__(
             name='',
             locale=locale,
             coords=coords,

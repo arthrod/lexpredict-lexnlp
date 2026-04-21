@@ -50,7 +50,7 @@ def get_geoentity_annotations_custom_settings(
         Returns:
             Generator[GeoAnnotation]: Yields a GeoAnnotation for each detected geographic entity in the text.
         """
-        entries = DictionaryEntry.load_entities_from_single_df(
+    entries = DictionaryEntry.load_entities_from_single_df(
         config,
         LANG_DE.code,
         alias_columns=alias_columns,
@@ -95,7 +95,7 @@ def get_geoentity_annotations(
         Returns:
             Generator[GeoAnnotation]: Yields a GeoAnnotation for each detected geographic entity in the text.
         """
-        min_alias_len = min_alias_len if min_alias_len else 2
+    min_alias_len = min_alias_len if min_alias_len else 2
     locator = GeoEntityLocator(LANG_DE.code,
                                geo_config_list,
                                prepared_alias_ban_list,
@@ -143,7 +143,7 @@ def get_geoentities_custom_settings(
         Returns:
             dict[str, Any]: Generator that yields dictionaries representing detected geo annotations (one per match).
         """
-        for ant in get_geoentity_annotations_custom_settings(
+    for ant in get_geoentity_annotations_custom_settings(
             text,
             config,
             alias_columns=alias_columns,
@@ -185,7 +185,7 @@ def get_geoentities(
         Returns:
             dict[str, Any]: A dictionary representation of each detected geographic annotation (one yielded per match).
         """
-        min_alias_len = min_alias_len if min_alias_len else 2
+    min_alias_len = min_alias_len if min_alias_len else 2
     locator = GeoEntityLocator(LANG_DE.code,
                                geo_config_list,
                                prepared_alias_ban_list,

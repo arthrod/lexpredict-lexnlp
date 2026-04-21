@@ -1,5 +1,4 @@
-Algum texto de exemplo com data em português como 15 de fevereiro, 28 de abril e 17 de
-novembro de 1995, 1ºde janeiro de 1999
+Algum texto de exemplo com data em português como 15 de fevereiro, 28 de abril e 17 de novembro de 1995, 1º de janeiro de 1999
 -------------------------------------------------------------------------------
 total=4
 ..)locale=pt
@@ -24,3 +23,14 @@ total=1
 0)date.month=7
 0)date.day=4
 0)get_cite()=/pt/date/$YEAR$-07-04 00:00:00
+
+
+
+-------------------------------------------------------------------------------
+A sessão foi marcada para 03/10/2023 e a audiência para 15 de agosto de 2024.
+-------------------------------------------------------------------------------
+total=2
+..)locale=pt
+0)date=2024-08-15 00:00:00
+
+1)date=2023-10-03 00:00:00

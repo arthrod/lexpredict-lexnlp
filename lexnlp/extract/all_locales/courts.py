@@ -34,7 +34,7 @@ def get_court_annotations(
         Returns:
             Generator[CourtAnnotation]: Yields a CourtAnnotation for each match. Each annotation contains coordinates, entity identifiers, category, priority, English and original names, any extra columns set as attributes, alias (if matched), and a locale (alias language if available, otherwise the default language derived from `locale`).
         """
-        locale_obj = Locale(locale)
+    locale_obj = Locale(locale)
     dic_entries = find_dict_entities(
         text,
         court_config_list,

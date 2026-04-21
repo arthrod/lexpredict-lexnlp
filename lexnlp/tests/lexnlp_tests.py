@@ -336,7 +336,7 @@ def test_extraction_func(expected, func: Callable, text,
                                  expected: The expected value after optional conversion and shaping; converted to a `set` when truthy (unless `test_only_expected_in` was applied), otherwise `None`.
                                  problem (str | None): A formatted failure message when an assertion fails, or `None` when the test passed.
                          """
-                         if not benchmark_name:
+    if not benchmark_name:
         benchmark_name = build_extraction_func_name(func, **kwargs)
 
     if expected_data_converter:
@@ -434,7 +434,7 @@ def assert_set_equal(function_name: str,
                      Raises:
                          AssertionError: Re-raised when a mismatch is detected and `do_raise` is True.
                      """
-                     if not expected_results and not actual_results:
+    if not expected_results and not actual_results:
         return None
     exx = None
     try:
@@ -535,7 +535,7 @@ def assert_in(function_name: str,
               Raises:
                   AssertionError: When the assertion fails and `do_raise` is True.
               """
-              exx = None
+    exx = None
     try:
         assert expected_in in actual_results
     except AssertionError as ex:

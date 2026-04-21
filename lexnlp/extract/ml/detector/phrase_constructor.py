@@ -73,7 +73,7 @@ class PhraseConstructor:
                     Returns:
                         Generator[tuple[int, int]]: Generator yielding (start_char, end_char) spans for each detected phrase.
                     """
-                    settings = settings or PhraseConstructor.DEFAULT_CONSTRUCTOR_SETTINGS
+        settings = settings or PhraseConstructor.DEFAULT_CONSTRUCTOR_SETTINGS
         if settings.method == PhraseConstructorMethod.by_class:
             yield from PhraseConstructor.join_tokens_by_class(
                 tokens, predicted_class, strict=settings.strict, token_classes=token_classes)
