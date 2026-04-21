@@ -158,19 +158,19 @@ class RegulationsParser:
     def _annotate(name: str, coords: tuple[int, int], surface: str, locale: str,
                   country: str = "Brazil") -> RegulationAnnotation:
         """
-                  Create a RegulationAnnotation for a matched regulation fragment.
-                  
-                  Parameters:
-                      name (str): Canonical label for the regulation (e.g., act name or trigger phrase).
-                      coords (tuple[int, int]): Start and end character offsets of the match in the source text.
-                      surface (str): Exact matched text to store in the annotation's `text` field.
-                      locale (str): Locale or language code associated with the source text (e.g., "pt").
-                      country (str): Country associated with the regulation; defaults to "Brazil".
-                  
-                  Returns:
-                      RegulationAnnotation: Annotation populated with the provided name, coords, text, locale, and country.
-                  """
-                  return RegulationAnnotation(
+        Create a RegulationAnnotation for a matched regulation fragment.
+
+        Parameters:
+            name (str): Canonical label for the regulation (e.g., act name or trigger phrase).
+            coords (tuple[int, int]): Start and end character offsets of the match in the source text.
+            surface (str): Exact matched text to store in the annotation's `text` field.
+            locale (str): Locale or language code associated with the source text (e.g., "pt").
+            country (str): Country associated with the regulation; defaults to "Brazil".
+
+        Returns:
+            RegulationAnnotation: Annotation populated with the provided name, coords, text, locale, and country.
+        """
+        return RegulationAnnotation(
             name=name,
             coords=coords,
             text=surface,

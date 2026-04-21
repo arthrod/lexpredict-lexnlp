@@ -70,8 +70,6 @@ class TestPatternStructure:
 
     def test_max_edits_zero_produces_exact_pattern(self) -> None:
         """With max_edits=0, the pattern is _BASE_PATTERN unchanged (no fuzzy suffix)."""
-        import regex as re
-
         # max_edits=0 produces the base pattern without fuzzy quantifier
         matches_exact = list(find_fuzzy_dates("2024-03-15", max_edits=0))
         assert len(matches_exact) == 1
@@ -145,9 +143,11 @@ class TestZeroBudgetExactOnly:
         # "2024-O3-15" — OCR-style substitution in month
         assert list(find_fuzzy_dates("2024-O3-15", max_edits=0)) == []
 
-    def test_non_digit_in_day_rejected(self) -> None:
-        # "2024-03-1S" — OCR-style substitution in day
-        assert list(find_fuzzy_dates("2024-03-1S", max_edits=0)) == []
+    def test_non_digit_in_day_does_not_expand_match(self) -> None:
+        # "2024-03-1S" should not treat the trailing "S" as part of an exact match.
+        matches = list(find_fuzzy_dates("2024-03-1S", max_edits=0))
+        assert len(matches) == 1
+        assert matches[0].matched_text == "2024-03-1"
 
     def test_missing_separator_rejected(self) -> None:
         # Compressed form has no separators

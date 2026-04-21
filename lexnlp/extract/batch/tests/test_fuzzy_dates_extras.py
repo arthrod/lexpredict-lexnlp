@@ -19,8 +19,6 @@ from __future__ import annotations
 import importlib.util
 from datetime import date
 
-import pytest
-
 # Import fuzzy_dates directly, bypassing the batch __init__.py which uses
 # PEP 695 syntax (Python 3.12+). The fuzzy_dates module itself is compatible
 # with Python 3.11+.

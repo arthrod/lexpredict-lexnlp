@@ -11,7 +11,7 @@ from unittest import TestCase
 import pandas as pd
 
 from lexnlp.extract.common.annotations.regulation_annotation import RegulationAnnotation
-from lexnlp.extract.pt.regulations import RegulationsParser, get_regulation_annotations, get_regulations, parser
+from lexnlp.extract.pt.regulations import RegulationsParser, get_regulation_annotations, parser
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 

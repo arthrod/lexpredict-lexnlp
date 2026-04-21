@@ -27,7 +27,6 @@ from lexnlp.extract.pt.regulations import (
     get_regulation_annotations,
 )
 
-
 CORPUS_DIR = Path(__file__).resolve().parents[4] / "test_data" / "lexnlp" / "extract" / "pt" / "corpus"
 
 

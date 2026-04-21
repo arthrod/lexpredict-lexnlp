@@ -182,8 +182,9 @@ class BaseTokenSequenceClassifierModel:
                         yield (tokens[start_pos][0], tokens[i][1])
                         start_pos = -1
                 else:
-                    yield (tokens[start_pos][0], tokens[i][1])
-                    start_pos = -1
+                    if start_pos >= 0:
+                        yield (tokens[start_pos][0], tokens[i][1])
+                        start_pos = -1
             elif predicted_class[i] == inner_class and start_pos == -1:
                 start_pos = i
             elif predicted_class[i] == outer_class and start_pos > -1:

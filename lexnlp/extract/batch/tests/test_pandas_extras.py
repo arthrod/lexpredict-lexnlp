@@ -22,9 +22,7 @@ is imported directly (bypassing the batch ``__init__.py``) to avoid the PEP
 from __future__ import annotations
 
 import importlib.util
-import sys
 from dataclasses import dataclass
-from typing import Any
 
 import pytest
 

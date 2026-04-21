@@ -30,7 +30,6 @@ pytest.importorskip("nltk", reason="NLTK required for all_locales dispatchers")
 
 from lexnlp.extract.all_locales.languages import LANG_DE, LANG_EN, LANG_PT
 
-
 # ---------------------------------------------------------------------------
 # copyrights.py ROUTINE_BY_LOCALE
 # ---------------------------------------------------------------------------

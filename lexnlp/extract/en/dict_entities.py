@@ -86,18 +86,18 @@ class DictionaryEntryAlias:
                           text_languages: list[str] | None) -> bool:
         # does 'self' have its locale higher on the passed 'text_languages' list?
         """
-                          Determine whether this alias's language should be preferred over another alias based on the ordering in `text_languages`.
-                          
-                          If `text_languages` is falsy the function returns `False`. If one language is empty and the other is not, the empty language is treated as unspecified: the function returns `True` when `self.language` is empty and `alias.language` is not, and `False` when `alias.language` is empty and `self.language` is not. Otherwise the language that appears earlier in `text_languages` is preferred.
-                          
-                          Parameters:
-                              alias (DictionaryEntryAlias): The other alias to compare against.
-                              text_languages (list[str] | None): Ordered list of languages present in the text, from higher to lower preference.
-                          
-                          Returns:
-                              `True` if `self.language` appears earlier in `text_languages` than `alias.language`, `False` otherwise.
-                          """
-                          if not text_languages:
+        Determine whether this alias's language should be preferred over another alias based on the ordering in `text_languages`.
+
+        If `text_languages` is falsy the function returns `False`. If one language is empty and the other is not, the empty language is treated as unspecified: the function returns `True` when `self.language` is empty and `alias.language` is not, and `False` when `alias.language` is empty and `self.language` is not. Otherwise the language that appears earlier in `text_languages` is preferred.
+
+        Parameters:
+            alias (DictionaryEntryAlias): The other alias to compare against.
+            text_languages (list[str] | None): Ordered list of languages present in the text, from higher to lower preference.
+
+        Returns:
+            `True` if `self.language` appears earlier in `text_languages` than `alias.language`, `False` otherwise.
+        """
+        if not text_languages:
             return False
         if not alias.language and self.language:
             return False  # empty language means default language

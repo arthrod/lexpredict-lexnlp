@@ -13,7 +13,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import datetime
 from functools import partial
 from unittest import TestCase
 
