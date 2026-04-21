@@ -32,19 +32,19 @@ class GeoAnnotation(TextAnnotation):
                  entity_id: int | None = None,
                  entity_priority: int | None = None):
         """
-                 Initialize a geographic entity annotation with location bounds and optional metadata.
+                 Initialize a geographic entity annotation with character offsets and optional metadata.
                  
                  Parameters:
                      coords (tuple[int, int]): Start and end character offsets of the annotation in the source text.
                      locale (str): Locale code for the annotation (default 'en').
                      text (str | None): Extracted source text for the annotation.
-                     name (str | None): Extracted name of the entity (native language).
+                     name (str | None): Extracted entity name in its original language.
                      alias (str | None): Alternative or alias name for the entity.
                      name_en (str | None): English name of the entity.
                      source (str | None): Source identifier or provenance for the extraction.
                      entity_category (str | None): Category or class of the entity (e.g., administrative unit).
-                     iso_3166_2 (str | None): ISO 3166-2 code for the entity, if applicable.
-                     iso_3166_3 (str | None): ISO 3166-3 code for the entity, if applicable.
+                     iso_3166_2 (str | None): ISO 3166-2 code for the entity, if available.
+                     iso_3166_3 (str | None): ISO 3166-3 code for the entity, if available.
                      year (int | None): Year associated with the entity, if applicable.
                      entity_id (int | None): External or internal identifier for the entity.
                      entity_priority (int | None): Priority or ranking for the entity when multiple matches exist.

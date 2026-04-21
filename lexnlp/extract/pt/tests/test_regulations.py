@@ -30,6 +30,11 @@ class TestParsePortugueseLawsRegulations(TestCase):
             self.assertEqual("pt", reg.locale)
 
     def test_parse_decreto(self):
+        """
+        Verify that parsing a Portuguese "Decreto" produces at least one regulation and the first result has country set to "Brazil".
+        
+        Uses a sample decree mentioning "Decreto nº ..." and asserts that the parser returns one or more annotations and that the first annotation's `country` attribute equals "Brazil".
+        """
         text = (
             "O Decreto nº 7.724 de 2012 regulamenta a Lei nº 12.527, "
             "conhecida como Lei de Acesso à Informação."
@@ -66,6 +71,11 @@ class TestRegulationsParserDataFrameInjection:
         assert "decreto" in p.start_triggers
 
     def test_custom_dataframe_non_start_rows_are_excluded(self):
+        """
+        Verify that RegulationsParser adds triggers whose position is "start" to start_triggers and excludes triggers with any other position.
+        
+        This test constructs a DataFrame with one "start" row ("lei") and one non-start row ("regulamento"), initializes RegulationsParser with it, and asserts that only the "start" trigger appears in p.start_triggers.
+        """
         custom_df = pd.DataFrame({"trigger": ["lei", "regulamento"], "position": ["start", "end"]})
         p = RegulationsParser(regulations_dataframe=custom_df)
         assert "lei" in p.start_triggers

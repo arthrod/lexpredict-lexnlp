@@ -22,12 +22,12 @@ class PhoneAnnotation(TextAnnotation):
                  text: str | None = None,
                  phone: str | None = None):
         """
-                 Initialize a PhoneAnnotation with location, locale, optional extracted text, and optional phone value.
+                 Initialize a PhoneAnnotation with a character span, locale, optional covered text, and an optional normalized phone value.
                  
                  Parameters:
                      coords (tuple[int, int]): Start and end character offsets for the annotation.
                      locale (str): Locale code for the annotation (default 'en').
-                     text (str | None): Extracted text covered by the annotation, if available.
+                     text (str | None): Extracted or covered text for the span, if available.
                      phone (str | None): Extracted or normalized phone number associated with the annotation, if available.
                  """
         super().__init__(

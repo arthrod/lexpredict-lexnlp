@@ -131,17 +131,17 @@ class DateParser:
                   locale: Locale | None = None) \
             -> Generator[dict[str, Any]]:
         """
-                  Yield dictionaries describing each extracted date found in the text.
+                  Yield dictionaries for each extracted date found in the provided text.
                   
                   Parameters:
-                      text (str | None): Optional text to extract dates from. If None, uses the instance's stored text.
-                      locale (Locale | None): Optional locale to guide parsing; if None, uses the instance's configured locale.
+                      text (str | None): Text to search for dates; if None, uses the instance's stored text.
+                      locale (Locale | None): Locale to guide parsing; if None, uses the instance's configured locale.
                   
                   Returns:
-                      dict[str, Any]: An iterator of dictionaries, each containing:
-                          - location_start (int): start index of the matched substring in the text.
-                          - location_end (int): end index of the matched substring in the text.
-                          - value (datetime | Any): the parsed/normalized date value.
+                      dict[str, Any]: Generator yielding dictionaries with keys:
+                          - location_start (int): start index of the matched substring.
+                          - location_end (int): end index of the matched substring.
+                          - value (datetime.datetime | Any): parsed/normalized date value.
                           - source (str): the exact substring from the text that produced the date.
                   """
         strict = self.dateparser_settings.get('STRICT_PARSING',

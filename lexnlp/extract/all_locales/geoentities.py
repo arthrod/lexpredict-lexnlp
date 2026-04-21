@@ -31,14 +31,14 @@ def get_geoentity_annotations(
         prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False) -> Generator[GeoAnnotation]:
     """
-        Return geoentity annotations for the given text using locale-appropriate extraction rules.
+        Produce geoentity annotations for the given text using locale-specific extraction rules.
         
         Parameters:
-            locale (str): Locale identifier (e.g., 'en_US') used to select language-specific extraction.
-            text (str): Input text to analyze for geographic entities.
-            geo_config_list (list[DictionaryEntry]): Configuration entries defining geographic dictionaries and metadata used during extraction.
-            conflict_resolving_field (str): Field name used to resolve conflicting matches; 'none' disables conflict resolution.
-            priority_direction (str): Match priority direction, 'asc' or 'desc', determining which candidate is preferred when resolving ties.
+            locale (str): Locale identifier (e.g., 'en_US') used to select the language-specific extraction routine.
+            text (str): Text to analyze for geographic entities.
+            geo_config_list (list[DictionaryEntry]): Dictionary configuration entries and metadata guiding extraction.
+            conflict_resolving_field (str): Field name used to resolve conflicting matches; use 'none' to disable conflict resolution.
+            priority_direction (str): Match priority direction, either 'asc' or 'desc', used when resolving ties.
             text_languages (list[str] | None): Optional list of language tags to consider for ambiguous aliases; pass None to use defaults.
             min_alias_len (int | None): Optional minimum alias token length to consider; pass None to disable length filtering.
             prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional mapping of dictionary keys to tuples of (exact_bans, prefix_bans) to exclude specific aliases.

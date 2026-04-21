@@ -131,6 +131,17 @@ class PtDateParser(DateParser):
         classifier_model: Any | None = None,
         classifier_threshold: float = 0.5,
     ):
+        """
+        Initialize a PtDateParser configured for Brazilian Portuguese parsing and optional classifier checks.
+        
+        Parameters:
+            text (str | None): Optional input text to parse.
+            locale (Locale): Locale to use; defaults to Portuguese (pt-BR).
+            dateparser_settings (dict[str, Any] | None): Optional settings passed to the underlying dateparser.
+            enable_classifier_check (bool): If True, enable a classifier-based validation step.
+            classifier_model (Any | None): Optional classifier model used when classifier checking is enabled.
+            classifier_threshold (float): Score threshold for classifier acceptance (0.0–1.0).
+        """
         super().__init__(
             DATE_MODEL_CHARS,
             text,
@@ -144,9 +155,16 @@ class PtDateParser(DateParser):
     # ---------- helpers ----------
 
     def passed_general_check(self, date_str: str, _date) -> bool:
-        """Stricter acceptance than the base parser: reject surface forms that
-        dateparser-PT tends to over-match on (weekday prefixes, stray 2-digit
-        numbers, single abbreviations)."""
+        """
+        Apply stricter surface-form filters to decide whether a parsed date string should be accepted.
+        
+        Parameters:
+            date_str (str): The candidate surface text for the date.
+            _date: The parsed date value produced by the underlying parser (may be ignored).
+        
+        Returns:
+            bool: `True` if the candidate passes additional length, content and weekday-prefix checks and should be kept; `False` otherwise.
+        """
         if not super().passed_general_check(date_str, _date):
             return False
         token = date_str.strip()
@@ -164,8 +182,16 @@ class PtDateParser(DateParser):
 
     @staticmethod
     def _coerce_year(raw: str) -> int | None:
-        """Accept two- or four-digit years. Two-digit years follow the common
-        heuristic: ``00..49`` → ``2000..2049``, ``50..99`` → ``1950..1999``."""
+        """
+        Normalize a numeric year string into a four-digit year using a two-/four-digit heuristic.
+        
+        Parameters:
+            raw (str): Year string (may be two or four digits).
+        
+        Returns:
+            int | None: Four-digit year corresponding to `raw` using the rule
+            `00..49 -> 2000..2049`, `50..99 -> 1950..1999`; `None` if `raw` is empty or not a valid integer.
+        """
         if not raw:
             return None
         try:
@@ -177,6 +203,14 @@ class PtDateParser(DateParser):
         return val
 
     def _build_date(self, day: int, month: int, year: int | None) -> datetime.datetime | None:
+        """
+        Construct a datetime for the given day, month, and year, or return None if the components do not form a valid date.
+        
+        If `year` is falsy (`None` or `0`), the current calendar year is used. Day must be between 1 and 31 and month between 1 and 12; invalid ranges or impossible dates (e.g., April 31) yield `None`.
+        
+        Returns:
+            datetime (datetime.datetime): The constructed datetime for the supplied date, or `None` if the inputs are out of range or invalid.
+        """
         if not (1 <= day <= 31 and 1 <= month <= 12):
             return None
         y = year or datetime.datetime.now().year

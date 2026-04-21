@@ -55,6 +55,19 @@ class IdentifierMatch:
     locale: str = "pt"
 
     def to_dictionary(self) -> dict:
+        """
+        Return a dictionary representation of the IdentifierMatch.
+        
+        The dictionary contains the identifier's type, canonical value, original matched text, character span, and locale.
+        
+        Returns:
+            dict: A mapping with keys:
+                - `record_type`: identifier type (`"cpf"`, `"cnpj"`, or `"oab"`)
+                - `coords`: tuple (start, end) character offsets of the match
+                - `text`: original matched surface text
+                - `value`: canonical identifier value (digits-only for CPF/CNPJ; `UF/number` for OAB)
+                - `locale`: locale string (defaults to `"pt"`)
+        """
         return {
             "record_type": self.kind,
             "coords": self.coords,
@@ -67,14 +80,44 @@ class IdentifierMatch:
 # ---------- validators ----------
 
 def _digits(value: str) -> str:
+    """
+    Return only the digit characters from the input string.
+    
+    Parameters:
+        value (str): Input string possibly containing non-digit characters.
+    
+    Returns:
+        digits (str): String composed of only the decimal digit characters from `value`.
+    """
     return re.sub(r"\D", "", value)
 
 
 def _cpf_is_valid(digits: str) -> bool:
+    """
+    Validate a CPF number string using Brazil's check-digit algorithm.
+    
+    Also rejects inputs that are not exactly 11 digits or that consist of the same repeated digit.
+    
+    Parameters:
+        digits (str): String of exactly 11 numeric characters (digits only).
+    
+    Returns:
+        True if `digits` is a well-formed CPF with correct check digits, False otherwise.
+    """
     if len(digits) != 11 or digits == digits[0] * 11:
         return False
 
     def _check(base: Iterable[int], weights: Iterable[int]) -> int:
+        """
+        Compute a single CPF-style check digit from a sequence of base digits and corresponding weights.
+        
+        Parameters:
+        	base (Iterable[int]): Sequence of integer digits forming the base number (must align with `weights` length).
+        	weights (Iterable[int]): Sequence of integer weights applied to `base` digits; must be the same length as `base`.
+        
+        Returns:
+        	check_digit (int): The computed check digit (0–9). Calculation uses (sum(d*w) * 10) % 11, with a result of 10 mapped to 0.
+        """
         total = sum(d * w for d, w in zip(base, weights, strict=True))
         remainder = (total * 10) % 11
         return 0 if remainder == 10 else remainder
@@ -88,10 +131,29 @@ def _cpf_is_valid(digits: str) -> bool:
 
 
 def _cnpj_is_valid(digits: str) -> bool:
+    """
+    Validate a 14-digit CNPJ registration number using its verification-digit algorithm.
+    
+    Parameters:
+        digits (str): String of exactly 14 numeric characters representing a CNPJ (digits only).
+    
+    Returns:
+        `true` if the input has length 14, is not composed of the same repeated digit, and its two trailing check digits match the CNPJ algorithm; `false` otherwise.
+    """
     if len(digits) != 14 or digits == digits[0] * 14:
         return False
 
     def _check(base: list[int], weights: list[int]) -> int:
+        """
+        Compute a single mod-11 check digit for a sequence of digits using provided weights.
+        
+        Parameters:
+            base (list[int]): Sequence of integer digits to be checked (most-significant first).
+            weights (list[int]): Weight factors aligned with `base`; must be the same length.
+        
+        Returns:
+            int: The computed check digit: `0` if the weighted sum modulo 11 is less than 2, otherwise `11 - (weighted sum % 11)`.
+        """
         total = sum(d * w for d, w in zip(base, weights, strict=True))
         remainder = total % 11
         return 0 if remainder < 2 else 11 - remainder
@@ -107,6 +169,12 @@ def _cnpj_is_valid(digits: str) -> bool:
 # ---------- public API ----------
 
 def get_cpf_annotations(text: str) -> Generator[IdentifierMatch]:
+    """
+    Yield validated CPF identifier matches found in the input text.
+    
+    Returns:
+        Generator[IdentifierMatch]: Yields an IdentifierMatch for each CPF found and validated; `value` is the CPF as digits only, `surface` is the original matched text, and `coords` are the (start, end) character offsets.
+    """
     for match in _CPF_RE.finditer(text):
         digits = _digits(match.group("cpf"))
         if _cpf_is_valid(digits):
@@ -119,6 +187,14 @@ def get_cpf_annotations(text: str) -> Generator[IdentifierMatch]:
 
 
 def get_cnpj_annotations(text: str) -> Generator[IdentifierMatch]:
+    """
+    Extracts validated CNPJ identifiers from the input text.
+    
+    Yields an IdentifierMatch for each regex-matched CNPJ that passes check-digit validation. The produced match has `kind="cnpj"`, `value` as the canonical digits-only CNPJ, `surface` as the original matched text, and `coords` as the (start, end) character span.
+    
+    Returns:
+        Generator[IdentifierMatch]: Generator of validated CNPJ IdentifierMatch objects.
+    """
     for match in _CNPJ_RE.finditer(text):
         digits = _digits(match.group("cnpj"))
         if _cnpj_is_valid(digits):
@@ -131,6 +207,14 @@ def get_cnpj_annotations(text: str) -> Generator[IdentifierMatch]:
 
 
 def get_oab_annotations(text: str) -> Generator[IdentifierMatch]:
+    """
+    Extracts OAB registration mentions from the input text and yields normalized identifier matches.
+    
+    Matches recognized OAB surface forms (e.g., "OAB/SP 123.456", "OAB SP nº 123456") and canonicalizes each match to the format `UF/number` (UF uppercased, number digits-only). This function does not perform any check-digit validation; it yields results based on regex recognition and digit normalization.
+    
+    Returns:
+        Generator[IdentifierMatch]: Yields an IdentifierMatch for each recognized OAB mention. Each match's `value` is the canonical `UF/number`, `surface` is the original matched text, and `coords` are the (start, end) character offsets.
+    """
     for match in _OAB_RE.finditer(text):
         value = f"{match.group('uf').upper()}/{_digits(match.group('number'))}"
         yield IdentifierMatch(
@@ -142,7 +226,15 @@ def get_oab_annotations(text: str) -> Generator[IdentifierMatch]:
 
 
 def get_identifier_annotations(text: str) -> Generator[IdentifierMatch]:
-    """Yield CPF, CNPJ, and OAB identifiers together."""
+    """
+    Extract CPF, CNPJ, and OAB identifier matches from the given text.
+    
+    Parameters:
+        text (str): Input text to scan for identifiers.
+    
+    Returns:
+        Generator[IdentifierMatch]: Yields validated IdentifierMatch objects for each found identifier; CPF matches are yielded first, then CNPJ, then OAB.
+    """
     yield from get_cpf_annotations(text)
     yield from get_cnpj_annotations(text)
     yield from get_oab_annotations(text)

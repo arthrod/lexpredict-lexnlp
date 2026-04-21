@@ -71,21 +71,18 @@ class TypedFieldCheck:
                  comparison: str = '=',
                  check_all: bool = False):
         """
-                 Initialize a TypedFieldCheck that describes an expected value, where to find it, and how to compare it.
+                 Create a TypedFieldCheck describing where to extract a value from an annotation and how to compare it.
                  
                  Parameters:
-                     index (int): Annotation index within the sample. Ignored when `check_all` is True.
-                     path (list[str] | None): Dot/segment path describing how to extract the value from an annotation (e.g., attribute names, numeric indices, or method markers like `name()`); defaults to an empty list.
-                     value (str): Expected value to compare against (kept as a string until comparison/casting).
+                     index (int): Annotation index within the sample; ignored when `check_all` is True.
+                     path (list[str] | None): Sequence of path segments (attribute names, numeric indices, or method markers like `name()`) used to extract the target value from an annotation. Defaults to an empty list.
+                     value (str): Expected value expressed as a string; casting/parsing is attempted at comparison time to match the runtime type.
                      comparison (str): Comparison operator to apply; one of '=', '!=', '<', '>', '<=', '>='.
-                     check_all (bool): If True, apply this check to all annotations (the `index` is ignored).
+                     check_all (bool): If True, apply this check to every annotation (the `index` is ignored).
                  
-                 Attributes set:
-                     index, check_all, path, value, comparison, compare_equal, compare_not_equal, last_error
-                 
-                 Notes:
-                     compare_equal is True for '=', '<=', '>='; compare_not_equal is True for '!='.
-                     last_error is initialized to None and is populated when casting/parsing fails during comparison.
+                 Attributes:
+                     index (int), check_all (bool), path (list[str]), value (str), comparison (str),
+                     compare_equal (bool), compare_not_equal (bool), last_error (str | None)
                  """
         self.index = index  # annotation index within the sample
         self.check_all = check_all  # check all annotations, index is ignored

@@ -25,7 +25,7 @@ class CourtCitationAnnotation(TextAnnotation):
                  text: str | None = None,
                  translated_name: str | None = None):
         """
-                 Initialize a CourtCitationAnnotation with document coordinates and optional citation naming fields.
+                 Create a court citation annotation for a character span with optional name variants.
                  
                  Parameters:
                      coords (tuple[int, int]): Start and end character offsets for the annotation within the source text.

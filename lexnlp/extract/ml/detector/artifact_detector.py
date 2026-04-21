@@ -54,14 +54,14 @@ class ArtifactDetector:
                      join_settings: PhraseConstructorSettings = None,
                      feature_mask: list[int] | None = None) -> Generator[tuple[int, int]]:
         """
-                     Identify phrase spans in the given text using the detector's loaded model and joining rules.
+                     Identify token-span phrases in the input text using the loaded model and joining rules.
                      
                      Parameters:
-                         join_settings (PhraseConstructorSettings | None): Optional settings that control how token predictions are merged into phrase spans. If omitted, the detector's default join settings are used.
-                         feature_mask (list[int] | None): Optional list of feature/token indices to consider when constructing features; if provided, only the specified positions are used.
+                         join_settings (PhraseConstructorSettings | None): Optional settings that control how token predictions are merged into phrase spans; if omitted, the detector's default join settings are used.
+                         feature_mask (list[int] | None): Optional list of token/feature indices to include when building features; if provided, only these positions are considered.
                      
                      Returns:
-                         Generator[tuple[int, int]]: Generator of (start_index, end_index) tuples representing the token-span positions of detected phrases in the input text.
+                         Generator[tuple[int, int]]: Generator yielding (start_index, end_index) tuples for each detected phrase span in token index coordinates.
                      """
         feature_data, tokens = self.model.get_feature_data(text, feature_mask)
         predicted_class = self.model.model.predict(feature_data)

@@ -78,7 +78,14 @@ class PortugueseParsingMethods:
 
     @staticmethod
     def match_pt_def_by_hereafter(phrase: str) -> list[PatternFound]:
-        """Hereinafter alias: ``(doravante "Licenciante")``."""
+        """
+        Finds Portuguese "hereinafter" alias definition candidates (e.g., doravante "Licenciante" or a seguir denominado "X").
+        
+        Searches the phrase for constructions that introduce an alias using terms like "doravante", "a seguir denominado" or similar, returning the collected pattern matches.
+        
+        Returns:
+            list[PatternFound]: PatternFound objects for each matched hereinafter alias.
+        """
         return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
             phrase,
             PortugueseParsingMethods.reg_hereafter,
@@ -91,7 +98,12 @@ class PortugueseParsingMethods:
 
     @staticmethod
     def match_pt_def_by_reffered(phrase: str) -> list[PatternFound]:
-        """``X refere-se a Y`` / ``X significa Y`` / ``X é definido como Y``."""
+        """
+        Match Portuguese explicit-definition constructions such as "X refere-se a Y", "X significa Y", and "X é definido como Y".
+        
+        Returns:
+            matches (list[PatternFound]): PatternFound objects for each detected definition candidate.
+        """
         return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
             phrase,
             PortugueseParsingMethods.reg_reffered,
@@ -104,7 +116,17 @@ class PortugueseParsingMethods:
 
     @staticmethod
     def match_first_word_is(phrase: str) -> list[PatternFound]:
-        """Copula sentences: ``Tabagismo é o vício do tabaco``."""
+        """
+        Match copula-style definitions where the first word names the defined term (e.g., "Tabagismo é o vício do tabaco").
+        
+        Matches definitions of the form "X é Y" / "X são Y" where the right-hand side contains at least two words.
+        
+        Parameters:
+            phrase (str): Text to scan for definition candidates.
+        
+        Returns:
+            list[PatternFound]: A list of pattern match objects representing each detected definition span.
+        """
         return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
             phrase,
             PortugueseParsingMethods.reg_first_word_is,
@@ -117,8 +139,12 @@ class PortugueseParsingMethods:
 
     @staticmethod
     def match_para_fins(phrase: str) -> list[PatternFound]:
-        """Para fins desta lei / deste contrato X significa Y — Brazilian
-        gazette style preamble."""
+        """
+        Match Brazilian legal preambles of the form "para fins desta ... X significa Y" and extract definition candidates.
+        
+        Returns:
+            list[PatternFound]: A list of PatternFound objects representing each detected definition span and its associated quoted chunks.
+        """
         return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
             phrase,
             PortugueseParsingMethods.reg_para_fins,
@@ -131,6 +157,14 @@ class PortugueseParsingMethods:
 
 
 def make_pt_definitions_parser() -> UniversalDefinitionsParser:
+    """
+    Create a UniversalDefinitionsParser configured for Brazilian Portuguese definition extraction.
+    
+    Configures line-splitting for common sentence terminators and newline, applies Portuguese abbreviations with case-insensitive handling, and registers matcher functions prioritizing semicolon-based, acronym, and Portuguese-specific definition patterns.
+    
+    Returns:
+        UniversalDefinitionsParser: Parser instance ready to extract definition candidates from pt-BR text.
+    """
     split_params = LineSplitParams()
     split_params.line_breaks = {"\n", ".", ";", "!", "?"}
     split_params.abbreviations = PtLanguageTokens.abbreviations
@@ -152,19 +186,59 @@ parser = make_pt_definitions_parser()
 
 
 def get_definition_annotations(text: str, language: str = "pt") -> Generator[DefinitionAnnotation]:
+    """
+    Yield DefinitionAnnotation objects extracted from the input text.
+    
+    Parameters:
+        text (str): Text to scan for definition candidates.
+        language (str): ISO language code indicating parsing rules to use (default: "pt").
+    
+    Returns:
+        Generator[DefinitionAnnotation]: A generator that yields a DefinitionAnnotation for each detected definition.
+    """
     yield from parser.parse(text, language)
 
 
 def get_definition_annotation_list(text: str, language: str = "pt") -> list[DefinitionAnnotation]:
+    """
+    Get a list of definition annotations extracted from the given text.
+    
+    Parameters:
+        text (str): Text to parse for definition candidates.
+        language (str): ISO language code used by the parser (default "pt").
+    
+    Returns:
+        list[DefinitionAnnotation]: A list of DefinitionAnnotation objects representing detected definitions.
+    """
     return list(get_definition_annotations(text, language))
 
 
 def get_definitions(text: str, language: str = "pt") -> Generator[dict]:
+    """
+    Generate dictionaries representing definition annotations found in the given text.
+    
+    Parameters:
+        text (str): Input text to scan for definition candidates.
+        language (str): Language code for parsing rules (default "pt").
+    
+    Returns:
+        Generator[dict]: A generator that yields dictionaries for each definition annotation found.
+    """
     for annotation in parser.parse(text, language):
         yield annotation.to_dictionary()
 
 
 def get_definition_list(text: str, language: str = "pt") -> list[dict]:
+    """
+    Return a list of definition dictionaries extracted from the given text for the specified language.
+    
+    Parameters:
+    	text (str): Input text to parse for definitions.
+    	language (str): Language code used by the parser (default "pt").
+    
+    Returns:
+    	list[dict]: A list where each item is a dictionary representation of a found definition (from DefinitionAnnotation.to_dictionary()).
+    """
     return list(get_definitions(text, language))
 
 

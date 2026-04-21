@@ -43,9 +43,19 @@ def _get_courts(
     simplified_normalization: bool = False,
 ) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     """
-    Extracts court dictionary matches from the given text using the provided dictionary entries.
-
-    This function is deprecated and emits a DeprecationWarning when called.
+    Yield dictionary matches for courts found in the given text.
+    
+    Deprecated: this function emits a DeprecationWarning when called and will be removed in a future version.
+    
+    Parameters:
+        text (str): Text to search for court entries.
+        court_config_list (list[DictionaryEntry]): Dictionary entries and their aliases used to match courts.
+        priority (bool): If True, resolve conflicts by taking the first match by identifier.
+        text_languages (list[str] | None): Optional list of language codes to restrict matching.
+        simplified_normalization (bool): If True, apply simplified normalization during matching.
+    
+    Returns:
+        tuple[DictionaryEntry, DictionaryEntryAlias]: Generator yielding a tuple of the matched dictionary entry and its alias for each found court.
     """
     warnings.warn("This function will be removed in a future version of LexNLP", DeprecationWarning)
     for ent in find_dict_entities(
@@ -60,6 +70,14 @@ def _get_courts(
 
 
 def setup_pt_parser():
+    """
+    Create and return a UniversalCourtsParser preconfigured for Portuguese court extraction.
+    
+    Configures parser initialization to use the Portuguese courts dataset, Portuguese-specific line-splitting rules and abbreviation handling, and a case-insensitive pattern checker for common court-related keywords.
+    
+    Returns:
+        UniversalCourtsParser: A parser instance configured for extracting Portuguese/Brazilian court names and aliases.
+    """
     ptrs = ParserInitParams()
     ptrs.dataframe_paths = [os.path.join(lexnlp_base_path, 'lexnlp/config/pt/pt_courts.csv')]
     ptrs.split_ptrs = LineSplitParams()
@@ -77,17 +95,57 @@ parser = setup_pt_parser()
 
 
 def get_court_annotations(text: str, language: str = 'pt') -> Generator[CourtAnnotation]:
+    """
+    Yield court annotations extracted from the input text.
+    
+    Parameters:
+        text (str): Input text to parse for court mentions.
+        language (str): ISO language code to guide parsing (defaults to 'pt').
+    
+    Returns:
+        Generator[Cour tAnnotation]: Generator yielding `CourtAnnotation` objects for each detected court mention.
+    """
     yield from parser.parse(text, language)
 
 
 def get_court_annotation_list(text: str, language: str = 'pt') -> list[CourtAnnotation]:
+    """
+    Get a list of CourtAnnotation objects extracted from the given text.
+    
+    Parameters:
+    	text (str): Text to parse for court mentions.
+    	language (str): Language code to pass to the parser (defaults to 'pt').
+    
+    Returns:
+    	list[CourtAnnotation]: List of extracted CourtAnnotation objects (empty if none found).
+    """
     return list(get_court_annotations(text, language))
 
 
 def get_courts(text: str, language: str = 'pt') -> Generator[dict]:
+    """
+    Yield dictionary representations of court annotations found in the input text.
+    
+    Parameters:
+    	text (str): Text to parse for court mentions.
+    	language (str): Language code passed to the parser (defaults to 'pt').
+    
+    Returns:
+    	dict: Generator yielding a dictionary for each detected court annotation (the result of `CourtAnnotation.to_dictionary()`).
+    """
     for court_annotation in parser.parse(text, language):
         yield court_annotation.to_dictionary()
 
 
 def get_court_list(text: str, language: str = 'pt') -> list[CourtAnnotation]:
+    """
+    Extracts court annotations from the given text.
+    
+    Parameters:
+        text (str): Text to parse for court names and aliases.
+        language (str): ISO language code to guide parsing (default 'pt').
+    
+    Returns:
+        list[CourtAnnotation]: List of extracted court annotations.
+    """
     return list(parser.parse(text, language))

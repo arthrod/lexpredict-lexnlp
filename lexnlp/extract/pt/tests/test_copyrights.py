@@ -52,4 +52,13 @@ class TestParsePtCopyrights(TestCase):
 
 
 def get_verbose_copyright_annotations(text: str) -> list[CopyrightAnnotation]:
+    """
+    Extract copyright annotations from the input text and include source metadata.
+    
+    Parameters:
+        text (str): Text to analyze for copyright annotations.
+    
+    Returns:
+        list[CopyrightAnnotation]: A list of copyright annotation objects, each including source information.
+    """
     return list(get_copyright_annotations(text, return_sources=True))

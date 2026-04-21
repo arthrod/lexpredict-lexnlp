@@ -32,6 +32,18 @@ CORPUS_DIR = Path(__file__).resolve().parents[4] / "test_data" / "lexnlp" / "ext
 
 
 def _load(name: str) -> str:
+    """
+    Load a corpus text file from CORPUS_DIR.
+    
+    Parameters:
+        name (str): Filename relative to CORPUS_DIR.
+    
+    Returns:
+        str: File contents decoded as UTF-8.
+    
+    Notes:
+        If the file does not exist, the current test is skipped via pytest.skip.
+    """
     path = CORPUS_DIR / name
     if not path.exists():
         pytest.skip(f"corpus file missing: {path}")
@@ -43,6 +55,11 @@ class TestLeiAcessoInformacao(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Load the LAI corpus into the test class for use by test methods.
+        
+        Sets `cls.text` to the UTF-8 contents of the corpus file "lei_12527_lai.txt". If the corpus file is missing, the helper `_load` will skip the test.
+        """
         cls.text = _load("lei_12527_lai.txt")
 
     def test_non_trivial_length(self):
@@ -58,6 +75,11 @@ class TestLeiAcessoInformacao(TestCase):
         self.assertEqual(len(dates), len(in_range))
 
     def test_formal_citations_include_lai(self):
+        """
+        Assert that the set of formal citations extracted from the loaded corpus contains the LAI identifier "12.527".
+        
+        Collapses consecutive whitespace, extracts formal citations using FORMAL_CITATION_RE, and fails the test if no citation includes "12.527".
+        """
         import regex as re
         flat_text = re.sub(r"\s+", " ", self.text)
         citations = [m.group("full") for m in FORMAL_CITATION_RE.finditer(flat_text)]
@@ -80,17 +102,37 @@ class TestCodigoDefesaConsumidor(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Prepare class-level test fixture by loading the CDC corpus into `cls.text`.
+        
+        Loads the file "lei_8078_cdc.txt" from the test corpus directory and assigns its UTF-8 contents to `cls.text`. If the corpus file is missing, the helper `_load` will skip the test class via pytest.skip().
+        """
         cls.text = _load("lei_8078_cdc.txt")
 
     def test_non_trivial_length(self):
+        """
+        Ensure the loaded corpus text contains more than 70,000 characters.
+        
+        Asserts that the test corpus was loaded completely and is not missing or truncated by checking that len(self.text) > 70_000.
+        """
         self.assertGreater(len(self.text), 70_000)
 
     def test_definitions_present(self):
         # CDC has explicit definitions in art. 2º, 3º ("consumidor é toda pessoa ...")
+        """
+        Verify that the consumer protection code (CDC) text contains at least three definition annotations.
+        
+        Runs the definition extractor on the first 20,000 characters of the CDC corpus and asserts that three or more definition annotations are found.
+        """
         defs = list(get_definition_annotations(self.text[:20_000]))
         self.assertGreaterEqual(len(defs), 3)
 
     def test_regulations_are_plentiful(self):
+        """
+        Verify regulation extraction finds a large number of regulation annotations in the CDC corpus.
+        
+        Asserts that calling `get_regulation_annotations` on the loaded text yields more than 100 regulation annotations.
+        """
         regs = list(get_regulation_annotations(self.text))
         self.assertGreater(len(regs), 100)
 
@@ -100,6 +142,11 @@ class TestConstituicaoFederal(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Prepare class-level text fixture by loading 'constituicao_federal.txt' into cls.text.
+        
+        Loads the UTF-8 corpus file from the test data corpus and stores its contents on the class as `text`. If the file is missing, the loader will skip the tests via pytest.skip.
+        """
         cls.text = _load("constituicao_federal.txt")
 
     def test_non_trivial_length(self):

@@ -140,15 +140,15 @@ class DeDateParser(DateParser):
                              strict: bool = True) -> \
             Generator[DateAnnotation]:
         """
-                             Extracts date annotations from the provided text and yields validated DateAnnotation objects.
+                             Extract date annotations from the given text and yield validated, non-overlapping DateAnnotation objects.
                              
                              Parameters:
-                                 text (str | None): Text to scan for dates. If None, the parser's existing text is used.
-                                 locale (Locale | None): Locale whose language, if provided, will be used for parsing; otherwise the parser's current locale language is used.
-                                 strict (bool): If True, apply stricter parsing rules when extracting candidate dates.
+                                 text (str | None): Text to scan; if None, the parser's current text is used.
+                                 locale (Locale | None): Locale whose `language`, if provided, will be applied for parsing; otherwise the parser's current locale language is used.
+                                 strict (bool): Whether to apply stricter parsing rules when extracting candidate dates.
                              
                              Returns:
-                                 Generator[DateAnnotation]: An iterator that yields DateAnnotation objects for each validated, non-overlapping date occurrence found in the text.
+                                 Generator[DateAnnotation]: An iterator that yields a DateAnnotation for each validated, non-overlapping date occurrence.
                              
                              Raises:
                                  RuntimeError: If a text segment is empty or no language is defined for parsing.

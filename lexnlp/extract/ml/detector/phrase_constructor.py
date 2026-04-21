@@ -61,14 +61,14 @@ class PhraseConstructor:
                     settings: PhraseConstructorSettings = None,
                     token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:
         """
-                    Yield phrase spans (start_char, end_char) by joining token boundaries according to construction settings.
+                    Dispatches token-joining to the configured construction method and yields phrase spans as (start_char, end_char).
                     
                     Parameters:
                         tokens (Sequence[tuple[int, int]]): Sequence of (left_char, right_char) token boundary pairs.
                         predicted_class (Sequence[int] | numpy.ndarray): Per-token class IDs used to form candidate phrases.
-                        feature_mask (list[int] | None): Optional per-character mask used to boost candidate scores; None disables mask scoring.
+                        feature_mask (list[int] | None): Optional per-character mask that can boost a candidate's score; pass None to disable mask scoring.
                         settings (PhraseConstructorSettings | None): Construction configuration; defaults to PhraseConstructor.DEFAULT_CONSTRUCTOR_SETTINGS when None.
-                        token_classes (PhraseTokenClasses | None): Optional class ID container overriding default token class mappings.
+                        token_classes (PhraseTokenClasses | None): Optional class ID mapping to override default token class identifiers.
                     
                     Returns:
                         Generator[tuple[int, int]]: Generator yielding (start_char, end_char) spans for each detected phrase.

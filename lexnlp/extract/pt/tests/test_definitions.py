@@ -31,6 +31,11 @@ class TestParsePortugueseDefinitions(TestCase):
         self.assertEqual("O ser humano", name.strip('"'))
 
     def test_parse_pt_def_quotes(self):
+        """
+        Verify the Portuguese definitions parser extracts a quoted term introduced by a colon.
+        
+        Asserts that parsing the sample text yields exactly one definition annotation and that the annotation's `name`, after stripping surrounding double quotes, equals "Software".
+        """
         parser = make_pt_definitions_parser()
         text = 'Mariachi me acompanha quando canto minha canção. Neste acordo, o termo "Software" refere-se a: (i) o programa de computador e todos os seus componentes;'
 

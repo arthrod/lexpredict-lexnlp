@@ -315,20 +315,20 @@ def test_extraction_func(expected, func: Callable, text,
                          test_only_expected_in: bool = False,
                          **kwargs):
     """
-                         Run an extraction function on a single text case, compare its results to the expected value(s), and return the observed result, the (possibly transformed) expected value, and an optional failure message.
+                         Run an extraction function on a single text case and compare its result to the expected value(s).
+                         
+                         Applies `expected_data_converter` to `expected` when provided; otherwise, if `test_only_expected_in` is True, reduces `expected` to its first element (or `None` when empty). Calls `func(text, **kwargs)` under the benchmark name and applies `actual_data_converter` to the raw result when provided. Non-empty actual and expected results are converted to `set` for comparison unless `test_only_expected_in` is used, in which case membership is asserted.
                          
                          Parameters:
-                             expected: The expected value(s) for the text; may be a single value, a sequence, or None.
-                             func (Callable): The extraction function to invoke with `text` and `**kwargs`.
-                             text: The input text passed to `func`.
-                             benchmark_name (str | None): Optional name used for benchmarking and reporting; derived from `func` and `kwargs` if omitted.
-                             test_data_file (str | None): Optional path used in failure messages to indicate the source CSV.
-                             expected_data_converter (Callable | None): If provided, transforms `expected` before comparison.
-                             actual_data_converter (Callable | None): If provided, transforms the raw result from `func` before comparison.
-                             do_raise (bool): If True, assertion helpers will raise on mismatch; otherwise they return a problem string.
+                             expected: Expected value(s) for the text; may be a single value, a sequence, or None.
+                             test_data_file (str | None): Optional path included in failure messages to identify the source CSV.
+                             expected_data_converter (Callable | None): Function to transform `expected` before comparison.
+                             actual_data_converter (Callable | None): Function to transform the raw result from `func` before comparison.
+                             do_raise (bool): If True, assertion helpers raise on mismatch; otherwise they return a formatted problem string.
                              debug_print (bool): When True, enable additional debug output in equality assertions.
                              test_only_expected_in (bool): If True, assert that the single expected value is contained in the actual results instead of requiring set equality.
-                             **kwargs: Additional keyword arguments forwarded to `func` and used to build the benchmark name.
+                             benchmark_name (str | None): Optional name used for benchmarking and reporting; derived from `func` and `kwargs` when omitted.
+                             **kwargs: Additional keyword arguments forwarded to `func` and used when deriving the benchmark name.
                          
                          Returns:
                              tuple:
@@ -413,26 +413,26 @@ def assert_set_equal(function_name: str,
                      debug_print: bool = True,
                      test_data_file: str | None = None) -> str | None:
     """
-                     Validate that two result sets are equal and record/report detailed mismatch information.
+                     Report and optionally record a detailed problem when the actual and expected result sets differ.
                      
-                     When the sets differ, produce a human-readable problem message describing the actual and expected results for the given function and text. Depending on flags, append the message to a problems file, print it to stdout, and/or raise the captured AssertionError.
+                     When the sets are equal (including both empty), no action is taken and the function returns None. If they differ, a human-readable problem message describing the input text, the actual results, and the expected results is produced; depending on flags the message is appended to `problems_file`, printed to stdout, and/or an AssertionError is re-raised.
                      
                      Parameters:
-                         function_name (str): Name of the function being tested (used in the problem message).
-                         text (str): The input text that produced the results (used in the problem message).
-                         actual_results (set): The actual result set produced by the function.
-                         expected_results (set): The expected result set to compare against.
-                         problems_file (str): Path to the file where detected problems will be appended when writing is enabled.
-                         do_raise (bool): If True, re-raise the assertion error after reporting the problem.
-                         do_write_to_file (bool): If True, append the problem message to `problems_file`.
-                         debug_print (bool): If True, print the problem message to stdout.
-                         test_data_file (str | None): Optional path to the test data CSV; included in the problem message when provided.
+                     	function_name (str): Name of the function under test (used in the problem message).
+                     	text (str): The input text that produced the results (included in the problem message).
+                     	actual_results (set): Result set produced by the function.
+                     	expected_results (set): Expected result set to compare against.
+                     	problems_file (str): Path to the file where the problem message will be appended when `do_write_to_file` is True.
+                     	do_raise (bool): If True, re-raise the captured AssertionError after reporting the problem.
+                     	do_write_to_file (bool): If True, append the problem message to `problems_file`.
+                     	debug_print (bool): If True, print the problem message to stdout.
+                     	test_data_file (str | None): Optional path to the test data CSV; when provided its relative path is included in the problem message.
                      
                      Returns:
-                         str | None: The formatted problem message when a mismatch is found, or `None` when the sets are equal.
+                     	str | None: The formatted problem message when a mismatch is found, or `None` when the sets are equal.
                      
                      Raises:
-                         AssertionError: Re-raised when a mismatch is detected and `do_raise` is True.
+                     	AssertionError: Re-raised when a mismatch is detected and `do_raise` is True.
                      """
     if not expected_results and not actual_results:
         return None
@@ -515,22 +515,20 @@ def assert_in(function_name: str,
               do_write_to_file: bool = True,
               test_data_file: str | None = None) -> str | None:
     """
-              Report whether an expected item is contained within a set of actual results and optionally record or raise a failure.
-              
-              Checks that `expected_in` is a member of `actual_results`. If the check fails, builds a detailed human-readable problem message that includes a shortened preview of `text`, the actual results, and the expected item. Depending on flags, the message is appended to `problems_file` and/or an AssertionError is raised.
+              Check that a specified item is present in a set of actual results and optionally record or raise a failure.
               
               Parameters:
-                  function_name (str): Name of the function being tested (used in the problem message).
-                  text (str): Source text used to produce `actual_results` (included, truncated, in the message).
-                  expected_in: The item expected to be present in `actual_results`.
+                  function_name (str): Name of the function under test, used in the problem message.
+                  text (str): Source text that produced `actual_results`; a shortened preview is included in the message.
+                  expected_in: The element expected to be present in `actual_results`.
                   actual_results (set): The set of results produced by the function under test.
-                  problems_file (str): File path to append problem reports when failures occur.
-                  do_raise (bool): If True, raise an AssertionError on failure; if False, return the problem message instead.
+                  problems_file (str): Path to append a formatted problem report when a failure occurs.
+                  do_raise (bool): If True, raise an AssertionError on failure; if False, return the formatted problem message.
                   do_write_to_file (bool): If True, append the problem message to `problems_file` when a failure occurs.
-                  test_data_file (str | None): Optional path to the test-data CSV; included in the problem message when provided.
+                  test_data_file (str | None): Optional path to the source test-data CSV to include in the problem message.
               
               Returns:
-                  str | None: The formatted problem message when the assertion fails and `do_raise` is False; `None` when the assertion passes.
+                  str | None: The formatted problem message when the assertion fails and `do_raise` is False; `None` when the assertion succeeds.
               
               Raises:
                   AssertionError: When the assertion fails and `do_raise` is True.

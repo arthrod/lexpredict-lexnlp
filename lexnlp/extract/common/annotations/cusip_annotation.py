@@ -32,18 +32,18 @@ class CusipAnnotation(TextAnnotation):
                  issue_id: str | None = None,
                  issuer_id: str | None = None):
         """
-                 Initialize the CusipAnnotation with position, locale, text, and CUSIP-specific metadata.
+                 Initialize a CusipAnnotation with positional bounds, locale, display name, text, and CUSIP-specific metadata.
                  
                  Parameters:
-                     coords (tuple[int, int]): Start and end positions of the annotation.
-                     locale (str): Language/locale of the annotation.
-                     name (str): Annotation name or label.
-                     text (str | None): Extracted text associated with the annotation.
+                     coords (tuple[int, int]): Start and end character positions of the annotation in the source text.
+                     locale (str): Language/locale identifier (default 'en').
+                     name (str): Human-readable annotation name or label.
+                     text (str | None): Extracted substring for the annotation, if available.
                      code (str | None): Extracted CUSIP code value.
-                     internal (bool | None): Flag indicating an internal identifier or internal extraction status.
-                     ppn (str | None): Associated PPN (proprietary product number) if present.
-                     tba (dict | None): TBA-related data when the annotation refers to a To Be Announced instrument.
-                     checksum (str | None): Checksum value associated with the CUSIP, if available.
+                     internal (bool | None): True if the code is an internal identifier; False or None otherwise.
+                     ppn (str | None): Associated proprietary product number, if present.
+                     tba (dict | None): Data for "To Be Announced" instruments, when applicable.
+                     checksum (str | None): Checksum characters for the CUSIP, if available.
                      issue_id (str | None): Identifier for the specific issue.
                      issuer_id (str | None): Identifier for the issuer.
                  """

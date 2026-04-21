@@ -125,14 +125,16 @@ class FactExtractor:
                    include_types: set[AnnotationType] | None = None,
                    exclude_types: set[AnnotationType] | None = None) -> dict[AnnotationType, list[Any]]:
         """
-                   Selects and runs registered extractors for a language and returns extracted facts organized by annotation type.
+                   Run registered extractors for the given language and return extracted facts grouped by annotation type.
+                   
+                   Selects which extractors to run based on `extract_all`, `include_types`, and `exclude_types`. If `result_fmt` is `fmt_dict`, class-based extractor results are converted to dictionaries.
                    
                    Parameters:
-                       text (str): Input text to be analyzed.
+                       text (str): Input text to analyze.
                        lang (str): Language code identifying which extractor registry to use.
-                       result_fmt (ExtractorResultFormat): Desired output format; when `fmt_dict` is requested, class-based extractors are used and their results are converted to dictionaries.
-                       extract_all (bool): If True, run all available annotation types (subject to `exclude_types`); if False, run only types in `include_types`.
-                       include_types (set[AnnotationType] | None): Specific annotation types to extract when `extract_all` is False. Ignored when `extract_all` is True.
+                       result_fmt (ExtractorResultFormat): Desired output format; if `fmt_dict` is specified the function uses class-format extractors and converts their results to dictionaries.
+                       extract_all (bool): If True, run all available annotation types (minus any in `exclude_types`); if False, run only types in `include_types`.
+                       include_types (set[AnnotationType] | None): Specific annotation types to extract when `extract_all` is False.
                        exclude_types (set[AnnotationType] | None): Annotation types to omit when `extract_all` is True.
                    
                    Returns:
@@ -187,12 +189,12 @@ class FactExtractor:
     def ensure_parser_arguments_en(
             geo_config: list[Any] | None = None) -> None:
         """
-            Register extra parser arguments for English geoentity extractors across all output formats.
+            Register English geoentity parser extra-arguments for all result formats.
             
-            For each ExtractorResultFormat, stores a one-element tuple containing `geo_config` as the parser extra-arguments for `AnnotationType.geoentity` under the English language registry.
+            For each ExtractorResultFormat, store the provided `geo_config` as the extra parser argument for AnnotationType.geoentity under the English registry.
             
             Parameters:
-                geo_config (list[Any] | None): Configuration passed to geoentity extractors; may be `None`.
+                geo_config (list[Any] | None): Configuration passed to geoentity extractors; may be None.
             """
         for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_EN,
@@ -204,10 +206,10 @@ class FactExtractor:
     def ensure_parser_arguments_de(
             geo_config: list[Any] | None = None) -> None:
         """
-            Register the geoentity parser extra-arguments for German extractors across all result formats.
+            Register German geoentity parser extra-arguments for all extractor result formats.
             
             Parameters:
-                geo_config (list[Any] | None): Optional configuration object passed to German geoentity extractors; it is stored as the single extra-argument tuple `(geo_config,)`.
+                geo_config (list[Any] | None): Optional configuration passed to German geoentity extractors; stored as the single extra-argument tuple `(geo_config,)`.
             """
         for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_DE,
