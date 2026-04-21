@@ -54,16 +54,16 @@ class ArtifactDetector:
                      join_settings: PhraseConstructorSettings = None,
                      feature_mask: list[int] | None = None) -> Generator[tuple[int, int]]:
         """
-                     Identify phrase spans in the given text using the detector's loaded model and joining rules.
+        Identify phrase spans in the given text using the detector's loaded model and joining rules.
                      
-                     Parameters:
-                         join_settings (PhraseConstructorSettings | None): Optional settings that control how token predictions are merged into phrase spans. If omitted, the detector's default join settings are used.
-                         feature_mask (list[int] | None): Optional list of feature/token indices to consider when constructing features; if provided, only the specified positions are used.
+        Parameters:
+        join_settings (PhraseConstructorSettings | None): Optional settings that control how token predictions are merged into phrase spans. If omitted, the detector's default join settings are used.
+        feature_mask (list[int] | None): Optional list of feature/token indices to consider when constructing features; if provided, only the specified positions are used.
                      
-                     Returns:
-                         Generator[tuple[int, int]]: Generator of (start_index, end_index) tuples representing the token-span positions of detected phrases in the input text.
-                     """
-                     feature_data, tokens = self.model.get_feature_data(text, feature_mask)
+        Returns:
+        Generator[tuple[int, int]]: Generator of (start_index, end_index) tuples representing the token-span positions of detected phrases in the input text.
+        """
+        feature_data, tokens = self.model.get_feature_data(text, feature_mask)
         predicted_class = self.model.model.predict(feature_data)
         join_settings = join_settings or self.join_token_settings
         yield from PhraseConstructor.join_tokens(

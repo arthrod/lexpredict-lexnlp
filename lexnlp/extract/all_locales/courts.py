@@ -21,20 +21,20 @@ def get_court_annotations(
         text_locales: list[str] = (),
         simplified_normalization: bool = False) -> Generator[CourtAnnotation]:
     """
-        Create CourtAnnotation objects for courts found in text using the provided dictionary configurations.
+    Create CourtAnnotation objects for courts found in text using the provided dictionary configurations.
         
-        Parameters:
-            locale (str): Locale string used to derive the default language for matching (e.g., "en_US").
-            text (str): Text to search for court mentions.
-            court_config_list (list[DictionaryEntry]): Dictionary entries configuring court names and metadata.
-            priority (bool): If True, resolve overlapping/conflicting matches by keeping the first match by identifier.
-            text_locales (list[str]): Additional locale strings whose languages are included when matching.
-            simplified_normalization (bool): If True, apply simplified normalization during dictionary matching.
+    Parameters:
+    locale (str): Locale string used to derive the default language for matching (e.g., "en_US").
+    text (str): Text to search for court mentions.
+    court_config_list (list[DictionaryEntry]): Dictionary entries configuring court names and metadata.
+    priority (bool): If True, resolve overlapping/conflicting matches by keeping the first match by identifier.
+    text_locales (list[str]): Additional locale strings whose languages are included when matching.
+    simplified_normalization (bool): If True, apply simplified normalization during dictionary matching.
         
-        Returns:
-            Generator[CourtAnnotation]: Yields a CourtAnnotation for each match. Each annotation contains coordinates, entity identifiers, category, priority, English and original names, any extra columns set as attributes, alias (if matched), and a locale (alias language if available, otherwise the default language derived from `locale`).
-        """
-        locale_obj = Locale(locale)
+    Returns:
+    Generator[CourtAnnotation]: Yields a CourtAnnotation for each match. Each annotation contains coordinates, entity identifiers, category, priority, English and original names, any extra columns set as attributes, alias (if matched), and a locale (alias language if available, otherwise the default language derived from `locale`).
+    """
+    locale_obj = Locale(locale)
     dic_entries = find_dict_entities(
         text,
         court_config_list,

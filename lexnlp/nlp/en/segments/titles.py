@@ -24,6 +24,7 @@ import requests
 import sklearn.ensemble
 
 # Project
+from lexnlp.ml.model_io import load_model
 from lexnlp.nlp.en.segments.utils import build_document_line_distribution
 from lexnlp.utils.decorators import safe_failure
 from lexnlp.utils.unicode.unicode_lookup import UNICODE_CHAR_TOP_CATEGORY_MAPPING
@@ -34,7 +35,7 @@ from lexnlp.utils.unicode.unicode_lookup import UNICODE_CHAR_TOP_CATEGORY_MAPPIN
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load segmenters
-SECTION_SEGMENTER_MODEL = joblib.load(os.path.join(MODULE_PATH, "./title_locator.pickle"))
+SECTION_SEGMENTER_MODEL = load_model(os.path.join(MODULE_PATH, "./title_locator.pickle"))
 
 
 def build_title_features(lines, line_id, line_window_pre, line_window_post, characters=string.printable,
@@ -199,7 +200,7 @@ def build_model(training_file_path):
         # Append
         all_feature_list.append(feature_data)
         all_target_list.append(target_data)
-        all_file_lines.extend((row["File"], l) for l in file_lines)
+        all_file_lines.extend((row["File"], line) for line in file_lines)
 
     # Collate
     all_feature_df = pandas.concat(all_feature_list, axis=0)

@@ -130,22 +130,11 @@ class DateParser:
                   text: str | None = None,
                   locale: Locale | None = None) \
             -> Generator[dict[str, Any]]:
-        """
-                  Yield dictionaries describing each extracted date found in the text.
-                  
-                  Parameters:
-                      text (str | None): Optional text to extract dates from. If None, uses the instance's stored text.
-                      locale (Locale | None): Optional locale to guide parsing; if None, uses the instance's configured locale.
-                  
-                  Returns:
-                      dict[str, Any]: An iterator of dictionaries, each containing:
-                          - location_start (int): start index of the matched substring in the text.
-                          - location_end (int): end index of the matched substring in the text.
-                          - value (datetime | Any): the parsed/normalized date value.
-                          - source (str): the exact substring from the text that produced the date.
-                  """
-                  strict = self.dateparser_settings.get('STRICT_PARSING',
-                                              self.DEFAULT_DATEPARSER_SETTINGS.get('STRICT_PARSING', False))
+        """Yield dictionaries describing each extracted date found in the text."""
+        strict = self.dateparser_settings.get(
+            'STRICT_PARSING',
+            self.DEFAULT_DATEPARSER_SETTINGS.get('STRICT_PARSING', False),
+        )
         for ant in self.get_date_annotations(text, locale, strict=strict):
             yield {'location_start': ant.coords[0],
                    'location_end': ant.coords[1],
@@ -175,7 +164,8 @@ class DateParser:
                                  - Extraction first uses the dateparser searcher, then any custom extractions from `get_extra_dates`.
                                  - Candidate matches are filtered by general heuristics and, if enabled, by the classifier check; overlapping spans are suppressed.
                              """
-                             self.text = text.replace('\n', ' ') or self.text
+        if text is not None:
+            self.text = text.replace('\n', ' ')
         self.locale.language = (locale.language if locale else "") or self.locale.language
 
         if not self.text or not self.locale.language:

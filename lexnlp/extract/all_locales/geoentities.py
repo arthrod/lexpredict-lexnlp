@@ -31,23 +31,23 @@ def get_geoentity_annotations(
         prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False) -> Generator[GeoAnnotation]:
     """
-        Return geoentity annotations for the given text using locale-appropriate extraction rules.
+    Return geoentity annotations for the given text using locale-appropriate extraction rules.
         
-        Parameters:
-            locale (str): Locale identifier (e.g., 'en_US') used to select language-specific extraction.
-            text (str): Input text to analyze for geographic entities.
-            geo_config_list (list[DictionaryEntry]): Configuration entries defining geographic dictionaries and metadata used during extraction.
-            conflict_resolving_field (str): Field name used to resolve conflicting matches; 'none' disables conflict resolution.
-            priority_direction (str): Match priority direction, 'asc' or 'desc', determining which candidate is preferred when resolving ties.
-            text_languages (list[str] | None): Optional list of language tags to consider for ambiguous aliases; pass None to use defaults.
-            min_alias_len (int | None): Optional minimum alias token length to consider; pass None to disable length filtering.
-            prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional mapping of dictionary keys to tuples of (exact_bans, prefix_bans) to exclude specific aliases.
-            simplified_normalization (bool): If True, apply a faster, reduced normalization routine when matching aliases.
+    Parameters:
+    locale (str): Locale identifier (e.g., 'en_US') used to select language-specific extraction.
+    text (str): Input text to analyze for geographic entities.
+    geo_config_list (list[DictionaryEntry]): Configuration entries defining geographic dictionaries and metadata used during extraction.
+    conflict_resolving_field (str): Field name used to resolve conflicting matches; 'none' disables conflict resolution.
+    priority_direction (str): Match priority direction, 'asc' or 'desc', determining which candidate is preferred when resolving ties.
+    text_languages (list[str] | None): Optional list of language tags to consider for ambiguous aliases; pass None to use defaults.
+    min_alias_len (int | None): Optional minimum alias token length to consider; pass None to disable length filtering.
+    prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional mapping of dictionary keys to tuples of (exact_bans, prefix_bans) to exclude specific aliases.
+    simplified_normalization (bool): If True, apply a faster, reduced normalization routine when matching aliases.
         
-        Returns:
-            Generator[GeoAnnotation]: Yields GeoAnnotation objects representing detected geographic entities in the text.
-        """
-        routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
+    Returns:
+    Generator[GeoAnnotation]: Yields GeoAnnotation objects representing detected geographic entities in the text.
+    """
+    routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
     yield from routine(text, geo_config_list, conflict_resolving_field,
                        priority_direction, text_languages, min_alias_len,
                        prepared_alias_ban_list, simplified_normalization)

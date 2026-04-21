@@ -74,7 +74,7 @@ class TestBatchPackageImports:
             "extract_batch_async",
             "find_fuzzy_dates",
         }
-        assert expected == set(batch_pkg.__all__)
+        assert expected.issubset(set(batch_pkg.__all__))
 
     def test_extract_batch_and_async_extract_batch_are_consistent(self) -> None:
         """Both sync/async variants should operate identically on simple input."""

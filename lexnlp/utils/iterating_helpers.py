@@ -14,17 +14,17 @@ def collapse_sequence(sequence: Iterable,
                       predicate: Callable[[Any, Any], Any],
                       accumulator: Any = 0.0) -> Any:
     """
-                      Reduce a sequence into a single accumulated value by applying a two-argument combining function to each item.
+    Reduce a sequence into a single accumulated value by applying a two-argument combining function to each item.
                       
-                      Parameters:
-                          sequence (Iterable): An iterable of items to process.
-                          predicate (Callable[[Any, Any], Any]): A function called for each item as `predicate(item, accumulator)` that returns the updated accumulator.
-                          accumulator (Any): Initial accumulator value (default 0.0).
+    Parameters:
+    sequence (Iterable): An iterable of items to process.
+    predicate (Callable[[Any, Any], Any]): A function called for each item as `predicate(item, accumulator)` that returns the updated accumulator.
+    accumulator (Any): Initial accumulator value (default 0.0).
                       
-                      Returns:
-                          Any: The final accumulator value after processing all items.
-                      """
-                      for item in sequence:
+    Returns:
+    Any: The final accumulator value after processing all items.
+    """
+    for item in sequence:
         accumulator = predicate(item, accumulator)
     return accumulator
 

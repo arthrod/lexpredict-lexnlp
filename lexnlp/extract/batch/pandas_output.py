@@ -47,11 +47,11 @@ _CORE_COLUMNS: tuple[str, ...] = (
 def _row_from_annotation(annotation: Any) -> dict[str, Any]:
     """
     Build a dictionary of core fields from an annotation suitable for a DataFrame row.
-    
+
     Extracts `record_type`, `locale`, and `text` via attribute access and parses `coords`
     into `start` and `end`. If `coords` is missing or cannot be unpacked, `start`
     and `end` are set to `None`.
-    
+
     Returns:
         dict[str, Any]: Mapping with keys `"record_type"`, `"locale"`, `"text"`,
         `"start"`, and `"end"`. `start` and `end` are integers when available or
@@ -60,9 +60,9 @@ def _row_from_annotation(annotation: Any) -> dict[str, Any]:
     coords = getattr(annotation, "coords", (None, None))
     start: int | None
     end: int | None
-    try:
-        start, end = coords  # type: ignore[misc]
-    except (TypeError, ValueError):
+    if isinstance(coords, (tuple, list)) and len(coords) == 2:
+        start, end = coords[0], coords[1]
+    else:
         start, end = None, None
     return {
         "record_type": getattr(annotation, "record_type", None),
@@ -81,12 +81,12 @@ def annotations_to_dataframe(
 ) -> pd.DataFrame:
     """
     Convert an iterable of annotation-like objects into a pandas DataFrame with one row per annotation.
-    
+
     Parameters:
         annotations: Iterable of annotation objects; each object's attributes are accessed to populate rows.
         prefer_arrow (bool): If True, attempt to use PyArrow-backed dtypes (e.g., `string[pyarrow]` and Arrow nullable integers) when PyArrow is available; silently falls back to NumPy-backed dtypes otherwise.
         extra_columns (tuple[str, ...]): Names of additional attributes to extract from each annotation; missing attributes become `None`.
-    
+
     Returns:
         pd.DataFrame: A DataFrame whose columns are `record_type`, `locale`, `text`, `start`, `end` followed by the names in `extra_columns`, with one row per input annotation.
     """
@@ -111,14 +111,14 @@ def annotations_to_dataframe(
 def _maybe_convert_to_arrow(frame: pd.DataFrame, prefer_arrow: bool) -> pd.DataFrame:
     """
     Prefer a PyArrow-backed dtype representation for the provided DataFrame when possible.
-    
+
     If `prefer_arrow` is False, or PyArrow is not importable, or pandas does not support
     `convert_dtypes(dtype_backend="pyarrow")`, the original DataFrame is returned unchanged.
-    
+
     Parameters:
         frame (pd.DataFrame): The DataFrame to convert.
         prefer_arrow (bool): If True, attempt to convert columns to PyArrow-backed dtypes.
-    
+
     Returns:
         pd.DataFrame: The input DataFrame converted to PyArrow-backed dtypes when the conversion
         succeeded; otherwise the unmodified input DataFrame.
