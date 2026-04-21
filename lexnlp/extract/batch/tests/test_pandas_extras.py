@@ -254,3 +254,123 @@ class TestMultipleExtraColumns:
         )
         assert df.iloc[0]["confidence"] == 0.9
         assert df.iloc[0]["source"] == "test"
+
+
+# ---------------------------------------------------------------------------
+# Coords unpacking: try/except branch (PR change from isinstance check)
+# ---------------------------------------------------------------------------
+
+
+class TestCoordsUnpackingBranches:
+    """The PR changed coords unpacking from an isinstance/len guard to
+    try/except (TypeError, ValueError). These tests verify the new branching
+    behaviour.
+    """
+
+    def test_tuple_coords_unpacked_correctly(self) -> None:
+        """Standard tuple (start, end) — the common case."""
+        class _TupleCoords:
+            coords = (10, 20)
+            text = "hello"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_TupleCoords())
+        assert row["start"] == 10
+        assert row["end"] == 20
+
+    def test_list_coords_unpacked_correctly(self) -> None:
+        """A list [start, end] is also iterable and unpacks successfully."""
+        class _ListCoords:
+            coords = [5, 15]
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_ListCoords())
+        assert row["start"] == 5
+        assert row["end"] == 15
+
+    def test_none_coords_gives_none_start_end(self) -> None:
+        """coords=None → TypeError on unpacking → caught → None,None."""
+        class _NoneCoords:
+            coords = None
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_NoneCoords())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_single_element_tuple_gives_none(self) -> None:
+        """(5,) has only one value — ValueError on unpacking → None,None."""
+        class _SingleTuple:
+            coords = (5,)
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_SingleTuple())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_three_element_tuple_gives_none(self) -> None:
+        """(1, 2, 3) has too many values — ValueError on unpacking → None,None."""
+        class _ThreeTuple:
+            coords = (1, 2, 3)
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_ThreeTuple())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_empty_tuple_gives_none(self) -> None:
+        """() has no values — ValueError on unpacking → None,None."""
+        class _EmptyTuple:
+            coords = ()
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_EmptyTuple())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_integer_coords_gives_none(self) -> None:
+        """A plain integer is not iterable — TypeError on unpacking → None,None."""
+        class _IntCoords:
+            coords = 42
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_IntCoords())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_zero_zero_tuple_preserved(self) -> None:
+        """(0, 0) is a valid coords pair that represents start=0, end=0."""
+        class _ZeroCoords:
+            coords = (0, 0)
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_ZeroCoords())
+        assert row["start"] == 0
+        assert row["end"] == 0
+
+    def test_large_coords_preserved(self) -> None:
+        """Large integer coords should be preserved exactly."""
+        class _BigCoords:
+            coords = (100_000, 200_000)
+            text = "large"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_BigCoords())
+        assert row["start"] == 100_000
+        assert row["end"] == 200_000

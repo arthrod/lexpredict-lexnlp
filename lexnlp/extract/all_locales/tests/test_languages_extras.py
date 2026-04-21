@@ -21,6 +21,7 @@ from lexnlp.extract.all_locales.languages import (
     LANG_DE,
     LANG_EN,
     LANG_ES,
+    LANG_PT,
     LANGUAGES,
     Locale,
     LocaleContextManager,
@@ -210,3 +211,62 @@ class TestLocaleContextManagerExit:
         cm.__enter__()
         cm.__exit__(None, None, None)
         assert locale.getlocale() == original
+
+
+# ---------------------------------------------------------------------------
+# LANG_PT constant (added in this PR)
+# ---------------------------------------------------------------------------
+
+
+class TestLangPt:
+    """Tests for the ``LANG_PT`` constant added alongside the Portuguese module."""
+
+    def test_lang_pt_code(self) -> None:
+        assert LANG_PT.code == "pt"
+
+    def test_lang_pt_code_3(self) -> None:
+        assert LANG_PT.code_3 == "por"
+
+    def test_lang_pt_title(self) -> None:
+        assert LANG_PT.title == "Portuguese"
+
+    def test_lang_pt_str(self) -> None:
+        assert str(LANG_PT) == "pt"
+
+    def test_lang_pt_is_distinct_from_en(self) -> None:
+        assert LANG_PT is not LANG_EN
+
+    def test_lang_pt_is_distinct_from_de(self) -> None:
+        assert LANG_PT is not LANG_DE
+
+    def test_lang_pt_is_distinct_from_es(self) -> None:
+        assert LANG_PT is not LANG_ES
+
+
+class TestLanguagesListWithPt:
+    """LANGUAGES now contains four entries including Portuguese."""
+
+    def test_languages_list_has_four_entries(self) -> None:
+        assert len(LANGUAGES) == 4
+
+    def test_languages_list_contains_pt(self) -> None:
+        codes = {lang.code for lang in LANGUAGES}
+        assert "pt" in codes
+
+    def test_languages_list_contains_en_de_es_pt(self) -> None:
+        codes = {lang.code for lang in LANGUAGES}
+        assert codes == {"en", "de", "es", "pt"}
+
+    def test_lang_pt_identity_in_languages_list(self) -> None:
+        """LANG_PT constant is the same object as the 'pt' entry in LANGUAGES."""
+        pt_entries = [lang for lang in LANGUAGES if lang.code == "pt"]
+        assert len(pt_entries) == 1
+        assert pt_entries[0] is LANG_PT
+
+    def test_languages_list_code_3_for_pt(self) -> None:
+        pt_entry = next(lang for lang in LANGUAGES if lang.code == "pt")
+        assert pt_entry.code_3 == "por"
+
+    def test_default_language_is_still_en(self) -> None:
+        """Adding LANG_PT must not change the DEFAULT_LANGUAGE."""
+        assert DEFAULT_LANGUAGE is LANG_EN
