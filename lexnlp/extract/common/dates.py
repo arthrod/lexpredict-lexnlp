@@ -173,7 +173,8 @@ class DateParser:
                              Raises:
                                  RuntimeError: If neither `text` nor the parser's locale language is defined.
                              """
-        self.text = text.replace('\n', ' ') or self.text
+        if text is not None:
+            self.text = text.replace('\n', ' ')
         self.locale.language = (locale.language if locale else "") or self.locale.language
 
         if not self.text or not self.locale.language:

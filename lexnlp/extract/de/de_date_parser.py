@@ -153,7 +153,8 @@ class DeDateParser(DateParser):
                              Raises:
                                  RuntimeError: If a text segment is empty or no language is defined for parsing.
                              """
-        self.text = text.replace('\n', ' ') or self.text
+        if text is not None:
+            self.text = text.replace('\n', ' ')
         self.text = re.sub(CUSTOM_DATES_SEPARATOR, '\n', self.text)
         text_parts = self.text.split('\n')
         for text_part in text_parts:

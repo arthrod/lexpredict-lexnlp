@@ -19,8 +19,10 @@ from math import floor, log, pow
 from pathlib import Path
 from typing import Any
 
-from requests import Response, get
+from requests import Response, Session
+from requests.adapters import HTTPAdapter
 from requests.structures import CaseInsensitiveDict
+from urllib3.util.retry import Retry
 
 # third-party libraries
 from tqdm import tqdm
@@ -32,6 +34,8 @@ from lexnlp.ml.catalog import CATALOG
 LOGGER: logging.Logger = logging.getLogger(__name__)
 
 DEFAULT_GITHUB_TIMEOUT_SECONDS = 60.0
+DEFAULT_RETRY_TOTAL = 3
+DEFAULT_RETRY_BACKOFF = 1.0
 
 
 def _get_github_timeout_seconds() -> float:
@@ -42,6 +46,46 @@ def _get_github_timeout_seconds() -> float:
         return float(raw)
     except ValueError:
         return DEFAULT_GITHUB_TIMEOUT_SECONDS
+
+
+def build_retry_session(
+    *,
+    total_retries: int = DEFAULT_RETRY_TOTAL,
+    backoff_factor: float = DEFAULT_RETRY_BACKOFF,
+    status_forcelist: tuple[int, ...] = (429, 500, 502, 503, 504),
+) -> Session:
+    """Return a :class:`requests.Session` preconfigured with retries.
+
+    The previous downloader called :func:`requests.get` directly, which
+    opens a fresh TCP connection for every hit and never retries on
+    transient 5xx / 429 responses — exactly the mode that makes large
+    model downloads flaky in CI. This factory returns a session with a
+    retry-capable ``HTTPAdapter`` mounted for both ``http://`` and
+    ``https://`` schemes.
+    """
+    retry = Retry(
+        total=total_retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=list(status_forcelist),
+        allowed_methods=("GET", "HEAD"),
+        raise_on_status=False,
+    )
+    adapter = HTTPAdapter(max_retries=retry, pool_connections=4, pool_maxsize=8)
+    session = Session()
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    return session
+
+
+_SESSION: Session | None = None
+
+
+def _session() -> Session:
+    """Return a lazily-initialised, process-wide retry session."""
+    global _SESSION
+    if _SESSION is None:
+        _SESSION = build_retry_session()
+    return _SESSION
 
 
 class ChecksumError(Exception):
@@ -73,7 +117,7 @@ class GitHubReleaseDownloader:
     @staticmethod
     def get_tag(tag: str) -> Response:
         models_repo = get_models_repo()
-        response: Response = get(
+        response: Response = _session().get(
             url=f'{models_repo}{tag}',
             headers=_build_github_headers({
                 'Accept': 'application/vnd.github.v3+json',
@@ -142,7 +186,7 @@ class GitHubReleaseDownloader:
         Raises:
             ChecksumError: If the server provided a Content-MD5 header and the computed file checksum does not match.
         """
-        response: Response = get(
+        response: Response = _session().get(
             url=asset['url'],
             stream=True,
             headers=_build_github_headers({

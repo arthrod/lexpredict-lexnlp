@@ -22,12 +22,11 @@ import re
 from collections.abc import Generator
 from typing import Any
 
-import joblib
-
 # Packages
 from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktTrainer
 
 from lexnlp.extract.en.en_language_tokens import EnLanguageTokens
+from lexnlp.ml.model_io import load_model
 
 # Setup module path
 
@@ -36,7 +35,7 @@ MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load segmenters
 SENTENCE_SEGMENTER_MODEL: PunktSentenceTokenizer = \
-    joblib.load(os.path.join(MODULE_PATH, "./sentence_segmenter.pickle"))
+    load_model(os.path.join(MODULE_PATH, "./sentence_segmenter.pickle"))
 extra_abbreviations = [a.rstrip('.') for a in EnLanguageTokens.abbreviations]
 SENTENCE_SEGMENTER_MODEL._params.abbrev_types.update(extra_abbreviations)
 SENTENCE_SEGMENTER_MODEL._params.abbrev_types.update(['no', 'l'])

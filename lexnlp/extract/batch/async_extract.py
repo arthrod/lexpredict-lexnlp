@@ -40,6 +40,29 @@ from dataclasses import dataclass, field
 LOGGER = logging.getLogger(__name__)
 
 
+def adaptive_max_workers() -> int:
+    """Return a sensible default ``max_workers`` for the current machine.
+
+    Uses :mod:`psutil` (already a hard dependency) to pick a worker count
+    that fits the available RAM and physical CPU cores. The legacy
+    default of ``8`` was fine in 2015 but is now either too many for a
+    laptop or too few for a modern server. We cap at ``physical_cores``
+    because the extractors are CPU-light but not free, and we allow at
+    least ``1`` worker so single-core containers don't trip over
+    ``ValueError``.
+    """
+    try:
+        import psutil
+    except ImportError:  # pragma: no cover — psutil is pinned
+        return 8
+
+    physical = psutil.cpu_count(logical=False) or 4
+    mem_gb = psutil.virtual_memory().available / (1024**3)
+    # 1 worker per 0.5 GiB of free RAM, capped at physical cores.
+    by_memory = max(1, int(mem_gb / 0.5))
+    return max(1, min(physical, by_memory))
+
+
 # PEP 695 type parameter syntax (Python 3.12+) replaces the older
 # ``TypeVar``/``Generic`` pattern. Every public generic entry point below uses
 # the new form; internal helpers reuse the class-scoped ``T``.
@@ -63,13 +86,13 @@ class BatchExtractionResult[T]:
 
     index: int
     annotations: list[T] = field(default_factory=list)
-    error: BaseException | None = None
+    error: Exception | None = None
 
     @property
     def ok(self) -> bool:
         """
         Whether the extraction completed without error.
-        
+
         Returns:
             True if extraction completed without error, False otherwise.
         """
@@ -85,14 +108,14 @@ async def _run_one[T](
 ) -> BatchExtractionResult[T]:
     """
     Run the provided extractor for a single text while respecting the concurrency semaphore.
-    
+
     Parameters:
         index (int): Original input position of the text.
         text (str): Text to process.
         extractor (Callable[[str], Iterable[T]]): Synchronous callable that yields extracted items from `text`; executed in a worker thread.
         semaphore (asyncio.Semaphore): Concurrency limiter that must be acquired before running the extractor.
         raise_on_error (bool): If True, propagate exceptions raised by the extractor; if False, capture the exception in the result.
-    
+
     Returns:
         BatchExtractionResult[T]: A result for `index` containing the extracted `annotations` on success (with `error` set to `None`), or an empty `annotations` list and the caught exception in `error` on failure.
     """
@@ -100,7 +123,12 @@ async def _run_one[T](
         loop = asyncio.get_running_loop()
         try:
             annotations = await loop.run_in_executor(None, lambda: list(extractor(text)))
-        except BaseException as exc:
+        except asyncio.CancelledError:
+            # Propagate cancellation so asyncio.TaskGroup can orchestrate
+            # structured concurrency properly; otherwise sibling tasks would
+            # silently keep running after cancellation.
+            raise
+        except Exception as exc:
             LOGGER.exception("Batch extractor failed at index %d", index)
             if raise_on_error:
                 raise
@@ -178,7 +206,7 @@ async def _collect[T](
 ) -> None:
     """
     Execute extraction for a single text while respecting the concurrency semaphore and store the resulting BatchExtractionResult into the provided sink at the given index.
-    
+
     Parameters:
         index (int): Position in the original input list where the result will be placed.
         text (str): The input text to process.
@@ -199,12 +227,12 @@ def extract_batch[T](
 ) -> list[BatchExtractionResult[T]]:
     """
     Run the extractor over the provided texts using a fresh event loop and return per-text BatchExtractionResult objects.
-    
+
     This helper drives the async implementation using asyncio.run so it is suitable for use from scripts and synchronous test code. It returns results in the same order as the input texts; each result contains either the extracted annotations or the exception that occurred for that text.
-    
+
     Returns:
         list[BatchExtractionResult[T]]: Results aligned to the input order; each entry contains `annotations` on success or `error` on failure.
-    
+
     Raises:
         RuntimeError: If called from within an already-running event loop (asyncio.run cannot be nested).
     """
@@ -212,7 +240,7 @@ def extract_batch[T](
     async def _run() -> list[BatchExtractionResult[T]]:
         """
         Invoke the batch extractor and collect per-text extraction results.
-        
+
         Returns:
             list[BatchExtractionResult[T]]: A list of per-input extraction results aligned to the original texts.
         """
@@ -231,7 +259,7 @@ def group_successful[T](
 ) -> tuple[list[BatchExtractionResult[T]], list[BatchExtractionResult[T]]]:
     """
     Partition a sequence of BatchExtractionResult objects into successful and failed groups.
-    
+
     Returns:
         tuple[list[BatchExtractionResult[T]], list[BatchExtractionResult[T]]]:
             A pair `(ok, failed)` where `ok` contains results whose `ok` property is true
@@ -247,10 +275,10 @@ def group_successful[T](
 def flatten[T](results: Iterable[BatchExtractionResult[T]]) -> list[T]:
     """
     Flatten annotations from successful BatchExtractionResult items into a single list.
-    
+
     Parameters:
         results (Iterable[BatchExtractionResult[T]]): Per-document results to collect annotations from.
-    
+
     Returns:
         list[T]: Concatenated annotations from results that succeeded (i.e., have no error).
     """

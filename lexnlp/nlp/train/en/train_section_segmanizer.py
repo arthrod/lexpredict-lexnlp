@@ -17,7 +17,8 @@ import pandas
 import sklearn
 import sklearn.ensemble
 import sklearn.linear_model
-import sklearn.svm
+import sklearn.metrics
+import sklearn.tree
 
 from lexnlp.nlp.train.train_data_manager import ensure_documents_in_folder
 
@@ -112,7 +113,7 @@ class SectionSegmentizerTrainManager:
             OrderedDict({'/samples/': samples_repository_path}))
 
         # Iterate through files and test
-        for file_name in sorted(list(section_break_positions.keys())):
+        for file_name in sorted(section_break_positions):
             # Read and get doc distribution
             with codecs.open(file_name, 'r', encoding='utf-8') as file_buffer:
                 file_text = file_buffer.read()
@@ -184,12 +185,12 @@ class SectionSegmentizerTrainManager:
             cls, text: str, characters=string.printable, norm=True):
         """
             Compute per-character and line-start character distributions for the given document.
-            
+
             Parameters:
                 text (str): Document text to analyze.
                 characters (str): Sequence of characters to track; used to form keys `doc_char_{c}` and `doc_startchar_{c}`. Defaults to `string.printable`.
                 norm (bool): If True, normalize counts so that all `doc_char_*` values sum to 1 and all `doc_startchar_*` values sum to 1. If False, values are raw counts.
-            
+
             Returns:
                 dict: Mapping of feature names to counts or normalized frequencies. Feature keys include:
                     - `doc_char_{c}`: count or normalized frequency of character `c` in the entire text.
