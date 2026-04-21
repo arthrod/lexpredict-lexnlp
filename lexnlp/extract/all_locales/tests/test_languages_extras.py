@@ -102,11 +102,63 @@ class TestLanguageConstants:
         codes = {lang.code for lang in LANGUAGES}
         assert codes >= {"en", "de", "es"}
 
+    def test_languages_list_contains_pt(self) -> None:
+        codes = {lang.code for lang in LANGUAGES}
+        assert "pt" in codes
+
+    def test_languages_list_has_four_entries(self) -> None:
+        assert len(LANGUAGES) == 4
+
     def test_default_language_is_en(self) -> None:
         assert DEFAULT_LANGUAGE is LANG_EN
 
     def test_default_language_code(self) -> None:
         assert DEFAULT_LANGUAGE.code == "en"
+
+
+# ---------------------------------------------------------------------------
+# LANG_PT constant (added in this PR)
+# ---------------------------------------------------------------------------
+
+
+class TestLangPt:
+    def test_lang_pt_code(self) -> None:
+        assert LANG_PT.code == "pt"
+
+    def test_lang_pt_code_3(self) -> None:
+        assert LANG_PT.code_3 == "por"
+
+    def test_lang_pt_title(self) -> None:
+        assert LANG_PT.title == "Portuguese"
+
+    def test_lang_pt_str(self) -> None:
+        assert str(LANG_PT) == "pt"
+
+    def test_lang_pt_in_languages_list(self) -> None:
+        assert LANG_PT in LANGUAGES
+
+    def test_lang_pt_is_not_default(self) -> None:
+        assert DEFAULT_LANGUAGE is not LANG_PT
+
+    def test_lang_pt_code_distinct_from_others(self) -> None:
+        assert LANG_PT.code != LANG_EN.code
+        assert LANG_PT.code != LANG_DE.code
+        assert LANG_PT.code != LANG_ES.code
+
+    def test_lang_pt_code_3_distinct_from_others(self) -> None:
+        assert LANG_PT.code_3 != LANG_EN.code_3
+        assert LANG_PT.code_3 != LANG_DE.code_3
+        assert LANG_PT.code_3 != LANG_ES.code_3
+
+    def test_pt_locale_parsing(self) -> None:
+        loc = Locale("pt-BR")
+        assert loc.language == "pt"
+        assert loc.locale_code == "BR"
+
+    def test_pt_locale_code_only(self) -> None:
+        loc = Locale("pt")
+        assert loc.language == "pt"
+        assert loc.locale_code == "PT"
 
 
 # ---------------------------------------------------------------------------
@@ -211,73 +263,3 @@ class TestLocaleContextManagerExit:
         cm.__enter__()
         cm.__exit__(None, None, None)
         assert locale.getlocale() == original
-
-
-# ---------------------------------------------------------------------------
-# LANG_PT constant (added in this PR)
-# ---------------------------------------------------------------------------
-
-
-class TestLangPt:
-    """Tests for the ``LANG_PT`` constant added alongside the Portuguese module."""
-
-    def test_lang_pt_code(self) -> None:
-        assert LANG_PT.code == "pt"
-
-    def test_lang_pt_code_3(self) -> None:
-        assert LANG_PT.code_3 == "por"
-
-    def test_lang_pt_title(self) -> None:
-        assert LANG_PT.title == "Portuguese"
-
-    def test_lang_pt_str(self) -> None:
-        assert str(LANG_PT) == "pt"
-
-    def test_lang_pt_is_distinct_from_en(self) -> None:
-        assert LANG_PT is not LANG_EN
-
-    def test_lang_pt_is_distinct_from_de(self) -> None:
-        """
-        Asserts that the Portuguese language constant is a different object than the German language constant.
-        """
-        assert LANG_PT is not LANG_DE
-
-    def test_lang_pt_is_distinct_from_es(self) -> None:
-        """
-        Check that the Portuguese language constant is a different object than the Spanish language constant.
-        """
-        assert LANG_PT is not LANG_ES
-
-
-class TestLanguagesListWithPt:
-    """LANGUAGES now contains four entries including Portuguese."""
-
-    def test_languages_list_has_four_entries(self) -> None:
-        assert len(LANGUAGES) == 4
-
-    def test_languages_list_contains_pt(self) -> None:
-        codes = {lang.code for lang in LANGUAGES}
-        assert "pt" in codes
-
-    def test_languages_list_contains_en_de_es_pt(self) -> None:
-        codes = {lang.code for lang in LANGUAGES}
-        assert codes == {"en", "de", "es", "pt"}
-
-    def test_lang_pt_identity_in_languages_list(self) -> None:
-        """LANG_PT constant is the same object as the 'pt' entry in LANGUAGES."""
-        pt_entries = [lang for lang in LANGUAGES if lang.code == "pt"]
-        assert len(pt_entries) == 1
-        assert pt_entries[0] is LANG_PT
-
-    def test_languages_list_code_3_for_pt(self) -> None:
-        """
-        Asserts that the Portuguese language entry in LANGUAGES uses "por" as its three-letter code.
-        
-        Locates the language with `code == "pt"` and verifies its `code_3` is `"por"`.
-        """
-        pt_entry = next(lang for lang in LANGUAGES if lang.code == "pt")
-        assert pt_entry.code_3 == "por"
-
-    def test_default_language_is_still_en(self) -> None:
-        """Adding LANG_PT must not change the DEFAULT_LANGUAGE."""
-        assert DEFAULT_LANGUAGE is LANG_EN
