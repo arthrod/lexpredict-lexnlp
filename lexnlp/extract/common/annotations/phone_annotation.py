@@ -22,11 +22,11 @@ class PhoneAnnotation(TextAnnotation):
                  text: str | None = None,
                  phone: str | None = None):
         """
-                 Initialize a PhoneAnnotation with a character span, locale, optional covered text, and an optional normalized phone value.
+                 Initialize a PhoneAnnotation covering a character span with optional covered text and an optional normalized phone value.
                  
                  Parameters:
-                     coords (tuple[int, int]): Start and end character offsets for the annotation.
-                     locale (str): Locale code for the annotation (default 'en').
+                     coords (tuple[int, int]): Start and end character offsets for the annotation span.
+                     locale (str): Locale code for the annotation (e.g., 'en').
                      text (str | None): Extracted or covered text for the span, if available.
                      phone (str | None): Extracted or normalized phone number associated with the annotation, if available.
                  """

@@ -25,14 +25,14 @@ class DateAnnotation(TextAnnotation):
                  date: _date = None,
                  score: float | None = None):
         """
-                 Initialize a DateAnnotation with the annotation span, locale, optional text, associated date value, and an optional confidence score.
+                 Represent a date entity annotation with a character span, locale, optional extracted text, an associated date value, and an optional confidence score.
                  
                  Parameters:
-                     coords (tuple[int, int]): Start and end character offsets for the annotation span.
+                     coords (tuple[int, int]): Start and end character offsets of the annotation span.
                      locale (str): Locale code used to interpret the text (default 'en').
-                     text (str | None): Extracted text for the annotation, or None if not provided.
-                     date (datetime.date | None): Associated date value for the annotation, or None if unavailable.
-                     score (float | None): Optional numeric confidence score for the annotation, or None if not provided.
+                     text (str | None): Extracted text for the annotation, or None.
+                     date (datetime.date | None): Associated date value, or None if unavailable.
+                     score (float | None): Confidence score for the annotation, or None.
                  """
         super().__init__(
             name='',

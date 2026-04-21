@@ -67,18 +67,16 @@ class DictionaryEntryAlias:
     def entity_alias(cls, alias: str, language: str | None = None, is_abbreviation: bool = False, alias_id: int | None = None) \
             -> 'DictionaryEntryAlias':
         """
-            Create a DictionaryEntryAlias and compute its normalized form.
-            
-            The returned object’s `normalized_alias` is computed from `alias`; case is preserved when `is_abbreviation` is True, otherwise the alias is lowercased before normalization.
+            Create a DictionaryEntryAlias with its normalized alias computed.
             
             Parameters:
-                alias (str): The alias text to store.
+                alias (str): Alias text to store.
                 language (str | None): Optional ISO language code for the alias.
-                is_abbreviation (bool): If True, treat the alias as an abbreviation and preserve its case when normalizing.
-                alias_id (int | None): Optional identifier for the alias variant.
+                is_abbreviation (bool): If True, preserve the alias case when computing the normalized form; otherwise lowercase before normalization.
+                alias_id (int | None): Optional identifier for this alias variant.
             
             Returns:
-                DictionaryEntryAlias: A new alias record with `normalized_alias` set according to the `is_abbreviation` rule.
+                DictionaryEntryAlias: A new alias record whose `normalized_alias` is computed from `alias` (case preserved when `is_abbreviation` is True, lowercased otherwise).
             """
         normalized_alias = normalize_text(alias, lowercase=not is_abbreviation)
         return DictionaryEntryAlias(alias, language, is_abbreviation, alias_id, normalized_alias)
@@ -88,16 +86,16 @@ class DictionaryEntryAlias:
                           text_languages: list[str] | None) -> bool:
         # does 'self' have its locale higher on the passed 'text_languages' list?
         """
-                          Determine whether this alias's locale should be preferred over another alias based on the ordering in `text_languages`.
+                          Determine whether this alias's language should be preferred over another alias based on the ordering in `text_languages`.
                           
-                          Compares `self.language` and `alias.language` against the sequence `text_languages` (earlier entries have higher preference). Special handling for empty/unspecified languages: if `text_languages` is empty the function returns `False`; if one language is empty and the other is not, the empty language is treated as "unspecified" and causes the function to return `True` when `self.language` is empty and `alias.language` is not, and `False` when `alias.language` is empty and `self.language` is not.
+                          If `text_languages` is falsy the function returns `False`. If one language is empty and the other is not, the empty language is treated as unspecified: the function returns `True` when `self.language` is empty and `alias.language` is not, and `False` when `alias.language` is empty and `self.language` is not. Otherwise the language that appears earlier in `text_languages` is preferred.
                           
                           Parameters:
                               alias (DictionaryEntryAlias): The other alias to compare against.
                               text_languages (list[str] | None): Ordered list of languages present in the text, from higher to lower preference.
                           
                           Returns:
-                              bool: `True` if `self.language` appears earlier in `text_languages` than `alias.language`, `False` otherwise.
+                              `True` if `self.language` appears earlier in `text_languages` than `alias.language`, `False` otherwise.
                           """
                           if not text_languages:
             return False

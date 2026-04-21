@@ -36,16 +36,16 @@ def get_geoentity_annotations(
         Parameters:
             locale (str): Locale identifier (e.g., 'en_US') used to select the language-specific extraction routine.
             text (str): Text to analyze for geographic entities.
-            geo_config_list (list[DictionaryEntry]): Dictionary configuration entries and metadata guiding extraction.
+            geo_config_list (list[DictionaryEntry]): Dictionary entries and metadata that guide extraction and matching.
             conflict_resolving_field (str): Field name used to resolve conflicting matches; use 'none' to disable conflict resolution.
             priority_direction (str): Match priority direction, either 'asc' or 'desc', used when resolving ties.
-            text_languages (list[str] | None): Optional list of language tags to consider for ambiguous aliases; pass None to use defaults.
+            text_languages (list[str] | None): Optional list of language tags to prefer for ambiguous aliases; pass None to use defaults.
             min_alias_len (int | None): Optional minimum alias token length to consider; pass None to disable length filtering.
-            prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional mapping of dictionary keys to tuples of (exact_bans, prefix_bans) to exclude specific aliases.
+            prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional mapping from dictionary keys to (exact_bans, prefix_bans) to exclude specific aliases.
             simplified_normalization (bool): If True, apply a faster, reduced normalization routine when matching aliases.
         
         Returns:
-            Generator[GeoAnnotation]: Yields GeoAnnotation objects representing detected geographic entities in the text.
+            GeoAnnotation objects for each detected geographic entity.
         """
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
     yield from routine(text, geo_config_list, conflict_resolving_field,

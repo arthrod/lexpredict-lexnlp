@@ -22,13 +22,13 @@ class TrademarkAnnotation(TextAnnotation):
                  text: str | None = None,
                  trademark: str = ''):
         """
-                 Initialize a TrademarkAnnotation with location, locale, optional original text, and the extracted trademark string.
+                 Initialize a TrademarkAnnotation with character offsets, locale, optional covered text, and the extracted trademark value.
                  
                  Parameters:
-                     coords (tuple[int, int]): Start and end character offsets for the annotation.
-                     locale (str): Language/locale code for the annotated text (default 'en').
-                     text (str | None): Optional full text covered by the annotation.
-                     trademark (str): Extracted trademark value associated with this annotation.
+                     coords: Start and end character offsets for the annotation.
+                     locale: Language/locale code (default 'en').
+                     text: Optional full text covered by the annotation.
+                     trademark: Extracted trademark value stored on the instance as `trademark`.
                  """
         super().__init__(
             name='',

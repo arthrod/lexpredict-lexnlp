@@ -52,11 +52,21 @@ class TestPatternZeroBudget:
         assert matches[0].parsed == date(2024, 3, 15)
 
     def test_zero_budget_slash_separator(self) -> None:
+        """
+        Check that an ISO-like date using '/' separators is matched and parsed when max_edits is 0.
+        
+        Asserts that exactly one match is returned and that its parsed value equals date(2024, 3, 15).
+        """
         matches = list(find_fuzzy_dates("2024/03/15", max_edits=0))
         assert len(matches) == 1
         assert matches[0].parsed == date(2024, 3, 15)
 
     def test_zero_budget_dot_separator(self) -> None:
+        """
+        Verifies that an exact ISO-like date using dot separators is matched and parsed when the edit budget is zero.
+        
+        Asserts that exactly one match is returned for "2024.03.15" with max_edits=0 and that the match parses to date(2024, 3, 15).
+        """
         matches = list(find_fuzzy_dates("2024.03.15", max_edits=0))
         assert len(matches) == 1
         assert matches[0].parsed == date(2024, 3, 15)
@@ -161,6 +171,11 @@ class TestFuzzyDateMatchStructure:
         assert hasattr(m, "edit_distance")
 
     def test_match_is_immutable(self) -> None:
+        """
+        Asserts that a FuzzyDateMatch instance is immutable.
+        
+        Attempts to assign to the `start` attribute of a match produced by `find_fuzzy_dates("2024-07-04", max_edits=0)` and expects an AttributeError or TypeError to be raised.
+        """
         import pytest
 
         m = next(find_fuzzy_dates("2024-07-04", max_edits=0))
@@ -189,5 +204,10 @@ class TestFuzzyDateMatchStructure:
                 assert m.edit_distance >= 0
 
     def test_start_less_than_end(self) -> None:
+        """
+        Verifies that a fuzzy-date match's start index is less than its end index.
+        
+        Uses the exact ISO-like date "2024-07-04" with max_edits=0 to obtain a match and assert the span ordering.
+        """
         m = next(find_fuzzy_dates("2024-07-04", max_edits=0))
         assert m.start < m.end

@@ -237,9 +237,15 @@ class TestLangPt:
         assert LANG_PT is not LANG_EN
 
     def test_lang_pt_is_distinct_from_de(self) -> None:
+        """
+        Asserts that the Portuguese language constant is a different object than the German language constant.
+        """
         assert LANG_PT is not LANG_DE
 
     def test_lang_pt_is_distinct_from_es(self) -> None:
+        """
+        Check that the Portuguese language constant is a different object than the Spanish language constant.
+        """
         assert LANG_PT is not LANG_ES
 
 
@@ -264,6 +270,11 @@ class TestLanguagesListWithPt:
         assert pt_entries[0] is LANG_PT
 
     def test_languages_list_code_3_for_pt(self) -> None:
+        """
+        Asserts that the Portuguese language entry in LANGUAGES uses "por" as its three-letter code.
+        
+        Locates the language with `code == "pt"` and verifies its `code_3` is `"por"`.
+        """
         pt_entry = next(lang for lang in LANGUAGES if lang.code == "pt")
         assert pt_entry.code_3 == "por"
 

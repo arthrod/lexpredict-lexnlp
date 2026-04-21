@@ -131,17 +131,17 @@ class DateParser:
                   locale: Locale | None = None) \
             -> Generator[dict[str, Any]]:
         """
-                  Yield dictionaries for each extracted date found in the provided text.
+                  Produce dictionaries describing each date found in the provided text.
                   
                   Parameters:
-                      text (str | None): Text to search for dates; if None, uses the instance's stored text.
-                      locale (Locale | None): Locale to guide parsing; if None, uses the instance's configured locale.
+                      text (str | None): Text to search for dates; if None, the instance's stored text is used.
+                      locale (Locale | None): Locale to guide parsing; if None, the instance's configured locale is used.
                   
                   Returns:
-                      dict[str, Any]: Generator yielding dictionaries with keys:
+                      Generator[dict[str, Any]]: Yields dictionaries with keys:
                           - location_start (int): start index of the matched substring.
                           - location_end (int): end index of the matched substring.
-                          - value (datetime.datetime | Any): parsed/normalized date value.
+                          - value (datetime.datetime): parsed/normalized date value.
                           - source (str): the exact substring from the text that produced the date.
                   """
         strict = self.dateparser_settings.get('STRICT_PARSING',
@@ -158,22 +158,20 @@ class DateParser:
                              strict: bool = True) -> \
             Generator[DateAnnotation]:
         """
-                             Generate date annotations from the parser and optional custom extractors for the given text and locale.
+                             Generate date annotations for the given text and locale.
+                             
+                             This yields DateAnnotation objects for each accepted date mention found in the input after extraction, filtering, and overlap suppression.
                              
                              Parameters:
-                                 text (str | None): Input text to search for dates. Newlines are replaced with spaces. If None, the parser uses the instance's existing `self.text`.
+                                 text (str | None): Input text to search for dates. If provided, newlines are replaced with spaces before extraction; if None, the parser uses the instance's existing `self.text`.
                                  locale (Locale | None): Locale to use for extraction; if provided, its `language` overrides the parser's current language.
-                                 strict (bool): If true, enable strict parsing behavior when calling the underlying date extraction.
+                                 strict (bool): When true, enable strict behavior for the underlying date extraction.
                              
                              Returns:
-                                 Generator[DateAnnotation]: Lazily yields DateAnnotation objects with coords, date, text, and locale for each accepted date mention.
+                                 Generator[DateAnnotation]: Lazily yields DateAnnotation objects containing coords, date, text, and locale for each accepted date mention.
                              
                              Raises:
                                  RuntimeError: If neither text nor locale language is defined.
-                             
-                             Notes:
-                                 - Extraction first uses the dateparser searcher, then any custom extractions from `get_extra_dates`.
-                                 - Candidate matches are filtered by general heuristics and, if enabled, by the classifier check; overlapping spans are suppressed.
                              """
         self.text = text.replace('\n', ' ') or self.text
         self.locale.language = (locale.language if locale else "") or self.locale.language

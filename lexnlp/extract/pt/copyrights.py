@@ -23,9 +23,9 @@ class CopyrightPtParser(CopyrightEnStyleParser):
     @staticmethod
     def init_parser():
         """
-        Initialize the shared LineProcessor for Portuguese text parsing.
+        Initialize the class-level LineProcessor configured for Portuguese text parsing.
         
-        Configures sentence-splitting parameters (newline and common punctuation boundaries), loads Portuguese abbreviations, enables case-insensitive abbreviation matching, and assigns the resulting LineProcessor to the class-level `line_processor`.
+        Configures sentence/phrase splitting boundaries (newline and common punctuation), loads Portuguese abbreviations, enables case-insensitive abbreviation matching, and assigns the configured LineProcessor to the class attribute `line_processor`.
         """
         split_params = LineSplitParams()
         split_params.line_breaks = {'\n', '.', ';', '!', '?'}
@@ -37,13 +37,13 @@ class CopyrightPtParser(CopyrightEnStyleParser):
     @classmethod
     def extract_phrases_with_coords(cls, sentence: str) -> list[tuple[str, int, int]]:
         """
-        Extract phrases from a sentence along with their character start and end positions.
+        Extract phrase fragments from a sentence with their character start and end offsets.
         
         Parameters:
-            sentence (str): Input sentence to split into phrases.
+            sentence (str): Text to split into phrases.
         
         Returns:
-            list[tuple[str, int, int]]: List of tuples (phrase_text, start_index, end_index) giving each phrase and its start and end character indices within the input sentence.
+            list[tuple[str, int, int]]: A list of tuples (phrase_text, start_index, end_index) where start_index is the character index of the phrase's first character and end_index is the character index immediately after the phrase's last character in the input sentence.
         """
         return [(t.text, t.start, t.get_end()) for t in
                 cls.line_processor.split_text_on_line_with_endings(sentence)]
@@ -54,17 +54,15 @@ CopyrightPtParser.init_parser()
 
 def get_copyright_annotations(text: str, return_sources=False) -> Generator[CopyrightAnnotation]:
     """
-    Yield copyright annotations extracted from Portuguese text.
+    Extract copyright annotations from Portuguese text.
     
-    Iterates over annotations produced by the Portuguese parser, sets each annotation's
-    `locale` to 'pt', and yields them.
+    Each yielded annotation will have its `locale` attribute set to `'pt'`.
     
     Parameters:
-    	text (str): Input text to search for copyright annotations.
-    	return_sources (bool): If True, include source span information in produced annotations.
+        return_sources (bool): If True, include source span information in produced annotations.
     
     Returns:
-    	Generator[CopyrightAnnotation]: Generator yielding CopyrightAnnotation objects with `locale` set to 'pt'.
+        Generator[CopyrightAnnotation]: Generator yielding CopyrightAnnotation objects with `locale` set to 'pt'.
     """
     for ant in CopyrightPtParser.get_copyright_annotations(text, return_sources):
         ant.locale = 'pt'
@@ -73,14 +71,14 @@ def get_copyright_annotations(text: str, return_sources=False) -> Generator[Copy
 
 def get_copyright_annotation_list(text: str, return_sources=False) -> list[CopyrightAnnotation]:
     """
-    Return all copyright annotations extracted from Portuguese text as a list.
+    Extract all copyright annotations from Portuguese text and return them as a list.
     
     Parameters:
         text (str): Input text to scan for copyright notices.
-        return_sources (bool): If True, include source information with each annotation.
+        return_sources (bool): If True, include source/span information with each annotation.
     
     Returns:
-        list[CopyrightAnnotation]: List of extracted copyright annotations.
+        list[CopyrightAnnotation]: Extracted copyright annotation objects.
     """
     return list(get_copyright_annotations(text, return_sources))
 
@@ -104,13 +102,13 @@ def get_copyrights(text: str, return_sources=False) -> Generator[dict]:
 
 def get_copyright_list(text: str, return_sources=False) -> list[dict]:
     """
-    Return all detected copyright annotations in the input text as dictionaries.
+    Collect all detected copyright annotations from the input text as dictionaries.
     
     Parameters:
         text (str): Text to search for copyright notices.
-        return_sources (bool): If true, include source span information in each annotation dictionary.
+        return_sources (bool): If True, include source span information in each annotation dictionary.
     
     Returns:
-        list[dict]: A list of dictionaries where each dictionary represents a detected copyright annotation and includes a 'locale' key set to 'pt'.
+        list[dict]: A list of annotation dictionaries; each dictionary represents a detected copyright annotation and includes a 'locale' key set to 'pt'.
     """
     return list(get_copyrights(text, return_sources))

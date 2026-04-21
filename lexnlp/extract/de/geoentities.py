@@ -31,19 +31,24 @@ def get_geoentity_annotations_custom_settings(
         local_name_column: str | None = None,
         extra_columns: dict[str, str] | None = None) -> Generator[GeoAnnotation]:
     """
-        Detect geographic entities in `text` using dictionary entries loaded from `config` and yield matching GeoAnnotation objects.
+        Detect geographic entities in text using dictionary entries loaded from a DataFrame and yield GeoAnnotation objects for each match.
         
         Parameters:
-            text (str): Text to search for geographic entities.
-            config (pd.DataFrame): DataFrame containing dictionary entries and related columns; passed to the dictionary loader.
-            alias_columns (list[DictionaryEntryAlias] | None): Columns or alias definitions to use for matching aliases.
-            priority_sort_column (str | None): Column name in `config` that defines entity priority (defaults to 'Entity Priority').
-            min_alias_len (int | None): Minimum alias length to consider; treated as 2 when falsy.
-            prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Precomputed per-key ban lists of aliases to ignore.
-            simplified_normalization (bool): If True, use a simplified normalization strategy for alias matching.
+            text: Text to search for geographic entities.
+            config: DataFrame with dictionary entries and related columns; passed to the dictionary loader to produce matching entries.
+            alias_columns: Columns or alias definitions used to extract matching aliases from `config`.
+            priority_sort_column: Column name in `config` that defines entity priority (defaults to 'Entity Priority').
+            conflict_resolving_field: Field name used to resolve overlapping matches; 'none' disables resolution.
+            priority_direction: 'asc' or 'desc' to control priority sorting direction when resolving conflicts.
+            text_languages: Optional list of language codes to guide language-sensitive matching.
+            min_alias_len: Minimum alias length to consider; when falsy, behaves as 2.
+            prepared_alias_ban_list: Optional per-key ban lists of aliases to ignore, mapping keys to (ban_list, whitelist).
+            simplified_normalization: If True, use a simplified normalization strategy for alias matching.
+            local_name_column: Optional column name in `config` holding local/native names.
+            extra_columns: Optional mapping of additional column names to include on loaded entries.
         
         Returns:
-            Generator[GeoAnnotation]: Yields a GeoAnnotation for each detected geographic entity.
+            Generator yielding `GeoAnnotation` for each detected geographic entity.
         """
     entries = DictionaryEntry.load_entities_from_single_df(
         config,
@@ -123,20 +128,20 @@ def get_geoentities_custom_settings(
         
         Parameters:
             text (str): Text to scan for geographic entities.
-            config (pd.DataFrame): DataFrame containing dictionary entries used to detect entities.
+            config (pd.DataFrame): DataFrame containing dictionary entries; columns are mapped via parameters below.
             alias_columns (list[DictionaryEntryAlias] | None): Columns in `config` that contain alias definitions.
-            priority_sort_column (str | None): Column name in `config` that provides entity priority (defaults to 'Entity Priority').
-            conflict_resolving_field (str): Field used to resolve conflicts between overlapping matches.
+            priority_sort_column (str | None): Column in `config` that provides entity priority (defaults to 'Entity Priority').
+            conflict_resolving_field (str): Field used to resolve overlapping matches.
             priority_direction (str): 'asc' or 'desc' to determine how priority values are ordered.
             text_languages (list[str] | None): Optional list of language codes to guide detection.
             min_alias_len (int | None): Minimum alias length to consider; when falsy, detection uses 2.
             prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Precomputed per-source ban lists of aliases.
             simplified_normalization (bool): If True, apply simplified normalization rules to matched text.
-            local_name_column (str | None): Column name in `config` containing local/native names for entities.
+            local_name_column (str | None): Column in `config` containing local/native names for entities.
             extra_columns (dict[str, str] | None): Mapping of additional `config` column names to annotation fields.
         
         Returns:
-            Generator[dict[str, Any], Any, Any]: Yields dictionaries where each dictionary maps annotation field names to values for a detected geographic entity.
+            Generator[dict[str, Any], Any, Any]: Yields dictionaries mapping annotation field names to values for each detected geographic entity.
         """
     for ant in get_geoentity_annotations_custom_settings(
             text,
@@ -165,20 +170,20 @@ def get_geoentities(
         simplified_normalization: bool = False) -> Generator[dict[str, Any]]:
 
     """
-        Yield dictionaries representing geographic annotations detected in the given text.
+        Yield dictionaries for geographic entity annotations found in the provided text.
         
         Parameters:
             text (str): Text to scan for geographic entities.
-            geo_config_list (list[DictionaryEntry]): Dictionary entries that define target geographic entities.
-            conflict_resolving_field (str): Field name used to resolve conflicts between overlapping matches.
-            priority_direction (str): Order to interpret entity priority, e.g., 'asc' or 'desc'.
-            text_languages (list[str] | None): Optional list of language codes to guide detection.
+            geo_config_list (list[DictionaryEntry]): Dictionary entries defining target geographic entities.
+            conflict_resolving_field (str): Field name used to resolve overlaps between matching annotations.
+            priority_direction (str): Direction to interpret entry priority, e.g., 'asc' or 'desc'.
+            text_languages (list[str] | None): Optional language codes to guide matching.
             min_alias_len (int | None): Minimum alias length to consider; if falsy, treated as 2.
             prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional mapping from entry key to a tuple of (aliases to ban, full-word strings to ban).
             simplified_normalization (bool): If True, apply a simplified normalization strategy when matching aliases.
         
         Returns:
-            dict[str, Any]: Dictionary representation of a detected geographic annotation (one yielded per match).
+            dict[str, Any]: Dictionary representation of a detected geographic annotation; one yielded per match.
         """
     min_alias_len = min_alias_len if min_alias_len else 2
     locator = GeoEntityLocator(LANG_DE.code,

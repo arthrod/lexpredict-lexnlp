@@ -45,7 +45,7 @@ def _get_courts(
     """
     Yield dictionary matches for courts found in the given text.
     
-    Deprecated: this function emits a DeprecationWarning when called and will be removed in a future version.
+    Deprecated: emits a DeprecationWarning and will be removed in a future version.
     
     Parameters:
         text (str): Text to search for court entries.
@@ -55,7 +55,7 @@ def _get_courts(
         simplified_normalization (bool): If True, apply simplified normalization during matching.
     
     Returns:
-        tuple[DictionaryEntry, DictionaryEntryAlias]: Generator yielding a tuple of the matched dictionary entry and its alias for each found court.
+        generator: Yields tuples of (DictionaryEntry, DictionaryEntryAlias) for each matched court.
     """
     warnings.warn("This function will be removed in a future version of LexNLP", DeprecationWarning)
     for ent in find_dict_entities(
@@ -71,12 +71,12 @@ def _get_courts(
 
 def setup_pt_parser():
     """
-    Create and return a UniversalCourtsParser preconfigured for Portuguese court extraction.
+    Configure and return a UniversalCourtsParser tuned for Portuguese court-name extraction.
     
-    Configures parser initialization to use the Portuguese courts dataset, Portuguese-specific line-splitting rules and abbreviation handling, and a case-insensitive pattern checker for common court-related keywords.
+    Sets the parser to use the Portuguese courts dataset, Portuguese-specific line-splitting rules and abbreviation handling, and a case-insensitive keyword pattern for common court-related terms.
     
     Returns:
-        UniversalCourtsParser: A parser instance configured for extracting Portuguese/Brazilian court names and aliases.
+        UniversalCourtsParser: A parser instance configured for extracting Portuguese (Brazilian) court names and aliases.
     """
     ptrs = ParserInitParams()
     ptrs.dataframe_paths = [os.path.join(lexnlp_base_path, 'lexnlp/config/pt/pt_courts.csv')]
@@ -96,42 +96,38 @@ parser = setup_pt_parser()
 
 def get_court_annotations(text: str, language: str = 'pt') -> Generator[CourtAnnotation]:
     """
-    Yield court annotations extracted from the input text.
+    Yield CourtAnnotation objects for court mentions found in the provided text.
     
     Parameters:
-        text (str): Input text to parse for court mentions.
-        language (str): ISO language code to guide parsing (defaults to 'pt').
+        text (str): Text to search for court mentions.
+        language (str): ISO language code to guide parsing; defaults to 'pt' (Portuguese).
     
     Returns:
-        Generator[Cour tAnnotation]: Generator yielding `CourtAnnotation` objects for each detected court mention.
+        Generator[CourtAnnotation]: Generator yielding `CourtAnnotation` objects for each detected court mention.
     """
     yield from parser.parse(text, language)
 
 
 def get_court_annotation_list(text: str, language: str = 'pt') -> list[CourtAnnotation]:
     """
-    Get a list of CourtAnnotation objects extracted from the given text.
-    
-    Parameters:
-    	text (str): Text to parse for court mentions.
-    	language (str): Language code to pass to the parser (defaults to 'pt').
+    Return a list of CourtAnnotation objects found in the given text.
     
     Returns:
-    	list[CourtAnnotation]: List of extracted CourtAnnotation objects (empty if none found).
+        list[CourtAnnotation]: Extracted CourtAnnotation objects; empty list if none found.
     """
     return list(get_court_annotations(text, language))
 
 
 def get_courts(text: str, language: str = 'pt') -> Generator[dict]:
     """
-    Yield dictionary representations of court annotations found in the input text.
+    Generate dictionary representations of court annotations found in the input text.
     
     Parameters:
-    	text (str): Text to parse for court mentions.
-    	language (str): Language code passed to the parser (defaults to 'pt').
+        text (str): Text to parse for court mentions.
+        language (str): Language code used by the parser (defaults to 'pt').
     
     Returns:
-    	dict: Generator yielding a dictionary for each detected court annotation (the result of `CourtAnnotation.to_dictionary()`).
+        dict: Dictionary representation of a detected court annotation.
     """
     for court_annotation in parser.parse(text, language):
         yield court_annotation.to_dictionary()
@@ -139,13 +135,13 @@ def get_courts(text: str, language: str = 'pt') -> Generator[dict]:
 
 def get_court_list(text: str, language: str = 'pt') -> list[CourtAnnotation]:
     """
-    Extracts court annotations from the given text.
+    Extract court annotations from the given text.
     
     Parameters:
         text (str): Text to parse for court names and aliases.
-        language (str): ISO language code to guide parsing (default 'pt').
+        language (str): ISO 639-1 language code used to guide parsing (default 'pt').
     
     Returns:
-        list[CourtAnnotation]: List of extracted court annotations.
+        list[CourtAnnotation]: List of extracted CourtAnnotation objects.
     """
     return list(parser.parse(text, language))

@@ -33,7 +33,7 @@ CORPUS_DIR = Path(__file__).resolve().parents[4] / "test_data" / "lexnlp" / "ext
 
 def _load(name: str) -> str:
     """
-    Load a corpus text file from CORPUS_DIR.
+    Load and return the UTF-8 text contents of a corpus file located under CORPUS_DIR.
     
     Parameters:
         name (str): Filename relative to CORPUS_DIR.
@@ -42,7 +42,7 @@ def _load(name: str) -> str:
         str: File contents decoded as UTF-8.
     
     Notes:
-        If the file does not exist, the current test is skipped via pytest.skip.
+        If the file does not exist, the current test is skipped by calling pytest.skip.
     """
     path = CORPUS_DIR / name
     if not path.exists():
@@ -56,16 +56,26 @@ class TestLeiAcessoInformacao(TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        Load the LAI corpus into the test class for use by test methods.
+        Load the Lei nº 12.527/2011 (LAI) corpus into the class fixture for use by tests.
         
-        Sets `cls.text` to the UTF-8 contents of the corpus file "lei_12527_lai.txt". If the corpus file is missing, the helper `_load` will skip the test.
+        Assigns `cls.text` to the UTF-8 contents of "lei_12527_lai.txt". If the corpus file is not present, the helper `_load` will skip the test.
         """
         cls.text = _load("lei_12527_lai.txt")
 
     def test_non_trivial_length(self):
+        """
+        Assert that the loaded LAI corpus text is longer than 40,000 characters.
+        
+        This verifies the class fixture contains a non-trivial document suitable for downstream extraction tests.
+        """
         self.assertGreater(len(self.text), 40_000)
 
     def test_dates_extraction_is_sane(self):
+        """
+        Assert that date extraction from the LAI corpus returns a sufficient number of annotations and that every extracted date's year falls between 1980 and 2025.
+        
+        This test materializes date annotations using `get_date_annotations(self.text, strict=False)`, requires more than 10 annotations to be found, and verifies that each annotation's `date.year` is in the inclusive range 1980–2025.
+        """
         dates = list(get_date_annotations(self.text, strict=False))
         self.assertGreater(len(dates), 10)
         years = [d.date.year for d in dates]
@@ -76,9 +86,7 @@ class TestLeiAcessoInformacao(TestCase):
 
     def test_formal_citations_include_lai(self):
         """
-        Assert that the set of formal citations extracted from the loaded corpus contains the LAI identifier "12.527".
-        
-        Collapses consecutive whitespace, extracts formal citations using FORMAL_CITATION_RE, and fails the test if no citation includes "12.527".
+        Check that the set of formal citations extracted from the loaded LAI corpus includes the identifier "12.527".
         """
         import regex as re
         flat_text = re.sub(r"\s+", " ", self.text)
@@ -87,6 +95,11 @@ class TestLeiAcessoInformacao(TestCase):
         self.assertIn("12.527", joined)
 
     def test_article_references_present(self):
+        """
+        Assert the test corpus contains numerous references to articles (e.g., "Art." or "Artigo").
+        
+        Collects regulation annotations from the class-level `text` fixture and verifies there are more than 30 annotations whose `name` begins with "art." or "artigo" (case-insensitive).
+        """
         regs = list(get_regulation_annotations(self.text))
         art_refs = [r for r in regs if r.name.lower().startswith(("art.", "artigo"))]
         self.assertGreater(len(art_refs), 30)
@@ -103,9 +116,9 @@ class TestCodigoDefesaConsumidor(TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        Prepare class-level test fixture by loading the CDC corpus into `cls.text`.
+        Load the Código de Defesa do Consumidor corpus into the class fixture.
         
-        Loads the file "lei_8078_cdc.txt" from the test corpus directory and assigns its UTF-8 contents to `cls.text`. If the corpus file is missing, the helper `_load` will skip the test class via pytest.skip().
+        Assigns the UTF-8 contents of "lei_8078_cdc.txt" to `cls.text`. If the corpus file is missing, the helper `_load` will call `pytest.skip()` to skip the tests.
         """
         cls.text = _load("lei_8078_cdc.txt")
 

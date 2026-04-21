@@ -189,9 +189,9 @@ class FactExtractor:
     def ensure_parser_arguments_en(
             geo_config: list[Any] | None = None) -> None:
         """
-            Register English geoentity parser extra-arguments for all result formats.
+            Register the English geoentity parser extra arguments for every result format.
             
-            For each ExtractorResultFormat, store the provided `geo_config` as the extra parser argument for AnnotationType.geoentity under the English registry.
+            Stores the given `geo_config` tuple as the extra parser argument for AnnotationType.geoentity under the English registry for each ExtractorResultFormat.
             
             Parameters:
                 geo_config (list[Any] | None): Configuration passed to geoentity extractors; may be None.

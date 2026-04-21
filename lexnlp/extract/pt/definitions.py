@@ -79,9 +79,9 @@ class PortugueseParsingMethods:
     @staticmethod
     def match_pt_def_by_hereafter(phrase: str) -> list[PatternFound]:
         """
-        Finds Portuguese "hereinafter" alias definition candidates (e.g., doravante "Licenciante" or a seguir denominado "X").
+        Extracts Portuguese "hereinafter" alias definition candidates from a phrase.
         
-        Searches the phrase for constructions that introduce an alias using terms like "doravante", "a seguir denominado" or similar, returning the collected pattern matches.
+        Matches constructions using terms such as "doravante" or "a seguir denominado" (optionally with quoted labels) and returns the collected pattern matches.
         
         Returns:
             list[PatternFound]: PatternFound objects for each matched hereinafter alias.
@@ -99,10 +99,10 @@ class PortugueseParsingMethods:
     @staticmethod
     def match_pt_def_by_reffered(phrase: str) -> list[PatternFound]:
         """
-        Match Portuguese explicit-definition constructions such as "X refere-se a Y", "X significa Y", and "X é definido como Y".
+        Finds Portuguese explicit-definition constructions such as "X refere-se a Y", "X significa Y", and "X é definido como Y".
         
         Returns:
-            matches (list[PatternFound]): PatternFound objects for each detected definition candidate.
+            list[PatternFound]: PatternFound objects for each detected definition candidate.
         """
         return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
             phrase,
@@ -117,15 +117,15 @@ class PortugueseParsingMethods:
     @staticmethod
     def match_first_word_is(phrase: str) -> list[PatternFound]:
         """
-        Match copula-style definitions where the first word names the defined term (e.g., "Tabagismo é o vício do tabaco").
+        Detects copula-style definitions where the first word names the defined term (e.g., "Tabagismo é o vício do tabaco").
         
-        Matches definitions of the form "X é Y" / "X são Y" where the right-hand side contains at least two words.
+        Matches phrases of the form "X é Y" or "X são Y" where the right-hand side contains at least two words.
         
         Parameters:
             phrase (str): Text to scan for definition candidates.
         
         Returns:
-            list[PatternFound]: A list of pattern match objects representing each detected definition span.
+            list[PatternFound]: List of pattern match objects representing each detected definition span.
         """
         return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
             phrase,
@@ -140,10 +140,13 @@ class PortugueseParsingMethods:
     @staticmethod
     def match_para_fins(phrase: str) -> list[PatternFound]:
         """
-        Match Brazilian legal preambles of the form "para fins desta ... X significa Y" and extract definition candidates.
+        Identify definition candidates introduced by Brazilian-gazette phrasing that begins with "para fins..." and return the matched definition spans and any quoted subchunks.
+        
+        Parameters:
+            phrase (str): Text to search for "para fins..." definition patterns.
         
         Returns:
-            list[PatternFound]: A list of PatternFound objects representing each detected definition span and its associated quoted chunks.
+            list[PatternFound]: Detected definition spans with associated quoted chunks.
         """
         return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
             phrase,
@@ -201,28 +204,28 @@ def get_definition_annotations(text: str, language: str = "pt") -> Generator[Def
 
 def get_definition_annotation_list(text: str, language: str = "pt") -> list[DefinitionAnnotation]:
     """
-    Get a list of definition annotations extracted from the given text.
+    Collects definition annotations from the given text into a list.
     
     Parameters:
         text (str): Text to parse for definition candidates.
-        language (str): ISO language code used by the parser (default "pt").
+        language (str): ISO 639-1 language code selecting parser rules (default "pt").
     
     Returns:
-        list[DefinitionAnnotation]: A list of DefinitionAnnotation objects representing detected definitions.
+        list[DefinitionAnnotation]: DefinitionAnnotation objects for each detected definition.
     """
     return list(get_definition_annotations(text, language))
 
 
 def get_definitions(text: str, language: str = "pt") -> Generator[dict]:
     """
-    Generate dictionaries representing definition annotations found in the given text.
+    Yield dictionaries representing each definition annotation found in the given text.
     
     Parameters:
-        text (str): Input text to scan for definition candidates.
-        language (str): Language code for parsing rules (default "pt").
+        text (str): Text to scan for definition annotations.
+        language (str): Language code selecting parsing rules (default "pt").
     
     Returns:
-        Generator[dict]: A generator that yields dictionaries for each definition annotation found.
+        Generator[dict]: Generator that yields a dictionary for each found definition annotation.
     """
     for annotation in parser.parse(text, language):
         yield annotation.to_dictionary()
@@ -230,14 +233,14 @@ def get_definitions(text: str, language: str = "pt") -> Generator[dict]:
 
 def get_definition_list(text: str, language: str = "pt") -> list[dict]:
     """
-    Return a list of definition dictionaries extracted from the given text for the specified language.
+    Extracts definition annotations from the given text and returns them as a list of dictionaries.
     
     Parameters:
-    	text (str): Input text to parse for definitions.
-    	language (str): Language code used by the parser (default "pt").
+        text (str): Text to parse for definitions.
+        language (str): Language code used by the parser (default "pt").
     
     Returns:
-    	list[dict]: A list where each item is a dictionary representation of a found definition (from DefinitionAnnotation.to_dictionary()).
+        list[dict]: List of dictionaries produced by DefinitionAnnotation.to_dictionary(), one per found definition.
     """
     return list(get_definitions(text, language))
 

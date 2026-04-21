@@ -239,6 +239,11 @@ class TestLargeBatch:
 
 class TestMultipleExtraColumns:
     def test_two_extra_columns(self) -> None:
+        """
+        Verifies that dataclass extra fields specified in `extra_columns` are preserved as DataFrame columns with their values.
+        
+        Creates an annotation dataclass containing `confidence` and `source` fields, converts a list of such annotations to a DataFrame with those fields requested as extra columns, and asserts the first row contains the expected `confidence` and `source` values.
+        """
         @dataclass
         class _AnnExtra:
             coords: tuple[int, int]
@@ -292,7 +297,9 @@ class TestCoordsUnpackingBranches:
         assert row["end"] == 15
 
     def test_none_coords_gives_none_start_end(self) -> None:
-        """coords=None → TypeError on unpacking → caught → None,None."""
+        """
+        Verifies that an annotation with coords set to None produces `start=None` and `end=None`.
+        """
         class _NoneCoords:
             coords = None
             text = "x"

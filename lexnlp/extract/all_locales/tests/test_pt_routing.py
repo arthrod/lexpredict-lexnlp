@@ -65,6 +65,11 @@ class TestCopyrightsGetAnnotationsRouting:
     """get_copyright_annotations routes 'pt' locale to the PT extractor."""
 
     def test_pt_locale_calls_pt_routine(self) -> None:
+        """
+        Verifies that requesting annotations with the "pt" locale dispatches to the Portuguese routine.
+        
+        Patches ROUTINE_BY_LOCALE so the "pt" key maps to a mock, calls the dispatcher with locale "pt" and sample text, and asserts the Portuguese routine mock was invoked exactly once.
+        """
         from lexnlp.extract.all_locales import copyrights as mod
 
         mock_pt = MagicMock(return_value=iter([]))
@@ -270,6 +275,12 @@ class TestAllDispatchersSameLocales:
         assert "en" in dfr
 
     def test_all_dispatchers_have_de(self) -> None:
+        """
+        Assert that the German locale key ("de") is registered in the ROUTINE_BY_LOCALE mapping of all three dispatchers.
+        
+        Checks that the `ROUTINE_BY_LOCALE` dictionaries in the copyrights, dates,
+        and definitions dispatchers each contain the key "de".
+        """
         from lexnlp.extract.all_locales.copyrights import ROUTINE_BY_LOCALE as cr
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE as dr
         from lexnlp.extract.all_locales.definitions import ROUTINE_BY_LOCALE as dfr

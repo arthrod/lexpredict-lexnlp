@@ -55,6 +55,11 @@ class TestParsePortugueseLawsRegulations(TestCase):
 
 class TestRegulationsParserDataFrameInjection:
     def test_none_dataframe_loads_from_csv(self):
+        """
+        Verifies that RegulationsParser loads default triggers when no DataFrame is provided.
+        
+        Ensures a newly created RegulationsParser populates its `start_triggers` from the built-in CSV/data source so that `start_triggers` is non-empty.
+        """
         p = RegulationsParser()
         assert len(p.start_triggers) > 0
 

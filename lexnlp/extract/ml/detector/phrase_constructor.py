@@ -61,7 +61,7 @@ class PhraseConstructor:
                     settings: PhraseConstructorSettings = None,
                     token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:
         """
-                    Dispatches token-joining to the configured construction method and yields phrase spans as (start_char, end_char).
+                    Dispatch token joining to the configured construction method and yield phrase spans as (start_char, end_char).
                     
                     Parameters:
                         tokens (Sequence[tuple[int, int]]): Sequence of (left_char, right_char) token boundary pairs.
@@ -71,7 +71,7 @@ class PhraseConstructor:
                         token_classes (PhraseTokenClasses | None): Optional class ID mapping to override default token class identifiers.
                     
                     Returns:
-                        Generator[tuple[int, int]]: Generator yielding (start_char, end_char) spans for each detected phrase.
+                        Generator[tuple[int, int]]: Yields (start_char, end_char) spans for each detected phrase.
                     """
         settings = settings or PhraseConstructor.DEFAULT_CONSTRUCTOR_SETTINGS
         if settings.method == PhraseConstructorMethod.by_class:

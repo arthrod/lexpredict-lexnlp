@@ -315,26 +315,26 @@ def test_extraction_func(expected, func: Callable, text,
                          test_only_expected_in: bool = False,
                          **kwargs):
     """
-                         Run an extraction function on a single text case and compare its result to the expected value(s).
-                         
-                         Applies `expected_data_converter` to `expected` when provided; otherwise, if `test_only_expected_in` is True, reduces `expected` to its first element (or `None` when empty). Calls `func(text, **kwargs)` under the benchmark name and applies `actual_data_converter` to the raw result when provided. Non-empty actual and expected results are converted to `set` for comparison unless `test_only_expected_in` is used, in which case membership is asserted.
+                         Run an extraction function on a text and compare its output to the expected value(s).
                          
                          Parameters:
-                             expected: Expected value(s) for the text; may be a single value, a sequence, or None.
+                             expected: Expected value(s) for the text; may be a single value, a sequence, or None. If `expected_data_converter` is provided it will be applied; if `test_only_expected_in` is True and no converter is provided, `expected` is reduced to its first element or `None` when empty.
+                             func (Callable): The extraction function to call with `text` and `**kwargs`.
+                             text (str): Input text passed to `func`.
+                             benchmark_name (str | None): Optional name used for benchmarking and reporting; derived from `func` and `kwargs` when omitted.
                              test_data_file (str | None): Optional path included in failure messages to identify the source CSV.
                              expected_data_converter (Callable | None): Function to transform `expected` before comparison.
-                             actual_data_converter (Callable | None): Function to transform the raw result from `func` before comparison.
+                             actual_data_converter (Callable | None): Function to transform the raw result returned by `func` before comparison.
                              do_raise (bool): If True, assertion helpers raise on mismatch; otherwise they return a formatted problem string.
                              debug_print (bool): When True, enable additional debug output in equality assertions.
-                             test_only_expected_in (bool): If True, assert that the single expected value is contained in the actual results instead of requiring set equality.
-                             benchmark_name (str | None): Optional name used for benchmarking and reporting; derived from `func` and `kwargs` when omitted.
+                             test_only_expected_in (bool): If True, assert that the single expected value is contained in the actual results (membership); otherwise require set equality.
                              **kwargs: Additional keyword arguments forwarded to `func` and used when deriving the benchmark name.
                          
                          Returns:
                              tuple:
-                                 actual: The observed result after optional conversion; converted to a `set` when truthy, otherwise `None`.
-                                 expected: The expected value after optional conversion and shaping; converted to a `set` when truthy (unless `test_only_expected_in` was applied), otherwise `None`.
-                                 problem (str | None): A formatted failure message when an assertion fails, or `None` when the test passed.
+                                 actual: Observed result after optional conversion; converted to a `set` when truthy, otherwise `None`.
+                                 expected: Expected value after optional conversion and shaping; converted to a `set` when truthy (unless `test_only_expected_in` was applied), otherwise `None`.
+                                 problem (str | None): Formatted failure message when an assertion fails, or `None` when the test passed.
                          """
     if not benchmark_name:
         benchmark_name = build_extraction_func_name(func, **kwargs)
@@ -515,17 +515,17 @@ def assert_in(function_name: str,
               do_write_to_file: bool = True,
               test_data_file: str | None = None) -> str | None:
     """
-              Check that a specified item is present in a set of actual results and optionally record or raise a failure.
+              Assert that a specified item is contained in the given `actual_results`; on failure, produce a formatted problem message and optionally write it to a problems file or raise.
               
               Parameters:
-                  function_name (str): Name of the function under test, used in the problem message.
-                  text (str): Source text that produced `actual_results`; a shortened preview is included in the message.
+                  function_name (str): Name of the tested function included in the problem message.
+                  text (str): Source text used to produce `actual_results`; a short preview is included in the message.
                   expected_in: The element expected to be present in `actual_results`.
                   actual_results (set): The set of results produced by the function under test.
-                  problems_file (str): Path to append a formatted problem report when a failure occurs.
+                  problems_file (str): Path to append the formatted problem report when a failure occurs.
                   do_raise (bool): If True, raise an AssertionError on failure; if False, return the formatted problem message.
                   do_write_to_file (bool): If True, append the problem message to `problems_file` when a failure occurs.
-                  test_data_file (str | None): Optional path to the source test-data CSV to include in the problem message.
+                  test_data_file (str | None): Optional test-data CSV path to reference in the problem message.
               
               Returns:
                   str | None: The formatted problem message when the assertion fails and `do_raise` is False; `None` when the assertion succeeds.

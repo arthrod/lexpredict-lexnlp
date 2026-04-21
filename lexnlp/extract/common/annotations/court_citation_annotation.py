@@ -25,10 +25,10 @@ class CourtCitationAnnotation(TextAnnotation):
                  text: str | None = None,
                  translated_name: str | None = None):
         """
-                 Create a court citation annotation for a character span with optional name variants.
+                 Create a court citation annotation for a character span in the source text.
                  
                  Parameters:
-                     coords (tuple[int, int]): Start and end character offsets for the annotation within the source text.
+                     coords (tuple[int, int]): Start and end character offsets of the annotation within the source text.
                      locale (str): Locale code for the annotation (e.g., 'en').
                      name (str): Primary name of the cited entity.
                      short_name (str | None): Optional abbreviated form of the citation.

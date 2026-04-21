@@ -183,14 +183,13 @@ class PtDateParser(DateParser):
     @staticmethod
     def _coerce_year(raw: str) -> int | None:
         """
-        Normalize a numeric year string into a four-digit year using a two-/four-digit heuristic.
+        Normalize a numeric year string into a four-digit calendar year.
         
         Parameters:
-            raw (str): Year string (may be two or four digits).
+            raw (str): Year text, typically two or four digits.
         
         Returns:
-            int | None: Four-digit year corresponding to `raw` using the rule
-            `00..49 -> 2000..2049`, `50..99 -> 1950..1999`; `None` if `raw` is empty or not a valid integer.
+            int | None: Four-digit year where `00`–`49` map to `2000`–`2049`, `50`–`99` map to `1950`–`1999`, and any empty or non-integer input yields `None`.
         """
         if not raw:
             return None
@@ -204,12 +203,15 @@ class PtDateParser(DateParser):
 
     def _build_date(self, day: int, month: int, year: int | None) -> datetime.datetime | None:
         """
-        Construct a datetime for the given day, month, and year, or return None if the components do not form a valid date.
+        Construct a validated datetime from day, month, and year, or return None if the components do not form a valid calendar date.
         
-        If `year` is falsy (`None` or `0`), the current calendar year is used. Day must be between 1 and 31 and month between 1 and 12; invalid ranges or impossible dates (e.g., April 31) yield `None`.
+        Parameters:
+            day (int): Day of month; must be between 1 and 31.
+            month (int): Month number; must be between 1 and 12.
+            year (int | None): Four-digit year to use; if falsy (`None` or `0`), the current calendar year is used.
         
         Returns:
-            datetime (datetime.datetime): The constructed datetime for the supplied date, or `None` if the inputs are out of range or invalid.
+            datetime.datetime | None: The constructed datetime for the supplied date, or `None` if the inputs are out of range or represent an impossible date (e.g., April 31).
         """
         if not (1 <= day <= 31 and 1 <= month <= 12):
             return None
@@ -222,7 +224,14 @@ class PtDateParser(DateParser):
     # ---------- extra pattern extraction ----------
 
     def get_extra_dates(self, strict: bool) -> None:
-        """Extend :pyattr:`dates` with Brazilian-specific forms and sequences."""
+        """
+        Extend the parser's `dates` list with additional Brazilian Portuguese date forms and inferred years.
+        
+        This adds dates found by: inheriting trailing years in coordinated sequences (e.g., "15 de fevereiro, 28 de abril e 17 de novembro de 1995"), normalizing ordinal day glyphs before parsing (e.g., "1º de janeiro"), extracting locality-prefixed legal-gazette dates (e.g., "Brasília, 12 de março de 2024") and numeric DMY forms including two-digit years and dot-separated variants; results are de-duplicated and stored back to `self.dates`.
+        
+        Parameters:
+            strict (bool): If True, require strict parsing when re-parsing normalized or derived date substrings; passed through to the underlying dateparser-based parsing helpers.
+        """
         dateparser_dates_dict = {i[0]: i for i in self.dates}
 
         # 1. Year inheritance across "A, B e C de YYYY" sequences.

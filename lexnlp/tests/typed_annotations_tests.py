@@ -71,12 +71,12 @@ class TypedFieldCheck:
                  comparison: str = '=',
                  check_all: bool = False):
         """
-                 Create a TypedFieldCheck describing where to extract a value from an annotation and how to compare it.
+                 Describe where to extract a value from a TextAnnotation and how to compare it.
                  
                  Parameters:
                      index (int): Annotation index within the sample; ignored when `check_all` is True.
-                     path (list[str] | None): Sequence of path segments (attribute names, numeric indices, or method markers like `name()`) used to extract the target value from an annotation. Defaults to an empty list.
-                     value (str): Expected value expressed as a string; casting/parsing is attempted at comparison time to match the runtime type.
+                     path (list[str] | None): Ordered sequence of path segments (attribute names, numeric indices, or method markers like `name()`) used to extract the target value. Defaults to an empty list.
+                     value (str): Expected value expressed as a string; casting/parsing to the runtime value type is attempted at comparison time.
                      comparison (str): Comparison operator to apply; one of '=', '!=', '<', '>', '<=', '>='.
                      check_all (bool): If True, apply this check to every annotation (the `index` is ignored).
                  
