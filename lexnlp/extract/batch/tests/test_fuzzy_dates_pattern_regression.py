@@ -143,7 +143,7 @@ class TestZeroBudgetExactOnly:
         # "2024-O3-15" — OCR-style substitution in month
         assert list(find_fuzzy_dates("2024-O3-15", max_edits=0)) == []
 
-    def test_non_digit_in_day_does_not_expand_match(self) -> None:
+    def test_partial_date_match_stops_before_trailing_non_digit(self) -> None:
         # "2024-03-1S" should not treat the trailing "S" as part of an exact match.
         matches = list(find_fuzzy_dates("2024-03-1S", max_edits=0))
         assert len(matches) == 1
