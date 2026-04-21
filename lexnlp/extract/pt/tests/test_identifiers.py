@@ -92,6 +92,11 @@ class TestIdentifierExtraction(TestCase):
         self.assertEqual("RJ/98765", ret[0].value)
 
     def test_combined_extractor(self):
+        """
+        Verify that the combined identifier extractor finds CPF, CNPJ, and OAB annotations in a single text.
+        
+        Asserts that calling the combined extractor on text containing a formatted CNPJ, a formatted CPF, and an OAB reference returns annotations whose kinds, when sorted, are exactly ["cnpj", "cpf", "oab"].
+        """
         text = (
             "Contrato entre ACME Ltda. (CNPJ 11.222.333/0001-81) e "
             "João da Silva (CPF 529.982.247-25), representado por "

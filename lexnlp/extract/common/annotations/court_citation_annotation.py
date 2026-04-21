@@ -25,14 +25,14 @@ class CourtCitationAnnotation(TextAnnotation):
                  text: str | None = None,
                  translated_name: str | None = None):
         """
-                 Create a court citation annotation for a character span in the source text.
+                 Initialize a CourtCitationAnnotation for a character span in the source text.
                  
                  Parameters:
                      coords (tuple[int, int]): Start and end character offsets of the annotation within the source text.
                      locale (str): Locale code for the annotation (e.g., 'en').
                      name (str): Primary name of the cited entity.
                      short_name (str | None): Optional abbreviated form of the citation.
-                     text (str | None): Optional extracted entity text; used as the displayed text when present.
+                     text (str | None): Optional extracted entity text to use as the displayed text.
                      translated_name (str | None): Optional translated version of the citation name.
                  """
         super().__init__(

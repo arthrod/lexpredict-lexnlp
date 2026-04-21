@@ -19,6 +19,11 @@ from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 class TestParsePortugueseDefinitions(TestCase):
     def test_parse_pt_def_semicolon(self):
+        """
+        Verify the Portuguese definitions parser extracts a quoted term followed by a colon as a single definition annotation.
+        
+        Asserts that exactly one annotation is produced and that its `name` equals the quoted term without surrounding quotation marks.
+        """
         parser = make_pt_definitions_parser()
         text = """
         Eu gosto de tocar violão.

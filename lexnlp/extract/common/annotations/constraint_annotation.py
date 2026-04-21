@@ -24,7 +24,7 @@ class ConstraintAnnotation(TextAnnotation):
                  post: str | None = None,
                  text: str | None = None):
         """
-                 Initialize a ConstraintAnnotation with character offsets, locale, and optional constraint components.
+                 Create a ConstraintAnnotation with character offsets, locale, and optional constraint components.
                  
                  Parameters:
                      coords (tuple[int, int]): Start and end character offsets of the annotation.

@@ -24,15 +24,15 @@ class ConditionAnnotation(TextAnnotation):
                  pre: str | None = None,
                  post: str | None = None):
         """
-                 Create a ConditionAnnotation for a text span with an associated condition and optional surrounding text.
+                 Initialize a ConditionAnnotation for a text span with an associated condition and optional surrounding text.
                  
                  Parameters:
-                     coords: Start and end character indices of the annotation span.
-                     locale: Locale identifier for the annotation (default 'en').
-                     text: Text covered by the annotation, if available.
-                     condition: Extracted condition associated with the annotation.
-                     pre: Text occurring immediately before the condition, if any.
-                     post: Text occurring immediately after the condition, if any.
+                     coords (tuple[int, int]): Start and end character indices of the annotated span.
+                     locale (str): Locale identifier for the annotation (default 'en').
+                     text (str | None): Text covered by the annotation, if available.
+                     condition (str | None): Extracted condition associated with the span.
+                     pre (str | None): Text immediately preceding the condition, if any.
+                     post (str | None): Text immediately following the condition, if any.
                  """
         super().__init__(
             name='',

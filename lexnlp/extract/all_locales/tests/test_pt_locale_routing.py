@@ -96,6 +96,11 @@ class TestDatesRoutineByLocale:
         assert LANG_DE.code in ROUTINE_BY_LOCALE
 
     def test_routine_by_locale_has_three_entries(self) -> None:
+        """
+        Ensure the dates ROUTINE_BY_LOCALE registry contains exactly three entries.
+        
+        Asserts that the ROUTINE_BY_LOCALE mapping imported from lexnlp.extract.all_locales.dates has a length of 3.
+        """
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE
 
         assert len(ROUTINE_BY_LOCALE) == 3
@@ -177,4 +182,9 @@ class TestLocaleObjectPtRouting:
         assert loc.language in ROUTINE_BY_LOCALE
 
     def test_pt_language_key_is_exactly_two_chars(self) -> None:
+        """
+        Verify the Portuguese locale language code is exactly two characters long.
+        
+        Asserts that `LANG_PT.code` has length 2.
+        """
         assert len(LANG_PT.code) == 2

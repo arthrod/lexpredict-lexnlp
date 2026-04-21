@@ -59,6 +59,6 @@ def get_verbose_copyright_annotations(text: str) -> list[CopyrightAnnotation]:
         text (str): Text to analyze for copyright annotations.
     
     Returns:
-        list[CopyrightAnnotation]: A list of copyright annotation objects, each including source information.
+        list[CopyrightAnnotation]: CopyrightAnnotation objects extracted from `text`, each including source information.
     """
     return list(get_copyright_annotations(text, return_sources=True))

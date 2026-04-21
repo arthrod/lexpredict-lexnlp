@@ -43,19 +43,19 @@ def _get_courts(
     simplified_normalization: bool = False,
 ) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     """
-    Yield dictionary matches for courts found in the given text.
+    Yield tuples of dictionary entries and their matched aliases for court names found in the input text.
     
-    Deprecated: emits a DeprecationWarning and will be removed in a future version.
+    This function is deprecated and emits a DeprecationWarning; it will be removed in a future version.
     
     Parameters:
         text (str): Text to search for court entries.
-        court_config_list (list[DictionaryEntry]): Dictionary entries and their aliases used to match courts.
-        priority (bool): If True, resolve conflicts by taking the first match by identifier.
+        court_config_list (list[DictionaryEntry]): Dictionary entries (with aliases) used for matching courts.
+        priority (bool): When True, resolve conflicting matches by taking the first match for an identifier.
         text_languages (list[str] | None): Optional list of language codes to restrict matching.
-        simplified_normalization (bool): If True, apply simplified normalization during matching.
+        simplified_normalization (bool): If True, apply a simplified normalization routine during matching.
     
     Returns:
-        generator: Yields tuples of (DictionaryEntry, DictionaryEntryAlias) for each matched court.
+        generator: Yields `(DictionaryEntry, DictionaryEntryAlias)` for each matched court.
     """
     warnings.warn("This function will be removed in a future version of LexNLP", DeprecationWarning)
     for ent in find_dict_entities(
@@ -71,12 +71,12 @@ def _get_courts(
 
 def setup_pt_parser():
     """
-    Configure and return a UniversalCourtsParser tuned for Portuguese court-name extraction.
+    Build a UniversalCourtsParser configured for Portuguese court-name extraction.
     
-    Sets the parser to use the Portuguese courts dataset, Portuguese-specific line-splitting rules and abbreviation handling, and a case-insensitive keyword pattern for common court-related terms.
+    Configures parser initialization parameters to use the Portuguese courts CSV dataset, Portuguese-specific line-splitting rules (line breaks: newline, period, semicolon, comma), case-insensitive abbreviation handling, and a case-insensitive keyword pattern matching common court terms (e.g., tribunal, juízo, vara).
     
     Returns:
-        UniversalCourtsParser: A parser instance configured for extracting Portuguese (Brazilian) court names and aliases.
+        UniversalCourtsParser: A parser instance configured for extracting Portuguese court names and aliases.
     """
     ptrs = ParserInitParams()
     ptrs.dataframe_paths = [os.path.join(lexnlp_base_path, 'lexnlp/config/pt/pt_courts.csv')]
@@ -110,24 +110,24 @@ def get_court_annotations(text: str, language: str = 'pt') -> Generator[CourtAnn
 
 def get_court_annotation_list(text: str, language: str = 'pt') -> list[CourtAnnotation]:
     """
-    Return a list of CourtAnnotation objects found in the given text.
+    Collects court annotations from the input text.
+    
+    Parameters:
+        text (str): Text to analyze for court mentions.
+        language (str): Language code to use for parsing (default: 'pt').
     
     Returns:
-        list[CourtAnnotation]: Extracted CourtAnnotation objects; empty list if none found.
+        list[CourtAnnotation]: List of extracted CourtAnnotation objects; empty list if none found.
     """
     return list(get_court_annotations(text, language))
 
 
 def get_courts(text: str, language: str = 'pt') -> Generator[dict]:
     """
-    Generate dictionary representations of court annotations found in the input text.
+    Yield dictionary representations of court annotations found in the input text.
     
-    Parameters:
-        text (str): Text to parse for court mentions.
-        language (str): Language code used by the parser (defaults to 'pt').
-    
-    Returns:
-        dict: Dictionary representation of a detected court annotation.
+    Yields:
+        dict: Dictionary representation of each detected court annotation.
     """
     for court_annotation in parser.parse(text, language):
         yield court_annotation.to_dictionary()

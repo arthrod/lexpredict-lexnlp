@@ -25,7 +25,7 @@ class RegulationAnnotation(TextAnnotation):
                  source: str = '',
                  country: str = ''):
         """
-                 Initialize a RegulationAnnotation with span coordinates, locale, identifier, and source/country metadata.
+                 Initialize a RegulationAnnotation with span coordinates and associated metadata.
                  
                  Parameters:
                      coords (tuple[int, int]): Character span (start, end) of the annotation in the source text.

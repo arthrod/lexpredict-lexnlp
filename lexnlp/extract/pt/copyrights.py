@@ -23,9 +23,9 @@ class CopyrightPtParser(CopyrightEnStyleParser):
     @staticmethod
     def init_parser():
         """
-        Initialize the class-level LineProcessor configured for Portuguese text parsing.
+        Configure and assign the class-level LineProcessor for Portuguese text splitting.
         
-        Configures sentence/phrase splitting boundaries (newline and common punctuation), loads Portuguese abbreviations, enables case-insensitive abbreviation matching, and assigns the configured LineProcessor to the class attribute `line_processor`.
+        Sets line/phrase break characters to newline and common sentence punctuation, loads Portuguese abbreviations, enables case-insensitive abbreviation matching, and assigns the resulting LineProcessor to the class attribute `line_processor`.
         """
         split_params = LineSplitParams()
         split_params.line_breaks = {'\n', '.', ';', '!', '?'}
@@ -40,10 +40,10 @@ class CopyrightPtParser(CopyrightEnStyleParser):
         Extract phrase fragments from a sentence with their character start and end offsets.
         
         Parameters:
-            sentence (str): Text to split into phrases.
+            sentence (str): Input text to split into phrase fragments.
         
         Returns:
-            list[tuple[str, int, int]]: A list of tuples (phrase_text, start_index, end_index) where start_index is the character index of the phrase's first character and end_index is the character index immediately after the phrase's last character in the input sentence.
+            A list of (phrase_text, start_index, end_index) tuples where `start_index` is the character index of the phrase's first character and `end_index` is the character index immediately after the phrase's last character in the input sentence.
         """
         return [(t.text, t.start, t.get_end()) for t in
                 cls.line_processor.split_text_on_line_with_endings(sentence)]
@@ -56,13 +56,14 @@ def get_copyright_annotations(text: str, return_sources=False) -> Generator[Copy
     """
     Extract copyright annotations from Portuguese text.
     
-    Each yielded annotation will have its `locale` attribute set to `'pt'`.
+    Each yielded annotation will have its `locale` attribute set to 'pt'.
     
     Parameters:
+        text (str): Input text to scan for copyright statements.
         return_sources (bool): If True, include source span information in produced annotations.
     
     Returns:
-        Generator[CopyrightAnnotation]: Generator yielding CopyrightAnnotation objects with `locale` set to 'pt'.
+        Generator[CopyrightAnnotation]: Generator that yields CopyrightAnnotation objects with `locale` set to 'pt'.
     """
     for ant in CopyrightPtParser.get_copyright_annotations(text, return_sources):
         ant.locale = 'pt'

@@ -33,7 +33,7 @@ CORPUS_DIR = Path(__file__).resolve().parents[4] / "test_data" / "lexnlp" / "ext
 
 def _load(name: str) -> str:
     """
-    Load and return the UTF-8 text contents of a corpus file located under CORPUS_DIR.
+    Load the UTF-8 text of a corpus file located under CORPUS_DIR.
     
     Parameters:
         name (str): Filename relative to CORPUS_DIR.
@@ -56,9 +56,9 @@ class TestLeiAcessoInformacao(TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        Load the Lei nº 12.527/2011 (LAI) corpus into the class fixture for use by tests.
+        Load the Lei nº 12.527/2011 (LAI) corpus into the class fixture for tests.
         
-        Assigns `cls.text` to the UTF-8 contents of "lei_12527_lai.txt". If the corpus file is not present, the helper `_load` will skip the test.
+        Sets cls.text to the UTF-8 contents of "lei_12527_lai.txt". If the corpus file is missing, the test suite will be skipped.
         """
         cls.text = _load("lei_12527_lai.txt")
 
@@ -72,9 +72,9 @@ class TestLeiAcessoInformacao(TestCase):
 
     def test_dates_extraction_is_sane(self):
         """
-        Assert that date extraction from the LAI corpus returns a sufficient number of annotations and that every extracted date's year falls between 1980 and 2025.
+        Verify date extraction yields a sufficient number of annotations and that every extracted year is between 1980 and 2025 inclusive.
         
-        This test materializes date annotations using `get_date_annotations(self.text, strict=False)`, requires more than 10 annotations to be found, and verifies that each annotation's `date.year` is in the inclusive range 1980–2025.
+        Materializes date annotations from the LAI corpus with `strict=False`, asserts more than 10 annotations are found, and asserts all annotation `date.year` values are within the inclusive range 1980–2025.
         """
         dates = list(get_date_annotations(self.text, strict=False))
         self.assertGreater(len(dates), 10)
@@ -105,6 +105,11 @@ class TestLeiAcessoInformacao(TestCase):
         self.assertGreater(len(art_refs), 30)
 
     def test_constitutional_references(self):
+        """
+        Assert the loaded corpus contains at least one regulation annotation whose name includes "Constituição".
+        
+        This verifies that regulation extraction yields constitutional references in the test corpus.
+        """
         regs = list(get_regulation_annotations(self.text))
         cfs = [r for r in regs if "Constituição" in r.name]
         self.assertGreaterEqual(len(cfs), 1)
@@ -118,15 +123,15 @@ class TestCodigoDefesaConsumidor(TestCase):
         """
         Load the Código de Defesa do Consumidor corpus into the class fixture.
         
-        Assigns the UTF-8 contents of "lei_8078_cdc.txt" to `cls.text`. If the corpus file is missing, the helper `_load` will call `pytest.skip()` to skip the tests.
+        Assigns the UTF-8 contents of "lei_8078_cdc.txt" to `cls.text`.
         """
         cls.text = _load("lei_8078_cdc.txt")
 
     def test_non_trivial_length(self):
         """
-        Ensure the loaded corpus text contains more than 70,000 characters.
+        Check that the loaded corpus text has more than 70,000 characters.
         
-        Asserts that the test corpus was loaded completely and is not missing or truncated by checking that len(self.text) > 70_000.
+        Verifies the corpus was loaded completely and is not truncated by asserting len(self.text) > 70_000.
         """
         self.assertGreater(len(self.text), 70_000)
 
@@ -156,9 +161,9 @@ class TestConstituicaoFederal(TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        Prepare class-level text fixture by loading 'constituicao_federal.txt' into cls.text.
+        Load the 'constituicao_federal.txt' corpus into the class attribute `text`, skipping the tests if the file is missing.
         
-        Loads the UTF-8 corpus file from the test data corpus and stores its contents on the class as `text`. If the file is missing, the loader will skip the tests via pytest.skip.
+        Uses the module helper `_load` to read the UTF-8 corpus from the test data directory and assign its contents to `cls.text`; `_load` will call `pytest.skip` when the file is not present.
         """
         cls.text = _load("constituicao_federal.txt")
 

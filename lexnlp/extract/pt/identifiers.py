@@ -94,27 +94,25 @@ def _cpf_is_valid(digits: str) -> bool:
     """
     Validate a CPF number string using Brazil's check-digit algorithm.
     
-    Also rejects inputs that are not exactly 11 digits or that consist of the same repeated digit.
-    
     Parameters:
-        digits (str): String of exactly 11 numeric characters (digits only).
+        digits (str): Digits-only CPF candidate; expected to contain exactly 11 characters.
     
     Returns:
-        True if `digits` is a well-formed CPF with correct check digits, False otherwise.
+        true if `digits` is a well-formed CPF with correct check digits, `false` otherwise.
     """
     if len(digits) != 11 or digits == digits[0] * 11:
         return False
 
     def _check(base: Iterable[int], weights: Iterable[int]) -> int:
         """
-        Compute a CPF-style check digit from a sequence of base digits and corresponding weights.
+        Compute the CPF-style check digit for a sequence of base digits using the provided weights.
         
         Parameters:
             base (Iterable[int]): Sequence of integer digits forming the base number; must align with `weights`.
             weights (Iterable[int]): Sequence of integer weights to apply to each base digit; must be the same length as `base`.
         
         Returns:
-            int: The computed check digit (0–9). If the modulus result corresponds to 10, `0` is returned.
+            int: The computed check digit (0–9). A modulus result of 10 is mapped to `0`.
         """
         total = sum(d * w for d, w in zip(base, weights, strict=True))
         remainder = (total * 10) % 11
@@ -142,14 +140,14 @@ def _cnpj_is_valid(digits: str) -> bool:
 
     def _check(base: list[int], weights: list[int]) -> int:
         """
-        Compute a mod-11 check digit from a sequence of digits and matching weights.
+        Compute a mod-11 check digit from a sequence of digits and corresponding weights.
         
         Parameters:
             base (list[int]): Sequence of integer digits (most-significant first).
             weights (list[int]): Weight factors aligned with `base`; must have the same length.
         
         Returns:
-            int: The check digit: `0` if (weighted sum % 11) is less than 2, otherwise `11 - (weighted sum % 11)`.
+            int: The computed check digit: `0` if (weighted sum % 11) is less than 2, otherwise `11 - (weighted sum % 11)`.
         """
         total = sum(d * w for d, w in zip(base, weights, strict=True))
         remainder = total % 11
@@ -185,10 +183,12 @@ def get_cpf_annotations(text: str) -> Generator[IdentifierMatch]:
 
 def get_cnpj_annotations(text: str) -> Generator[IdentifierMatch]:
     """
-    Extract validated CNPJ occurrences from the input text.
+    Finds and yields validated CNPJ identifiers from the given text.
     
-    Yields:
-        IdentifierMatch: One per regex match that passes CNPJ check-digit validation. Each has `kind="cnpj"`, `value` as the digits-only canonical CNPJ, `surface` as the matched substring, and `coords` as the (start, end) character span.
+    Each yielded IdentifierMatch has kind="cnpj", value as the digits-only canonical CNPJ, surface as the original matched substring, and coords as the (start, end) character span corresponding to the match.
+    
+    Returns:
+        Generator[IdentifierMatch]: Yields one IdentifierMatch for each regex match that passes CNPJ check-digit validation.
     """
     for match in _CNPJ_RE.finditer(text):
         digits = _digits(match.group("cnpj"))
@@ -222,12 +222,12 @@ def get_oab_annotations(text: str) -> Generator[IdentifierMatch]:
 
 def get_identifier_annotations(text: str) -> Generator[IdentifierMatch]:
     """
-    Extract CPF, CNPJ, and OAB identifier matches from text.
+    Extract CPF, CNPJ, and OAB identifier occurrences from the input text.
     
-    Yields an IdentifierMatch for each recognized identifier; CPF matches are produced first, then CNPJ, then OAB.
+    Identifiers are yielded as IdentifierMatch objects in the detection order: CPF, then CNPJ, then OAB.
     
     Returns:
-        Generator[IdentifierMatch]: Generator yielding IdentifierMatch objects for each recognized identifier.
+        IdentifierMatch: `IdentifierMatch` objects for each recognized identifier; CPF matches first, then CNPJ, then OAB.
     """
     yield from get_cpf_annotations(text)
     yield from get_cnpj_annotations(text)

@@ -125,9 +125,9 @@ class FactExtractor:
                    include_types: set[AnnotationType] | None = None,
                    exclude_types: set[AnnotationType] | None = None) -> dict[AnnotationType, list[Any]]:
         """
-                   Run registered extractors for the given language and return extracted facts grouped by annotation type.
+                   Run registered extractors for a language and return extracted facts grouped by annotation type.
                    
-                   Selects which extractors to run based on `extract_all`, `include_types`, and `exclude_types`. If `result_fmt` is `fmt_dict`, class-based extractor results are converted to dictionaries.
+                   Selects which extractors to run based on `extract_all`, `include_types`, and `exclude_types`. If `result_fmt` is `fmt_dict`, uses class-format extractors as source and converts each returned annotation via `to_dictionary()`.
                    
                    Parameters:
                        text (str): Input text to analyze.
@@ -209,7 +209,7 @@ class FactExtractor:
             Register German geoentity parser extra-arguments for all extractor result formats.
             
             Parameters:
-                geo_config (list[Any] | None): Optional configuration passed to German geoentity extractors; stored as the single extra-argument tuple `(geo_config,)`.
+                geo_config (list[Any] | None): Configuration passed to German geoentity extractors; stored as the extra-argument tuple (geo_config,).
             """
         for fmt in ExtractorResultFormat:
             FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_DE,

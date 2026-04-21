@@ -172,9 +172,9 @@ class TestFuzzyDateMatchStructure:
 
     def test_match_is_immutable(self) -> None:
         """
-        Asserts that a FuzzyDateMatch instance is immutable.
+        Assert that a FuzzyDateMatch instance is immutable.
         
-        Attempts to assign to the `start` attribute of a match produced by `find_fuzzy_dates("2024-07-04", max_edits=0)` and expects an AttributeError or TypeError to be raised.
+        Attempts to assign to the `start` attribute of the first match from find_fuzzy_dates("2024-07-04", max_edits=0) and expects an AttributeError or TypeError to be raised.
         """
         import pytest
 
@@ -191,10 +191,18 @@ class TestFuzzyDateMatchStructure:
         assert isinstance(m.end, int)
 
     def test_matched_text_is_str(self) -> None:
+        """
+        Check that a returned FuzzyDateMatch exposes a `matched_text` attribute of type `str`.
+        """
         m = next(find_fuzzy_dates("2024-07-04", max_edits=0))
         assert isinstance(m.matched_text, str)
 
     def test_edit_distance_is_int(self) -> None:
+        """
+        Verify that the `edit_distance` attribute on a returned FuzzyDateMatch is an `int`.
+        
+        This test checks that matches produced by find_fuzzy_dates expose `edit_distance` with the integer type.
+        """
         m = next(find_fuzzy_dates("2024-07-04", max_edits=0))
         assert isinstance(m.edit_distance, int)
 

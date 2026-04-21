@@ -46,6 +46,9 @@ class TestCopyrightsRoutineByLocale:
         assert callable(ROUTINE_BY_LOCALE["pt"])
 
     def test_pt_routine_differs_from_en_routine(self) -> None:
+        """
+        Assert that the Portuguese routine object in the copyrights dispatcher is a different object than the English routine.
+        """
         from lexnlp.extract.all_locales.copyrights import ROUTINE_BY_LOCALE
 
         assert ROUTINE_BY_LOCALE["pt"] is not ROUTINE_BY_LOCALE["en"]
@@ -116,16 +119,27 @@ class TestDatesRoutineByLocale:
         assert "pt" in ROUTINE_BY_LOCALE
 
     def test_en_key_registered(self) -> None:
+        """
+        Assert that the dates dispatcher's ROUTINE_BY_LOCALE mapping includes the English locale key "en".
+        """
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE
 
         assert "en" in ROUTINE_BY_LOCALE
 
     def test_de_key_registered(self) -> None:
+        """
+        Asserts that the dates dispatcher's ROUTINE_BY_LOCALE mapping contains the German locale key "de".
+        """
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE
 
         assert "de" in ROUTINE_BY_LOCALE
 
     def test_pt_routine_is_callable(self) -> None:
+        """
+        Verify the Portuguese ('pt') date extraction routine is registered and callable.
+        
+        Asserts that ROUTINE_BY_LOCALE['pt'] in the dates dispatcher is a callable object.
+        """
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE
 
         assert callable(ROUTINE_BY_LOCALE["pt"])
@@ -136,6 +150,11 @@ class TestDatesRoutineByLocale:
         assert ROUTINE_BY_LOCALE["pt"] is not ROUTINE_BY_LOCALE["en"]
 
     def test_three_locales_registered(self) -> None:
+        """
+        Ensure the dates dispatcher registers the English, German, and Portuguese locale routines.
+        
+        Asserts that the module-level `ROUTINE_BY_LOCALE` mapping in the dates dispatcher contains at least the keys "en", "de", and "pt".
+        """
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE
 
         assert set(ROUTINE_BY_LOCALE.keys()) >= {"en", "de", "pt"}
@@ -169,6 +188,11 @@ class TestDatesGetAnnotationsRouting:
         mock_en.assert_called_once()
 
     def test_de_locale_calls_de_routine(self) -> None:
+        """
+        Verifies that get_date_annotations dispatches the "de" locale to the German routine by invoking that routine exactly once.
+        
+        This test ensures the dates dispatcher routes locale "de" to the corresponding routine.
+        """
         from lexnlp.extract.all_locales import dates as mod
 
         mock_de = MagicMock(return_value=iter([]))
@@ -199,11 +223,21 @@ class TestDefinitionsRoutineByLocale:
         assert "de" in ROUTINE_BY_LOCALE
 
     def test_pt_routine_is_callable(self) -> None:
+        """
+        Assert that the Portuguese ("pt") definition extraction routine is callable.
+        
+        This test imports the ROUTINE_BY_LOCALE mapping from the definitions dispatcher and verifies the "pt" entry is a callable routine.
+        """
         from lexnlp.extract.all_locales.definitions import ROUTINE_BY_LOCALE
 
         assert callable(ROUTINE_BY_LOCALE["pt"])
 
     def test_pt_routine_differs_from_en_routine(self) -> None:
+        """
+        Verify that the Portuguese ("pt") definitions routine is a different object than the English ("en") routine in ROUTINE_BY_LOCALE.
+        
+        This ensures the dispatcher provides a distinct implementation for "pt" instead of reusing the "en" object.
+        """
         from lexnlp.extract.all_locales.definitions import ROUTINE_BY_LOCALE
 
         assert ROUTINE_BY_LOCALE["pt"] is not ROUTINE_BY_LOCALE["en"]
@@ -257,6 +291,11 @@ class TestDefinitionsGetAnnotationsRouting:
 
 class TestAllDispatchersSameLocales:
     def test_all_dispatchers_have_pt(self) -> None:
+        """
+        Verify that the Portuguese ('pt') locale is present in the ROUTINE_BY_LOCALE mapping for the copyrights, dates, and definitions dispatchers.
+        
+        This ensures each dispatcher exposes a Portuguese routine key used for locale-based routing.
+        """
         from lexnlp.extract.all_locales.copyrights import ROUTINE_BY_LOCALE as cr
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE as dr
         from lexnlp.extract.all_locales.definitions import ROUTINE_BY_LOCALE as dfr
@@ -266,6 +305,12 @@ class TestAllDispatchersSameLocales:
         assert "pt" in dfr
 
     def test_all_dispatchers_have_en(self) -> None:
+        """
+        Check that the English ('en') locale is present in each dispatcher's ROUTINE_BY_LOCALE mapping.
+        
+        Asserts that the `ROUTINE_BY_LOCALE` mappings for the copyrights,
+        dates, and definitions dispatchers each include the "en" key.
+        """
         from lexnlp.extract.all_locales.copyrights import ROUTINE_BY_LOCALE as cr
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE as dr
         from lexnlp.extract.all_locales.definitions import ROUTINE_BY_LOCALE as dfr

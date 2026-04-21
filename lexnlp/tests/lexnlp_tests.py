@@ -315,18 +315,18 @@ def test_extraction_func(expected, func: Callable, text,
                          test_only_expected_in: bool = False,
                          **kwargs):
     """
-                         Run an extraction function on a text and compare its output to the expected value(s).
+                         Run an extraction function on a text, compare its output to the expected value(s), and return the observed result, the shaped expected value, and an optional problem message.
                          
                          Parameters:
                              expected: Expected value(s) for the text; may be a single value, a sequence, or None. If `expected_data_converter` is provided it will be applied; if `test_only_expected_in` is True and no converter is provided, `expected` is reduced to its first element or `None` when empty.
-                             func (Callable): The extraction function to call with `text` and `**kwargs`.
+                             func (Callable): Extraction function to call with `text` and `**kwargs`.
                              text (str): Input text passed to `func`.
                              benchmark_name (str | None): Optional name used for benchmarking and reporting; derived from `func` and `kwargs` when omitted.
                              test_data_file (str | None): Optional path included in failure messages to identify the source CSV.
                              expected_data_converter (Callable | None): Function to transform `expected` before comparison.
                              actual_data_converter (Callable | None): Function to transform the raw result returned by `func` before comparison.
-                             do_raise (bool): If True, assertion helpers raise on mismatch; otherwise they return a formatted problem string.
-                             debug_print (bool): When True, enable additional debug output in equality assertions.
+                             do_raise (bool): If True, assertion helpers will raise on mismatch; otherwise they return a formatted problem string.
+                             debug_print (bool): When True, include additional debug output in equality assertions.
                              test_only_expected_in (bool): If True, assert that the single expected value is contained in the actual results (membership); otherwise require set equality.
                              **kwargs: Additional keyword arguments forwarded to `func` and used when deriving the benchmark name.
                          
@@ -515,14 +515,14 @@ def assert_in(function_name: str,
               do_write_to_file: bool = True,
               test_data_file: str | None = None) -> str | None:
     """
-              Assert that a specified item is contained in the given `actual_results`; on failure, produce a formatted problem message and optionally write it to a problems file or raise.
+              Assert that `expected_in` is contained within `actual_results`; on failure, produce a formatted problem message and optionally write it to a problems file or raise.
               
               Parameters:
-                  function_name (str): Name of the tested function included in the problem message.
+                  function_name (str): Name of the tested function to include in the problem message.
                   text (str): Source text used to produce `actual_results`; a short preview is included in the message.
                   expected_in: The element expected to be present in `actual_results`.
                   actual_results (set): The set of results produced by the function under test.
-                  problems_file (str): Path to append the formatted problem report when a failure occurs.
+                  problems_file (str): File path to append the formatted problem report when a failure occurs.
                   do_raise (bool): If True, raise an AssertionError on failure; if False, return the formatted problem message.
                   do_write_to_file (bool): If True, append the problem message to `problems_file` when a failure occurs.
                   test_data_file (str | None): Optional test-data CSV path to reference in the problem message.

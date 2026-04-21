@@ -131,11 +131,11 @@ class DateParser:
                   locale: Locale | None = None) \
             -> Generator[dict[str, Any]]:
         """
-                  Produce dictionaries describing each date found in the provided text.
+                  Yield dictionaries describing each date found in the provided text.
                   
                   Parameters:
-                      text (str | None): Text to search for dates; if None, the instance's stored text is used.
-                      locale (Locale | None): Locale to guide parsing; if None, the instance's configured locale is used.
+                      text (str | None): Text to search for dates; if None, uses the instance's stored text.
+                      locale (Locale | None): Locale to guide parsing; if None, uses the instance's configured locale.
                   
                   Returns:
                       Generator[dict[str, Any]]: Yields dictionaries with keys:
@@ -158,20 +158,20 @@ class DateParser:
                              strict: bool = True) -> \
             Generator[DateAnnotation]:
         """
-                             Generate date annotations for the given text and locale.
+                             Generate DateAnnotation objects for each accepted date mention found in the input text.
                              
-                             This yields DateAnnotation objects for each accepted date mention found in the input after extraction, filtering, and overlap suppression.
+                             If `text` is provided, newlines are replaced with spaces before extraction. If `locale` is provided, its `language` overrides the parser's current language. Extraction results are filtered for unwanted patterns, suppressed for overlapping spans, and optionally validated by a classifier.
                              
                              Parameters:
-                                 text (str | None): Input text to search for dates. If provided, newlines are replaced with spaces before extraction; if None, the parser uses the instance's existing `self.text`.
+                                 text (str | None): Text to search for dates; if None, uses the instance's existing `self.text`.
                                  locale (Locale | None): Locale to use for extraction; if provided, its `language` overrides the parser's current language.
-                                 strict (bool): When true, enable strict behavior for the underlying date extraction.
+                                 strict (bool): Controls strictness of the underlying date extraction.
                              
                              Returns:
-                                 Generator[DateAnnotation]: Lazily yields DateAnnotation objects containing coords, date, text, and locale for each accepted date mention.
+                                 Generator[DateAnnotation]: Yields DateAnnotation objects with `coords` (start,end), `date`, `text` (matched substring), and `locale` for each accepted date mention.
                              
                              Raises:
-                                 RuntimeError: If neither text nor locale language is defined.
+                                 RuntimeError: If neither `text` nor the parser's locale language is defined.
                              """
         self.text = text.replace('\n', ' ') or self.text
         self.locale.language = (locale.language if locale else "") or self.locale.language

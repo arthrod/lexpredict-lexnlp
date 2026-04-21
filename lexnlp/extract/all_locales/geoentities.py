@@ -31,21 +31,21 @@ def get_geoentity_annotations(
         prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
         simplified_normalization: bool = False) -> Generator[GeoAnnotation]:
     """
-        Produce geoentity annotations for the given text using locale-specific extraction rules.
+        Selects a locale-specific extraction routine and yields GeoAnnotation objects for geographic entities found in the text.
         
         Parameters:
             locale (str): Locale identifier (e.g., 'en_US') used to select the language-specific extraction routine.
             text (str): Text to analyze for geographic entities.
             geo_config_list (list[DictionaryEntry]): Dictionary entries and metadata that guide extraction and matching.
             conflict_resolving_field (str): Field name used to resolve conflicting matches; use 'none' to disable conflict resolution.
-            priority_direction (str): Match priority direction, either 'asc' or 'desc', used when resolving ties.
+            priority_direction (str): Match priority direction ('asc' or 'desc') used when resolving ties.
             text_languages (list[str] | None): Optional list of language tags to prefer for ambiguous aliases; pass None to use defaults.
             min_alias_len (int | None): Optional minimum alias token length to consider; pass None to disable length filtering.
             prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional mapping from dictionary keys to (exact_bans, prefix_bans) to exclude specific aliases.
             simplified_normalization (bool): If True, apply a faster, reduced normalization routine when matching aliases.
         
         Returns:
-            GeoAnnotation objects for each detected geographic entity.
+            Generator[GeoAnnotation]: An iterator yielding GeoAnnotation objects for each detected geographic entity.
         """
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
     yield from routine(text, geo_config_list, conflict_resolving_field,

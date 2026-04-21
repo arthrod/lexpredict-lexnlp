@@ -109,6 +109,9 @@ class TestRemovedExports:
     """
 
     def test_adaptive_max_workers_not_in_all(self) -> None:
+        """
+        Verify that 'adaptive_max_workers' is not included in the public exports of lexnlp.extract.batch.
+        """
         import lexnlp.extract.batch as batch_pkg
 
         assert "adaptive_max_workers" not in batch_pkg.__all__
@@ -119,6 +122,9 @@ class TestRemovedExports:
         assert "flatten" not in batch_pkg.__all__
 
     def test_group_successful_not_in_all(self) -> None:
+        """
+        Verify that the symbol 'group_successful' is not listed in lexnlp.extract.batch.__all__.
+        """
         import lexnlp.extract.batch as batch_pkg
 
         assert "group_successful" not in batch_pkg.__all__
@@ -144,10 +150,20 @@ class TestRemovedExports:
         assert "extract_batch_with_progress" not in batch_pkg.__all__
 
     def test_adaptive_max_workers_not_importable_from_batch(self) -> None:
+        """
+        Verifies that importing `adaptive_max_workers` from `lexnlp.extract.batch` raises ImportError.
+        
+        This test ensures `adaptive_max_workers` is not exposed as a public import from the `lexnlp.extract.batch` package.
+        """
         with pytest.raises(ImportError):
             from lexnlp.extract.batch import adaptive_max_workers  # noqa: F401
 
     def test_fuzzy_pattern_match_not_importable_from_batch(self) -> None:
+        """
+        Verifies that attempting to import `FuzzyPatternMatch` from `lexnlp.extract.batch` raises ImportError.
+        
+        The test asserts the public API no longer exposes `FuzzyPatternMatch` by expecting an ImportError when the import is attempted.
+        """
         with pytest.raises(ImportError):
             from lexnlp.extract.batch import FuzzyPatternMatch  # noqa: F401
 
@@ -156,6 +172,11 @@ class TestRemovedExports:
             from lexnlp.extract.batch import find_fuzzy_cusips  # noqa: F401
 
     def test_find_fuzzy_money_not_importable_from_batch(self) -> None:
+        """
+        Verifies that `find_fuzzy_money` is not importable from `lexnlp.extract.batch`.
+        
+        Asserts that attempting to import `find_fuzzy_money` directly from the package raises ImportError.
+        """
         with pytest.raises(ImportError):
             from lexnlp.extract.batch import find_fuzzy_money  # noqa: F401
 

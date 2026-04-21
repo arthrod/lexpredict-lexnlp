@@ -80,20 +80,20 @@ def get_geoentity_annotations(
         simplified_normalization: bool = False) -> Generator[GeoAnnotation]:
 
     """
-        Detect geographic entities in text using the provided dictionary entries.
+        Detects geographic entities in text using the provided dictionary entries.
         
         Parameters:
-            text: Text to search for geographic entities.
-            geo_config_list: List of dictionary entries that define geographic entities and their aliases.
-            conflict_resolving_field: Field name used to resolve overlapping or conflicting matches; defaults to 'none'.
-            priority_direction: How to interpret entry priority values — 'asc' or 'desc'; defaults to 'asc'.
-            text_languages: Optional list of language codes to guide detection heuristics.
-            min_alias_len: Minimum alias length to consider; if falsy, treated as 2.
-            prepared_alias_ban_list: Optional mapping from entry identifier to a tuple of two lists: exact banned aliases and banned alias patterns.
-            simplified_normalization: If True, apply a simplified normalization strategy when matching aliases.
+            text (str): Input text to search for geographic entities.
+            geo_config_list (list[DictionaryEntry]): DictionaryEntry objects defining entities and their aliases.
+            conflict_resolving_field (str): Field name used to resolve overlapping or conflicting matches; defaults to 'none'.
+            priority_direction (str): Interpretation of entry priority values — 'asc' or 'desc'; defaults to 'asc'.
+            text_languages (list[str] | None): Optional language codes that guide detection heuristics.
+            min_alias_len (int | None): Minimum alias length to consider; treated as 2 when falsy.
+            prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional mapping from entry identifier to a tuple of two lists: exact banned aliases and banned alias patterns.
+            simplified_normalization (bool): If True, apply a simplified normalization strategy when matching aliases.
         
         Returns:
-            A generator that yields a GeoAnnotation for each detected geographic entity in the text.
+            Generator[GeoAnnotation]: `GeoAnnotation` objects for each detected geographic entity in the input text.
         """
     min_alias_len = min_alias_len if min_alias_len else 2
     locator = GeoEntityLocator(LANG_DE.code,
@@ -124,24 +124,24 @@ def get_geoentities_custom_settings(
         Generator[dict[str, Any], Any, Any]:
 
     """
-        Yield dictionary representations of geographic entity annotations found in the given text using dictionary entries loaded from a DataFrame.
+        Yield dictionary representations of geographic entity annotations found in `text` using dictionary entries loaded from `config`.
         
         Parameters:
             text (str): Text to scan for geographic entities.
-            config (pd.DataFrame): DataFrame containing dictionary entries; columns are mapped via parameters below.
+            config (pd.DataFrame): DataFrame containing dictionary entries; column names are mapped via other parameters.
             alias_columns (list[DictionaryEntryAlias] | None): Columns in `config` that contain alias definitions.
             priority_sort_column (str | None): Column in `config` that provides entity priority (defaults to 'Entity Priority').
             conflict_resolving_field (str): Field used to resolve overlapping matches.
             priority_direction (str): 'asc' or 'desc' to determine how priority values are ordered.
             text_languages (list[str] | None): Optional list of language codes to guide detection.
-            min_alias_len (int | None): Minimum alias length to consider; when falsy, detection uses 2.
+            min_alias_len (int | None): Minimum alias length to consider; when falsy detection uses 2.
             prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Precomputed per-source ban lists of aliases.
             simplified_normalization (bool): If True, apply simplified normalization rules to matched text.
             local_name_column (str | None): Column in `config` containing local/native names for entities.
-            extra_columns (dict[str, str] | None): Mapping of additional `config` column names to annotation fields.
+            extra_columns (dict[str, str] | None): Mapping of additional `config` column names to annotation field names.
         
         Returns:
-            Generator[dict[str, Any], Any, Any]: Yields dictionaries mapping annotation field names to values for each detected geographic entity.
+            dict[str, Any]: A dictionary of annotation fields for each detected geographic entity.
         """
     for ant in get_geoentity_annotations_custom_settings(
             text,
@@ -170,17 +170,17 @@ def get_geoentities(
         simplified_normalization: bool = False) -> Generator[dict[str, Any]]:
 
     """
-        Yield dictionaries for geographic entity annotations found in the provided text.
+        Yield dictionaries representing geographic entity annotations found in the provided text.
         
         Parameters:
             text (str): Text to scan for geographic entities.
-            geo_config_list (list[DictionaryEntry]): Dictionary entries defining target geographic entities.
-            conflict_resolving_field (str): Field name used to resolve overlaps between matching annotations.
-            priority_direction (str): Direction to interpret entry priority, e.g., 'asc' or 'desc'.
+            geo_config_list (list[DictionaryEntry]): Dictionary entries that define the target geographic entities.
+            conflict_resolving_field (str): Field name used to resolve overlapping matches.
+            priority_direction (str): Interpret entry priority in 'asc' or 'desc' order.
             text_languages (list[str] | None): Optional language codes to guide matching.
-            min_alias_len (int | None): Minimum alias length to consider; if falsy, treated as 2.
-            prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional mapping from entry key to a tuple of (aliases to ban, full-word strings to ban).
-            simplified_normalization (bool): If True, apply a simplified normalization strategy when matching aliases.
+            min_alias_len (int | None): Minimum alias length to consider; treated as 2 when falsy.
+            prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Mapping from entry key to (aliases to ban, full-word strings to ban).
+            simplified_normalization (bool): If True, use a simplified alias normalization strategy.
         
         Returns:
             dict[str, Any]: Dictionary representation of a detected geographic annotation; one yielded per match.

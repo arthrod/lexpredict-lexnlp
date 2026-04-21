@@ -132,15 +132,15 @@ class PtDateParser(DateParser):
         classifier_threshold: float = 0.5,
     ):
         """
-        Initialize a PtDateParser configured for Brazilian Portuguese parsing and optional classifier checks.
+        Configure a PtDateParser for Brazilian Portuguese text with optional classifier validation.
         
         Parameters:
-            text (str | None): Optional input text to parse.
-            locale (Locale): Locale to use; defaults to Portuguese (pt-BR).
-            dateparser_settings (dict[str, Any] | None): Optional settings passed to the underlying dateparser.
-            enable_classifier_check (bool): If True, enable a classifier-based validation step.
-            classifier_model (Any | None): Optional classifier model used when classifier checking is enabled.
-            classifier_threshold (float): Score threshold for classifier acceptance (0.0–1.0).
+            text: Optional input text to parse; if omitted the parser is not preloaded with text.
+            locale: Locale to use for parsing; defaults to Portuguese (pt-BR).
+            dateparser_settings: Optional settings passed through to the underlying dateparser.
+            enable_classifier_check: If True, enable post-extraction classifier validation.
+            classifier_model: Optional classifier to use when classifier validation is enabled.
+            classifier_threshold: Acceptance threshold for the classifier between 0.0 and 1.0.
         """
         super().__init__(
             DATE_MODEL_CHARS,
@@ -156,14 +156,14 @@ class PtDateParser(DateParser):
 
     def passed_general_check(self, date_str: str, _date) -> bool:
         """
-        Apply stricter surface-form filters to decide whether a parsed date string should be accepted.
+        Decide whether a parsed date surface should be accepted by applying additional Portuguese-specific surface checks.
         
         Parameters:
-            date_str (str): The candidate surface text for the date.
-            _date: The parsed date value produced by the underlying parser (may be ignored).
+            date_str (str): Candidate surface text for the date.
+            _date: Parsed date value from the underlying parser (may be unused by this check).
         
         Returns:
-            bool: `True` if the candidate passes additional length, content and weekday-prefix checks and should be kept; `False` otherwise.
+            `true` if the candidate passes additional length, content, and weekday-prefix checks and should be kept, `false` otherwise.
         """
         if not super().passed_general_check(date_str, _date):
             return False

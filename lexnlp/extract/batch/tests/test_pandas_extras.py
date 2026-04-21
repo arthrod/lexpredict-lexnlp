@@ -347,7 +347,11 @@ class TestCoordsUnpackingBranches:
         assert row["end"] is None
 
     def test_integer_coords_gives_none(self) -> None:
-        """A plain integer is not iterable — TypeError on unpacking → None,None."""
+        """
+        Verify that an integer `coords` yields `None` for both `start` and `end`.
+        
+        When an annotation's `coords` is a non-iterable integer, `_row_from_annotation` should treat it as unpacking-failure and set `start` and `end` to `None`.
+        """
         class _IntCoords:
             coords = 42
             text = "x"

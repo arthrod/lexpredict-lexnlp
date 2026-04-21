@@ -20,17 +20,17 @@ ROUTINE_BY_LOCALE = {
 def get_court_citation_annotations(locale: str, text: str, language: str | None = None) -> \
         Generator[CourtCitationAnnotation]:
     """
-        Extract court citation annotations from text using a locale-selected extraction routine.
+        Yield court citation annotations extracted from `text` using a routine selected by `locale`.
         
-        Falls back to the German extraction routine when the locale's language has no registered routine.
+        Falls back to the German extraction routine when no routine is registered for the computed locale language.
         
         Parameters:
             locale (str): Locale identifier used to select the extraction routine (e.g., "de_DE").
             text (str): Text to scan for court citation annotations.
-            language (str | None): Optional language code passed through to the extraction routine to refine or override locale selection.
+            language (str | None): Optional language code passed to the extraction routine to refine or override locale-derived language selection.
         
         Returns:
-            Generator[CourtCitationAnnotation]: Yields CourtCitationAnnotation objects found in the text.
+            Generator[CourtCitationAnnotation]: Yields `CourtCitationAnnotation` objects found in `text`.
         """
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[LANG_DE.code])
     yield from routine(text, language)

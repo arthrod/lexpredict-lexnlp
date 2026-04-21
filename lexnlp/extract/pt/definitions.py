@@ -79,9 +79,9 @@ class PortugueseParsingMethods:
     @staticmethod
     def match_pt_def_by_hereafter(phrase: str) -> list[PatternFound]:
         """
-        Extracts Portuguese "hereinafter" alias definition candidates from a phrase.
+        Extract Portuguese "hereinafter" alias definition candidates from a phrase.
         
-        Matches constructions using terms such as "doravante" or "a seguir denominado" (optionally with quoted labels) and returns the collected pattern matches.
+        Matches constructions using terms such as "doravante" or "a seguir denominado(s)/denominada(s)" and returns any found alias spans, including quoted labels when present.
         
         Returns:
             list[PatternFound]: PatternFound objects for each matched hereinafter alias.
@@ -99,10 +99,10 @@ class PortugueseParsingMethods:
     @staticmethod
     def match_pt_def_by_reffered(phrase: str) -> list[PatternFound]:
         """
-        Finds Portuguese explicit-definition constructions such as "X refere-se a Y", "X significa Y", and "X é definido como Y".
+        Locate explicit Portuguese definition constructions introduced by tokens such as "refere-se a", "significa" or "é definido como".
         
         Returns:
-            list[PatternFound]: PatternFound objects for each detected definition candidate.
+            list[PatternFound]: PatternFound objects for each detected definition candidate, containing the matched span and any quoted subchunks.
         """
         return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
             phrase,
@@ -140,13 +140,10 @@ class PortugueseParsingMethods:
     @staticmethod
     def match_para_fins(phrase: str) -> list[PatternFound]:
         """
-        Identify definition candidates introduced by Brazilian-gazette phrasing that begins with "para fins..." and return the matched definition spans and any quoted subchunks.
-        
-        Parameters:
-            phrase (str): Text to search for "para fins..." definition patterns.
+        Detect definition candidates introduced by Brazilian gazette phrasing that begins with "para fins".
         
         Returns:
-            list[PatternFound]: Detected definition spans with associated quoted chunks.
+            list[PatternFound]: Matched definition spans and any quoted subchunks extracted from the phrase.
         """
         return CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
             phrase,
@@ -163,10 +160,10 @@ def make_pt_definitions_parser() -> UniversalDefinitionsParser:
     """
     Create a UniversalDefinitionsParser configured for Brazilian Portuguese definition extraction.
     
-    Configures line-splitting for common sentence terminators and newline, applies Portuguese abbreviations with case-insensitive handling, and registers matcher functions prioritizing semicolon-based, acronym, and Portuguese-specific definition patterns.
+    Configures line splitting (newline and common sentence terminators), enables Portuguese abbreviations with case-insensitive handling, and registers matcher functions prioritized to detect semicolon-based definitions, acronyms, "hereafter" aliases, explicit "refere-se"/"significa" forms, copula-style definitions, and "para fins" gazette patterns.
     
     Returns:
-        UniversalDefinitionsParser: Parser instance ready to extract definition candidates from pt-BR text.
+        UniversalDefinitionsParser: Parser configured to extract definition candidates from pt-BR text.
     """
     split_params = LineSplitParams()
     split_params.line_breaks = {"\n", ".", ";", "!", "?"}
@@ -204,7 +201,7 @@ def get_definition_annotations(text: str, language: str = "pt") -> Generator[Def
 
 def get_definition_annotation_list(text: str, language: str = "pt") -> list[DefinitionAnnotation]:
     """
-    Collects definition annotations from the given text into a list.
+    Collect definition annotations from the given text and return them as a list.
     
     Parameters:
         text (str): Text to parse for definition candidates.
@@ -218,14 +215,14 @@ def get_definition_annotation_list(text: str, language: str = "pt") -> list[Defi
 
 def get_definitions(text: str, language: str = "pt") -> Generator[dict]:
     """
-    Yield dictionaries representing each definition annotation found in the given text.
+    Extract definition annotations from the given text and produce dictionary representations.
     
     Parameters:
         text (str): Text to scan for definition annotations.
         language (str): Language code selecting parsing rules (default "pt").
     
     Returns:
-        Generator[dict]: Generator that yields a dictionary for each found definition annotation.
+        dict: A dictionary for each definition annotation found in the text.
     """
     for annotation in parser.parse(text, language):
         yield annotation.to_dictionary()

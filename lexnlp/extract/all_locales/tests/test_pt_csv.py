@@ -28,13 +28,13 @@ _PT_REGS_CSV = _REPO_ROOT / "lexnlp" / "config" / "pt" / "pt_regulations.csv"
 
 def _read_csv(path: pathlib.Path) -> list[dict[str, str]]:
     """
-    Read a CSV file and parse it into a list of row dictionaries keyed by header names.
+    Parse a CSV file into a list of dictionaries keyed by header names.
     
     Parameters:
         path (pathlib.Path): Path to the CSV file to read.
     
     Returns:
-        list[dict[str, str]]: Parsed rows where each dict maps a column header to its string value.
+        list[dict[str, str]]: List of rows where each dict maps a column header to its string value.
     """
     with open(path, encoding="utf-8", newline="") as fh:
         return list(csv.DictReader(fh))
@@ -50,16 +50,14 @@ class TestPtCourtsCsvExists:
         """
         Verify that the Portuguese courts CSV file exists at the expected repository path.
         
-        Raises an assertion with the missing file path in the message if the file is not found.
+        Raises:
+            AssertionError: If the file does not exist; the assertion message includes the expected file path.
         """
         assert _PT_COURTS_CSV.exists(), f"Missing: {_PT_COURTS_CSV}"
 
     def test_file_is_nonempty(self) -> None:
         """
-        Assert that the pt_courts.csv file is not empty.
-        
-        Raises:
-            AssertionError: if the file's size is zero.
+        Verify that the pt_courts.csv file is not empty.
         """
         assert _PT_COURTS_CSV.stat().st_size > 0
 
@@ -70,10 +68,10 @@ class TestPtCourtsCsvSchema:
     @pytest.fixture(scope="class")
     def rows(self) -> list[dict[str, str]]:
         """
-        Load and return all rows from the Portuguese courts CSV as a list of row dictionaries.
+        Load all rows from the Portuguese courts CSV.
         
         Returns:
-            list[dict[str, str]]: List of dictionaries mapping CSV column names to string values for each row.
+            list[dict[str, str]]: Row dictionaries keyed by CSV column names, one entry per CSV row.
         """
         return _read_csv(_PT_COURTS_CSV)
 
@@ -115,13 +113,7 @@ class TestPtCourtsCsvSchema:
         self, rows: list[dict[str, str]]
     ) -> None:
         """
-        Assert every row from the pt_courts CSV has a Term Category of "Brazilian Courts".
-        
-        Parameters:
-            rows (list[dict[str, str]]): Parsed CSV rows (as returned by csv.DictReader) for pt_courts.csv.
-        
-        Raises:
-            AssertionError: If any row's "Term Category" value is not "Brazilian Courts".
+        Verify every row in the pt_courts CSV has "Term Category" equal to "Brazilian Courts".
         """
         bad = [r for r in rows if r["Term Category"] != "Brazilian Courts"]
         assert bad == [], f"Unexpected category in rows: {bad}"
@@ -130,10 +122,10 @@ class TestPtCourtsCsvSchema:
         self, rows: list[dict[str, str]]
     ) -> None:
         """
-        Require every CSV row to have a non-empty 'Court Name' value.
+        Ensure every row in the parsed pt_courts.csv has a non-empty 'Court Name' field.
         
         Parameters:
-            rows (list[dict[str, str]]): Parsed rows from pt_courts.csv; each row is a dict keyed by column names. The test asserts that every row's "Court Name" contains at least one non-whitespace character.
+            rows (list[dict[str, str]]): Parsed CSV rows keyed by column names.
         """
         empty = [r for r in rows if not r["Court Name"].strip()]
         assert empty == []
@@ -158,10 +150,10 @@ class TestPtCourtsCsvSpotChecks:
     @pytest.fixture(scope="class")
     def alias_to_row(self) -> dict[str, dict[str, str]]:
         """
-        Builds a mapping from each court alias to its CSV row dictionary.
+        Create a mapping from each court alias to its CSV row dictionary.
         
         Returns:
-            dict[str, dict[str, str]]: Mapping where each key is the `Alias` value and each value is the row dictionary for that alias (row keys include "Term Locale", "Term Category", "Court ID", "Level", "Jurisdiction", "Court Type", "Court Name", and "Alias").
+            dict[str, dict[str, str]]: Mapping where each key is an `Alias` and each value is the corresponding row dictionary. Row dictionaries include the keys: "Term Locale", "Term Category", "Court ID", "Level", "Jurisdiction", "Court Type", "Court Name", and "Alias".
         """
         rows = _read_csv(_PT_COURTS_CSV)
         return {r["Alias"]: r for r in rows}
@@ -185,17 +177,25 @@ class TestPtCourtsCsvSpotChecks:
     def test_known_court_present(
         self, alias: str, court_name: str, alias_to_row: dict[str, dict[str, str]]
     ) -> None:
+        """
+        Check that a given court alias exists in the CSV mapping and its "Court Name" equals the expected value.
+        
+        Parameters:
+            alias (str): The court alias to look up.
+            court_name (str): The expected exact "Court Name" for the alias.
+            alias_to_row (dict[str, dict[str, str]]): Mapping from alias to row dictionaries parsed from the CSV.
+        """
         assert alias in alias_to_row, f"Alias '{alias}' not found"
         assert alias_to_row[alias]["Court Name"] == court_name
 
     def test_all_27_tjs_present(self, alias_to_row: dict[str, dict[str, str]]) -> None:
         """
-        Asserts that the CSV contains at least 27 state court aliases beginning with "TJ".
+        Verify the CSV contains at least 27 state court aliases that start with "TJ".
         
-        Checks aliases in `alias_to_row` that start with "TJ" and have length <= 6 and asserts their count is >= 27.
+        Checks aliases in the provided mapping that begin with "TJ" and have length <= 6, and asserts there are at least 27 such aliases.
         
         Parameters:
-            alias_to_row (dict[str, dict[str, str]]): Mapping from alias to the CSV row dictionary for that alias.
+        	alias_to_row (dict[str, dict[str, str]]): Mapping from alias to the corresponding CSV row dictionary.
         """
         tj_aliases = [a for a in alias_to_row if a.startswith("TJ") and len(a) <= 6]
         # 27 TJs + TJDFT + 3 TJM state military + one TJDFT anomaly = up to 31
@@ -215,9 +215,21 @@ class TestPtCourtsCsvSpotChecks:
         assert len(tre_aliases) == 27
 
     def test_stf_level_is_supremo(self, alias_to_row: dict[str, dict[str, str]]) -> None:
+        """
+        Verify that the 'STF' court entry has its "Level" field set to "Supremo".
+        
+        Parameters:
+        	alias_to_row (dict[str, dict[str, str]]): Mapping from court alias to the CSV row dictionary for that court; each row contains fields such as "Level", "Court Name", and "Alias".
+        """
         assert alias_to_row["STF"]["Level"] == "Supremo"
 
     def test_stj_level_is_superior(self, alias_to_row: dict[str, dict[str, str]]) -> None:
+        """
+        Verify the CSV entry for alias "STJ" has its "Level" field equal to "Superior".
+        
+        Parameters:
+            alias_to_row (dict[str, dict[str, str]]): Mapping from court alias to the parsed CSV row dictionary for that alias.
+        """
         assert alias_to_row["STJ"]["Level"] == "Superior"
 
     def test_tjsp_level_is_estadual(self, alias_to_row: dict[str, dict[str, str]]) -> None:
@@ -226,11 +238,23 @@ class TestPtCourtsCsvSpotChecks:
     def test_tjsp_jurisdiction_is_sao_paulo(
         self, alias_to_row: dict[str, dict[str, str]]
     ) -> None:
+        """
+        Check that the 'TJSP' alias has jurisdiction 'São Paulo'.
+        
+        Parameters:
+            alias_to_row (dict[str, dict[str, str]]): Mapping from court alias to the parsed CSV row dictionary.
+        """
         assert alias_to_row["TJSP"]["Jurisdiction"] == "São Paulo"
 
     def test_no_duplicate_aliases(
         self, alias_to_row: dict[str, dict[str, str]]
     ) -> None:
+        """
+        Verify that the pt_courts CSV contains no duplicate values in the "Alias" column.
+        
+        Parameters:
+            alias_to_row (dict[str, dict[str, str]]): Fixture mapping each alias to its parsed CSV row.
+        """
         rows = _read_csv(_PT_COURTS_CSV)
         aliases = [r["Alias"] for r in rows]
         assert len(aliases) == len(set(aliases)), "Duplicate aliases found"
@@ -248,9 +272,6 @@ class TestPtRegsCsvExists:
     def test_file_is_nonempty(self) -> None:
         """
         Verify the Portuguese regulations CSV file is not empty.
-        
-        Raises:
-            AssertionError: If the file's size is zero bytes.
         """
         assert _PT_REGS_CSV.stat().st_size > 0
 
@@ -261,60 +282,57 @@ class TestPtRegsCsvSchema:
     @pytest.fixture(scope="class")
     def rows(self) -> list[dict[str, str]]:
         """
-        Load all rows from the Portuguese regulations CSV into a list of row dictionaries.
+        Load rows from the Portuguese regulations CSV as a list of dictionaries.
         
         Returns:
-            list[dict[str, str]]: List of rows from pt_regulations.csv where each dictionary maps column headers to their string values.
+            list[dict[str, str]]: Row dictionaries from pt_regulations.csv mapping each column header to its string value.
         """
         return _read_csv(_PT_REGS_CSV)
 
     def test_expected_columns_present(self, rows: list[dict[str, str]]) -> None:
         """
-        Verify the regulations CSV header contains exactly the expected columns.
-        
-        Confirms that the first parsed row's keys match the exact set {"trigger", "position"}.
+        Assert that the pt_regulations.csv header contains exactly the columns "trigger" and "position".
         
         Parameters:
-            rows (list[dict[str, str]]): Parsed CSV rows from pt_regulations.csv as produced by csv.DictReader.
+            rows (list[dict[str, str]]): Parsed CSV rows from pt_regulations.csv (each dict keyed by header names).
         """
         assert set(rows[0].keys()) == {"trigger", "position"}
 
     def test_has_78_data_rows(self, rows: list[dict[str, str]]) -> None:
         """
-        Asserts that the provided list of CSV row dictionaries contains exactly 78 entries.
+        Verify the list contains exactly 78 CSV data rows.
         
         Parameters:
-            rows (list[dict[str, str]]): Parsed CSV rows to validate.
+            rows (list[dict[str, str]]): Parsed CSV rows from the regulations CSV file.
         """
         assert len(rows) == 78
 
     def test_all_positions_are_start(self, rows: list[dict[str, str]]) -> None:
         """
-        Assert every row in the provided regulation CSV has a `position` value of "start".
-        
-        Raises an assertion listing any rows whose `position` differs from "start".
+        Check that every row's `position` field equals "start".
         
         Parameters:
-            rows (list[dict[str, str]]): Parsed rows from the `pt_regulations.csv` file (each row is a dict keyed by column name).
+            rows (list[dict[str, str]]): Parsed rows from pt_regulations.csv, each row as a dict keyed by column name.
         """
         bad = [r for r in rows if r["position"] != "start"]
         assert bad == [], f"Non-'start' position rows: {bad}"
 
     def test_all_triggers_non_empty(self, rows: list[dict[str, str]]) -> None:
         """
-        Validate that every row's `trigger` field contains a non-empty value.
+        Ensure every row's "trigger" field contains a non-empty string after trimming surrounding whitespace.
         
-        Strips surrounding whitespace from each `trigger` and fails the test if any row has an empty or whitespace-only `trigger`.
+        Parameters:
+            rows (list[dict[str, str]]): Parsed CSV rows (dicts keyed by column names) where each row is expected to include a "trigger" key.
         """
         empty = [r for r in rows if not r["trigger"].strip()]
         assert empty == []
 
     def test_no_duplicate_triggers(self, rows: list[dict[str, str]]) -> None:
         """
-        Assert there are no duplicate 'trigger' values among the provided CSV rows.
+        Assert that no two rows have the same `trigger` value.
         
         Parameters:
-            rows (list[dict[str, str]]): List of CSV row dictionaries (each row must contain the "trigger" key).
+            rows (list[dict[str, str]]): CSV rows where each dict contains a `"trigger"` key.
         """
         triggers = [r["trigger"] for r in rows]
         assert len(triggers) == len(set(triggers)), "Duplicate triggers found"
@@ -326,12 +344,12 @@ class TestPtRegsCsvSpotChecks:
     @pytest.fixture(scope="class")
     def triggers(self) -> set[str]:
         """
-        Collect all trigger strings from the Portuguese regulations CSV.
+        Collect the trigger strings defined in the Portuguese regulations CSV.
         
-        Reads the configured pt_regulations.csv and returns a set containing the `trigger` value from each row.
+        Reads the configured pt_regulations.csv and returns the set of all values from the `trigger` column.
         
         Returns:
-            set[str]: Set of trigger strings present in the CSV.
+            triggers (set[str]): Set of trigger strings present in the CSV.
         """
         rows = _read_csv(_PT_REGS_CSV)
         return {r["trigger"] for r in rows}
@@ -357,9 +375,21 @@ class TestPtRegsCsvSpotChecks:
         "tribunal de contas",
     ])
     def test_known_trigger_present(self, trigger: str, triggers: set[str]) -> None:
+        """
+        Asserts that a specific regulation trigger string is present in the provided set of triggers.
+        
+        Parameters:
+            trigger (str): The expected trigger string to check for.
+            triggers (set[str]): Set of trigger strings extracted from the CSV.
+        """
         assert trigger in triggers, f"Trigger '{trigger}' not found"
 
     def test_triggers_are_lowercase(self, triggers: set[str]) -> None:
-        """All trigger strings must be lowercase (for case-insensitive matching)."""
+        """
+        Ensure every trigger string is lowercase.
+        
+        Parameters:
+            triggers (set[str]): Set of trigger strings to validate.
+        """
         for t in triggers:
             assert t == t.lower(), f"Trigger not lowercase: '{t}'"

@@ -23,13 +23,13 @@ class DefinitionAnnotation(TextAnnotation):
                  name: str = '',
                  text: str | None = None):
         """
-                 Create a DefinitionAnnotation with the given character-span, locale, name, and optional extracted text.
+                 Initialize a DefinitionAnnotation with a character-span, locale, name, and optional extracted text.
                  
                  Parameters:
                      coords (tuple[int, int]): (start, end) character offsets for the annotation span.
-                     locale (str): Locale code for the annotation (default 'en').
+                     locale (str): Locale code for the annotation (e.g., 'en').
                      name (str): Label or name of the definition.
-                     text (str | None): Extracted text for the definition; if None, the name may be used as the extracted text.
+                     text (str | None): Extracted text for the definition; when falsy, the `name` is used as a fallback.
                  """
         super().__init__(
             name=name,
