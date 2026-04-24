@@ -14,9 +14,23 @@ def test_probability_predictor_uses_model_io_loader_for_default_pipeline(monkeyp
     model_path = tmp_path / "pipeline_contract_type_classifier.skops"
     model_path.write_bytes(b"placeholder")
 
-    monkeypatch.setattr("lexnlp.ml.predictor.get_path_from_catalog", lambda _tag: model_path)
+    class _DummyPredictor(ProbabilityPredictor):
+        _DEFAULT_PIPELINE = "pipeline/test/0.1"
 
-    called = {"load_model": 0}
+        def _sanity_check(self) -> None:
+            pass
+
+    called = {"catalog": 0, "load_model": 0}
+
+    def fake_get_path(tag):
+        called["catalog"] += 1
+        # ``get_path_from_catalog`` must be invoked with the class-declared
+        # ``_DEFAULT_PIPELINE`` tag. Previously this assertion was absent,
+        # so a regression that swapped tags silently passed.
+        assert tag == _DummyPredictor._DEFAULT_PIPELINE
+        return model_path
+
+    monkeypatch.setattr("lexnlp.ml.predictor.get_path_from_catalog", fake_get_path)
 
     def fake_load_model(path, *, trusted):
         called["load_model"] += 1
@@ -26,14 +40,8 @@ def test_probability_predictor_uses_model_io_loader_for_default_pipeline(monkeyp
 
     monkeypatch.setattr("lexnlp.ml.predictor.load_model", fake_load_model)
 
-    class _DummyPredictor(ProbabilityPredictor):
-        _DEFAULT_PIPELINE = "pipeline/test/0.1"
-
-        def _sanity_check(self) -> None:
-            pass
-
     assert _DummyPredictor.get_default_pipeline() is sentinel_pipeline
-    assert called == {"load_model": 1}
+    assert called == {"catalog": 1, "load_model": 1}
 
 
 def test_is_contract_default_pipeline_tag_no_env(monkeypatch):
