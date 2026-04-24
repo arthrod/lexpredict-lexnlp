@@ -12,6 +12,7 @@ import os
 import time
 from unittest import TestCase
 
+from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.common.date_parsing.datefinder import DateFinder
 
 
@@ -51,3 +52,80 @@ class TestDateFinder(TestCase):
         _ = list(date_finder.extract_date_strings(text, strict=False))
         d1 = time.time() - t1
         self.assertLess(d1, 15)
+
+
+class TestParseDateStringLocale(TestCase):
+    """Direct unit coverage for ``DateFinder.parse_date_string`` branching on locale.
+
+    The method's fallback chain changed multiple times during PR19 review;
+    these tests pin the two major branches (no-locale vs. real-locale) so
+    future edits can't silently re-break locale-aware parsing.
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Fix the base date at 2000-01-01 so every dateparser call returns a
+        deterministic value regardless of when the test runs."""
+        cls.base_date = datetime.datetime(2000, 1, 1)
+        cls.finder = DateFinder(base_date=cls.base_date)
+        # All captures are accepted; the fallback chain only inspects it when
+        # ``_find_and_replace`` needs to strip timezone / extra tokens.
+        cls.empty_captures: dict[str, list] = {
+            "delimiters": [],
+            "extra_tokens": [],
+            "digits": [],
+            "time": [],
+            "digits_modifier": [],
+            "days": [],
+            "months": [],
+            "timezones": [],
+            "time_periods": [],
+            "hours": [],
+            "minutes": [],
+            "seconds": [],
+            "microseconds": [],
+        }
+
+    def test_no_locale_parses_with_dateparser(self) -> None:
+        """Without a locale, a well-formed date string parses via dateparser."""
+        result = self.finder.parse_date_string("January 5, 2024", self.empty_captures, locale=None)
+        self.assertIsNotNone(result)
+        assert result is not None  # narrows type for the remaining asserts
+        self.assertEqual(2024, result.year)
+        self.assertEqual(1, result.month)
+        self.assertEqual(5, result.day)
+
+    def test_empty_locale_treated_as_no_locale(self) -> None:
+        """``Locale("")`` — the default when callers don't pass anything — must
+        behave exactly like ``locale=None`` so we don't try to look up the
+        bogus ``'-'`` locale code that ``Locale("").get_locale()`` produces."""
+        result = self.finder.parse_date_string("January 5, 2024", self.empty_captures, locale=Locale(""))
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(datetime.datetime(2024, 1, 5), result)
+
+    def test_en_gb_locale_prefers_dmy(self) -> None:
+        """``Locale("en-GB")`` should parse numeric ``dd/mm/yyyy`` as DMY,
+        not MDY. This is the regression the PR19 review fixed — dateparser's
+        locale-aware path must not fall through to the US-centric dateutil
+        cleanup fallback."""
+        result = self.finder.parse_date_string("09/12/2022", self.empty_captures, locale=Locale("en-GB"))
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(2022, result.year)
+        self.assertEqual(12, result.month)
+        self.assertEqual(9, result.day)
+
+    def test_pt_br_locale_prefers_dmy(self) -> None:
+        """Same DMY semantics for a second real locale — Portuguese (pt-BR)."""
+        result = self.finder.parse_date_string("15/02/2020", self.empty_captures, locale=Locale("pt-BR"))
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(datetime.datetime(2020, 2, 15), result)
+
+    def test_locale_unparseable_returns_none(self) -> None:
+        """When a locale is supplied but neither the locale- nor language-only
+        dateparser call can make sense of the input, the function returns
+        ``None`` rather than falling through to the MDY dateutil fallback."""
+        result = self.finder.parse_date_string("xxxxxxxxxx", self.empty_captures, locale=Locale("en-GB"))
+        self.assertIsNone(result)

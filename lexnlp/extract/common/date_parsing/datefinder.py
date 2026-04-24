@@ -427,11 +427,13 @@ class DateFinder:
                 pass
 
         # The dateutil ``_find_and_replace`` fallback does NOT respect locale
-        # (it always parses as US MDY). Only run it when no real locale was
-        # supplied — otherwise an en-GB caller would silently get MDY dates
-        # whenever dateparser's locale-aware parse couldn't identify the
-        # string (e.g. a "Date:" prefix that confuses dateparser).
-        if was_raised_error and not has_real_locale:
+        # (it always parses as US MDY). Only run it when (a) no real locale
+        # was supplied AND (b) we have no usable ``as_dt`` yet AND (c) an
+        # actual ``ValueError`` triggered the fallback gate. Adding the
+        # ``as_dt is None`` guard is defense-in-depth: it ensures a successful
+        # dateparser result is never overwritten by the US-centric cleanup
+        # path even if the flow-control flags get out of sync in the future.
+        if as_dt is None and was_raised_error and not has_real_locale:
             # replace tokens that are problematic for dateutil
             date_string, tz_string = self._find_and_replace(date_string, captures)
 
