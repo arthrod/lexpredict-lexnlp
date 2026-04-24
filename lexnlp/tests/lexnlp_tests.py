@@ -393,7 +393,21 @@ def benchmark_decorator(function, *args, **kwargs):
 
 def benchmark(benchmark_name: str, func: Callable, *args, benchmark_file: str = FN_BENCHMARKS, **kwargs):
     ts = time.time()
-    mem_res = memory_usage((func, args, kwargs), max_usage=True, retval=True)
+    # ``memory_profiler.memory_usage`` spawns a subprocess to sample RSS. In
+    # sandboxed CI runners (no ``fork``, restricted ``/proc``, etc.) that
+    # subprocess can deadlock on ``parent_conn.recv()`` — the test suite then
+    # hangs until the pytest-timeout watchdog fires. Allow opting out via
+    # ``LEXNLP_DISABLE_MEMORY_PROFILER=1`` (default: enabled on CI because
+    # GitHub Actions sets ``CI=true``) and fall back to a plain function call
+    # so the benchmark step reports zero MB instead of hanging the suite.
+    use_memory_profiler = not (os.environ.get("LEXNLP_DISABLE_MEMORY_PROFILER") or os.environ.get("CI"))
+    if use_memory_profiler:
+        try:
+            mem_res = memory_usage((func, args, kwargs), max_usage=True, retval=True)
+        except Exception:  # pragma: no cover — fork/permission failures
+            use_memory_profiler = False
+    if not use_memory_profiler:
+        mem_res = (0.0, func(*args, **kwargs))
     exec_time = time.time() - ts
     res = mem_res[1]
     print(mem_res)
