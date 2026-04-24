@@ -114,13 +114,14 @@ class BaseTokenSequenceClassifierModel:
     @staticmethod
     def load_from_file_compressed(save_path: str):
         with gzip.GzipFile(save_path, "r") as fr:
-            model = pickle.load(fr)
+            model = renamed_load(fr)
         return model
 
     @staticmethod
     def load_from_stream(stream: Any):
-        model = pickle.load(stream)
-        return model
+        # ``renamed_load`` applies the module-rename shim and the sklearn-tree
+        # ABI upgrade so bundled 1.2-era pickles keep working.
+        return renamed_load(stream)
 
     @abstractmethod
     def get_feature_list(

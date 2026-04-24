@@ -150,9 +150,14 @@ class DeDateParser(DateParser):
         self.text = re.sub(CUSTOM_DATES_SEPARATOR, "\n", self.text)
         text_parts = self.text.split("\n")
         for text_part in text_parts:
+            # ``split("\n")`` can yield empty segments around the custom
+            # separator. Skip them rather than raising — an empty fragment
+            # simply has no dates to contribute.
+            if not text_part:
+                continue
             self.locale.language = (locale.language if locale else "") or self.locale.language
 
-            if not text_part or not self.locale.language:
+            if not self.locale.language:
                 raise RuntimeError("Define text and language.")
 
             # First try dateparser searcher

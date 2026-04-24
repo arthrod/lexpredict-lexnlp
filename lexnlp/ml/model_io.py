@@ -69,8 +69,13 @@ def _load_legacy(path: Path) -> Any:
     suffix = path.suffix.lower()
     if suffix in (".pickle", ".pkl"):
         with path.open("rb") as file:
+            # Run the raw-pickle path inside the same sklearn-tree patch as
+            # the joblib path so pre-1.3 Tree node dtypes upgrade on load
+            # even for uncompressed pickles (e.g. ``addresses_clf.pickle``
+            # which starts with the raw protocol-4 framing byte 0x80).
             try:
-                return pickle.load(file)
+                with _patched_sklearn_tree_loader():
+                    return _patch_legacy_sklearn_estimator(pickle.load(file))
             except (pickle.UnpicklingError, ValueError, EOFError, AttributeError):
                 if not _looks_like_joblib_pickle(path):
                     raise
@@ -106,21 +111,35 @@ def _looks_like_joblib_pickle(path: Path) -> bool:
         return file.read(1) == b"\x78"
 
 
-def _patch_legacy_sklearn_estimator(obj: Any) -> Any:
-    """Populate sklearn runtime attrs that older pickles did not persist."""
+def _patch_legacy_sklearn_estimator(obj: Any, _seen: set[int] | None = None) -> Any:
+    """Populate sklearn runtime attrs that older pickles did not persist.
+
+    Walks containers (dict/list/tuple/set), sklearn pipelines (``steps``),
+    ensembles (``estimators_``) and finally any arbitrary ``__dict__`` so
+    classifiers nested inside non-sklearn wrapper classes (e.g.
+    :class:`BaseTokenSequenceClassifierModel`) also receive the shims.
+    ``_seen`` breaks cycles by object id.
+    """
+
+    if _seen is None:
+        _seen = set()
+    oid = id(obj)
+    if oid in _seen:
+        return obj
+    _seen.add(oid)
 
     if isinstance(obj, dict):
         for value in obj.values():
-            _patch_legacy_sklearn_estimator(value)
+            _patch_legacy_sklearn_estimator(value, _seen)
         return obj
     if isinstance(obj, (list, tuple, set)):
         for value in obj:
-            _patch_legacy_sklearn_estimator(value)
+            _patch_legacy_sklearn_estimator(value, _seen)
         return obj
 
     if hasattr(obj, "steps"):
         for _, step in obj.steps:
-            _patch_legacy_sklearn_estimator(step)
+            _patch_legacy_sklearn_estimator(step, _seen)
 
     if hasattr(obj, "base_estimator") and not hasattr(obj, "estimator"):
         obj.estimator = obj.base_estimator
@@ -129,9 +148,25 @@ def _patch_legacy_sklearn_estimator(obj: Any) -> Any:
     if hasattr(obj, "estimators_") and not hasattr(obj, "monotonic_cst"):
         obj.monotonic_cst = None
         for estimator in obj.estimators_:
-            _patch_legacy_sklearn_estimator(estimator)
+            _patch_legacy_sklearn_estimator(estimator, _seen)
         if hasattr(obj, "estimator"):
-            _patch_legacy_sklearn_estimator(obj.estimator)
+            _patch_legacy_sklearn_estimator(obj.estimator, _seen)
+
+    # Recurse into plain Python wrapper objects (e.g. a
+    # ``BaseTokenSequenceClassifierModel`` that stores a real sklearn
+    # ``Pipeline`` on ``.model``) so their nested estimators also pick up
+    # the shims. Guard with ``__dict__`` so we skip Cython / built-in
+    # types whose attribute storage is opaque.
+    if hasattr(obj, "__dict__") and not isinstance(obj, type):
+        try:
+            attrs = vars(obj).values()
+        except TypeError:  # pragma: no cover — __dict__ proxy objects
+            attrs = ()
+        for value in attrs:
+            # Skip primitives to avoid pointless recursion.
+            if isinstance(value, (str, bytes, int, float, bool, type(None))):
+                continue
+            _patch_legacy_sklearn_estimator(value, _seen)
 
     return obj
 
