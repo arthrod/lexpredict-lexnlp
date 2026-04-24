@@ -15,13 +15,13 @@ from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
 # third-party imports
-from cloudpickle import load
 from sklearn.exceptions import NotFittedError
 from sklearn.pipeline import Pipeline
 from sklearn.utils.validation import check_is_fitted
 
 # LexNLP
 from lexnlp.ml.catalog import get_path_from_catalog
+from lexnlp.ml.model_io import load_model
 
 
 @runtime_checkable
@@ -144,5 +144,4 @@ class ProbabilityPredictor(ABC):
             A default Scikit-Learn Pipeline for usage with this ProbabilityPredictor.
         """
         path: Path = get_path_from_catalog(cls.get_default_pipeline_tag())
-        with open(path, "rb") as f:
-            return load(f)
+        return load_model(path, trusted=True)

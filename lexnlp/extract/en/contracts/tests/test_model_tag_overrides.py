@@ -9,6 +9,33 @@ from lexnlp.ml import catalog as ml_catalog
 from lexnlp.ml.predictor import ProbabilityPredictor
 
 
+def test_probability_predictor_uses_model_io_loader_for_default_pipeline(monkeypatch, tmp_path):
+    sentinel_pipeline = object()
+    model_path = tmp_path / "pipeline_contract_type_classifier.skops"
+    model_path.write_bytes(b"placeholder")
+
+    monkeypatch.setattr("lexnlp.ml.predictor.get_path_from_catalog", lambda _tag: model_path)
+
+    called = {"load_model": 0}
+
+    def fake_load_model(path, *, trusted):
+        called["load_model"] += 1
+        assert path == model_path
+        assert trusted is True
+        return sentinel_pipeline
+
+    monkeypatch.setattr("lexnlp.ml.predictor.load_model", fake_load_model)
+
+    class _DummyPredictor(ProbabilityPredictor):
+        _DEFAULT_PIPELINE = "pipeline/test/0.1"
+
+        def _sanity_check(self) -> None:
+            pass
+
+    assert _DummyPredictor.get_default_pipeline() is sentinel_pipeline
+    assert called == {"load_model": 1}
+
+
 def test_is_contract_default_pipeline_tag_no_env(monkeypatch):
     monkeypatch.delenv("LEXNLP_IS_CONTRACT_MODEL_TAG", raising=False)
     assert ProbabilityPredictorIsContract.get_default_pipeline_tag() == "pipeline/is-contract/0.2"
