@@ -16,40 +16,34 @@ class DateAnnotation(TextAnnotation):
     create an object of ActAnnotation like
     cp = ActAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'date'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = 'en',
-                 text: str | None = None,
-                 date: _date = None,
-                 score: float | None = None):
+    record_type = "date"
+
+    def __init__(
+        self,
+        coords: tuple[int, int],
+        locale: str = "en",
+        text: str | None = None,
+        date: _date | None = None,
+        score: float | None = None,
+    ):
         """
-        Initialize a DateAnnotation with the annotation span, locale, optional text, associated date value, and an optional confidence score.
-                 
+        Represent a date entity annotation with a character span, locale, optional extracted text, an associated date value, and an optional confidence score.
+
         Parameters:
-        coords (tuple[int, int]): Start and end character offsets for the annotation span.
-        locale (str): Locale code used to interpret the text (default 'en').
-        text (str | None): Extracted text for the annotation, or None if not provided.
-        date (datetime.date | None): Associated date value for the annotation, or None if unavailable.
-        score (float | None): Optional numeric confidence score for the annotation, or None if not provided.
+            coords (tuple[int, int]): Start and end character offsets of the annotation span.
+            locale (str): Locale code used to interpret the text (default 'en').
+            text (str | None): Extracted text for the annotation, or None.
+            date (datetime.date | None): Associated date value, or None if unavailable.
+            score (float | None): Confidence score for the annotation, or None.
         """
-        super().__init__(
-            name='',
-            locale=locale,
-            coords=coords,
-            text=text)
+        super().__init__(name="", locale=locale, coords=coords, text=text)
         self.date = date
         self.score = score
 
     def get_cite_value_parts(self) -> list[str]:
-        return [str(self.date or '')]
+        return [str(self.date or "")]
 
     def get_dictionary_values(self) -> dict:
-        df = {
-            "tags": {
-                'Extracted Entity Date': str(self.date or ''),
-                'Extracted Entity Text': self.text
-            }
-        }
+        df = {"tags": {"Extracted Entity Date": str(self.date or ""), "Extracted Entity Text": self.text}}
         return df

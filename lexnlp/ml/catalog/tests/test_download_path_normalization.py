@@ -21,20 +21,27 @@ from lexnlp.ml.catalog.download import GitHubReleaseDownloader
 def _fake_response(payload: bytes) -> MagicMock:
     """
     Create a mocked HTTP response that simulates streaming `payload` as a download.
-    
+
+    The mock supports the context-manager protocol so ``with _session().get(...)
+    as response:`` in :mod:`lexnlp.ml.catalog.download` works as intended;
+    ``__enter__`` returns the mock itself and ``__exit__`` is a no-op.
+
     Parameters:
         payload (bytes): The byte content to be yielded by the response's stream.
-    
+
     Returns:
         MagicMock: A mock response with:
             - `raise_for_status()` as a no-op,
             - `headers["Content-Length"]` set to the length of `payload`,
-            - `iter_content(chunk_size)` yielding a single chunk equal to `payload`.
+            - `iter_content(chunk_size)` yielding a single chunk equal to `payload`,
+            - context-manager protocol (``__enter__`` / ``__exit__``).
     """
     response = MagicMock()
     response.raise_for_status = lambda: None
     response.headers = {"Content-Length": str(len(payload))}
     response.iter_content = lambda chunk_size=8192: iter([payload])
+    response.__enter__ = MagicMock(return_value=response)
+    response.__exit__ = MagicMock(return_value=False)
     return response
 
 

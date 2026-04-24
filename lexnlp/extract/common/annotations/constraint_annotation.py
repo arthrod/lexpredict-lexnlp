@@ -14,47 +14,44 @@ class ConstraintAnnotation(TextAnnotation):
     create an object of ConstraintAnnotation like
     cp = ConstraintAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'constraint'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = 'en',
-                 constraint: str | None = None,
-                 pre: str | None = None,
-                 post: str | None = None,
-                 text: str | None = None):
+    record_type = "constraint"
+
+    def __init__(
+        self,
+        coords: tuple[int, int],
+        locale: str = "en",
+        constraint: str | None = None,
+        pre: str | None = None,
+        post: str | None = None,
+        text: str | None = None,
+    ):
         """
-        Create a ConstraintAnnotation with coordinates, locale, and optional extracted constraint components.
-                 
+        Create a ConstraintAnnotation with character offsets, locale, and optional constraint components.
+
         Parameters:
-        coords (tuple[int, int]): Start and end character offsets of the annotation.
-        locale (str): Language locale identifier (default 'en').
-        constraint (str | None): Extracted constraint text for the annotation, if any.
-        pre (str | None): Text immediately preceding the constraint, if available.
-        post (str | None): Text immediately following the constraint, if available.
-        text (str | None): Full annotated text fragment; stored as the annotation's text attribute.
+            coords (tuple[int, int]): Start and end character offsets of the annotation.
+            locale (str): Language locale identifier (default 'en').
+            constraint (str | None): Extracted constraint text for the annotation, if any.
+            pre (str | None): Text immediately preceding the constraint, if available.
+            post (str | None): Text immediately following the constraint, if available.
+            text (str | None): Full annotated text fragment assigned to the annotation's text attribute.
         """
-        super().__init__(
-            name='',
-            locale=locale,
-            coords=coords,
-            text=text)
+        super().__init__(name="", locale=locale, coords=coords, text=text)
         self.constraint = constraint
         self.pre = pre
         self.post = post
 
     def get_cite_value_parts(self) -> list[str]:
-        parts = [self.constraint or '',
-                 self.pre or '',
-                 self.post or '']
+        parts = [self.constraint or "", self.pre or "", self.post or ""]
         return parts
 
     def get_dictionary_values(self) -> dict:
         df = {
-            'tags': {
-                'Extracted Entity Constraint': self.constraint,
-                'Extracted Entity Pre': self.pre,
-                'Extracted Entity Post': self.post
+            "tags": {
+                "Extracted Entity Constraint": self.constraint,
+                "Extracted Entity Pre": self.pre,
+                "Extracted Entity Post": self.post,
             }
         }
         return df

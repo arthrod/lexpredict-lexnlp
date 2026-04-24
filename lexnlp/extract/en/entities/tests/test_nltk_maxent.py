@@ -39,10 +39,12 @@ def test_companies():
     Test get_companies methods.
     :return:
     """
-    lexnlp_tests.test_extraction_func_on_test_data(get_companies,
-                                                   detail_type=True,
-                                                   expected_data_converter=empty_string_converter,
-                                                   actual_data_converter=empty_string_converter)
+    lexnlp_tests.test_extraction_func_on_test_data(
+        get_companies,
+        detail_type=True,
+        expected_data_converter=empty_string_converter,
+        actual_data_converter=empty_string_converter,
+    )
 
 
 def test_companies_count():
@@ -50,12 +52,12 @@ def test_companies_count():
     Test get_companies with counting uniques.
     :return:
     """
-    lexnlp_tests.test_extraction_func_on_test_data(get_companies,
-                                                   detail_type=True,
-                                                   count_unique=True,
-                                                   actual_data_converter=lambda actual: [
-                                                       (c[0], c[2], str(c[-1]))
-                                                       for c in actual])
+    lexnlp_tests.test_extraction_func_on_test_data(
+        get_companies,
+        detail_type=True,
+        count_unique=True,
+        actual_data_converter=lambda actual: [(c[0], c[2], str(c[-1])) for c in actual],
+    )
 
 
 def empty_string_converter(data: list[Any]):
@@ -67,7 +69,7 @@ def empty_string_converter(data: list[Any]):
     for tupl in data:
         t = ()
         for item in tupl:
-            t += (None if item == '' else item,)
+            t += (None if item == "" else item,)
         resulted.append(t)
     return resulted
 
@@ -78,8 +80,8 @@ def test_company_upper_name():
     :return:
     """
     # Example text
-    example = 'This organization Ibm INC should be uppercased'
-    results = {('IBM', 'INC')}
+    example = "This organization Ibm INC should be uppercased"
+    results = {("IBM", "INC")}
     lexnlp_tests.test_extraction_func(results, get_companies, example, name_upper=True)
 
 
@@ -88,9 +90,9 @@ def test_companies_rs():
     Test get_companies methods with return_source.
     :return:
     """
-    lexnlp_tests.test_extraction_func_on_test_data(get_companies, return_source=True,
-                                                   actual_data_converter=lambda actual: [
-                                                       (c[0], c[1]) for c in actual])
+    lexnlp_tests.test_extraction_func_on_test_data(
+        get_companies, return_source=True, actual_data_converter=lambda actual: [(c[0], c[1]) for c in actual]
+    )
 
 
 def test_companies_and():
@@ -99,9 +101,8 @@ def test_companies_and():
     :return:
     """
     # Example text
-    example = 'Those two organizations IBM INC and LexPredict LLC are cool.'
-    results = {('IBM', 'INC'),
-               ('LexPredict', 'LLC')}
+    example = "Those two organizations IBM INC and LexPredict LLC are cool."
+    results = {("IBM", "INC"), ("LexPredict", "LLC")}
     lexnlp_tests.test_extraction_func(results, get_companies, example)
 
 
@@ -111,8 +112,8 @@ def test_company_has_type_only():
     :return:
     """
     # Example text
-    example = 'Those two organizations IBM INC and company without name LLC are cool.'
-    results = {('IBM', 'INC')}
+    example = "Those two organizations IBM INC and company without name LLC are cool."
+    results = {("IBM", "INC")}
     lexnlp_tests.test_extraction_func(results, get_companies, example)
 
 
@@ -122,11 +123,9 @@ def test_company_detail_type():
     :return:
     """
     # Example text
-    example = 'Those two organizations IBM INC and LexPredict LLC are cool.'
-    results = [('IBM', 'INC', 'CORP', 'Corporation', None),
-               ('LexPredict', 'LLC', 'LLC', 'Company', None)]
-    lexnlp_tests.test_extraction_func(results, get_companies, example,
-                                      detail_type=True)
+    example = "Those two organizations IBM INC and LexPredict LLC are cool."
+    results = [("IBM", "INC", "CORP", "Corporation", None), ("LexPredict", "LLC", "LLC", "Company", None)]
+    lexnlp_tests.test_extraction_func(results, get_companies, example, detail_type=True)
 
 
 def test_company_abbr_name():
@@ -135,11 +134,9 @@ def test_company_abbr_name():
     :return:
     """
     # Example text
-    example = 'Those two organizations IBM INC and LexPredict LLC (LP) are cool.'
-    results = [('IBM', 'INC', None),
-               ('LexPredict', 'LLC', 'LP')]
-    lexnlp_tests.test_extraction_func(results, get_companies, example,
-                                      parse_name_abbr=True)
+    example = "Those two organizations IBM INC and LexPredict LLC (LP) are cool."
+    results = [("IBM", "INC", None), ("LexPredict", "LLC", "LP")]
+    lexnlp_tests.test_extraction_func(results, get_companies, example, parse_name_abbr=True)
 
 
 def test_persons():
@@ -155,9 +152,9 @@ def test_persons_rs():
     Test get_persons methods with return_source.
     :return:
     """
-    lexnlp_tests.test_extraction_func_on_test_data(get_persons, return_source=True,
-                                                   actual_data_converter=lambda actual: [p[0] for p
-                                                                                         in actual])
+    lexnlp_tests.test_extraction_func_on_test_data(
+        get_persons, return_source=True, actual_data_converter=lambda actual: [p[0] for p in actual]
+    )
 
 
 def test_gpes():
@@ -173,9 +170,9 @@ def test_gpes_rs():
     Test get_geopolitical methods with return_source
     :return:
     """
-    lexnlp_tests.test_extraction_func_on_test_data(get_geopolitical, return_source=True,
-                                                   actual_data_converter=lambda actual: [v[0] for v
-                                                                                         in actual])
+    lexnlp_tests.test_extraction_func_on_test_data(
+        get_geopolitical, return_source=True, actual_data_converter=lambda actual: [v[0] for v in actual]
+    )
 
 
 def test_person_in():
@@ -183,8 +180,7 @@ def test_person_in():
     Test whether large list of person examples match.
     :return:
     """
-    lexnlp_tests.test_extraction_func_on_test_data(get_persons,
-                                                   test_only_expected_in=True)
+    lexnlp_tests.test_extraction_func_on_test_data(get_persons, test_only_expected_in=True)
 
 
 def test_gpe_in():
@@ -192,5 +188,4 @@ def test_gpe_in():
     Test whether large list of GPE examples match.
     :return:
     """
-    lexnlp_tests.test_extraction_func_on_test_data(get_geopolitical,
-                                                   test_only_expected_in=True)
+    lexnlp_tests.test_extraction_func_on_test_data(get_geopolitical, test_only_expected_in=True)

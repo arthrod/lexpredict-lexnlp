@@ -26,7 +26,7 @@ class TestCitationsPlain(TestCase):
     def test_file_samples(self):
         """
         Validate citation annotation extraction against canonical test samples.
-        
+
         Runs TypedAnnotationsTester.test_and_raise_errors using get_citation_annotations and the
         typed-annotation samples file "lexnlp/typed_annotations/en/citation/citations.txt", and
         raises an exception if any parsed annotation does not match the expected CitationAnnotation.

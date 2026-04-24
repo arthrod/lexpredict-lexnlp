@@ -21,31 +21,25 @@ from lexnlp.extract.de.date_model import DE_ALPHA_CHAR_SET, MONTH_NAMES
 MONTH_NAMES_LOWER = set([m.lower() for m in MONTH_NAMES])
 MONTH_NAMES_SHORT = set([m[:3].lower() for m in MONTH_NAMES])
 
-CUSTOM_DATES_SEPARATOR = re.compile(r'(?<=[\W|\d])\sund\s')
+CUSTOM_DATES_SEPARATOR = re.compile(r"(?<=[\W|\d])\sund\s")
 
 
 class DatePart:
-    def __init__(self,
-                 text: str,
-                 category: str,
-                 num_value: int = 0):
+    def __init__(self, text: str, category: str, num_value: int = 0):
         self.text = text
         self.category = category
         self.num_value = num_value
         self.is_cap = len(text) > 1 and text[0].lower() != text[0] and text[1].lower() == text[1]
 
     def __str__(self):
-        return f'{self.text} [{self.category}]'
+        return f"{self.text} [{self.category}]"
 
     def __repr__(self):
         return self.__str__()
 
 
 class DeDateParser(DateParser):
-
-    def passed_general_check(self,
-                             date_str: str,
-                             date: datetime.date) -> bool:
+    def passed_general_check(self, date_str: str, date: datetime.date) -> bool:
         if not super().passed_general_check(date_str, date):
             return False
         parts = self.get_word_parts(date_str)
@@ -55,7 +49,7 @@ class DeDateParser(DateParser):
         number_values: list[int] = []
         numbers, possible_months, possible_days, possible_years = 0, 0, 0, 0
         for p in parts:
-            if p.category == 'number':
+            if p.category == "number":
                 number_values.append(p.num_value)
             if 0 < p.num_value < 13:
                 possible_months += 1
@@ -64,10 +58,10 @@ class DeDateParser(DateParser):
             if p.num_value > 0:
                 possible_years += 1
 
-            if p.category == 'month':
+            if p.category == "month":
                 possible_months += 1
                 numbers += 1
-            if p.category == 'number':
+            if p.category == "number":
                 numbers += 1
         if possible_months == 0:
             return False  # no date can be written w/o month
@@ -90,14 +84,14 @@ class DeDateParser(DateParser):
     def get_word_parts(self, date_str: str) -> list[DatePart]:
         """
         Split a candidate date string into labeled tokens (DatePart instances).
-        
+
         Given a date-like string, produce a list of DatePart objects where each token is categorized and, when applicable, assigned a numeric value. Tokens may be categorized as 'number' (explicit digits or parsed numeral words), 'month' (recognized full or short German month names), or an empty category for other retained tokens; negative numeral conversions and tokens starting with non-German alphabet characters are ignored.
-        
+
         Parameters:
-        date_str (str): The input string containing a candidate date or phrase.
-        
+            date_str (str): The input string containing a candidate date or phrase.
+
         Returns:
-        list[DatePart]: A list of DatePart objects representing the extracted and categorized tokens from the input string.
+            list[DatePart]: A list of DatePart objects representing the extracted and categorized tokens from the input string.
         """
         parts: list[DatePart] = []
         for wrd in split_date_words(date_str):
@@ -106,23 +100,23 @@ class DeDateParser(DateParser):
             # is it a number of several digits?
             numbers = [int(n.group(0)) for n in REG_NUMBER.finditer(wrd)]
             if numbers:
-                parts.append(DatePart(wrd, 'number', numbers[0]))
+                parts.append(DatePart(wrd, "number", numbers[0]))
                 continue
 
             # is it a month name?
             month_nm = wrd.lower()
             if month_nm in MONTH_NAMES_LOWER or month_nm in MONTH_NAMES_SHORT:
-                parts.append(DatePart(wrd, 'month'))
+                parts.append(DatePart(wrd, "month"))
                 continue
 
             # is it a numeral?
             try:
                 num_or_str = w2n.convert(wrd)
                 if isinstance(num_or_str, str):
-                    num_or_str = int(num_or_str.strip(' .'))
+                    num_or_str = int(num_or_str.strip(" ."))
                 if num_or_str < 0:
                     continue
-                parts.append(DatePart(wrd, 'number', num_or_str))
+                parts.append(DatePart(wrd, "number", num_or_str))
                 continue
             # pylint:disable=bare-except
             except:
@@ -131,36 +125,40 @@ class DeDateParser(DateParser):
             # is it a capitalized string?
             if wrd[0] not in DE_ALPHA_CHAR_SET:
                 continue
-            parts.append(DatePart(wrd, ''))
+            parts.append(DatePart(wrd, ""))
         return parts
 
-    def get_date_annotations(self,
-                             text: str | None = None,
-                             locale: Locale | None = None,
-                             strict: bool = True) -> \
-            Generator[DateAnnotation]:
+    def get_date_annotations(
+        self, text: str | None = None, locale: Locale | None = None, strict: bool = True
+    ) -> Generator[DateAnnotation]:
         """
-        Extracts date annotations from the provided text and yields validated DateAnnotation objects.
-                             
+        Extract date mentions from the provided text and yield validated, non-overlapping DateAnnotation objects.
+
         Parameters:
-        text (str | None): Text to scan for dates. If None, the parser's existing text is used.
-        locale (Locale | None): Locale whose language, if provided, will be used for parsing; otherwise the parser's current locale language is used.
-        strict (bool): If True, apply stricter parsing rules when extracting candidate dates.
-                             
+            text (str | None): Text to scan; if None, the parser's current text is used.
+            locale (Locale | None): Locale whose `language` will be applied for parsing when provided; otherwise the parser's current locale language is used.
+            strict (bool): Apply stricter parsing rules when extracting candidate dates.
+
         Returns:
-        Generator[DateAnnotation]: An iterator that yields DateAnnotation objects for each validated, non-overlapping date occurrence found in the text.
-                             
+            Generator[DateAnnotation]: Yields one DateAnnotation for each validated, non-overlapping date occurrence.
+
         Raises:
-        RuntimeError: If a text segment is empty or no language is defined for parsing.
+            RuntimeError: If a text segment is empty or no language is defined for parsing.
         """
-        self.text = text.replace('\n', ' ') or self.text
-        self.text = re.sub(CUSTOM_DATES_SEPARATOR, '\n', self.text)
-        text_parts = self.text.split('\n')
+        if text is not None:
+            self.text = text.replace("\n", " ")
+        self.text = re.sub(CUSTOM_DATES_SEPARATOR, "\n", self.text)
+        text_parts = self.text.split("\n")
         for text_part in text_parts:
+            # ``split("\n")`` can yield empty segments around the custom
+            # separator. Skip them rather than raising — an empty fragment
+            # simply has no dates to contribute.
+            if not text_part:
+                continue
             self.locale.language = (locale.language if locale else "") or self.locale.language
 
-            if not text_part or not self.locale.language:
-                raise RuntimeError('Define text and language.')
+            if not self.locale.language:
+                raise RuntimeError("Define text and language.")
 
             # First try dateparser searcher
             try:
@@ -173,7 +171,6 @@ class DeDateParser(DateParser):
 
             positions = []
             for date_str, date in sorted(self.dates, key=lambda i: -len(i[0])):
-
                 # if possible date has weird format or unwanted symbols
                 if not self.passed_general_check(date_str, date):
                     continue
@@ -187,12 +184,13 @@ class DeDateParser(DateParser):
                     positions.append(match.span())
 
                     # filter out possible dates using classifier
-                    if self.enable_classifier_check and \
-                            not self.passed_classifier_check(location_start, location_end):
+                    if self.enable_classifier_check and not self.passed_classifier_check(location_start, location_end):
                         continue
 
-                    ant = DateAnnotation(coords=(location_start, location_end),
-                                         date=date,
-                                         text=text_part[location_start:location_end],
-                                         locale=self.locale.language)
+                    ant = DateAnnotation(
+                        coords=(location_start, location_end),
+                        date=date,
+                        text=text_part[location_start:location_end],
+                        locale=self.locale.language,
+                    )
                     yield ant

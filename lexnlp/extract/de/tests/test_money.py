@@ -43,7 +43,7 @@ class TestMoneyPlain(TestCase):
     def test_suffixed_money(self):
         """
         Verify that a monetary amount suffixed with the euro symbol is recognized as a single annotation.
-        
+
         Checks that the text "10.800€ ist genug" yields exactly one money annotation.
         """
         text = "10.800€ ist genug"
@@ -60,14 +60,14 @@ class TestMoneyPlain(TestCase):
     def test_clause_money(self):
         """
         Exercise money annotation extraction on a multi-paragraph German leasing text containing several monetary amounts.
-        
+
         The test feeds a leasing-related paragraph set into get_money_annotations and collects the resulting annotations into `ants`. The sample text includes amounts such as 300€, 10.800€, 2.500€, and 230,55€ to validate detection across lines and contexts.
         """
-        text = """Leasing ohne Anzahlung: Monatliche Rate 300€, Laufzeit 36 Monaten, Gesamtkosten  
-10.800€ 
-Leasing mit 2.500€ Anzahlung: Monatliche Rate 230,55€, Laufzeit 36 Monate,  
-Gesamtkosten 10.800€ 
-Durch eine Sonderzahlung wird die monatliche Belastung gesenkt, das Risiko für  
-den Leasinggeber sinkt. Bei einer Ablehnung des Antrags können Sie die Bank auf  
+        text = """Leasing ohne Anzahlung: Monatliche Rate 300€, Laufzeit 36 Monaten, Gesamtkosten
+10.800€
+Leasing mit 2.500€ Anzahlung: Monatliche Rate 230,55€, Laufzeit 36 Monate,
+Gesamtkosten 10.800€
+Durch eine Sonderzahlung wird die monatliche Belastung gesenkt, das Risiko für
+den Leasinggeber sinkt. Bei einer Ablehnung des Antrags können Sie die Bank auf
 diese Option ansprechen, sofern Sie in der Lage sind, eine Anzahlung zu leisten."""
         ants = list(get_money_annotations(text))

@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -14,10 +13,7 @@ from lexnlp.extract.common.annotations.percent_annotation import PercentAnnotati
 from lexnlp.extract.de.percents import get_percent_annotations as get_percent_annotations_de
 from lexnlp.extract.en.percents import get_percent_annotations as get_percent_annotations_en
 
-ROUTINE_BY_LOCALE = {
-    LANG_EN.code: get_percent_annotations_en,
-    LANG_DE.code: get_percent_annotations_de
-}
+ROUTINE_BY_LOCALE = {LANG_EN.code: get_percent_annotations_en, LANG_DE.code: get_percent_annotations_de}
 
 
 def get_percent_annotations(

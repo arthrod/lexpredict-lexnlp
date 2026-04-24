@@ -34,42 +34,39 @@ from lexnlp.ml.model_io import load_model
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load segmenters
-SENTENCE_SEGMENTER_MODEL: PunktSentenceTokenizer = \
-    load_model(os.path.join(MODULE_PATH, "./sentence_segmenter.pickle"))
-extra_abbreviations = [a.rstrip('.') for a in EnLanguageTokens.abbreviations]
+SENTENCE_SEGMENTER_MODEL: PunktSentenceTokenizer = load_model(os.path.join(MODULE_PATH, "./sentence_segmenter.pickle"))
+extra_abbreviations = [a.rstrip(".") for a in EnLanguageTokens.abbreviations]
 SENTENCE_SEGMENTER_MODEL._params.abbrev_types.update(extra_abbreviations)
-SENTENCE_SEGMENTER_MODEL._params.abbrev_types.update(['no', 'l'])
+SENTENCE_SEGMENTER_MODEL._params.abbrev_types.update(["no", "l"])
 
 
 PRE_PROCESS_TEXT_REMOVE = re.compile(
-    r'(?:^\s*\d+\s*$)'
-    r'|(?:^\s*\<PAGE\>\s*(\d+)?\s*(\n|$))'
-    r'|(?:^\s*(^.+)?[Pp][Aa][Gg][Ee]\s+\d+\s+[Oo][Ff]\s+\d+(.+)?$\s*(\n|$))'
-    r'|(?:^\s+$)'
-    r'|(?:^\s*i+\s*$)',
-    re.MULTILINE
+    r"(?:^\s*\d+\s*$)"
+    r"|(?:^\s*\<PAGE\>\s*(\d+)?\s*(\n|$))"
+    r"|(?:^\s*(^.+)?[Pp][Aa][Gg][Ee]\s+\d+\s+[Oo][Ff]\s+\d+(.+)?$\s*(\n|$))"
+    r"|(?:^\s+$)"
+    r"|(?:^\s*i+\s*$)",
+    re.MULTILINE,
 )
 
 # '|'-separated templates of the sequences splitting sentences.
 SENTENCE_SPLITTERS = re.compile(
-    r'(?<=\n)\s*\n'  # Blank line - usually separates one sentence from another
-    r'|(?<=\n)\S+.*[ \t.]{5,200}\S.+\S\s*(?=\n)'  # Something:       separated with spaces
+    r"(?<=\n)\s*\n"  # Blank line - usually separates one sentence from another
+    r"|(?<=\n)\S+.*[ \t.]{5,200}\S.+\S\s*(?=\n)"  # Something:       separated with spaces
 )
 
-SENTENCE_SPLITTERS_LOWER_EXCLUDE = re.compile(
-    r'(?:\s*and\s*)'
-)
+SENTENCE_SPLITTERS_LOWER_EXCLUDE = re.compile(r"(?:\s*and\s*)")
 
 NOT_SENTENCES = re.compile(
-    r'\W+'  # OCR artifacts like some non-alphanumeric chars on separate lines
-    r'|(\W*[^\W\d_]{1,2}(\W+[^\W\d_]{1,2})*\W*)|\W+'  # OCR artifacts like 'a bba af ag ah'
+    r"\W+"  # OCR artifacts like some non-alphanumeric chars on separate lines
+    r"|(\W*[^\W\d_]{1,2}(\W+[^\W\d_]{1,2})*\W*)|\W+"  # OCR artifacts like 'a bba af ag ah'
 )
 
-STRIP_GROUP = re.compile(r'^\s*(\S.*?)\s*$', re.DOTALL)
+STRIP_GROUP = re.compile(r"^\s*(\S.*?)\s*$", re.DOTALL)
 
 
 # are used in normalize_text for better splitting text on sentences
-PRETOKENIZE_REPLACEMENTS = (('“', '"'), ('”', '"'))
+PRETOKENIZE_REPLACEMENTS = (("“", '"'), ("”", '"'))
 
 
 def pre_process_document(text: str) -> str:
@@ -81,7 +78,7 @@ def pre_process_document(text: str) -> str:
     """
     if not text:
         return text
-    return PRE_PROCESS_TEXT_REMOVE.sub('', text)
+    return PRE_PROCESS_TEXT_REMOVE.sub("", text)
 
 
 def _trim_span(span_text: str, span: tuple[int, int]) -> None | tuple[int, int]:
@@ -93,8 +90,7 @@ def _trim_span(span_text: str, span: tuple[int, int]) -> None | tuple[int, int]:
     return None
 
 
-def post_process_sentence(text: str, sent_span: tuple[int, int]) \
-        -> Generator[tuple[int, int], Any, Any]:
+def post_process_sentence(text: str, sent_span: tuple[int, int]) -> Generator[tuple[int, int], Any, Any]:
     """
     Post-process sentence span detected by PunktSentenceTokenizer by additionally extracting
     titles, table of contents entries and other short strings stayed separately between empty lines
@@ -117,7 +113,7 @@ def post_process_sentence(text: str, sent_span: tuple[int, int]) \
         # and the new found splitter - yield it as a separate sentence.
         if full_match_start >= prev_start:
             span = (sent_start + prev_start, sent_start + full_match_start)
-            span_text = text[span[0]: span[1]]
+            span_text = text[span[0] : span[1]]
             if not NOT_SENTENCES.fullmatch(span_text):
                 span = _trim_span(span_text, span)
                 if span:
@@ -129,7 +125,7 @@ def post_process_sentence(text: str, sent_span: tuple[int, int]) \
     # splitter til the end of the original sentence.
     if prev_start < len(sent):
         span = (sent_start + prev_start, sent_start + len(sent))
-        span_text = text[span[0]: span[1]]
+        span_text = text[span[0] : span[1]]
         if not NOT_SENTENCES.fullmatch(span_text):
             span = _trim_span(span_text, span)
             if span:

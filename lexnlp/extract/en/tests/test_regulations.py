@@ -33,8 +33,8 @@ class TestRegulations(TestCase):
     def test_parse_comission(self):
         text = """
     Pursuant to section 10(d) of the Federal Advisory Committee Act, as amended, notice is hereby given of the following meetings.
-    The meetings will be closed to the public in accordance with the provisions set forth in sections 552b(c)(4) and 552b(c)(6), Title 5 U.S.C., as amended. 
-    The grant applications and the discussions could disclose confidential trade secrets or commercial property such as patentable material, 
+    The meetings will be closed to the public in accordance with the provisions set forth in sections 552b(c)(4) and 552b(c)(6), Title 5 U.S.C., as amended.
+    The grant applications and the discussions could disclose confidential trade secrets or commercial property such as patentable material,
     and personal information concerning individuals associated with the grant applications, the disclosure of which would constitute a clearly unwarranted invasion of personal privacy.
     Name of Committee: Center for Scientific Review Special Emphasis Panel; Small Business: Cancer Biotherapeutics Development.
     """
@@ -44,7 +44,7 @@ class TestRegulations(TestCase):
     def test_get_regulations_csv(self):
         """
         Verify get_regulations extracts regulation type, code, and text from the CSV test fixture and that outputs match expected values.
-        
+
         Runs two high-level extraction checks (without and with source text) against lexnlp/extract/en/tests/test_regulations/test_get_regulations.csv, then performs a per-row comparison of extracted dictionaries (keys: "regulation_type", "regulation_code", "regulation_text") using DictionaryComparer with order enforced. Raises an Exception containing formatted per-line mismatch reports if any test rows differ from expectations.
         """
         test_data_path = os.path.join(

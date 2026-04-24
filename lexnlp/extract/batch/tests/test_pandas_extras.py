@@ -22,9 +22,7 @@ is imported directly (bypassing the batch ``__init__.py``) to avoid the PEP
 from __future__ import annotations
 
 import importlib.util
-import sys
 from dataclasses import dataclass
-from typing import Any
 
 import pytest
 
@@ -34,9 +32,7 @@ pd = pytest.importorskip("pandas")
 # PEP 695 syntax (Python 3.12+).
 _spec = importlib.util.spec_from_file_location(
     "lexnlp.extract.batch.pandas_output",
-    str(
-        __import__("pathlib").Path(__file__).parent.parent / "pandas_output.py"
-    ),
+    str(__import__("pathlib").Path(__file__).parent.parent / "pandas_output.py"),
 )
 _mod = importlib.util.module_from_spec(_spec)  # type: ignore[arg-type]
 _spec.loader.exec_module(_mod)  # type: ignore[union-attr]
@@ -142,9 +138,7 @@ class TestColumnOrder:
 
     def test_extra_columns_appended_after_core(self) -> None:
         ann = _Ann(coords=(0, 1), text="x")
-        df = annotations_to_dataframe(
-            [ann], prefer_arrow=False, extra_columns=("locale",)
-        )
+        df = annotations_to_dataframe([ann], prefer_arrow=False, extra_columns=("locale",))
         cols = list(df.columns)
         assert cols.index("end") < cols.index("locale") or "locale" in cols[:5]
         # The column must exist somewhere
@@ -155,9 +149,7 @@ class TestColumnOrder:
         assert list(df.columns) == ["record_type", "locale", "text", "start", "end"]
 
     def test_extra_columns_on_empty_preserved(self) -> None:
-        df = annotations_to_dataframe(
-            [], prefer_arrow=False, extra_columns=("custom_field",)
-        )
+        df = annotations_to_dataframe([], prefer_arrow=False, extra_columns=("custom_field",))
         assert "custom_field" in df.columns
 
 
@@ -185,9 +177,7 @@ class TestGeneratorInput:
 class TestMissingExtraColumns:
     def test_nonexistent_extra_column_becomes_none(self) -> None:
         ann = _Ann(coords=(0, 1), text="x")
-        df = annotations_to_dataframe(
-            [ann], prefer_arrow=False, extra_columns=("does_not_exist",)
-        )
+        df = annotations_to_dataframe([ann], prefer_arrow=False, extra_columns=("does_not_exist",))
         assert "does_not_exist" in df.columns
         assert pd.isna(df.iloc[0]["does_not_exist"]) or df.iloc[0]["does_not_exist"] is None
 
@@ -239,6 +229,12 @@ class TestLargeBatch:
 
 class TestMultipleExtraColumns:
     def test_two_extra_columns(self) -> None:
+        """
+        Verifies that dataclass extra fields specified in `extra_columns` are preserved as DataFrame columns with their values.
+
+        Creates an annotation dataclass containing `confidence` and `source` fields, converts a list of such annotations to a DataFrame with those fields requested as extra columns, and asserts the first row contains the expected `confidence` and `source` values.
+        """
+
         @dataclass
         class _AnnExtra:
             coords: tuple[int, int]
@@ -249,8 +245,141 @@ class TestMultipleExtraColumns:
             source: str = "test"
 
         anns = [_AnnExtra(coords=(0, 5), text="hello")]
-        df = annotations_to_dataframe(
-            anns, prefer_arrow=False, extra_columns=("confidence", "source")
-        )
+        df = annotations_to_dataframe(anns, prefer_arrow=False, extra_columns=("confidence", "source"))
         assert df.iloc[0]["confidence"] == 0.9
         assert df.iloc[0]["source"] == "test"
+
+
+# ---------------------------------------------------------------------------
+# Coords unpacking: try/except branch (PR change from isinstance check)
+# ---------------------------------------------------------------------------
+
+
+class TestCoordsUnpackingBranches:
+    """The PR changed coords unpacking from an isinstance/len guard to
+    try/except (TypeError, ValueError). These tests verify the new branching
+    behaviour.
+    """
+
+    def test_tuple_coords_unpacked_correctly(self) -> None:
+        """Standard tuple (start, end) — the common case."""
+
+        class _TupleCoords:
+            coords = (10, 20)
+            text = "hello"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_TupleCoords())
+        assert row["start"] == 10
+        assert row["end"] == 20
+
+    def test_list_coords_unpacked_correctly(self) -> None:
+        """A list [start, end] is also iterable and unpacks successfully."""
+
+        class _ListCoords:
+            coords = [5, 15]
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_ListCoords())
+        assert row["start"] == 5
+        assert row["end"] == 15
+
+    def test_none_coords_gives_none_start_end(self) -> None:
+        """
+        Verifies that an annotation with coords set to None produces `start=None` and `end=None`.
+        """
+
+        class _NoneCoords:
+            coords = None
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_NoneCoords())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_single_element_tuple_gives_none(self) -> None:
+        """(5,) has only one value — ValueError on unpacking → None,None."""
+
+        class _SingleTuple:
+            coords = (5,)
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_SingleTuple())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_three_element_tuple_gives_none(self) -> None:
+        """(1, 2, 3) has too many values — ValueError on unpacking → None,None."""
+
+        class _ThreeTuple:
+            coords = (1, 2, 3)
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_ThreeTuple())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_empty_tuple_gives_none(self) -> None:
+        """() has no values — ValueError on unpacking → None,None."""
+
+        class _EmptyTuple:
+            coords = ()
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_EmptyTuple())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_integer_coords_gives_none(self) -> None:
+        """
+        Verify that an integer `coords` yields `None` for both `start` and `end`.
+
+        When an annotation's `coords` is a non-iterable integer, `_row_from_annotation` should treat it as unpacking-failure and set `start` and `end` to `None`.
+        """
+
+        class _IntCoords:
+            coords = 42
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_IntCoords())
+        assert row["start"] is None
+        assert row["end"] is None
+
+    def test_zero_zero_tuple_preserved(self) -> None:
+        """(0, 0) is a valid coords pair that represents start=0, end=0."""
+
+        class _ZeroCoords:
+            coords = (0, 0)
+            text = "x"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_ZeroCoords())
+        assert row["start"] == 0
+        assert row["end"] == 0
+
+    def test_large_coords_preserved(self) -> None:
+        """Large integer coords should be preserved exactly."""
+
+        class _BigCoords:
+            coords = (100_000, 200_000)
+            text = "large"
+            locale = "en"
+            record_type = "r"
+
+        row = _row_from_annotation(_BigCoords())
+        assert row["start"] == 100_000
+        assert row["end"] == 200_000

@@ -13,13 +13,13 @@ import pandas as pd
 
 from lexnlp.utils.parse_df import DataframeEntityParser
 
-sample_csv = '''
+sample_csv = """
 "name","alias"
 "Peppa","Peps"
 "George",""
 "Tati Purcelus",""
 "Mamica Purceluss","mum"
-'''
+"""
 
 file_like = io.StringIO(sample_csv)
 
@@ -27,18 +27,17 @@ entity_df = pd.read_csv(file_like)
 
 
 class TestParseDataframe(TestCase):
-    default_columns = ['name', 'alias']
+    default_columns = ["name", "alias"]
 
     def test_get_by_name(self):
-        ents = self.get_entries('Sunt purcelusa Peppa. El e frateul al meu George, iar ea e Tati Purcelus.')
+        ents = self.get_entries("Sunt purcelusa Peppa. El e frateul al meu George, iar ea e Tati Purcelus.")
         self.assertEqual(3, len(ents))
 
     def test_get_by_alias(self):
-        ents = self.get_entries('mum, Peps si George merg la plimbare impreuna.')
+        ents = self.get_entries("mum, Peps si George merg la plimbare impreuna.")
         self.assertEqual(3, len(ents))
 
     def get_entries(self, text: str, columns=None):
         columns = columns or self.default_columns
-        parser = DataframeEntityParser(dataframe=entity_df,
-                                       parse_columns=columns)
+        parser = DataframeEntityParser(dataframe=entity_df, parse_columns=columns)
         return list(parser.get_entities(text))

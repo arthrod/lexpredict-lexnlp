@@ -22,12 +22,31 @@ import regex as re
 from lexnlp.extract.common.annotations.condition_annotation import ConditionAnnotation
 from lexnlp.nlp.en.segments.sentences import get_sentence_list
 
-CONDITION_PHRASES = ['if', 'if not', 'when', 'when not', 'where', 'where not', 'unless and until', 'unless',
-                     'unless not', 'until', 'until not', 'as soon as', 'as soon as not', 'provided that',
-                     'provided that not', 'subject to', 'not subject to', 'upon the occurrence',
-                     'subject to', 'conditioned  on', 'conditioned  upon']
+CONDITION_PHRASES = [
+    "if",
+    "if not",
+    "when",
+    "when not",
+    "where",
+    "where not",
+    "unless and until",
+    "unless",
+    "unless not",
+    "until",
+    "until not",
+    "as soon as",
+    "as soon as not",
+    "provided that",
+    "provided that not",
+    "subject to",
+    "not subject to",
+    "upon the occurrence",
+    "subject to",
+    "conditioned  on",
+    "conditioned  upon",
+]
 
-CONDITION_PATTERN_TEMPLATE = r'''(?P<pre>.*?)[\s\.\,](?P<condition>{condition_pattern}){{1,}}[\s\.\,](?P<post>.*?)'''
+CONDITION_PATTERN_TEMPLATE = r"""(?P<pre>.*?)[\s\.\,](?P<condition>{condition_pattern}){{1,}}[\s\.\,](?P<post>.*?)"""
 
 
 # ================================
@@ -45,12 +64,7 @@ def create_condition_pattern(condition_pattern_template, condition_phrases):
     pattern_condition_phrases.sort(key=len, reverse=True)
 
     return condition_pattern_template.format(
-        condition_pattern="|".join(
-            [
-                p.replace(r" ", r"\ ")
-                for p in pattern_condition_phrases
-            ]
-        )
+        condition_pattern="|".join([p.replace(r" ", r"\ ") for p in pattern_condition_phrases])
     )
 
 

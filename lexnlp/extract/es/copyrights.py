@@ -23,16 +23,14 @@ class CopyrightEsParser(CopyrightEnStyleParser):
     @staticmethod
     def init_parser():
         split_params = LineSplitParams()
-        split_params.line_breaks = {'\n', '.', ';', '!', '?'}
+        split_params.line_breaks = {"\n", ".", ";", "!", "?"}
         split_params.abbreviations = EsLanguageTokens.abbreviations
         split_params.abbr_ignore_case = True
-        CopyrightEsParser.line_processor = LineProcessor(
-            line_split_params=split_params)
+        CopyrightEsParser.line_processor = LineProcessor(line_split_params=split_params)
 
     @classmethod
     def extract_phrases_with_coords(cls, sentence: str) -> list[tuple[str, int, int]]:
-        return [(t.text, t.start, t.get_end()) for t in
-                cls.line_processor.split_text_on_line_with_endings(sentence)]
+        return [(t.text, t.start, t.get_end()) for t in cls.line_processor.split_text_on_line_with_endings(sentence)]
 
 
 CopyrightEsParser.init_parser()
@@ -40,7 +38,7 @@ CopyrightEsParser.init_parser()
 
 def get_copyright_annotations(text: str, return_sources=False) -> Generator[CopyrightAnnotation]:
     for ant in CopyrightEsParser.get_copyright_annotations(text, return_sources):
-        ant.locale = 'es'
+        ant.locale = "es"
         yield ant
 
 

@@ -14,7 +14,8 @@ import regex as re
 from lexnlp.extract.common.annotations.act_annotation import ActAnnotation
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
-ACT_PARTS_RE = re.compile(r'''
+ACT_PARTS_RE = re.compile(
+    r"""
 (?P<text>
     (?:sections?\s+
         (?P<section>(?:\d+(?:\(\w\))*|,\s+|,?\s+and\s+)+)\s+of\s+the\s+
@@ -25,7 +26,9 @@ ACT_PARTS_RE = re.compile(r'''
     )
     (?:\W+|$)
     (?:of\s+(?P<year>\d{4}))?
-)''', re.VERBOSE | re.MULTILINE)
+)""",
+    re.VERBOSE | re.MULTILINE,
+)
 
 
 def get_acts(text: str) -> Generator[dict[str, Any]]:
@@ -40,16 +43,18 @@ def get_act_list(*args, **kwargs) -> list[dict[str, str]]:
 def get_acts_annotations(text: str) -> Generator[ActAnnotation]:
     for match in ACT_PARTS_RE.finditer(text):  # type: re.Match
         captures = match.capturesdict()
-        act_name = ''.join(captures.get('act_name') or [])
-        year_str = ''.join(captures.get('year') or [])
+        act_name = "".join(captures.get("act_name") or [])
+        year_str = "".join(captures.get("year") or [])
         year = TextAnnotation.safe_cast(year_str, int)
-        act = ActAnnotation(act_name=act_name,
-                            coords=match.span(),
-                            section=''.join(captures.get('section') or []),
-                            year=year,
-                            ambiguous=act_name == 'Act',
-                            text=''.join(captures.get('text') or []),
-                            locale='en')
+        act = ActAnnotation(
+            act_name=act_name,
+            coords=match.span(),
+            section="".join(captures.get("section") or []),
+            year=year,
+            ambiguous=act_name == "Act",
+            text="".join(captures.get("text") or []),
+            locale="en",
+        )
         yield act
 
 

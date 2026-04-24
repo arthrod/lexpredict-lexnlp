@@ -17,20 +17,21 @@ class PercentAnnotation(TextAnnotation):
     create an object of PercentAnnotation like
     cp = PercentAnnotation(coords=(0, 100), value='10 000 USD')
     """
-    record_type = 'percent'
+
+    record_type = "percent"
 
     def __init__(
         self,
         coords: tuple[int, int],
-        locale: str = 'en',
+        locale: str = "en",
         text: str | None = None,
         amount: Decimal | None = None,
         sign: str | None = None,
-        fraction: Decimal | None = None
+        fraction: Decimal | None = None,
     ) -> None:
         """
         Initialize a PercentAnnotation with coordinates, optional textual content, and parsed numeric components.
-        
+
         Parameters:
             coords (tuple[int, int]): Bounding box coordinates for the annotation.
             locale (str): Locale code used for parsing/formatting (default 'en').
@@ -39,27 +40,16 @@ class PercentAnnotation(TextAnnotation):
             sign (str | None): Sign associated with the value (e.g., '+' or '-'), if present.
             fraction (Decimal | None): Fractional part of the percent value (e.g., 0.5 for '5.5%').
         """
-        super().__init__(
-            name='',
-            locale=locale,
-            coords=coords,
-            text=text
-        )
+        super().__init__(name="", locale=locale, coords=coords, text=text)
         self.amount: Decimal = amount
         self.sign: str = sign
         self.fraction: Decimal = fraction
 
     def get_cite_value_parts(self) -> list[str]:
-        return [str(self.amount or '0'),
-                self.sign or '']
+        return [str(self.amount or "0"), self.sign or ""]
 
     def get_dictionary_values(self) -> dict:
-        df = Map({
-            'tags': {
-                'Extracted Entity Value': str(self.amount or ''),
-                'Extracted Entity Text': self.text
-            }
-        })
+        df = Map({"tags": {"Extracted Entity Value": str(self.amount or ""), "Extracted Entity Text": self.text}})
         if self.sign:
-            df.tags['sign'] = self.sign
+            df.tags["sign"] = self.sign
         return df

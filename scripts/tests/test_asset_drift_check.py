@@ -45,9 +45,7 @@ def _sha256_bytes(data: bytes) -> str:
 class TestErrorMessageFormat:
     """main() failure entries should include the exception class name."""
 
-    def test_missing_tag_error_includes_class_name(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_missing_tag_error_includes_class_name(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """When catalog lookup raises FileNotFoundError the entry must name the class."""
         manifest_path = tmp_path / "manifest.json"
         _write_manifest(
@@ -71,9 +69,7 @@ class TestErrorMessageFormat:
         catalog_mod_mock.get_path_from_catalog = fake_get_path
 
         dl_mock = mock.MagicMock()
-        dl_mock.download_github_release = mock.MagicMock(
-            side_effect=FileNotFoundError("release not found")
-        )
+        dl_mock.download_github_release = mock.MagicMock(side_effect=FileNotFoundError("release not found"))
 
         with mock.patch.dict(
             "sys.modules",

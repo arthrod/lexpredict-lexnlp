@@ -29,6 +29,7 @@ class RegulationsParser:
     - expects words like 'registro', 'comisión', 'comision', 'ley del'
       that open the following phrase
     """
+
     def __init__(self, regulations_dataframe: DataFrame = None):
         """
         :param regulations_dataframe: a pandas dataframe with 2 columns: trigger: str, position: str
@@ -44,27 +45,22 @@ class RegulationsParser:
         Read *.csv content and build regexes out of this data
         """
         triggers_str = "|".join(self.start_triggers)
-        reg = re.compile(r"(?:(?<=[\s\b])|(?<=^))(%s)[^,\b;\.\n]+" % triggers_str,
-                   re.UNICODE | re.IGNORECASE)
+        reg = re.compile(r"(?:(?<=[\s\b])|(?<=^))(%s)[^,\b;\.\n]+" % triggers_str, re.UNICODE | re.IGNORECASE)
         self.reg_start_triggers.append(reg)
 
     def load_trigger_words(self) -> None:
         """
         Load records like ('ley del', 'start') - (trigger_word, position)
         """
-        dtypes = {'trigger': str, 'position': str}
+        dtypes = {"trigger": str, "position": str}
         if self.regulations_dataframe is None:
-            path = os.path.join(lexnlp_base_path, 'lexnlp/config/es/es_regulations.csv')
-            self.regulations_dataframe = read_csv(
-                path,
-                encoding='utf-8',
-                on_bad_lines='skip',
-                converters=dtypes)
-        subset = self.regulations_dataframe[['trigger', 'position']]
+            path = os.path.join(lexnlp_base_path, "lexnlp/config/es/es_regulations.csv")
+            self.regulations_dataframe = read_csv(path, encoding="utf-8", on_bad_lines="skip", converters=dtypes)
+        subset = self.regulations_dataframe[["trigger", "position"]]
         tuples = [tuple(x) for x in subset.values]
-        self.start_triggers = [t[0] for t in tuples if t[1] == 'start']
+        self.start_triggers = [t[0] for t in tuples if t[1] == "start"]
 
-    def parse(self, text: str, locale: str = 'es') -> Generator[RegulationAnnotation]:
+    def parse(self, text: str, locale: str = "es") -> Generator[RegulationAnnotation]:
         """
         Find annotations in text passed and return them as a list of objects
         """
@@ -77,7 +73,7 @@ class RegulationsParser:
                     coords=coords,
                     text=text,
                     locale=locale,
-                    country='Spain',
+                    country="Spain",
                 )
                 yield annotation
 
@@ -85,22 +81,22 @@ class RegulationsParser:
 parser = RegulationsParser()
 
 
-def get_regulation_annotations(text: str, language: str = 'es') -> Generator[RegulationAnnotation]:
+def get_regulation_annotations(text: str, language: str = "es") -> Generator[RegulationAnnotation]:
     yield from parser.parse(text, language)
 
 
-def get_regulation_annotation_list(text: str, language: str = 'es') -> list[RegulationAnnotation]:
+def get_regulation_annotation_list(text: str, language: str = "es") -> list[RegulationAnnotation]:
     return list(parser.parse(text, language))
 
 
-def get_regulations(text: str, language: str = 'es') -> Generator[dict]:
+def get_regulations(text: str, language: str = "es") -> Generator[dict]:
     """
     Yield regulation annotations found in the input text as dictionaries.
-    
+
     Parameters:
         text (str): Input text to scan for regulation mentions.
         language (str): Language code used by the parser (default 'es').
-    
+
     Yields:
         dict: Dictionary representation of each RegulationAnnotation (e.g., containing 'name', 'coords', 'text', 'locale', 'country').
     """
@@ -111,12 +107,12 @@ def get_regulations(text: str, language: str = 'es') -> Generator[dict]:
 def get_regulation_list(text: str, language: str | None = None) -> list[dict]:
     """
     Return a list of regulation annotations extracted from the given text.
-    
+
     Parameters:
         text (str): Input text to search for regulation mentions.
         language (str | None): Language code to use for parsing; when `None`, defaults to `'es'`.
-    
+
     Returns:
         list[dict]: A list of dictionaries representing found regulation annotations.
     """
-    return list(get_regulations(text, language or 'es'))
+    return list(get_regulations(text, language or "es"))

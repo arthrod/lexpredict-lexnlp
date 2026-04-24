@@ -22,7 +22,7 @@ class TestDatesModuleCompiles:
     def test_module_source_is_valid_python(self) -> None:
         """
         Ensure the dates module's source file is valid Python syntax.
-        
+
         Reads the module file referenced by dates_module.__file__ and parses its contents with the AST parser; a SyntaxError will be raised if the source is not valid Python.
         """
         source = Path(dates_module.__file__).read_text(encoding="utf-8")

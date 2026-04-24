@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -58,8 +57,7 @@ def parallel_estimator(
     batch_size = int(ceil(n_samples / (batches_per_job * n_jobs)))
     parallel = Parallel(n_jobs=n_jobs)
     results = parallel(
-        delayed(_predict)(estimator, X, method, i, i + batch_size)
-        for i in range(0, n_samples, batch_size)
+        delayed(_predict)(estimator, X, method, i, i + batch_size) for i in range(0, n_samples, batch_size)
     )
     if issparse(results[0]):
         return vstack(results)
@@ -70,8 +68,8 @@ def parallel_estimator(
 # Scikit-Learn Transformers for usage in Scikit-Learn Pipelines
 # -----------------------------------------------------------------------------
 class TransformerVectorizer(BaseEstimator, TransformerMixin):
-    """
-    """
+    """ """
+
     def __init__(self, vectorizers: Iterable[Vectorizer]) -> None:
         """
         Successively transforms X using each Vectorizer, concatenating their outputs.
@@ -83,7 +81,7 @@ class TransformerVectorizer(BaseEstimator, TransformerMixin):
         self.vectorizers: tuple[Vectorizer] = tuple(vectorizers)
 
     # noinspection PyPep8Naming
-    def fit(self, X, y: Optional = None) -> 'TransformerVectorizer':
+    def fit(self, X, y: Optional = None) -> "TransformerVectorizer":
         return self
 
     # noinspection PyPep8Naming
@@ -91,10 +89,7 @@ class TransformerVectorizer(BaseEstimator, TransformerMixin):
         vectors: list[ndarray] = []
         for document in X:  # type: str
             vector: ndarray = concatenate(
-                [
-                    vectorizer.vectorize(document.split())
-                    for vectorizer in self.vectorizers
-                ],
+                [vectorizer.vectorize(document.split()) for vectorizer in self.vectorizers],
                 axis=0,
             )
             vectors.append(vector)
@@ -122,10 +117,7 @@ class TransformerPreprocessor(BaseEstimator, TransformerMixin):
         """
         self.normalizer: Normalizer = normalizer
         if head_character_n < 0:
-            raise ValueError(
-                f'`head_character_n` must be equal to or greater than 0.'
-                f' Received: {head_character_n}'
-            )
+            raise ValueError(f"`head_character_n` must be equal to or greater than 0. Received: {head_character_n}")
         self.head_character_n: int = head_character_n
 
     def _sentence_counter(self, sentences: Iterable[str]) -> Generator[str]:
@@ -164,10 +156,10 @@ class TransformerPreprocessor(BaseEstimator, TransformerMixin):
 
         # strangely, functions passed to the Normalizer perform poorly on individual sentences.
         # ...instead, we concatenate sentences into one string and then split again on newlines after normalization.
-        text: list[str] = self.normalizer('\n'.join(text)).split('\n')
+        text: list[str] = self.normalizer("\n".join(text)).split("\n")
 
         for sentence in text:
-            lemmas: str = ' '.join(
+            lemmas: str = " ".join(
                 get_lemmas(
                     sentence,
                     stopword=True,
@@ -175,10 +167,10 @@ class TransformerPreprocessor(BaseEstimator, TransformerMixin):
                 )
             )
             document.append(lemmas)
-        return ' '.join(document)
+        return " ".join(document)
 
     # noinspection PyPep8Naming
-    def fit(self, X, y: Optional = None) -> 'TransformerPreprocessor':
+    def fit(self, X, y: Optional = None) -> "TransformerPreprocessor":
         return self
 
     # noinspection PyPep8Naming

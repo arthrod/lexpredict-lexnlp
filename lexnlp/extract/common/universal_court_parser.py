@@ -22,13 +22,14 @@ class ParserInitParams:
     """
     UniversalCourtsParser initialization parameters
     """
+
     def __init__(self):
         self.court_pattern_checker: re.Pattern | None = None
         self.column_names = {
-            'type': 'Court Type',
-            'name': 'Court Name',
-            'jurisdiction': 'Jurisdiction',
-            'alias': 'Alias'
+            "type": "Court Type",
+            "name": "Court Name",
+            "jurisdiction": "Jurisdiction",
+            "alias": "Alias",
         }
         self.dataframe_paths: list[str] = []
         self.split_ptrs: LineSplitParams | None = None
@@ -47,11 +48,11 @@ class MatchFound:
         self.text = text
 
     def __repr__(self) -> str:
-        length = 'nil' if self.subset is None else str(len(self.subset))
-        court_name = 'court name: ' + self.court_name if self.court_name is not None else ''
-        court_type = 'court type: ' + self.court_type if self.court_type is not None else ''
-        court_jur = 'jurisdiction: ' + self.jurisdiction if self.jurisdiction is not None else ''
-        return f'Exact: {self.is_exact} [{length}] {court_name} {court_type} {court_jur}'
+        length = "nil" if self.subset is None else str(len(self.subset))
+        court_name = "court name: " + self.court_name if self.court_name is not None else ""
+        court_type = "court type: " + self.court_type if self.court_type is not None else ""
+        court_jur = "jurisdiction: " + self.jurisdiction if self.jurisdiction is not None else ""
+        return f"Exact: {self.is_exact} [{length}] {court_name} {court_type} {court_jur}"
 
     def make_sort_key(self) -> int:
         return 0 if self.is_exact else 10 if len(self.subset) == 0 else len(self.subset)
@@ -78,7 +79,7 @@ class UniversalCourtsParser:
     def __init__(self, ptrs: ParserInitParams):
         """
         Initialize the parser with configuration and load court reference data.
-        
+
         Parameters:
             ptrs (ParserInitParams): Initialization parameters. Key fields:
                 court_pattern_checker: Optional compiled regex used to pre-filter text or phrases.
@@ -87,7 +88,7 @@ class UniversalCourtsParser:
                 dataframe_paths: Iterable of CSV file paths containing court reference data.
                 split_ptrs: Optional LineSplitParams passed to LineProcessor to control phrase splitting.
                 key_word_preproc_func: Optional function to preprocess column values for phrase matching.
-        
+
         Notes:
             - CSV files must include the columns named by ptrs.column_names; court name values should
               uniquely identify courts when possible. The parser builds PhraseFinder instances from
@@ -96,10 +97,10 @@ class UniversalCourtsParser:
         """
 
         self.phrase_match_pattern = None if ptrs.court_pattern_checker is None else ptrs.court_pattern_checker
-        self.court_type_column = ptrs.column_names['type']
-        self.court_name_column = ptrs.column_names['name']
-        self.court_alias_column = ptrs.column_names['alias']
-        self.jurisdiction_column = ptrs.column_names['jurisdiction']
+        self.court_type_column = ptrs.column_names["type"]
+        self.court_name_column = ptrs.column_names["name"]
+        self.court_alias_column = ptrs.column_names["alias"]
+        self.jurisdiction_column = ptrs.column_names["jurisdiction"]
         self.proc: LineProcessor = LineProcessor(line_split_params=ptrs.split_ptrs)
         self.courts: pandas.DataFrame = self.load_courts(ptrs.dataframe_paths)
         self.locale: str | None = None
@@ -131,11 +132,11 @@ class UniversalCourtsParser:
     def parse(self, text: str, locale: str | None = None) -> Generator[CourtAnnotation]:
         """
         Extract court mentions from the given text and yield corresponding CourtAnnotation objects.
-        
+
         Parameters:
             text (str): Input text to scan for court mentions.
             locale (str | None): Locale identifier (e.g., "en", "de", "es") used when constructing CourtAnnotation instances; may be None.
-        
+
         Returns:
             Generator[CourtAnnotation]: A generator that yields each detected CourtAnnotation with coordinates, text, locale, court name, court type, and jurisdiction.
         """
@@ -177,7 +178,7 @@ class UniversalCourtsParser:
             for m in self.finder_court_alias.find_word(text):
                 alias = m[0]
                 rows = self.courts.loc[self.courts[self.court_alias_column] == alias]
-                match_found = MatchFound(rows, m[1], m[2], text[m[1]:m[2]])
+                match_found = MatchFound(rows, m[1], m[2], text[m[1] : m[2]])
                 yield self.create_annotation(match_found)
 
     def find_court_by_any_key(self, phrase: LineOrPhrase) -> CourtAnnotation | None:
@@ -215,10 +216,7 @@ class UniversalCourtsParser:
 
         start = found_substrings[0][1]
         end = found_substrings[0][2]
-        match = MatchFound(subset,
-                           phrase.start + start,
-                           phrase.start + end,
-                           phrase.text[start:end])
+        match = MatchFound(subset, phrase.start + start, phrase.start + end, phrase.text[start:end])
         return match, found_substrings
 
     def find_court_by_type_and_jurisdiction(self, phrase: LineOrPhrase) -> list[MatchFound]:
@@ -232,10 +230,7 @@ class UniversalCourtsParser:
             # (without commas or conjuctions)
             matches = []
             for ct in court_types:
-                m = MatchFound([],
-                               phrase.start + ct[1],
-                               phrase.start + ct[2],
-                               phrase.text[ct[1]:ct[2]])
+                m = MatchFound([], phrase.start + ct[1], phrase.start + ct[2], phrase.text[ct[1] : ct[2]])
                 m.court_type = ct[0]
                 m.court_name = ct[0]
                 matches.append(m)
@@ -244,13 +239,12 @@ class UniversalCourtsParser:
         if len(court_jurs) == 0:
             subset = self.courts.loc[self.courts[self.court_type_column] == court_types[0][0]]
         else:
-            subset = self.courts.loc[(self.courts[self.court_type_column] == court_types[0][0]) &
-                                     (self.courts[self.jurisdiction_column] == court_jurs[0][0])]
+            subset = self.courts.loc[
+                (self.courts[self.court_type_column] == court_types[0][0])
+                & (self.courts[self.jurisdiction_column] == court_jurs[0][0])
+            ]
 
-        match = MatchFound(subset,
-                           phrase.start,
-                           phrase.start + court_types[0][2],
-                           phrase.text[0:court_types[0][2]])
+        match = MatchFound(subset, phrase.start, phrase.start + court_types[0][2], phrase.text[0 : court_types[0][2]])
         if len(subset) != 1:
             match.court_name = court_types[0][0]
             match.court_type = court_types[0][0]
@@ -295,7 +289,7 @@ class UniversalCourtsParser:
             locale=self.locale,
             text=match.text,
             jurisdiction=jurisdiction,
-            court_type=court_type
+            court_type=court_type,
         )
 
         return annotation

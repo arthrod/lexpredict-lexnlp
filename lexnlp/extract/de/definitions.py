@@ -25,19 +25,21 @@ class DeutscheParsingMethods:
         def method_name(phrase: str) -> List[DefinitionMatch]:
     the methods are used for finding definition "candidates"
     """
-    reg_im_sinne = re.compile(r"(.+(?=im Sinne.+[\s\b]sind[\s\b]))|(.+(?=im Sinne.+[\s\b]ist[\s\b]))",
-                              re.UNICODE | re.IGNORECASE)
-    ist_sind = ['ist', 'sind']
-    ist_break_words = DeLanguageTokens.articles + ['jede']
+
+    reg_im_sinne = re.compile(
+        r"(.+(?=im Sinne.+[\s\b]sind[\s\b]))|(.+(?=im Sinne.+[\s\b]ist[\s\b]))", re.UNICODE | re.IGNORECASE
+    )
+    ist_sind = ["ist", "sind"]
+    ist_break_words = DeLanguageTokens.articles + ["jede"]
     reg_ist_jeder = []
 
     # region STATICINIT
     if not reg_ist_jeder:
         articles_ptrn = "|".join(["\\s%s" % w for w in ist_break_words])
         for sw in ist_sind:
-            reg_ist_jeder.append(re.compile(
-                "(?<=\\b%s\\s).+?(?=\\s%s|,|;|$)" % (sw, articles_ptrn),
-                re.UNICODE | re.IGNORECASE))
+            reg_ist_jeder.append(
+                re.compile("(?<=\\b%s\\s).+?(?=\\s%s|,|;|$)" % (sw, articles_ptrn), re.UNICODE | re.IGNORECASE)
+            )
     # endregion
 
     @staticmethod
@@ -47,12 +49,9 @@ class DeutscheParsingMethods:
         :return: {name: 'Vermögensgegenstände', probability: 100, ...}
         """
         reg = DeutscheParsingMethods.reg_im_sinne
-        dfs = CommonDefinitionPatterns. \
-            collect_regex_matches_with_quoted_chunks(phrase, reg, 100,
-                                                     lambda p, m, e: 0,
-                                                     lambda p, m, e: len(phrase),
-                                                     lambda p, m: 0,
-                                                     lambda p, m: len(p))
+        dfs = CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
+            phrase, reg, 100, lambda p, m, e: 0, lambda p, m, e: len(phrase), lambda p, m: 0, lambda p, m: len(p)
+        )
         return dfs
 
     @staticmethod
@@ -63,26 +62,25 @@ class DeutscheParsingMethods:
         """
         defs = []
         for reg in DeutscheParsingMethods.reg_ist_jeder:
-            dfs = CommonDefinitionPatterns. \
-                collect_regex_matches_with_quoted_chunks(phrase, reg, 80,
-                                                         lambda p, m, e: 0,
-                                                         lambda p, m, e: len(phrase),
-                                                         lambda p, m: 0,
-                                                         lambda p, m: len(p))
+            dfs = CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
+                phrase, reg, 80, lambda p, m, e: 0, lambda p, m, e: len(phrase), lambda p, m: 0, lambda p, m: len(p)
+            )
             defs += dfs
         return defs
 
 
 def make_de_definitions_parser():
     split_params = LineSplitParams()
-    split_params.line_breaks = {'\n', '.', ';', '!', '?'}
+    split_params.line_breaks = {"\n", ".", ";", "!", "?"}
     split_params.abbreviations = DeLanguageTokens.abbreviations
     split_params.abbr_ignore_case = True
 
-    functions = [CommonDefinitionPatterns.match_es_def_by_semicolon,
-                 CommonDefinitionPatterns.match_acronyms,
-                 DeutscheParsingMethods.match_ist_jeder,
-                 DeutscheParsingMethods.match_im_sinne]
+    functions = [
+        CommonDefinitionPatterns.match_es_def_by_semicolon,
+        CommonDefinitionPatterns.match_acronyms,
+        DeutscheParsingMethods.match_ist_jeder,
+        DeutscheParsingMethods.match_im_sinne,
+    ]
 
     p = UniversalDefinitionsParser(functions, split_params)
     p.prohibited_words = set(DeLanguageTokens.articles + DeLanguageTokens.conjunctions)
@@ -92,21 +90,21 @@ def make_de_definitions_parser():
 parser: UniversalDefinitionsParser = make_de_definitions_parser()
 
 
-def get_definition_annotations(text: str, language: str = 'de') -> Generator[DefinitionAnnotation]:
+def get_definition_annotations(text: str, language: str = "de") -> Generator[DefinitionAnnotation]:
     dfs = parser.parse(text, language)
     yield from dfs
 
 
-def get_definition_annotation_list(text: str, language: str = 'de') -> list[DefinitionAnnotation]:
+def get_definition_annotation_list(text: str, language: str = "de") -> list[DefinitionAnnotation]:
     return list(get_definition_annotations(text, language))
 
 
-def get_definitions(text: str, language: str = 'de') -> Generator[dict]:
+def get_definitions(text: str, language: str = "de") -> Generator[dict]:
     dfs = parser.parse(text, language)
     for d in dfs:
         yield d.to_dictionary()
 
 
-def get_definition_list(text: str, language: str = 'de') -> list[dict]:
+def get_definition_list(text: str, language: str = "de") -> list[dict]:
     # noinspection PyTypeChecker
     return list(get_definitions(text, language))

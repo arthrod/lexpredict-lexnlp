@@ -10,6 +10,7 @@ class EsLanguageTokens:
     """
     Spanish parts of speech, used in a number of parsing methods
     """
-    abbreviations = {'nr.', 'abs.', 'no.', 'act.', 'inc.', 'p.'}
-    articles = ['el', 'la', 'los', 'las']
-    conjunctions = ['und', 'oder']
+
+    abbreviations = {"nr.", "abs.", "no.", "act.", "inc.", "p."}
+    articles = ["el", "la", "los", "las"]
+    conjunctions = ["und", "oder"]

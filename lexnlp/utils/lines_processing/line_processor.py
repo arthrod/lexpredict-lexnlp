@@ -12,23 +12,20 @@ import regex as re
 
 
 class LineOrPhrase:
-    def __init__(self, text='', start=0):
+    def __init__(self, text="", start=0):
         self.text = text
         self.start = start
-        self.ending = ''
+        self.ending = ""
 
     def get_end(self):
         return self.start + len(self.text)
 
     def __repr__(self):
-        return self.text + '->' + self.ending
+        return self.text + "->" + self.ending
 
 
 class SingleWord:
-    def __init__(self,
-                 text: str = '',
-                 start: int = 0,
-                 is_separator: bool = False):
+    def __init__(self, text: str = "", start: int = 0, is_separator: bool = False):
         self.text = text
         self.start = start
         self.is_separator = is_separator
@@ -45,7 +42,7 @@ class LineSplitParams:
         # line breaks are newline characters
         # but also they can be '.' or ';' to break the line on phrases
         self.line_breaks = set()
-        self.line_breaks.add('\n')
+        self.line_breaks.add("\n")
 
         # abbreviations endin up with '.' (like "Nr.")
         # should not break line on phrases
@@ -69,18 +66,15 @@ class LineProcessor:
     word_separator_pattern = re.compile(r"[\w]+[\w-]*")
     default_split_params = LineSplitParams()
 
-    def __init__(self,
-                 allow_breaks_in_phrase: bool = True,
-                 line_split_params: LineSplitParams = None):
+    def __init__(self, allow_breaks_in_phrase: bool = True, line_split_params: LineSplitParams = None):
         self.line_length = LineProcessor.default_length
-        self.tail_length = int(self.line_length *
-                               LineProcessor.line_tail_percent / 100)
+        self.tail_length = int(self.line_length * LineProcessor.line_tail_percent / 100)
         self.line_split_params = line_split_params or self.default_split_params
         self.allow_breaks_in_phrase = allow_breaks_in_phrase
 
         if self.line_split_params.abbreviations:
             tokens = self.line_split_params.abbreviations
-            tokens_ptrn = '|'.join([t.replace('.', r'\.') for t in tokens])
+            tokens_ptrn = "|".join([t.replace(".", r"\.") for t in tokens])
             self.reg_abbreviations = re.compile(tokens_ptrn)
         else:
             self.reg_abbreviations = None
@@ -92,13 +86,13 @@ class LineProcessor:
         ln = 0
         ws_tail = 0
         for ch in text:
-            if ch == '\n':
+            if ch == "\n":
                 if ln > 1:
                     lens.append(ln)
                     ln = 0
                     ws_tail = 0
                     continue
-            if ch in ('', '\t'):
+            if ch in ("", "\t"):
                 ws_tail += 1
                 continue
             ln += ws_tail
@@ -119,15 +113,13 @@ class LineProcessor:
             max_95 = min(LineProcessor.max_possible_length, lens[index_95])
             max_len = max_95 if max_100 > int(1.5 * max_95) else max_100
             self.line_length = max(max_len, LineProcessor.min_possible_length)
-        self.tail_length = int(LineProcessor.line_tail_percent *
-                               self.line_length / 100)
+        self.tail_length = int(LineProcessor.line_tail_percent * self.line_length / 100)
 
     # split text on lines or phrases (LineOrPhrase),
     # returning iterator
-    def split_text_on_line_with_endings(self,
-                                        text: str,
-                                        line_split_ptrs: LineSplitParams = None) -> \
-            Generator[LineOrPhrase]:
+    def split_text_on_line_with_endings(
+        self, text: str, line_split_ptrs: LineSplitParams = None
+    ) -> Generator[LineOrPhrase]:
         ptrs = line_split_ptrs or self.line_split_params
         line = None
         text_ended = False
@@ -143,7 +135,6 @@ class LineProcessor:
 
             # should we break the line?
             if ch in ptrs.line_breaks:
-
                 # are we inside abbreviation?
                 inside_abr = False
                 while coord_index >= 0:
@@ -177,8 +168,7 @@ class LineProcessor:
             if len(line.text) > 0:
                 yield line
 
-    def get_abbreviations_in_text(self,
-                                  text: str) -> list[tuple[int, int]]:
+    def get_abbreviations_in_text(self, text: str) -> list[tuple[int, int]]:
         if self.reg_abbreviations:
             return [a.span() for a in self.reg_abbreviations.finditer(text)]
         return []  # List[Tuple[int, int]]
@@ -208,13 +198,11 @@ class LineProcessor:
     # src_phrase is a list of SingleWord (either words or separators)
     # check_start - position from which the src_phrase is being tested
     # checking_phrases - something like [ 'jede', 'ein', [ 'im', 'sinne'], 'der' ... ]
-    def check_phrase_starts_with_phrase(self, src_phrase: WordList, check_start: int,
-                                        checking_phrases) -> bool:
+    def check_phrase_starts_with_phrase(self, src_phrase: WordList, check_start: int, checking_phrases) -> bool:
         if src_phrase[check_start].is_separator:
             return False
         wrd = src_phrase[check_start].text
         for check_phrase in checking_phrases:
-
             # check for a single word,
             # e.g. ('sämtliche Anteile von der REIT-Aktiengesellschaft', 1, ['von'])) -> True
             if isinstance(check_phrase, str):

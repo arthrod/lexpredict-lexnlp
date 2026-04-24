@@ -34,7 +34,6 @@ This document is a quick-start guide for coding agents working in this repositor
 |-- pyproject.toml              # Canonical packaging/dependency metadata
 |-- python-requirements.txt     # Deprecated legacy dependency snapshot
 |-- python-requirements-dev.txt # Deprecated legacy dev/test snapshot
-|-- Pipfile                     # Deprecated legacy pipenv workflow
 |-- .pylintrc                   # Lint configuration
 |-- .travis.yml                 # Historical CI reference
 |-- setup.py                    # Legacy compatibility wrapper
@@ -63,7 +62,7 @@ uv pip install --python .venv/bin/python -e ".[dev,test]"
 
 ### Deprecated setup variants
 
-`Pipfile`, `python-requirements.txt`, and `python-requirements-dev.txt` are deprecated. Use `uv` with `pyproject.toml` for all new local setup and CI updates.
+`python-requirements.txt` and `python-requirements-dev.txt` are deprecated. The `Pipfile` / `Pipfile.lock` pair has been removed — `ci/check_dist_contents.py` still bans both from built artifacts. Use `uv` with `pyproject.toml` for all new local setup and CI updates.
 
 ## Required Runtime/Test Assets
 

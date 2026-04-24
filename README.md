@@ -82,7 +82,7 @@ matches = list(find_fuzzy_dates("Shipped 2O24-01-15", max_edits=1))
 See `MODERNIZATION_ROADMAP.md` §4.0 for the full design.
 
 ## Deprecated Setup Variants
-`Pipfile`, `python-requirements.txt`, and `python-requirements-dev.txt` are deprecated and kept only for legacy reproduction. New development and CI updates should use `uv` with `pyproject.toml`.
+`python-requirements.txt` and `python-requirements-dev.txt` are deprecated and kept only for legacy reproduction. The `Pipfile` / `Pipfile.lock` pair has been removed — `ci/check_dist_contents.py` continues to ban both from built artifacts. Use `uv` with `pyproject.toml` for all local setup and CI workflows.
 
 ## Migration Runbook
 See `MIGRATION_RUNBOOK.md` for complete migration/triage/quality-gate procedures.

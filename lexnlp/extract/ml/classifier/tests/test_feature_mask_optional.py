@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import inspect
 
+import numpy as np
+
 from lexnlp.extract.ml.classifier.base_token_sequence_classifier_model import (
     BaseTokenSequenceClassifierModel,
 )
@@ -35,3 +37,29 @@ class TestFeatureMaskSignature:
         assert "start_class" in sig.parameters
         assert "inner_class" in sig.parameters
         assert "end_class" in sig.parameters
+
+
+class _StubModel:
+    def __init__(self, predictions: list[int]) -> None:
+        self._predictions = np.array(predictions)
+
+    def predict(self, _feature_data):
+        return self._predictions
+
+
+class _StubSequenceModel(BaseTokenSequenceClassifierModel):
+    def get_feature_list(self, *args):
+        del args
+        return []
+
+    def get_feature_data(self, text: str, feature_mask: list[int] | None = None):
+        del text, feature_mask
+        return np.empty((3, 0)), [(0, 1), (2, 3), (4, 5)]
+
+
+class TestRunModelNonStrict:
+    def test_end_without_start_does_not_yield_negative_index_span(self) -> None:
+        model = _StubSequenceModel()
+        model.model = _StubModel([3, 0, 0])
+
+        assert list(model.run_model("abc", strict=False)) == []

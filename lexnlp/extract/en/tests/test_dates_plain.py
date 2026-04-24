@@ -146,7 +146,7 @@ class TestDatesPlain(TestCase):
     def test_is_it_a_date(self):
         """
         Verify parsing of a compact date-time token with month abbreviation and 24-hour time.
-        
+
         Asserts that the substring "29MAY19 1350" embedded in surrounding text is recognized by get_dates_list(..., strict=True)
         and produces datetime.datetime(2019, 5, 29, 13, 50, 0).
         """
@@ -164,7 +164,7 @@ class TestDatesPlain(TestCase):
     def test_date_en_gb(self):
         """
         Verify that numeric date strings are parsed in day-month-year order when the locale is "en-GB".
-        
+
         Asserts that a single date is extracted from "09/12/2022" and that the parsed month equals 12 (December).
         """
         text = "Commencement Date: 09/12/2022."
@@ -202,8 +202,8 @@ class TestDatesPlain(TestCase):
 
     def test_should_marella(self):
         text = """
-        A broker’s fee for the professional services of 6% is due from the SELLER to Nahum Omeler of Romy Realty, 
-        LLC, the Broker herein, to be divided with Buyer’s broker, Maureen Marella-Devlin of 
+        A broker’s fee for the professional services of 6% is due from the SELLER to Nahum Omeler of Romy Realty,
+        LLC, the Broker herein, to be divided with Buyer’s broker, Maureen Marella-Devlin of
         Century 21 Marella Realty (4% to Romy Realty, LLC and 2% to Century 21 Marella Realty).
         """
         dates = list(get_dates_list(text, strict=False))
@@ -212,7 +212,7 @@ class TestDatesPlain(TestCase):
     def test_file_samples(self):
         """
         Validate the date annotation extractor against the English date fixtures.
-        
+
         Runs the TypedAnnotationsTester using get_date_annotations and the
         lexnlp/typed_annotations/en/date/dates.txt fixtures; the tester will raise
         an error if extracted annotations do not match the expected DateAnnotation entries.

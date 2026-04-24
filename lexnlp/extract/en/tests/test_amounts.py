@@ -70,9 +70,9 @@ def test_error_case_1():
     """
 
     text = """55	                        "Term Loan Commitment" means, with respect to each Lender, the commitment,
-if any, of such Lender to make a Term Loan hereunder in the amount set forth on Annex I to this Agreement or on 
-Schedule 1 to the Assignment and Assumption pursuant to which such Lender assumed its Term Loan Commitment, as 
-applicable, as the same may be (a) increased from time to time pursuant to Section 2.19 and (b) reduced or increased 
+if any, of such Lender to make a Term Loan hereunder in the amount set forth on Annex I to this Agreement or on
+Schedule 1 to the Assignment and Assumption pursuant to which such Lender assumed its Term Loan Commitment, as
+applicable, as the same may be (a) increased from time to time pursuant to Section 2.19 and (b) reduced or increased
 from time to time pursuant to assignments by or to such Lender pursuant to Section 10.04."""
 
     for _ in lexnlp_tests.benchmark_extraction_func(get_amounts, text):
@@ -84,9 +84,9 @@ def test_error_case_2():
     Test encountered error case.
     :return:
     """
-    text = """"Revolving Commitment Termination Date" shall mean the earliest of (i) May 11, 2021, (ii) the date on 
-which the Revolving Commitments are terminated pursuant to Section 2.8 and (iii) the date on which all amounts 
-outstanding under this Agreement have been declared or have automatically become due and payable (whether by 
+    text = """"Revolving Commitment Termination Date" shall mean the earliest of (i) May 11, 2021, (ii) the date on
+which the Revolving Commitments are terminated pursuant to Section 2.8 and (iii) the date on which all amounts
+outstanding under this Agreement have been declared or have automatically become due and payable (whether by
 acceleration or otherwise)."""
     for _ in lexnlp_tests.benchmark_extraction_func(get_amounts, text):
         continue

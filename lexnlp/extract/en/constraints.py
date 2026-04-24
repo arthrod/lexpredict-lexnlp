@@ -22,14 +22,49 @@ import regex as re
 from lexnlp.extract.common.annotations.constraint_annotation import ConstraintAnnotation
 from lexnlp.nlp.en.segments.sentences import get_sentence_list
 
-CONSTRAINT_PHRASES = ['after', 'at least', 'at most', 'before', 'equal to', 'exactly', 'first of', 'greater',
-                      'greater of', 'greater than', 'greater than or equal to', 'greatest of', 'last of', 'least of',
-                      'lesser', 'lesser of', 'lesser than', 'less than', 'less than or equal to', 'maximum of',
-                      'maximum', 'minimum of', 'minimum', 'more than', 'more than or equal to', 'no earlier than',
-                      'no later than', 'no less than', 'no more than', 'not equal to', 'not to exceed', 'earlier than',
-                      'later than', 'within', 'exceed', 'exceeds', "prior to", "highest", "least"]
+CONSTRAINT_PHRASES = [
+    "after",
+    "at least",
+    "at most",
+    "before",
+    "equal to",
+    "exactly",
+    "first of",
+    "greater",
+    "greater of",
+    "greater than",
+    "greater than or equal to",
+    "greatest of",
+    "last of",
+    "least of",
+    "lesser",
+    "lesser of",
+    "lesser than",
+    "less than",
+    "less than or equal to",
+    "maximum of",
+    "maximum",
+    "minimum of",
+    "minimum",
+    "more than",
+    "more than or equal to",
+    "no earlier than",
+    "no later than",
+    "no less than",
+    "no more than",
+    "not equal to",
+    "not to exceed",
+    "earlier than",
+    "later than",
+    "within",
+    "exceed",
+    "exceeds",
+    "prior to",
+    "highest",
+    "least",
+]
 
-CONSTRAINT_PATTERN_TEMPLATE = r'''
+CONSTRAINT_PATTERN_TEMPLATE = r"""
 (
     (
         (?P<pre>.*?)[\s\.\,\;](?P<constraint>{constraint_pattern}){{1,}}[\s\.\,\;](?P<post>.)*?
@@ -39,7 +74,7 @@ CONSTRAINT_PATTERN_TEMPLATE = r'''
         (?P<constraint>{constraint_pattern}){{1,}}[\s\.\,\;](?P<post>.+)
     )
 )+?
-'''
+"""
 
 
 # ================================
@@ -56,8 +91,9 @@ def create_constraint_pattern(constraint_pattern_template, constraint_phrases):
     pattern_constraint_phrases = copy.copy(constraint_phrases)
     pattern_constraint_phrases.sort(key=len, reverse=True)
 
-    return constraint_pattern_template \
-        .format(constraint_pattern="|".join([p.replace(r" ", r"\ ") for p in pattern_constraint_phrases]))
+    return constraint_pattern_template.format(
+        constraint_pattern="|".join([p.replace(r" ", r"\ ") for p in pattern_constraint_phrases])
+    )
 
 
 # Materialize pattern and create regex
@@ -124,10 +160,7 @@ def get_constraint_annotations(text: str, strict: bool = False) -> Generator[Con
                 if combined in CONSTRAINT_PHRASES:
                     constraint = combined
 
-            ant = ConstraintAnnotation(coords=match.span(),
-                                       constraint=constraint,
-                                       pre=pre,
-                                       post=post)
+            ant = ConstraintAnnotation(coords=match.span(), constraint=constraint, pre=pre, post=post)
             yield ant
 
 

@@ -210,9 +210,7 @@ class TestExtractBatchWithProgressFunctional:
     def test_returns_ordered_results(self) -> None:
         from lexnlp.extract.batch import extract_batch_with_progress
 
-        results = extract_batch_with_progress(
-            str.split, ["a b", "c d e"], show_progress=False
-        )
+        results = extract_batch_with_progress(str.split, ["a b", "c d e"], show_progress=False)
         assert len(results) == 2
         assert results[0].index == 0
         assert results[1].index == 1
@@ -243,9 +241,7 @@ class TestCrossModuleConsistency:
     def test_flatten_and_extract_batch_with_progress_compose(self) -> None:
         from lexnlp.extract.batch import extract_batch_with_progress, flatten
 
-        results = extract_batch_with_progress(
-            str.split, ["hello world", "foo bar"], show_progress=False
-        )
+        results = extract_batch_with_progress(str.split, ["hello world", "foo bar"], show_progress=False)
         flat = flatten(results)
         assert set(flat) == {"hello", "world", "foo", "bar"}
 

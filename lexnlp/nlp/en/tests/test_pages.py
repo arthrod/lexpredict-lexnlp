@@ -18,12 +18,12 @@ from lexnlp.tests import lexnlp_tests
 
 
 class TestPages(TestCase):
-    TEST_PATH = os.path.join(lexnlp_test_path, 'lexnlp/nlp/en/tests/test_pages/')
+    TEST_PATH = os.path.join(lexnlp_test_path, "lexnlp/nlp/en/tests/test_pages/")
 
     def test_page_examples(self):
-        file_path = os.path.join(self.TEST_PATH, 'test_page_examples.csv')
-        for (_i, text, _input_args, expected) in lexnlp_tests.iter_test_data_text_and_tuple(
-                file_name=file_path):
+        file_path = os.path.join(self.TEST_PATH, "test_page_examples.csv")
+        for _i, text, _input_args, expected in lexnlp_tests.iter_test_data_text_and_tuple(file_name=file_path):
+
             def remove_blankspace(r):
                 return r.replace(" ", "").replace("\n", "").replace("\r", "").replace("\t", "")
 

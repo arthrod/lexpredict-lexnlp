@@ -37,7 +37,7 @@ freely pick up security / feature releases.
 | --- | --- | --- | --- | --- |
 | Python | `3.10.*` | **3.13.12** | `>=3.13,<3.15` | PEP 604 `X \| Y`, PEP 585 builtin generics, PEP 695 `type` alias, PEP 698 `@override`, PEP 701 multiline f-strings, PEP 709 inlined comprehensions, PEP 667 frame semantics, free-threaded build (`--disable-gil`), `tomllib` stdlib, `asyncio.TaskGroup`, `Self` type, JIT (experimental), better error messages and tracebacks, faster interpreter startup, improved `typing.override` |
 | scikit-learn | `0.24.0` | **1.8.0** | `>=1.5` | `set_config(transform_output="pandas")`, full metadata routing (SLEP006), `TunedThresholdClassifierCV`, `HistGradientBoosting` native categorical handling, `feature_names_out` standardised across all transformers, `__sklearn_tags__` API (1.6+), `ColumnTransformer.set_output`, `FrozenEstimator`, Array API support (GPU arrays), `roc_auc_score(multi_class="ovr", average="macro")` defaults, `PartialDependenceDisplay` categorical support, constrained linear models |
-| numpy | `1.23.4` | **1.26.4** | `>=1.26,<3` | NEP 50 scalar semantics (cleaner int/float promotion), `np.random.Generator`, strict type promotion, stable `numpy.typing.NDArray`, `np.exceptions` module, faster `np.isin`, improved `np.linalg` stability |
+| numpy | `1.23.4` | **2.4.4** | `>=2.1,<3` | **NumPy 2.0 (Jun 2024)**: NEP 50 default scalar promotion (cleaner int/float rules), removal of deprecated aliases (`np.int`, `np.float`, `np.NaN`, `np.product`, `np.trapz`, `np.in1d`, `np.round_`, `np.sometrue`, …), new `numpy.exceptions` namespace, strict type promotion, stable `numpy.typing.NDArray`, revamped C/Python ABI, `numpy.strings` unicode vectorised ops. **NumPy 2.1 (Aug 2024)**: default `np.dtype` repr, `matvec`/`vecmat`/`vecdot` generalised ufuncs, improved `__array_namespace__` for Array API, `numpy.dtypes.StringDType`, windows Py3.13 wheels. **NumPy 2.2 (Dec 2024)**: `numpy.lib.array_utils.normalize_axis_index`, nanquantile fast path, faster f-contiguous reductions, `out=` kwarg on `np.unique*`, `numpy.strings.slice()`. **NumPy 2.3 (Jun 2025)**: `np.random.Generator.spawn`, SIMD-accelerated string functions, free-threaded CPython support, extended Array API compliance. **NumPy 2.4 (Oct 2025)**: SVE/SME kernels on ARM, `out=` support in more ufuncs, faster `setdiff1d`, BLAS vendored wheels. Features the codebase specifically benefits from: stable `numpy.typing`, Array API passthrough for sklearn 1.8 GPU path, strict scalar promotion (eliminates silent float→int coercion), new `exceptions` namespace for precise error handling. |
 | pandas | `1.5.1` | **2.3.3** | `>=2.2.0,<3` | Copy-on-Write default, PyArrow-backed dtypes, `read_csv(dtype_backend="pyarrow")`, nullable dtypes stable, `DataFrame.map`, `Series.case_when`, deprecated `inplace=True` path removed, `.from_records` on Arrow types, `.agg` preserves dtype |
 | regex | `2022.3.2` | **2025.11.3** | `>=2024.0` | Possessive quantifiers, improved unicode property matching, fuzzy matching (`{e<=n}`), grapheme-cluster `\X`, named-group recursion, multi-threaded compile cache |
 | nltk | `3.7` | **3.9.4** | `>=3.9` | `punkt_tab` replaces `punkt` (faster, deterministic), security fixes (CVE-2024-39705 pickle), updated averaged-perceptron tagger, POS tagging on OOV tokens, stopwords refresh |
@@ -65,6 +65,78 @@ Upper caps retained:
 
 - `numpy<3` / `pandas<3` — the next majors are known-breaking.
 - `python<3.15` — upcoming 3.15 is unreleased; hold until verified.
+
+### 2.1 NumPy 2.x migration notes (April 2026)
+
+The floor moved from **1.26 → 2.1** on branch
+`claude/mirror-spanish-module-architecture-cUI6Z`. Relevant findings:
+
+- **Codebase surface**: `ruff`-grep across `lexnlp/` + `scripts/` found
+  **zero** uses of the removed aliases (`np.int`, `np.float`, `np.bool`,
+  `np.object`, `np.NaN`, `np.product`, `np.cumproduct`, `np.round_`,
+  `np.sometrue`, `np.alltrue`, `np.asfarray`, `np.trapz`, `np.in1d`). No
+  code fixes required for the runtime.
+- **Bundled sklearn pickles** (11 files under `test_data/**/*.pickle`) fail
+  to unpickle under numpy 2.x with
+  ``ValueError: node array from the pickle has an incompatible dtype``.
+  This is the known sklearn 1.2 → 1.8 + numpy 1.x → 2.x pickle migration
+  issue. Tracked in Tier B.12 ("Re-export bundled sklearn pickles") —
+  still required before the DE court-citation and ML token-sequence
+  tests can collect.
+- **`dateparser` integration**: `dateparser.search` is fine under numpy 2;
+  the only parser-level adjustment was in
+  `lexnlp/extract/common/dates.py` where ``get_dateparser_dates`` is now
+  fed the newline-normalised `self.text` instead of the original `text`.
+  This fixes a latent bug where coordinated date phrases split by a
+  newline (``"28 de abril e 17 de\nnovembro de 1995"``) produced
+  spurious year-2017 annotations because dateparser hallucinated the
+  trailing ``17`` as a two-digit year.
+- **Docstring-indent regression**: 28 Python files under `lexnlp/` had
+  over-indented statements immediately after auto-generated docstrings
+  (commit ``17a7b87`` by coderabbitai[bot]). These were syntax errors
+  that blocked any `ast.parse` / import — *not* caused by numpy 2 but
+  surfaced only when we tried to run the suite under the new floor.
+  All 28 files are now clean.
+
+## 2.2 Work completed on `claude/mirror-spanish-module-architecture-cUI6Z`
+
+| Area | What changed |
+| --- | --- |
+| NumPy floor | `1.26,<3` → `2.1,<3`; uv.lock resolves to `2.4.4` |
+| `lexnlp.extract.pt` | new language module (see §4.-1) with 6 submodules, 2 CSVs, 98 courts, 78 regulation triggers, 5 fixture files, 47 passing tests |
+| `lexnlp/extract/all_locales/{dates,definitions,copyrights}.py` | PT routed via `ROUTINE_BY_LOCALE[LANG_PT.code]` |
+| `lexnlp/extract/common/dates.py` | dateparser now receives newline-normalised text; 5 over-indented docstring statements fixed |
+| `lexnlp/extract/common/fact_extracting.py` | 3 over-indented statements fixed |
+| `lexnlp/extract/de/geoentities.py` | 3 over-indented statements fixed |
+| 25 other files under `lexnlp/` | single over-indented statement after auto-generated docstring fixed |
+| `test_data/lexnlp/extract/pt/corpus/` | 1.5 MB of real planalto legislation (LAI, CDC, Código Civil, Biossegurança, Constituição Federal) mirrored for integration tests |
+
+## 2.3 What was *not* done on this branch (explicit carry-overs)
+
+These remain open and are **not** blockers for shipping the PT module:
+
+- **Bundled sklearn 1.2 pickles** under `test_data/**/*.pickle` (11 files)
+  still fail to unpickle under numpy 2.x. The DE `test_court_citations*`
+  and several `extract/ml/**` tests ERROR at collection time with
+  ``ValueError: node array from the pickle has an incompatible dtype``.
+  Fix: re-export via `scripts/reexport_bundled_sklearn_models.py` under
+  sklearn 1.8 and commit as `.skops`. Tier B.12 in §3.
+- **Constituição Federal and LGPD planalto downloads**: direct
+  `planalto.gov.br` requests return **HTTP 403** from this runtime sandbox
+  (bot protection). The Constituição is sourced from the
+  `jonasabreu/leis-federais` GitHub mirror instead; LGPD (Lei nº
+  13.709/2018) is not present in that mirror and was not added to the
+  corpus. Acceptable because LAI, CDC and Civil Code provide 1.5 MB of
+  representative text.
+- **PT metadata-routing / structured outputs**: the PT extractors still
+  return plain annotation objects. The sklearn 1.8 metadata-routing
+  work (Tier B.9) is independent of PT.
+- **PT model cards / HF Hub publishing**: no ML artifacts exist for PT
+  yet, so Tier C.17 / §4.3 are not blocked-by-this-branch.
+- **`regex` 2025+ fuzzy dates for PT**: `lexnlp.extract.batch`'s
+  `find_fuzzy_dates` already works language-agnostically; adding a
+  PT-specific fuzzy matcher (e.g. ``{e<=1}`` on
+  ``1[º°] de janeiro``) is tracked as future work, not shipped.
 
 ## 3. Status of PR13 review feedback (addressed in `Fly7d`)
 
@@ -105,6 +177,13 @@ Upper caps retained:
    that still import `joblib`/`pickle`/`cloudpickle`.
 6. **Delete unused Pipfile / Pipfile.lock / requirements*.txt** now that
    `uv` / `pyproject` is the source of truth.
+   *Pipfile + Pipfile.lock removed on branch
+   `claude/mirror-spanish-module-architecture-cUI6Z` — the Pipfile pin of
+   `scikit-learn == 0.24` directly contradicted the `>=1.5` constraint in
+   `pyproject.toml` and was flagged by CodeRabbit as a conflict-of-
+   truth. `ci/check_dist_contents.py` continues to ban both filenames
+   from built artifacts. The `python-requirements*.txt` snapshots are
+   still retained for now.*
 7. **Run `ruff check --select UP,B,SIM,RUF,PERF,PIE --fix`** —
    modern Python idioms and small-perf wins, file-by-file review.
 
@@ -191,9 +270,101 @@ Upper caps retained:
       on `LogisticRegression`, etc.
 27. **Bump CI Python matrix**: add 3.14-nightly to catch forward
     regressions (Python 3.14 is already in RC stages).
-28. **Delete `Pipfile*`** once CI / docs reference `uv` only.
+28. **Delete `Pipfile*`** once CI / docs reference `uv` only. ✅ *Done
+    on branch `claude/mirror-spanish-module-architecture-cUI6Z` — see
+    §3 Tier-A.6 for context.*
 
 ## 4. New functionality proposals (concrete designs)
+
+### 4.-1 `lexnlp.extract.pt` — Portuguese (pt-BR) extraction *(shipped on this branch)*
+
+New first-class language module mirroring the Spanish (`lexnlp.extract.es`)
+architecture and extended for Brazilian legal prose. The branch
+`claude/mirror-spanish-module-architecture-cUI6Z` added:
+
+* **`lexnlp/extract/pt/__init__.py`** — public API re-exports.
+* **`lexnlp/extract/pt/language_tokens.py`** — curated abbreviations (`art.`,
+  `nº`, `Ltda.`, `S.A.`, `Exmo.`, …), articles, conjunctions, preposition
+  contractions (`do`, `da`, `no`, `na`, `pelo`, `pela`, …), and ordinal
+  suffix markers (``º``, ``ª``, ``°``). Curated from Brazilian legal
+  writing conventions, not a carryover from another language.
+* **`lexnlp/extract/pt/dates.py`** — ``PtDateParser(DateParser)`` backed by
+  dateparser's `pt` locale with DMY ordering. Adds:
+  - Year inheritance across coordinated phrases
+    (``"15 de fev, 28 de abr e 17 de nov de 1995"`` → three dates in 1995).
+  - Ordinal-day normalisation (``1º de janeiro``, ``1.º de janeiro``,
+    ``1° de maio``).
+  - Brasília/Rio/São Paulo legal-gazette date prefixes.
+  - Brazilian numeric DMY (``15/02/2020``, ``15.02.2020``, ``15-02-2020``)
+    including 2-digit years with a 50-year pivot.
+  - Stricter ``passed_general_check`` that rejects dateparser's
+    over-matches on weekday abbreviations (``ter``, ``qui``) and stray
+    short tokens.
+* **`lexnlp/extract/pt/definitions.py`** — ``PortugueseParsingMethods``
+  with six matcher families:
+  - hereinafter aliases (``doravante``, ``a seguir denominado``,
+    ``doravante designado``);
+  - explicit definition verbs (``refere-se a``, ``significa``,
+    ``é definido como``, ``quer dizer``, ``denota``, ``compreende``,
+    ``corresponde a``, ``equivale a``);
+  - copula sentences (``X é Y``, ``X são Y``, ``X é uma Y``);
+  - ``para os fins desta lei / deste contrato, X significa Y`` (typical
+    of Brazilian statutes);
+  - parenthesised quoted labels (``(o "Contratante")``);
+  - the common acronym matcher (shared with ES/EN).
+* **`lexnlp/extract/pt/copyrights.py`** — ``CopyrightPtParser`` subclasses
+  ``CopyrightEnStyleParser`` with a Portuguese-tuned line splitter. Sets
+  ``locale='pt'`` on every yielded annotation.
+* **`lexnlp/extract/pt/courts.py`** — ``UniversalCourtsParser`` wired with
+  a **98-row** Brazilian court catalogue
+  (`lexnlp/config/pt/pt_courts.csv`) covering STF, STJ, TST, TSE, STM,
+  CNJ, CNMP, CJF, CSJT, all six TRFs, all 24 TRTs, all 27 TREs, all 27
+  TJs, the three state military justice tribunals (TJMs), TNU and TRU.
+  Each row includes a standard alias (``STF``, ``TJSP``, ``TRF5``, …)
+  so textual short forms are matched as precisely as formal names.
+  Pattern checker broadened to ``tribunal|juízo|vara|turma|câmara|seção|
+  plenário``. ``line_breaks`` intentionally excludes single-letter
+  conjunctions (``e``, ``o``, ``a``) to avoid shattering phrases.
+* **`lexnlp/extract/pt/regulations.py`** — Four extraction layers in one
+  parser:
+  1. Trigger-word scanner driven by **78-row**
+     `lexnlp/config/pt/pt_regulations.csv` (leis, decretos, medidas
+     provisórias, resoluções, portarias, instruções normativas, órgãos
+     reguladores, etc.).
+  2. Formal Brazilian act citation regex
+     (``Lei nº 12.527, de 18 de novembro de 2011``,
+     ``Decreto-Lei nº 4.657/1942``, ``Lei Complementar nº 101/2000``) —
+     tolerant of the planalto-mirror glitch where ``nº`` renders as
+     ``n o`` across a line break.
+  3. Article / paragraph / incision / alinea references
+     (``art. 5º, inciso XXXIII``, ``§ 2º do art. 12``).
+  4. Constitutional references (``Constituição Federal``,
+     ``CRFB/88``, ``CF/88``).
+  All annotations carry ``country='Brazil'``.
+* **`lexnlp/extract/pt/identifiers.py`** — New module with
+  **checksum-validated** CPF, CNPJ, and OAB extractors. Pure-Python
+  validators (no deps); invalid numbers are silently skipped so the
+  extractor is safe to run over noisy OCR. Emits ``IdentifierMatch``
+  (``slots=True``, ``frozen=True``) with ``kind``, ``value`` (canonical
+  digits), ``surface`` and ``coords``.
+* **Dispatcher wiring**: ``lexnlp.extract.all_locales.{dates,definitions,
+  copyrights}`` now include ``LANG_PT.code`` in their
+  ``ROUTINE_BY_LOCALE``. ``LANG_PT = Language('pt', 'por', 'Portuguese')``
+  is registered alongside ``LANG_EN``/``LANG_DE``/``LANG_ES``.
+* **Real-corpus tests** — ``lexnlp/extract/pt/tests/test_real_corpus.py``
+  exercises the extractors against a 1.5 MB corpus of planalto-sourced
+  legislation (LAI, CDC, Código Civil, Biossegurança, Constituição
+  Federal). Tests assert conservative lower bounds on extraction counts
+  so planalto's minor textual revisions don't break CI. Corpus lives at
+  ``test_data/lexnlp/extract/pt/corpus/`` (mirrored from the
+  [jonasabreu/leis-federais](https://github.com/jonasabreu/leis-federais)
+  GitHub archive of planalto.gov.br).
+* **Typed-annotation fixtures** under
+  ``test_data/lexnlp/typed_annotations/pt/{date,definition,copyright,
+  court,regulation}/`` drive the same `TypedAnnotationsTester` plumbing
+  used for ES/DE.
+* **Tests**: **47 tests** under ``lexnlp/extract/pt/tests/`` all green
+  on Python 3.13 + numpy 2.4.4.
 
 ### 4.0 `lexnlp.extract.batch` — concurrent & Arrow-native extraction *(shipped)*
 

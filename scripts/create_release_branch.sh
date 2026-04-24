@@ -113,7 +113,9 @@ cp -rf ${CORE_REPO_PATH}/index.rst ${LEXNLP_REPO_PATH}
 cp -rf ${CORE_REPO_PATH}/LICENSE ${LEXNLP_REPO_PATH}
 cp -rf ${CORE_REPO_PATH}/MANIFEST.in ${LEXNLP_REPO_PATH}
 cp -rf ${CORE_REPO_PATH}/python-requirements.txt ${LEXNLP_REPO_PATH}
-cp -rf ${CORE_REPO_PATH}/Pipfile* ${LEXNLP_REPO_PATH}
+# Pipfile and Pipfile.lock were retired in favour of ``pyproject.toml`` +
+# ``uv.lock``; ``ci/check_dist_contents.py`` continues to ban them from
+# built artifacts.
 cp -rf ${CORE_REPO_PATH}/README.rst ${LEXNLP_REPO_PATH}
 cp -rf ${CORE_REPO_PATH}/README.md ${LEXNLP_REPO_PATH}
 cp -rf ${CORE_REPO_PATH}/readthedocs.yml ${LEXNLP_REPO_PATH}

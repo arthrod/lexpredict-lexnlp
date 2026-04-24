@@ -12,14 +12,13 @@ from lexnlp.extract.common.text_beautifier import TextBeautifier
 
 
 class PhrasePositionFinder:
-    reg_space = re.compile(r'\s+')
-    space_symbols = {' ', '\t'}
+    reg_space = re.compile(r"\s+")
+    space_symbols = {" ", "\t"}
 
     @staticmethod
-    def find_phrase_in_source_text(text: str,
-                                   phrases: list[str],
-                                   pos_start: int = 0,
-                                   pos_end: int = 0) -> list[tuple[str, int, int]]:
+    def find_phrase_in_source_text(
+        text: str, phrases: list[str], pos_start: int = 0, pos_end: int = 0
+    ) -> list[tuple[str, int, int]]:
         """
         Though phrase is taken from text, it could be changed - e.g.,
         extra or removed spaces...
@@ -33,7 +32,7 @@ class PhrasePositionFinder:
         """
 
         text = TextBeautifier.normalize_smb_preserve_len(text)
-        condensed = ''
+        condensed = ""
         ctos = []  # condensed-to-source indices
         stoc = [0] * len(text)  # source-to-condensed indices
         cindex = 0
@@ -60,8 +59,7 @@ class PhrasePositionFinder:
             src_word = word
             pstart = text.find(word, start)
             if pstart < 0:
-                transf_word = TextBeautifier.find_transformed_word(
-                    text, word, start)
+                transf_word = TextBeautifier.find_transformed_word(text, word, start)
                 if transf_word:
                     word, pstart = transf_word
             if pstart >= 0:
@@ -69,7 +67,7 @@ class PhrasePositionFinder:
                 phrases[i] = (phrase[0], pstart, start)
                 continue
             # phrase is modified = extra spaces were added or removed
-            word = PhrasePositionFinder.reg_space.sub('', word)
+            word = PhrasePositionFinder.reg_space.sub("", word)
             cstart = stoc[start]
             con_word_start = condensed.find(word, cstart)
             con_word_start = con_word_start if con_word_start >= 0 else cstart

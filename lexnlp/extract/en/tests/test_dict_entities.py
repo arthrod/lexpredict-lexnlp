@@ -76,7 +76,7 @@ class TestDictEntities(TestCase):
     def test_equal_aliases_in_dif_languages(self):
         """
         Verify that identical aliases in the same language produce multiple matches and that language filtering and case rules prevent unrelated lowercase words from matching.
-        
+
         This test constructs three DictionaryEntry objects where two different entities share the same English abbreviation alias ("MS") and a third has an English abbreviation ("CAN"). It asserts that two matches for "MS" are found when searching with English as the text language and that the lowercase "can" in the text does not produce a match for "CAN".
         """
         mississippi = DictionaryEntry(
@@ -131,7 +131,7 @@ class TestDictEntities(TestCase):
     def test_abbreviations_simple(self):
         """
         Verify abbreviation matching: an uppercase abbreviation inside a possessive is detected while a lowercase token is not, and results are identical with simplified normalization enabled or disabled.
-        
+
         Creates two dictionary entries with abbreviation aliases "IT" and "IS", searches a sample text containing "IT's" and "ISS", asserts exactly one match for the "IT" alias, and asserts the same alias is returned when running with simplified_normalization=True and simplified_normalization=False.
         """
         some_entity = DictionaryEntry(1, "ITAbbrev", aliases=[DictionaryEntryAlias("IT", is_abbreviation=True)])
@@ -276,7 +276,7 @@ class TestDictEntities(TestCase):
     def test_prepare_alias_banlist_dict(self):
         """
         Verify that prepare_alias_banlist_dict groups aliases and abbreviations by language, normalizes them, and returns None for an empty source list.
-        
+
         This test supplies AliasBanRecord items for multiple languages (including None), calls prepare_alias_banlist_dict with use_stemmer=False, and asserts:
         - Per-language aliases are lowercased and surrounded by spaces (e.g., " alias1 ") and collected under `.aliases`.
         - Per-language abbreviations are uppercased/normalized and surrounded by spaces (e.g., " ABBREV1 ") and collected under `.abbreviations`.
@@ -328,7 +328,7 @@ class TestDictEntities(TestCase):
         """       1         2         3         4
         01234567890123456789012345678901234567890123456
         One one Bankr. E.D.N.C. two two two.
-         One one Bankr . E . D . N . C . two two two . 
+         One one Bankr . E . D . N . C . two two two .
         """
         # mp_str = ','.join([str(i) for i in mp])
         self.assertEqual(1, mp[0])  # 'One' moved to ' One'
@@ -343,7 +343,7 @@ class TestDictEntities(TestCase):
     def test_normalize_text_extra_spaced(self):
         """
         Verify that normalize_text_with_map produces the same normalized string as normalize_text when the input contains extra spaces and that the returned source-to-destination index map reflects expected token position shifts.
-        
+
         Asserts:
         - The normalized output with a mapping equals the output from normalize_text for the same input and options.
         - Specific mapping relationships for this input:
@@ -362,7 +362,7 @@ class TestDictEntities(TestCase):
         """       1         2         3         4
         01234567890123456789012345678901234567890123456
         One one  Bankr. E.D.N.C. two two two.
-         One one Bankr . E . D . N . C . two two two . 
+         One one Bankr . E . D . N . C . two two two .
         """
         self.assertEqual(1, mp[0])  # 'One' moved to ' One'
 
@@ -373,7 +373,7 @@ class TestDictEntities(TestCase):
     def test_reverse_src_to_dest_map(self):
         """
         Verify reverse_src_to_dest_map produces correct source indices for a normalized text mapping.
-        
+
         Checks that for the sample input "One one Bankr. E.D.N.C. two two two." the reversed mapping has the expected source index values at several destination positions:
         - destination 9 maps to source index 8 (Bankr.)
         - destination 17 maps to source index 15 (E . D . N . C . segment)

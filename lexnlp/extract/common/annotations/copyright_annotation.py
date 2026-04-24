@@ -15,22 +15,22 @@ class CopyrightAnnotation(TextAnnotation):
     create an object of CopyrightAnnotation like
     cp = CopyrightAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'copyright'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = 'en',
-                 name: str = '',
-                 sign: str = '',
-                 company: str = '',
-                 text: str = '',
-                 date: str = '',
-                 year_start: int | str = '',
-                 year_end: str | int = ''):
-        super().__init__(
-            name=name,
-            coords=coords,
-            locale=locale)
+    record_type = "copyright"
+
+    def __init__(
+        self,
+        coords: tuple[int, int],
+        locale: str = "en",
+        name: str = "",
+        sign: str = "",
+        company: str = "",
+        text: str = "",
+        date: str = "",
+        year_start: int | str = "",
+        year_end: str | int = "",
+    ):
+        super().__init__(name=name, coords=coords, locale=locale)
         self.sign: str = sign
         self.company: str = company
         self.text: str = text
@@ -39,22 +39,19 @@ class CopyrightAnnotation(TextAnnotation):
         self.year_end = TextAnnotation.get_int_value(year_end)
 
     def __repr__(self):
-        text = self.company or self.name or self.text or ''
-        return f'{text}, ({self.coords[0]}, {self.coords[1]})'
+        text = self.company or self.name or self.text or ""
+        return f"{text}, ({self.coords[0]}, {self.coords[1]})"
 
     def get_cite_value_parts(self) -> list[str]:
-        parts = [self.company or self.name,
-                 str(self.year_start) if self.year_start else '',
-                 str(self.year_end) if self.year_end else '']
+        parts = [
+            self.company or self.name,
+            str(self.year_start) if self.year_start else "",
+            str(self.year_end) if self.year_end else "",
+        ]
         return parts
 
     def get_dictionary_values(self) -> dict:
-        df = Map({
-            'tags': {
-                'Extracted Entity Name': self.name,
-                'Extracted Entity Text': self.text or self.name
-            }
-        })
+        df = Map({"tags": {"Extracted Entity Name": self.name, "Extracted Entity Text": self.text or self.name}})
         if self.company:
             df.tags["Extracted Entity Company"] = self.company
         if self.year_start:

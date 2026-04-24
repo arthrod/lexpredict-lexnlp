@@ -31,14 +31,14 @@ class TestCopyrightPlain(TestCase):
     def test_text_coords(self):
         """
         Verify that the annotation start coordinate equals the index of the matched substring.
-        
+
         Asserts that the first copyright annotation produced for the sample text has a start coordinate equal to text.find("(C)Tenant").
         """
         text = """
-The provisions contained in Sections 2   through 36, inclusive, which 
-appear after the signature lines below, are a part of this Lease and are 
-incorporated in this Lease by reference. The (C)Tenant(R) and the Landlord have 
-executed or caused to be executed this Lease on the dates shown below their 
+The provisions contained in Sections 2   through 36, inclusive, which
+appear after the signature lines below, are a part of this Lease and are
+incorporated in this Lease by reference. The (C)Tenant(R) and the Landlord have
+executed or caused to be executed this Lease on the dates shown below their
 signatures, to be effective as of the date set forth above.
         """
         ant = list(get_copyright_annotations(text))[0]
@@ -48,7 +48,7 @@ signatures, to be effective as of the date set forth above.
     def test_file_samples(self):
         """
         Validate that the copyright extractor produces the expected CopyrightAnnotation objects for the sample file.
-        
+
         Runs the extractor against "lexnlp/typed_annotations/en/copyright/copyrights.txt" using TypedAnnotationsTester.test_and_raise_errors and raises an assertion error if the emitted typed annotations do not match the expected annotations.
         """
         tester = TypedAnnotationsTester()
@@ -72,7 +72,7 @@ signatures, to be effective as of the date set forth above.
 def get_copyright_verbose_annotations(text: str) -> Generator[CopyrightAnnotation]:
     """
     Yield CopyrightAnnotation objects found in the provided text with source metadata included.
-    
+
     Returns:
         Generator[CopyrightAnnotation]: Generator of CopyrightAnnotation objects whose source metadata is populated.
     """

@@ -37,28 +37,28 @@ class DeDurationParser(DurationParser):
     }
 
     DURATION_TRANSLATION_MAP = {
-        "sekunde": 'second',
-        "sekunden": 'second',
-        "minute": 'minute',
-        "minuten": 'minute',
-        "stunde": 'hour',
-        "stunden": 'hour',
-        "tag": 'day',
-        "tage": 'day',
-        "woche": 'week',
-        "wochen": 'week',
-        "monat": 'month',
-        "monate": 'month',
-        "vierteljahr": 'quarter',
-        "vierteljahre": 'quarter',
-        "jahr": 'year',
-        "jahre": 'year',
-        "jahres": 'year',
-        "jahren": 'year',
+        "sekunde": "second",
+        "sekunden": "second",
+        "minute": "minute",
+        "minuten": "minute",
+        "stunde": "hour",
+        "stunden": "hour",
+        "tag": "day",
+        "tage": "day",
+        "woche": "week",
+        "wochen": "week",
+        "monat": "month",
+        "monate": "month",
+        "vierteljahr": "quarter",
+        "vierteljahre": "quarter",
+        "jahr": "year",
+        "jahre": "year",
+        "jahres": "year",
+        "jahren": "year",
     }
 
     duration_items = sorted(DURATION_TRANSLATION_MAP.keys(), key=len, reverse=True)
-    duration_items_joined = '|'.join(duration_items)
+    duration_items_joined = "|".join(duration_items)
     DURATION_MAP_RE = re.compile(duration_items_joined)
 
     DURATION_PTN = rf"""
@@ -70,29 +70,25 @@ class DeDurationParser(DurationParser):
 
     DURATION_PTN_RE = re.compile(DURATION_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
-    INNER_CONJUNCTIONS = ['und', 'plus']
+    INNER_CONJUNCTIONS = ["und", "plus"]
 
-    INNER_PUNCTUATION = re.compile(r'[\s\,]')
+    INNER_PUNCTUATION = re.compile(r"[\s\,]")
 
-    LOCALE = 'de'
+    LOCALE = "de"
 
     @classmethod
-    def get_all_annotations(
-        cls,
-        text: str,
-        float_digits: int = 4
-    ) -> list[DurationAnnotation]:
+    def get_all_annotations(cls, text: str, float_digits: int = 4) -> list[DurationAnnotation]:
         all_annotations: list[DurationAnnotation] = []
         for match in cls.DURATION_PTN_RE.finditer(text):
             capture = match.capturesdict()
-            amount_text = ''.join(capture.get('num_text', ''))
+            amount_text = "".join(capture.get("num_text", ""))
             amounts = list(get_amounts(amount_text, float_digits=float_digits))
             if len(amounts) != 1:
-                amount = Decimal('1.0')
+                amount = Decimal("1.0")
             else:
                 amount = amounts[0]
-            unit_name_local = ''.join(capture.get('unit_name', '')).lower()
-            unit_prefix = ''.join(capture.get('unit_prefix', '')).lower()
+            unit_name_local = "".join(capture.get("unit_name", "")).lower()
+            unit_prefix = "".join(capture.get("unit_prefix", "")).lower()
             unit_name_local = cls.DURATION_MAP_RE.findall(unit_name_local)
             if not unit_name_local:
                 continue
@@ -100,27 +96,21 @@ class DeDurationParser(DurationParser):
             unit_name_en = cls.DURATION_TRANSLATION_MAP.get(unit_name_local)
 
             _duration_fraction: Fraction = cls.DURATION_MAP[unit_name_en]
-            amount_days: Decimal = Decimal(
-                (_duration_fraction.numerator * amount)
-                / _duration_fraction.denominator
-            )
+            amount_days: Decimal = Decimal((_duration_fraction.numerator * amount) / _duration_fraction.denominator)
 
             if float_digits:
-                amount_days: Decimal = quantize_by_float_digit(
-                    amount=amount_days,
-                    float_digits=float_digits
-                )
+                amount_days: Decimal = quantize_by_float_digit(amount=amount_days, float_digits=float_digits)
 
             ant: DurationAnnotation = DurationAnnotation(
                 coords=match.span(),
-                text=''.join(capture.get('text', '')),
+                text="".join(capture.get("text", "")),
                 amount=amount,
                 duration_days=amount_days,
                 duration_type_en=unit_name_en,
                 duration_type=unit_name_local,
                 prefix=unit_prefix,
                 locale=cls.LOCALE,
-                value_dict={unit_name_en: float(amount)}
+                value_dict={unit_name_en: float(amount)},
             )
             all_annotations.append(ant)
         return all_annotations
@@ -129,27 +119,22 @@ class DeDurationParser(DurationParser):
 def get_durations(text: str, float_digits: int = 4) -> Generator:
     for ant in DeDurationParser.get_annotations(text, float_digits):
         yield dict(
-                location_start=ant.coords[0],
-                location_end=ant.coords[1],
-                source_text=ant.text,
-                unit_name_local=ant.duration_type,
-                unit_name=ant.duration_type_en,
-                unit_prefix=ant.prefix,
-                amount=ant.amount,
-                amount_days=ant.duration_days)
+            location_start=ant.coords[0],
+            location_end=ant.coords[1],
+            source_text=ant.text,
+            unit_name_local=ant.duration_type,
+            unit_name=ant.duration_type_en,
+            unit_prefix=ant.prefix,
+            amount=ant.amount,
+            amount_days=ant.duration_days,
+        )
 
 
-def get_duration_annotations(
-    text: str,
-    float_digits: int = 4
-) -> Generator[DurationAnnotation]:
+def get_duration_annotations(text: str, float_digits: int = 4) -> Generator[DurationAnnotation]:
     yield from DeDurationParser.get_annotations(text, float_digits)
 
 
-def get_duration_annotations_list(
-    text: str,
-    float_digits: int = 4
-) -> list[DurationAnnotation]:
+def get_duration_annotations_list(text: str, float_digits: int = 4) -> list[DurationAnnotation]:
     return DeDurationParser.get_annotations(text, float_digits)
 
 

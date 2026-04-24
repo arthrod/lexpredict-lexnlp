@@ -6,12 +6,10 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 from lexnlp.extract.common.annotations.duration_annotation import DurationAnnotation
 
 
 class DurationParser:
-
     DURATION_MAP = {}
 
     DURATION_PTN_RE = None  # type:Pattern
@@ -22,7 +20,7 @@ class DurationParser:
 
     GET_AMOUNTS = None  # type:Callable
 
-    LOCALE = 'en'
+    LOCALE = "en"
 
     @classmethod
     def get_annotations(
@@ -65,11 +63,7 @@ class DurationParser:
         ant_group: list[DurationAnnotation],
     ) -> DurationAnnotation:
         coords = (ant_group[0].coords[0], ant_group[-1].coords[1])
-        rst: DurationAnnotation = DurationAnnotation(
-            coords,
-            locale=ant_group[0].locale,
-            is_complex=True
-        )
+        rst: DurationAnnotation = DurationAnnotation(coords, locale=ant_group[0].locale, is_complex=True)
         rst.duration_days = sum([d.duration_days for d in ant_group])
         rst.amount = rst.duration_days
         rst.duration_type = ant_group[-1].duration_type
@@ -100,10 +94,10 @@ class DurationParser:
 
         # the captures should be separated by: spaces, punctuation and
         # conjunctions ("and" in any case)
-        intext: str = text[a.coords[1]:b.coords[0]].lower()
+        intext: str = text[a.coords[1] : b.coords[0]].lower()
         for conj in cls.INNER_CONJUNCTIONS:
-            intext: str = intext.replace(conj, '')
-        intext: str = cls.INNER_PUNCTUATION.sub('', intext)
+            intext: str = intext.replace(conj, "")
+        intext: str = cls.INNER_PUNCTUATION.sub("", intext)
         return not intext
 
     @classmethod

@@ -1,0 +1,19 @@
+Website BBC Brasil © 1996 – 2019
+-------------------------------------------------------------------------------
+total=1
+0)locale=pt
+0)company=Website BBC Brasil
+0)year_start=1996
+###0)year_end=2019
+0)get_cite()=/pt/copyright/Website BBC Brasil/1996
+
+
+-------------------------------------------------------------------------------
+Copyright © 2019 BBC
+-------------------------------------------------------------------------------
+total=1
+0)name=BBC
+0)company=BBC
+0)year_start=2019
+0)year_end=
+0)get_cite()=/pt/copyright/BBC/2019

@@ -44,16 +44,16 @@ def _get_courts(
 ) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     """
     Extracts court dictionary matches from the given text using the provided dictionary entries.
-    
+
     This function is deprecated and emits a DeprecationWarning when called.
-    
+
     Parameters:
         text (str): Text to search for court entities.
         court_config_list (list[DictionaryEntry]): Dictionary entries to match against the text.
         priority (bool): If True, resolve overlapping/conflicting matches by taking the entry with highest priority (first by id).
         text_languages (list[str] | None): Optional list of language codes to guide language-specific matching.
         simplified_normalization (bool): If True, apply simplified normalization rules during matching.
-    
+
     Returns:
         Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]: Yields a tuple of (DictionaryEntry, DictionaryEntryAlias) for each matched entity.
     """
@@ -71,30 +71,30 @@ def _get_courts(
 
 def setup_es_parser():
     ptrs = ParserInitParams()
-    ptrs.dataframe_paths = [os.path.join(lexnlp_base_path, 'lexnlp/config/es/es_courts.csv')]
+    ptrs.dataframe_paths = [os.path.join(lexnlp_base_path, "lexnlp/config/es/es_courts.csv")]
     ptrs.split_ptrs = LineSplitParams()
-    ptrs.split_ptrs.line_breaks = {'\n', '.', ';', ','}.union(set(EsLanguageTokens.conjunctions))
+    ptrs.split_ptrs.line_breaks = {"\n", ".", ";", ","}.union(set(EsLanguageTokens.conjunctions))
     ptrs.split_ptrs.abbreviations = EsLanguageTokens.abbreviations
     ptrs.split_ptrs.abbr_ignore_case = True
-    ptrs.court_pattern_checker = re.compile('tribunal', re.IGNORECASE)
+    ptrs.court_pattern_checker = re.compile("tribunal", re.IGNORECASE)
     return UniversalCourtsParser(ptrs)
 
 
 parser = setup_es_parser()
 
 
-def get_court_annotations(text: str, language: str = 'es') -> Generator[CourtAnnotation]:
+def get_court_annotations(text: str, language: str = "es") -> Generator[CourtAnnotation]:
     yield from parser.parse(text, language)
 
 
-def get_court_annotation_list(text: str, language: str = 'es') -> list[CourtAnnotation]:
+def get_court_annotation_list(text: str, language: str = "es") -> list[CourtAnnotation]:
     return list(get_court_annotations(text, language))
 
 
-def get_courts(text: str, language: str = 'es') -> Generator[dict]:
+def get_courts(text: str, language: str = "es") -> Generator[dict]:
     for court_annotation in parser.parse(text, language):
         yield court_annotation.to_dictionary()
 
 
-def get_court_list(text: str, language: str = 'es') -> list[CourtAnnotation]:
+def get_court_list(text: str, language: str = "es") -> list[CourtAnnotation]:
     return list(parser.parse(text, language))

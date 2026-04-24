@@ -19,7 +19,7 @@ from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 def make_geoconfig():
     """
     Load geoentity dictionary entries from the module's test CSV files.
-    
+
     Returns:
         list[DictionaryEntry]: DictionaryEntry objects loaded from the test_geoentities CSV files (`geoentities.csv` and `geoaliases.csv`) located relative to this test module.
     """
@@ -37,7 +37,7 @@ class TestGeoentitiesPlain(TestCase):
     def test_multiline_address(self):
         """
         Verifies that a multi-line address block is recognized as a single geoentity.
-        
+
         Constructs a representative multi-line address-like string, extracts geoentities using the shared GEO_CONFIG, and asserts that exactly one geoentity is returned.
         """
         text = """
@@ -45,17 +45,17 @@ class TestGeoentitiesPlain(TestCase):
         DUCK REALTY CORPORATION
         Ono M. Hernandez
         Property Administrator
-        
+
         2400 North Commerce  Forkway
         Suite 405
         Weston, FL 55582
         Main: 954-453-4091
         P: 954-453-4091
-        F: 954.453.4092 
-        ono.hernandez@dukerealty.com 
+        F: 954.453.4092
+        ono.hernandez@dukerealty.com
         www.duckrealty.com
-        
-        
+
+
         Cc: File
         LEASE
         """
@@ -91,10 +91,10 @@ class TestGeoentitiesPlain(TestCase):
         def parse_geo_annotations(text):
             """
             Extract geoentity annotations from the given text using the module's geo configuration.
-            
+
             Parameters:
                 text (str): Input text to scan for geoentities.
-            
+
             Returns:
                 annotations (list[GeoAnnotation]): List of geoentity annotations found in the text.
             """

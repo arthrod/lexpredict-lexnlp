@@ -71,7 +71,7 @@ class TestDeDatesPlain(TestCase):
     def test_date_reverse_order(self):
         """
         Verifies that the numeric date "09/12/2022" is parsed with the month equal to 12.
-        
+
         Asserts that exactly one date annotation is extracted from the input and that the extracted date's month is 12.
         """
         text = "Commencement Date: 09/12/2022."
@@ -128,11 +128,11 @@ class TestDeDatesPlain(TestCase):
     def test_negative_jahr(self):
         """
         Verify that a phrase expressing a duration ("mehr als 1 Jahr") is not recognized as a date.
-        
+
         Asserts that no DateAnnotation objects are produced for a contract description mentioning a duration of more than one year.
         """
-        text = """Der Vertrag beginnt mit dem Moment zu laufen, in dem der Vermieter / Mieter seine 
-        Unterschriften darauf gemacht hat. Wenn die Mietdauer mehr als 1 Jahr beträgt, ist eine staatliche 
+        text = """Der Vertrag beginnt mit dem Moment zu laufen, in dem der Vermieter / Mieter seine
+        Unterschriften darauf gemacht hat. Wenn die Mietdauer mehr als 1 Jahr beträgt, ist eine staatliche
         Registrierung des Vertrags erforderlich."""
         dates = list(get_date_annotations(text))
         for d in dates:
@@ -142,7 +142,7 @@ class TestDeDatesPlain(TestCase):
     def test_point_inside(self):
         """
         Verifies extraction of a single German date appearing after a time expression.
-        
+
         Asserts that one DateAnnotation is found in "- Definitiver Leasing-Entscheid innert 24 Stunden 5. Oktober 2011." and that its date equals 2011-10-05.
         """
         text = """- Definitiver Leasing-Entscheid innert 24 Stunden 5. Oktober 2011."""
@@ -173,7 +173,7 @@ class TestDeDatesPlain(TestCase):
     def test_file_samples(self):
         """
         Validate date annotation extraction against the repository's German date samples.
-        
+
         Runs TypedAnnotationsTester.test_and_raise_errors using get_dates_ordered on
         "lexnlp/typed_annotations/de/date/dates.txt" and expects each sample to produce
         a DateAnnotation; raises on any mismatch.
@@ -185,7 +185,7 @@ class TestDeDatesPlain(TestCase):
     def debug_test_train_classifier(self):
         """
         Train and save the default German date classifier for debugging and model regeneration.
-        
+
         Runs the default training routine with model persistence enabled, minimal console output, and validation of date strings.
         """
         train_default_model(save=True, verbose=False, check_date_strings=True)

@@ -26,18 +26,15 @@ class CopyrightEnStyleParser:
     reg_valid_company_name = re.compile(r"\p{L}[\p{L}\s,]+", re.UNICODE)
 
     year_ptn = r"(\d{4}(?:\s*[-,–]\s*\d{4})?)"
-    year_ptn_re = re.compile(year_ptn + '$')
+    year_ptn_re = re.compile(year_ptn + "$")
 
-    copyright_ptn = fr"((Copyright\W\s*|\(\s*[Cc]\s*\)\s*|©)+\s*{year_ptn}?\s*(.+))"
+    copyright_ptn = rf"((Copyright\W\s*|\(\s*[Cc]\s*\)\s*|©)+\s*{year_ptn}?\s*(.+))"
     copyright_ptn_re = re.compile(copyright_ptn)
 
-    copyright_dates_re = re.compile(r'\d{2,}')
+    copyright_dates_re = re.compile(r"\d{2,}")
 
     @staticmethod
-    def get_copyrights(
-        text: str,
-        return_sources: bool = False
-    ) -> Generator[CopyrightAnnotation]:
+    def get_copyrights(text: str, return_sources: bool = False) -> Generator[CopyrightAnnotation]:
         for ant in CopyrightEnStyleParser.get_copyright_annotations(text, return_sources):
             if return_sources:
                 yield ant.sign, ant.date, ant.name, ant.text
@@ -71,18 +68,19 @@ class CopyrightEnStyleParser:
                     cp_date_at_end = cls.year_ptn_re.search(cp_name)
                     if cp_date_at_end:
                         cp_date = cp_date_at_end.group()
-                        cp_name = re.sub(rf'{cp_date}$', '', cp_name)
+                        cp_name = re.sub(rf"{cp_date}$", "", cp_name)
 
                 start, end = match.span()
                 if end > (phrase_end - phrase_start):
                     end = phrase_end - phrase_start
                 start += phrase_start
                 end += phrase_start
-                ant = CopyrightAnnotation(coords=(start, end),
-                                          sign=cp_sign.strip(),
-                                          date=cp_date,
-                                          name=cp_name.strip(string.punctuation +
-                                                             string.whitespace))
+                ant = CopyrightAnnotation(
+                    coords=(start, end),
+                    sign=cp_sign.strip(),
+                    date=cp_date,
+                    name=cp_name.strip(string.punctuation + string.whitespace),
+                )
 
                 if return_sources:
                     ant.text = cp_text.strip()
@@ -93,16 +91,16 @@ class CopyrightEnStyleParser:
     @classmethod
     def derive_company_name(cls, ant: CopyrightAnnotation, phrase: str) -> None:
         if ant.company:
-            ant.company = ant.company.strip(' ,;-(:')
+            ant.company = ant.company.strip(" ,;-(:")
             if cls.reg_valid_company_name.search(ant.company):
                 return
-            ant.company = ''
+            ant.company = ""
         possible_names = [n.group(0) for n in cls.reg_company_name.finditer(ant.name)]
         if not possible_names:
             possible_names = [n.group(0) for n in cls.reg_company_name.finditer(phrase)]
         if possible_names:
             ant.company = cls.take_best_company_name(possible_names)
-            ant.company = ant.company.strip(' ,;-(:')
+            ant.company = ant.company.strip(" ,;-(:")
 
     @classmethod
     def take_best_company_name(cls, names: list[str]) -> str:

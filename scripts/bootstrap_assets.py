@@ -27,7 +27,14 @@ NLTK_RESOURCES = (
     "maxent_ne_chunker",
     "words",
 )
-OPTIONAL_NLTK_RESOURCES = ("punkt_tab",)
+OPTIONAL_NLTK_RESOURCES = (
+    "punkt_tab",
+    # NLTK 3.9 renames averaged_perceptron_tagger → averaged_perceptron_tagger_eng.
+    # The tagger is loaded lazily from `nltk.pos_tag`; grabbing both keeps
+    # older and newer NLTK runtimes happy.
+    "averaged_perceptron_tagger_eng",
+    "maxent_ne_chunker_tab",
+)
 
 
 def resolve_contract_model_tag() -> str:
@@ -45,10 +52,7 @@ def resolve_contract_type_model_tag() -> str:
     """
     Resolve the contract-type model tag from env overrides.
     """
-    return (
-        os.getenv("LEXNLP_CONTRACT_TYPE_MODEL_TAG")
-        or "pipeline/contract-type/0.2-runtime"
-    ).strip()
+    return (os.getenv("LEXNLP_CONTRACT_TYPE_MODEL_TAG") or "pipeline/contract-type/0.2-runtime").strip()
 
 
 CONTRACT_MODEL_TAG = resolve_contract_model_tag()
@@ -167,8 +171,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         )
     ):
         parser.error(
-            "Select at least one task: --nltk, --contract-model, --contract-type-model, "
-            "--stanford, --tika, or --all"
+            "Select at least one task: --nltk, --contract-model, --contract-type-model, --stanford, --tika, or --all"
         )
 
     if args.timeout <= 0:
@@ -204,9 +207,7 @@ def download_file(
 
     parsed_url = urlparse(url)
     if parsed_url.scheme not in ("http", "https"):
-        raise ValueError(
-            f"Refusing to fetch URL with unsupported scheme {parsed_url.scheme!r}: {url}"
-        )
+        raise ValueError(f"Refusing to fetch URL with unsupported scheme {parsed_url.scheme!r}: {url}")
 
     tmp_destination = destination.with_name(destination.name + ".part")
     if tmp_destination.exists():
@@ -256,13 +257,8 @@ def extract_zip(archive_path: Path, destination_dir: Path, *, dry_run: bool) -> 
             member_path = (destination_root / member.filename).resolve()
             # Protect against zip-slip: the resolved path must remain under
             # the destination directory.
-            if (
-                member_path != destination_root
-                and destination_root not in member_path.parents
-            ):
-                raise RuntimeError(
-                    f"Refusing to extract zip member with unsafe path: {member.filename!r}"
-                )
+            if member_path != destination_root and destination_root not in member_path.parents:
+                raise RuntimeError(f"Refusing to extract zip member with unsafe path: {member.filename!r}")
             if member.is_dir():
                 member_path.mkdir(parents=True, exist_ok=True)
                 continue

@@ -29,7 +29,7 @@ from lexnlp.tests import lexnlp_tests
 def test_get_durations():
     """
     Run extraction tests for English duration parsing using predefined test cases.
-    
+
     Invokes the shared extraction test harness with get_durations, expecting no source strings
     and converting expected tuples of (unit, duration_units, duration_days) into the form
     (unit, Decimal(duration_units), Decimal(duration_days)) for comparison.
@@ -51,7 +51,7 @@ def test_get_durations():
 def test_get_durations_source():
     """
     Run extraction tests that verify duration tokens include expected unit, numeric values, and source identifiers.
-    
+
     The test converts expected numeric strings to Decimal objects for the duration units and duration days, and enables source reporting when calling the extraction test helper.
     """
     lexnlp_tests.test_extraction_func_on_test_data(

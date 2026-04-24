@@ -37,7 +37,7 @@ class TestDistancesPlain(TestCase):
     def test_file_samples(self):
         """
         Validate the distance annotation extractor against the sample fixtures.
-        
+
         Runs the typed-annotations tester using the fixtures file at
         "lexnlp/typed_annotations/en/distance/distances.txt" and raises an exception if any extracted annotation does not match the expected DistanceAnnotation.
         """

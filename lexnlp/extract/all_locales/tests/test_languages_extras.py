@@ -21,6 +21,7 @@ from lexnlp.extract.all_locales.languages import (
     LANG_DE,
     LANG_EN,
     LANG_ES,
+    LANG_PT,
     LANGUAGES,
     Locale,
     LocaleContextManager,
@@ -101,11 +102,63 @@ class TestLanguageConstants:
         codes = {lang.code for lang in LANGUAGES}
         assert codes >= {"en", "de", "es"}
 
+    def test_languages_list_contains_pt(self) -> None:
+        codes = {lang.code for lang in LANGUAGES}
+        assert "pt" in codes
+
+    def test_languages_list_has_four_entries(self) -> None:
+        assert len(LANGUAGES) == 4
+
     def test_default_language_is_en(self) -> None:
         assert DEFAULT_LANGUAGE is LANG_EN
 
     def test_default_language_code(self) -> None:
         assert DEFAULT_LANGUAGE.code == "en"
+
+
+# ---------------------------------------------------------------------------
+# LANG_PT constant (added in this PR)
+# ---------------------------------------------------------------------------
+
+
+class TestLangPt:
+    def test_lang_pt_code(self) -> None:
+        assert LANG_PT.code == "pt"
+
+    def test_lang_pt_code_3(self) -> None:
+        assert LANG_PT.code_3 == "por"
+
+    def test_lang_pt_title(self) -> None:
+        assert LANG_PT.title == "Portuguese"
+
+    def test_lang_pt_str(self) -> None:
+        assert str(LANG_PT) == "pt"
+
+    def test_lang_pt_in_languages_list(self) -> None:
+        assert LANG_PT in LANGUAGES
+
+    def test_lang_pt_is_not_default(self) -> None:
+        assert DEFAULT_LANGUAGE is not LANG_PT
+
+    def test_lang_pt_code_distinct_from_others(self) -> None:
+        assert LANG_PT.code != LANG_EN.code
+        assert LANG_PT.code != LANG_DE.code
+        assert LANG_PT.code != LANG_ES.code
+
+    def test_lang_pt_code_3_distinct_from_others(self) -> None:
+        assert LANG_PT.code_3 != LANG_EN.code_3
+        assert LANG_PT.code_3 != LANG_DE.code_3
+        assert LANG_PT.code_3 != LANG_ES.code_3
+
+    def test_pt_locale_parsing(self) -> None:
+        loc = Locale("pt-BR")
+        assert loc.language == "pt"
+        assert loc.locale_code == "BR"
+
+    def test_pt_locale_code_only(self) -> None:
+        loc = Locale("pt")
+        assert loc.language == "pt"
+        assert loc.locale_code == "PT"
 
 
 # ---------------------------------------------------------------------------
@@ -153,15 +206,16 @@ class TestLocaleClass:
         # locale_code from position 3+ should be "GB" (upper)
         assert loc.locale_code == "GB"
 
-    @pytest.mark.parametrize("raw,expected_lang,expected_locale", [
-        ("de-DE", "de", "DE"),
-        ("es-ES", "es", "ES"),
-        ("en-AU", "en", "AU"),
-        ("fr-CA", "fr", "CA"),
-    ])
-    def test_parametrized_locale_parsing(
-        self, raw: str, expected_lang: str, expected_locale: str
-    ) -> None:
+    @pytest.mark.parametrize(
+        "raw,expected_lang,expected_locale",
+        [
+            ("de-DE", "de", "DE"),
+            ("es-ES", "es", "ES"),
+            ("en-AU", "en", "AU"),
+            ("fr-CA", "fr", "CA"),
+        ],
+    )
+    def test_parametrized_locale_parsing(self, raw: str, expected_lang: str, expected_locale: str) -> None:
         loc = Locale(raw)
         assert loc.language == expected_lang
         assert loc.locale_code == expected_locale

@@ -72,32 +72,24 @@ def _words(text: str) -> list[str]:
 class TestMaxWorkersFallback:
     def test_max_workers_none_uses_adaptive(self) -> None:
         """max_workers=None must not crash — falls back to adaptive_max_workers."""
-        results = extract_batch_with_progress(
-            _words, ["hello world"], max_workers=None, show_progress=False
-        )
+        results = extract_batch_with_progress(_words, ["hello world"], max_workers=None, show_progress=False)
         assert len(results) == 1
         assert results[0].ok
 
     def test_max_workers_zero_uses_adaptive(self) -> None:
         """max_workers=0 is treated as 'use default', not as 'zero threads'."""
-        results = extract_batch_with_progress(
-            _words, ["hello world"], max_workers=0, show_progress=False
-        )
+        results = extract_batch_with_progress(_words, ["hello world"], max_workers=0, show_progress=False)
         assert len(results) == 1
         assert results[0].ok
 
     def test_max_workers_one_sequential(self) -> None:
-        results = extract_batch_with_progress(
-            _words, ["a b", "c d", "e f"], max_workers=1, show_progress=False
-        )
+        results = extract_batch_with_progress(_words, ["a b", "c d", "e f"], max_workers=1, show_progress=False)
         assert len(results) == 3
         assert all(r.ok for r in results)
 
     def test_max_workers_large_does_not_crash(self) -> None:
         texts = [f"doc {i}" for i in range(5)]
-        results = extract_batch_with_progress(
-            _words, texts, max_workers=32, show_progress=False
-        )
+        results = extract_batch_with_progress(_words, texts, max_workers=32, show_progress=False)
         assert len(results) == 5
 
 
@@ -108,9 +100,7 @@ class TestMaxWorkersFallback:
 
 class TestSingleItemBatch:
     def test_single_item_ok(self) -> None:
-        results = extract_batch_with_progress(
-            _words, ["hello world"], show_progress=False
-        )
+        results = extract_batch_with_progress(_words, ["hello world"], show_progress=False)
         assert len(results) == 1
         assert results[0].ok
         assert results[0].index == 0
@@ -120,9 +110,7 @@ class TestSingleItemBatch:
         def always_fail(text: str) -> list[str]:
             raise RuntimeError("forced")
 
-        results = extract_batch_with_progress(
-            always_fail, ["trigger"], show_progress=False
-        )
+        results = extract_batch_with_progress(always_fail, ["trigger"], show_progress=False)
         assert len(results) == 1
         assert not results[0].ok
         assert isinstance(results[0].error, RuntimeError)
@@ -137,17 +125,13 @@ class TestShowProgressTrue:
     def test_progress_true_does_not_crash(self) -> None:
         """With show_progress=True, the function must still return correct results
         regardless of whether tqdm is installed (it will fall back silently)."""
-        results = extract_batch_with_progress(
-            _words, ["alpha beta", "gamma"], max_workers=2, show_progress=True
-        )
+        results = extract_batch_with_progress(_words, ["alpha beta", "gamma"], max_workers=2, show_progress=True)
         assert len(results) == 2
         assert all(r.ok for r in results)
 
     def test_progress_true_order_preserved(self) -> None:
         texts = [f"item {i}" for i in range(10)]
-        results = extract_batch_with_progress(
-            _words, texts, max_workers=4, show_progress=True
-        )
+        results = extract_batch_with_progress(_words, texts, max_workers=4, show_progress=True)
         assert [r.index for r in results] == list(range(10))
 
 
@@ -167,9 +151,7 @@ class TestDescParameter:
         assert len(results) == 1
 
     def test_empty_desc_does_not_crash(self) -> None:
-        results = extract_batch_with_progress(
-            _words, ["hello"], desc="", show_progress=False
-        )
+        results = extract_batch_with_progress(_words, ["hello"], desc="", show_progress=False)
         assert len(results) == 1
 
 
@@ -181,25 +163,19 @@ class TestDescParameter:
 class TestOrderingGuarantee:
     def test_results_sorted_by_index_many_workers(self) -> None:
         texts = [f"word{i}" for i in range(50)]
-        results = extract_batch_with_progress(
-            _words, texts, max_workers=8, show_progress=False
-        )
+        results = extract_batch_with_progress(_words, texts, max_workers=8, show_progress=False)
         indices = [r.index for r in results]
         assert indices == list(range(50))
 
     def test_index_field_matches_position(self) -> None:
         texts = ["alpha", "beta", "gamma", "delta"]
-        results = extract_batch_with_progress(
-            _words, texts, max_workers=2, show_progress=False
-        )
+        results = extract_batch_with_progress(_words, texts, max_workers=2, show_progress=False)
         for i, r in enumerate(results):
             assert r.index == i
 
     def test_annotations_match_input_position(self) -> None:
         texts = ["one", "one two", "one two three"]
-        results = extract_batch_with_progress(
-            _words, texts, show_progress=False
-        )
+        results = extract_batch_with_progress(_words, texts, show_progress=False)
         assert results[0].annotations == ["one"]
         assert results[1].annotations == ["one", "two"]
         assert results[2].annotations == ["one", "two", "three"]
@@ -261,9 +237,7 @@ class TestReturnType:
         assert isinstance(result, list)
 
     def test_each_element_is_batch_extraction_result(self) -> None:
-        results = extract_batch_with_progress(
-            _words, ["a", "b"], show_progress=False
-        )
+        results = extract_batch_with_progress(_words, ["a", "b"], show_progress=False)
         for r in results:
             assert hasattr(r, "index")
             assert hasattr(r, "annotations")

@@ -14,37 +14,25 @@ class UrlAnnotation(TextAnnotation):
     create an object of UrlAnnotation like
     cp = UrlAnnotation(name='name', coords=(0, 100), url='www.google.com')
     """
-    record_type = 'url'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = 'en',
-                 text: str | None = None,
-                 url: str | None = None):
+    record_type = "url"
+
+    def __init__(self, coords: tuple[int, int], locale: str = "en", text: str | None = None, url: str | None = None):
         """
-        Initialize a UrlAnnotation with location, locale, optional display text, and URL.
-                 
+        Initialize a UrlAnnotation with character offsets, locale, optional display text, and URL.
+
         Parameters:
-        coords (tuple[int, int]): Start and end character offsets for the annotation.
-        locale (str): Locale code for the annotation (default 'en').
-        text (str | None): Optional extracted or display text associated with the URL.
-        url (str | None): Optional URL value for the annotation; stored on the instance as `self.url`.
+            coords (tuple[int, int]): Start and end character offsets of the annotation within the source text.
+            locale (str): Locale code for the annotation (default 'en').
+            text (str | None): Optional extracted or display text associated with the URL.
+            url (str | None): Optional URL value to store on the instance as `self.url`.
         """
-        super().__init__(
-            name='',
-            locale=locale,
-            coords=coords,
-            text=text)
+        super().__init__(name="", locale=locale, coords=coords, text=text)
         self.url = url
 
     def get_cite_value_parts(self) -> list[str]:
         return [self.url]
 
     def get_dictionary_values(self) -> dict:
-        df = {
-            'tags': {
-                'Extracted Entity URL': self.url,
-                'Extracted Entity Text': self.text
-            }
-        }
+        df = {"tags": {"Extracted Entity URL": self.url, "Extracted Entity Text": self.text}}
         return df

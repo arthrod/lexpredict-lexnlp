@@ -38,7 +38,7 @@ class TestUniversalCourtsParser(TestCase):
     def test_compare_to_legacy_parser(self):
         """
         Compare the UniversalCourtsParser against the legacy court parser and record parse durations.
-        
+
         Loads a sample court document, runs the universal parser and the legacy parser on the text, asserts that the universal parser produces 4 extracted entities and the legacy parser produces 3, and measures the elapsed time for each parse (timings are recorded but not asserted).
         """
         parser = self.make_en_parser()
@@ -64,10 +64,10 @@ class TestUniversalCourtsParser(TestCase):
     def parse_courts_legacy_function(self, text: str):
         """
         Parse the input text using the legacy court-annotations parser.
-        
+
         Parameters:
             text (str): The document text to search for court mentions.
-        
+
         Returns:
             list: A list of annotation objects representing detected courts; each annotation describes a matched court (for example, annotations include a `record_type` field set to `"court"`).
         """
@@ -77,9 +77,9 @@ class TestUniversalCourtsParser(TestCase):
     def load_en_courts(self):
         """
         Load English (US) court definitions from a remote CSV and return them as DictionaryEntry instances.
-        
+
         Each entry includes an integer id, the court name, priority set to 0, name_is_alias set to True, and any aliases parsed from the CSV's Alias column.
-        
+
         Returns:
             list[DictionaryEntry]: List of court configuration entries constructed from the CSV resource.
         """
@@ -101,11 +101,11 @@ class TestUniversalCourtsParser(TestCase):
     def make_en_parser(self):
         """
         Create a UniversalCourtsParser preconfigured for English (US) court names.
-        
+
         Configures parser initialization parameters including a case-insensitive pattern that matches the word "court",
         a remote CSV of US court names as the dictionary source, and line-splitting rules (line breaks, abbreviations,
         and case-insensitive abbreviation handling).
-        
+
         Returns:
             UniversalCourtsParser: Parser instance configured to recognize English US court names.
         """

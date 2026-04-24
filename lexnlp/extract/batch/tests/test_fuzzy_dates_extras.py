@@ -19,16 +19,12 @@ from __future__ import annotations
 import importlib.util
 from datetime import date
 
-import pytest
-
 # Import fuzzy_dates directly, bypassing the batch __init__.py which uses
 # PEP 695 syntax (Python 3.12+). The fuzzy_dates module itself is compatible
 # with Python 3.11+.
 _spec = importlib.util.spec_from_file_location(
     "lexnlp.extract.batch.fuzzy_dates",
-    str(
-        __import__("pathlib").Path(__file__).parent.parent / "fuzzy_dates.py"
-    ),
+    str(__import__("pathlib").Path(__file__).parent.parent / "fuzzy_dates.py"),
 )
 _mod = importlib.util.module_from_spec(_spec)  # type: ignore[arg-type]
 _spec.loader.exec_module(_mod)  # type: ignore[union-attr]

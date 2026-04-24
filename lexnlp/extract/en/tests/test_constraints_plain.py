@@ -27,7 +27,7 @@ class TestConstraintsPlain(TestCase):
     def test_file_samples(self):
         """
         Validate the constraint annotation extractor against the canonical sample file.
-        
+
         Runs the typed-annotations tester on the constraint samples file and raises an error if any annotation does not match the expected ConstraintAnnotation format.
         """
         tester = TypedAnnotationsTester()

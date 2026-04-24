@@ -21,28 +21,29 @@ class TextPatternCollector:
     EsDefinitionsParser searches for definitions in text according to the
     rules of Spanish. See the "parse" method
     """
+
     def __init__(self, parsing_functions: list[Callable[[str], list[PatternFound]]], split_params: LineSplitParams):
         """
         Initialize the TextPatternCollector with parsing functions and line-splitting parameters.
-        
+
         Parameters:
-        	parsing_functions (list[Callable[[str], list[PatternFound]]]): Callables that parse a phrase string and return a list of PatternFound results.
-        	split_params (LineSplitParams): Configuration used to split input text into lines/phrases.
-        
+            parsing_functions (list[Callable[[str], list[PatternFound]]]): Callables that parse a phrase string and return a list of PatternFound results.
+            split_params (LineSplitParams): Configuration used to split input text into lines/phrases.
+
         """
         self.parsing_functions = parsing_functions
         self.split_params = split_params
         self.proc = LineProcessor(line_split_params=self.split_params)
-        self.prohibited_words = {}    # words that are Not definitions per se
+        self.prohibited_words = {}  # words that are Not definitions per se
 
     def parse(self, text: str, locale: str | None = None) -> Generator[TextAnnotation]:
         """
         Extract pattern-based annotations from the input text using the collector's parsing functions.
-        
+
         Parameters:
             text (str): Input text to scan for patterns (e.g., definitions or named entities).
             locale (str | None): Optional locale code (e.g., 'En', 'De', 'Es') passed to annotation construction.
-        
+
         Returns:
             TextAnnotation: TextAnnotation objects for each detected pattern, with annotation coordinates adjusted to the original text offsets.
         """
@@ -81,11 +82,10 @@ class TextPatternCollector:
         resulted = []
         # pylint: disable=unused-variable
         for _, g in groupby(matches, lambda m: m.name.strip(" \t'\"")):
-        # pylint: enable=unused-variable
+            # pylint: enable=unused-variable
             same_matches = list(g)
             if len(same_matches) > 1:
-                same_matches = [sorted(same_matches,
-                                       key=TextPatternCollector.estimate_match_quality, reverse=True)[0]]
+                same_matches = [sorted(same_matches, key=TextPatternCollector.estimate_match_quality, reverse=True)[0]]
             resulted += same_matches
         return resulted
 

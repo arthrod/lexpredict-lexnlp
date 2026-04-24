@@ -56,7 +56,7 @@ BY SUCH COURTS.""",
 def test_courts():
     """
     Execute extraction tests for US courts using the standard test harness.
-    
+
     Loads the US courts CSV, constructs dictionary entries for each row, and verifies that `_get_courts` extracts the expected court names by running `lexnlp_tests.test_extraction_func_on_test_data`.
     """
     court_df = pandas.read_csv(
@@ -77,7 +77,7 @@ def test_courts():
 def test_courts_rs():
     """
     Run extraction tests for US courts using the official court dataset.
-    
+
     Loads the US courts CSV, constructs dictionary entries, and asserts that _get_courts produces the expected court names via the test harness.
     """
 
@@ -102,7 +102,7 @@ def test_courts_rs():
 def test_courts_longest_match():
     """
     Verify extractor resolves overlapping court names by preferring the longest matching alias while still returning shorter matches when they appear independently.
-    
+
     This test builds DictionaryEntry objects from the local us_courts.csv file (including aliases), then runs the extraction harness against _get_courts using a tuple(name, type) converter with debug output enabled.
     """
     courts_config_fn = os.path.join(os.path.dirname(lexnlp_tests.this_test_data_path()), "us_courts.csv")
@@ -134,12 +134,12 @@ def test_courts_longest_match():
 def build_dictionary_entry(row):
     """
     Create a DictionaryEntry for a court from a CSV row.
-    
+
     Parameters:
         row (Mapping or pandas.Series): A mapping representing a CSV row that must contain the keys
             "Court ID" (convertible to int) and "Court Name" (string). May optionally contain
             "Alias" as a semicolon-separated string of alias values.
-    
+
     Returns:
         DictionaryEntry: A dictionary entry with id set from "Court ID", name set from "Court Name",
         priority 0, and aliases populated from "Alias" (each alias converted to a DictionaryEntryAlias).

@@ -116,10 +116,10 @@ class TestGetGeoEntities(AssertionMixin):
 def get_ordered_geo_annotations(text: str) -> list[GeoAnnotation]:
     """
     Find geo-entity annotations in the input text and return them sorted by their start coordinate.
-    
+
     Parameters:
         text (str): Input text to scan for geo-entity annotations.
-    
+
     Returns:
         list[GeoAnnotation]: Annotations found in `text`, sorted in ascending order by each annotation's start coordinate (`coords[0]`).
     """

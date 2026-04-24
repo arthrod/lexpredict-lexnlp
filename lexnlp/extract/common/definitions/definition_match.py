@@ -11,8 +11,9 @@ class DefinitionMatch:
     used inside EsDefinitionsParser and SpanishParsingMethods
     to store intermediate parsing results
     """
+
     def __init__(self):
-        self.name = None    # type: str
+        self.name = None  # type: str
         self.start = 0
         self.end = 0
         self.probability = 0

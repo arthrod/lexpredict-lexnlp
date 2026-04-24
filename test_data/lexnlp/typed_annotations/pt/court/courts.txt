@@ -1,0 +1,18 @@
+A decisão do Supremo Tribunal Federal foi publicada ontem.
+-------------------------------------------------------------------------------
+total=1
+0)locale=pt
+0)court_type=Tribunal Supremo
+0)get_cite()=/pt/court/Supremo Tribunal Federal/Federal/Tribunal Supremo
+
+
+
+-------------------------------------------------------------------------------
+O atual Tribunal de Justiça do Estado de São Paulo foi criado em 1874
+e é um dos mais antigos do Brasil.
+-------------------------------------------------------------------------------
+total=1
+0)locale=pt
+0)jurisdiction=São Paulo
+0)court_type=Tribunal de Justiça
+0)get_cite()=/pt/court/Tribunal de Justiça do Estado de São Paulo/São Paulo/Tribunal de Justiça

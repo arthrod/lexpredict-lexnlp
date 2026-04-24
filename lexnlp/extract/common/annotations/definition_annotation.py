@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -15,27 +14,20 @@ class DefinitionAnnotation(TextAnnotation):
     create an object of DefinitionAnnotation like
     cp = DefinitionAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'definition'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = 'en',
-                 name: str = '',
-                 text: str | None = None):
+    record_type = "definition"
+
+    def __init__(self, coords: tuple[int, int], locale: str = "en", name: str = "", text: str | None = None):
         """
-        Initialize a DefinitionAnnotation instance.
-                 
+        Initialize a DefinitionAnnotation with a character-span, locale, name, and optional extracted text.
+
         Parameters:
-        coords (tuple[int, int]): A (start, end) pair of character offsets indicating the annotation span.
-        locale (str): Locale code for the annotation (default 'en').
-        name (str): The label or name of the definition.
-        text (str | None): The extracted text for the definition; may be None if not available.
+            coords (tuple[int, int]): (start, end) character offsets for the annotation span.
+            locale (str): Locale code for the annotation (e.g., 'en').
+            name (str): Label or name of the definition.
+            text (str | None): Extracted text for the definition; when falsy, the `name` is used as a fallback.
         """
-        super().__init__(
-            name=name,
-            locale=locale,
-            coords=coords,
-            text=text)
+        super().__init__(name=name, locale=locale, coords=coords, text=text)
 
     def get_cite_value_parts(self) -> list[str]:
         return [self.name]
@@ -45,10 +37,5 @@ class DefinitionAnnotation(TextAnnotation):
         return self.text
 
     def get_dictionary_values(self) -> dict:
-        ant = {
-            'tags': {
-                'Extracted Entity Definition Name': self.name,
-                'Extracted Entity Text': self.text or self.name
-            }
-        }
+        ant = {"tags": {"Extracted Entity Definition Name": self.name, "Extracted Entity Text": self.text or self.name}}
         return ant

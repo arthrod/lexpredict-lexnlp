@@ -19,7 +19,7 @@ from lexnlp.extract.common.pattern_found import PatternFound
 
 class CopyrightParsingMethods:
     def __init__(self):
-        self.trigger_words = ''
+        self.trigger_words = ""
         self.reg_trigger_words = None  # type: Pattern
         self.reg_word_c_years = None  # type: List[Pattern]
         self.reg_c_years_word = None  # type: List[Pattern]
@@ -32,14 +32,13 @@ class CopyrightParsingMethods:
 
     def init_regexes(self):
         self.reg_company_name = re.compile(r"[\p{L}\s]+", re.UNICODE | re.IGNORECASE)
-        self.reg_trigger_words = re.compile(self.trigger_words,
-                                            re.UNICODE | re.IGNORECASE)
+        self.reg_trigger_words = re.compile(self.trigger_words, re.UNICODE | re.IGNORECASE)
         self.reg_word_c_years = re.compile(
-            r"[^,;:\|\t]+(%s)\s+\d{4}([–\s-]+\d{4})?" % self.trigger_words,
-            re.UNICODE | re.IGNORECASE)
+            r"[^,;:\|\t]+(%s)\s+\d{4}([–\s-]+\d{4})?" % self.trigger_words, re.UNICODE | re.IGNORECASE
+        )
         self.reg_c_years_word = re.compile(
-            r"(%s)\s+\d{4}([–\s-]+\d{4})?[^\b;\.]+" % self.trigger_words,
-            re.UNICODE | re.IGNORECASE)
+            r"(%s)\s+\d{4}([–\s-]+\d{4})?[^\b;\.]+" % self.trigger_words, re.UNICODE | re.IGNORECASE
+        )
 
     def match_word_c_years(self, phrase: str) -> list[PatternFound]:
         """
@@ -50,12 +49,15 @@ class CopyrightParsingMethods:
             return []
 
         reg = self.reg_word_c_years
-        dfs = CommonDefinitionPatterns. \
-            collect_regex_matches(phrase, reg, 100,
-                                  lambda p, m: m.start(),  # 0 ?
-                                  lambda p, m: m.end())  # len(p) ?
+        dfs = CommonDefinitionPatterns.collect_regex_matches(
+            phrase,
+            reg,
+            100,
+            lambda p, m: m.start(),  # 0 ?
+            lambda p, m: m.end(),
+        )  # len(p) ?
         # 'start' - search for company name from the beginning
-        patterns = self.pre_process_found_matches(dfs, 'start')
+        patterns = self.pre_process_found_matches(dfs, "start")
         return patterns
 
     def match_c_years_word(self, phrase: str) -> list[PatternFound]:
@@ -67,16 +69,16 @@ class CopyrightParsingMethods:
             return []
 
         reg = self.reg_c_years_word
-        dfs = CommonDefinitionPatterns. \
-            collect_regex_matches(phrase, reg, 100,
-                                  lambda p, m: m.start(),
-                                  lambda p, m: m.end())  # len(p) ?
+        dfs = CommonDefinitionPatterns.collect_regex_matches(
+            phrase, reg, 100, lambda p, m: m.start(), lambda p, m: m.end()
+        )  # len(p) ?
         # 'start' - search for company name from the beginning
-        patterns = self.pre_process_found_matches(dfs, 'end')
+        patterns = self.pre_process_found_matches(dfs, "end")
         return patterns
 
-    def pre_process_found_matches(self, matches: list[PatternFound],
-                                  company_search_options: str) -> list[CopyrightPatternFound]:
+    def pre_process_found_matches(
+        self, matches: list[PatternFound], company_search_options: str
+    ) -> list[CopyrightPatternFound]:
         rst = []
         for match in matches:
             ptrn = CopyrightPatternFound(match)
@@ -90,23 +92,22 @@ class CopyrightParsingMethods:
                 ptrn.start_year = min(years[0][0], years[1][0])
 
             # company name
-            company = self.get_company_name_from_match(
-                match.name, company_search_options, years)
+            company = self.get_company_name_from_match(match.name, company_search_options, years)
             if company:
                 ptrn.company = company
             rst.append(ptrn)
 
         return rst
 
-    def get_company_name_from_match(self, text: str,
-                                    company_search_options: str,
-                                    years: list[tuple[int, int, int]]) -> str:
+    def get_company_name_from_match(
+        self, text: str, company_search_options: str, years: list[tuple[int, int, int]]
+    ) -> str:
         start = 0
         end = -1
-        if company_search_options == 'start':
+        if company_search_options == "start":
             if len(years) > 0:
                 end = years[0][1]
-        if company_search_options == 'end':
+        if company_search_options == "end":
             if len(years) > 0:
                 start = years[-1][2] + 1
         if start == len(text) - 1 or end == 0:
@@ -115,15 +116,14 @@ class CopyrightParsingMethods:
 
         # try to find company name in source text by 'company_search_options',
         # then, if was not found, find in the whole text
-        texts = [text[start: end], text]
+        texts = [text[start:end], text]
         for text in texts:
-            words = [w.group().strip(' \t') for w in
-                     self.reg_company_name.finditer(text)]
+            words = [w.group().strip(" \t") for w in self.reg_company_name.finditer(text)]
             words = [w for w in words if w]
             phrase = " ".join(words)
             # remove "Copyright" from company name
-            phrase = re.sub(self.reg_trigger_words, '', phrase)
+            phrase = re.sub(self.reg_trigger_words, "", phrase)
             if phrase:
                 return phrase
 
-        return ''
+        return ""

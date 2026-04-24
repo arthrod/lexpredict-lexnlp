@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -77,11 +76,7 @@ def _build_tag_dict() -> dict[str, Path]:
     Returns:
         A dictionary.
     """
-    return {
-        str(path.parent.relative_to(CATALOG)): path
-        for path in CATALOG.rglob('*')
-        if path.is_file()
-    }
+    return {str(path.parent.relative_to(CATALOG)): path for path in CATALOG.rglob("*") if path.is_file()}
 
 
 def invalidate_catalog_cache() -> None:
@@ -131,7 +126,7 @@ def get_path_from_catalog(tag: str) -> Path:
 
     if path is None:
         raise FileNotFoundError(
-            f'Could not find tag={tag} in CATALOG={CATALOG}. '
+            f"Could not find tag={tag} in CATALOG={CATALOG}. "
             f'Please download using `lexnlp.ml.catalog.download.download_github_release("{tag}")`'
         )
     else:

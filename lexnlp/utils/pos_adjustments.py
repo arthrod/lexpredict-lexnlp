@@ -43,6 +43,7 @@ class TokenPosTagAdjustment:
             pos_tokens = [*map(adjustment, pos_tokens)]
         ```
     """
+
     from_token: Callable = lambda token: True
     from_pos: Callable = lambda pos: True
     to_token: Callable = lambda token: token

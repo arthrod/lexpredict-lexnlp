@@ -36,6 +36,7 @@ from bs4 import BeautifulSoup
 # musllinux build environment).
 try:  # pragma: no cover - import-time fallback
     import lxml  # noqa: F401  # imported for availability check only
+
     _DEFAULT_PARSER = "lxml"
 except ImportError:  # pragma: no cover
     _DEFAULT_PARSER = "html.parser"

@@ -52,21 +52,21 @@ from lexnlp.utils.amount_delimiting import infer_delimiters
 SMALL_NUMBERS: list[int] = [*range(0, 21, 1), *range(30, 100, 10)]
 SMALL_NUMBERS_MAP = {num2words(n): n for n in SMALL_NUMBERS}
 SMALL_NUMBERS_MAP.update({num2words(n, ordinal=True): n for n in SMALL_NUMBERS})
-SMALL_NUMBERS_MAP.update({num2words(n, ordinal=True) + 's': n for n in SMALL_NUMBERS[3:20]})
-SMALL_NUMBERS_MAP.update({num2words(n).replace('y', 'ieths'): n for n in SMALL_NUMBERS[20:]})
+SMALL_NUMBERS_MAP.update({num2words(n, ordinal=True) + "s": n for n in SMALL_NUMBERS[3:20]})
+SMALL_NUMBERS_MAP.update({num2words(n).replace("y", "ieths"): n for n in SMALL_NUMBERS[20:]})
 MAGNITUDE_MAP: dict[str, int] = {
-    'k': 1000,
-    'thousand': 1000,
-    'thousandth': 1000,
-    'thousandths': 1000,
-    'm': 1000000,
-    'mm': 1000000,
-    'million': 1000000,
-    'b': 1000000000,
-    'bil': 1000000000,
-    'billion': 1000000000,
-    'trill': 1000000000000,
-    'trillion': 1000000000000,
+    "k": 1000,
+    "thousand": 1000,
+    "thousandth": 1000,
+    "thousandths": 1000,
+    "m": 1000000,
+    "mm": 1000000,
+    "million": 1000000,
+    "b": 1000000000,
+    "bil": 1000000000,
+    "billion": 1000000000,
+    "trill": 1000000000000,
+    "trillion": 1000000000000,
 }
 
 small_numbers = list(SMALL_NUMBERS_MAP.keys())
@@ -96,62 +96,78 @@ CURRENCY_PREFIX_MAP = {
 allowed_prev_units = list(CURRENCY_SYMBOL_MAP) + list(CURRENCY_PREFIX_MAP)
 
 fraction_smb_to_value = {
-    '½': 1.0 / 2, '⅓': 1.0 / 3, '⅔': 2.0 / 3,
-    '¼': 1.0 / 4, '¾': 3.0 / 4, '⅕': 1.0 / 5,
-    '⅖': 2.0 / 5, '⅗': 3.0 / 5, '⅘': 4.0 / 5,
-    '⅙': 1.0 / 6, '⅚': 5.0 / 6, '⅐': 1.0 / 7,
-    '⅛': 1.0 / 8, '⅜': 3.0 / 8, '⅝': 5.0 / 8,
-    '⅞': 7.0 / 8, '⅑': 1.0 / 9, '⅒': 1.0 / 10
+    "½": 1.0 / 2,
+    "⅓": 1.0 / 3,
+    "⅔": 2.0 / 3,
+    "¼": 1.0 / 4,
+    "¾": 3.0 / 4,
+    "⅕": 1.0 / 5,
+    "⅖": 2.0 / 5,
+    "⅗": 3.0 / 5,
+    "⅘": 4.0 / 5,
+    "⅙": 1.0 / 6,
+    "⅚": 5.0 / 6,
+    "⅐": 1.0 / 7,
+    "⅛": 1.0 / 8,
+    "⅜": 3.0 / 8,
+    "⅝": 5.0 / 8,
+    "⅞": 7.0 / 8,
+    "⅑": 1.0 / 9,
+    "⅒": 1.0 / 10,
 }
-fraction_smb_to_string = {
-    k: str(fraction_smb_to_value[k])[1:]
-    for k in fraction_smb_to_value
-}
+fraction_smb_to_string = {k: str(fraction_smb_to_value[k])[1:] for k in fraction_smb_to_value}
 
-fraction_symbols = ''.join(fraction_smb_to_value)
-FRACTION_TAIL = rf'\s{{0,2}}[{fraction_symbols}]+'
+fraction_symbols = "".join(fraction_smb_to_value)
+FRACTION_TAIL = rf"\s{{0,2}}[{fraction_symbols}]+"
 FRACTION_TAIL_RE = re.compile(FRACTION_TAIL, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
-NUM_PTN = fr"(?:(?:(?:(?:(?:[\.\d][\d\.,]*\s*|\W|^)(?:(?:{'|'.join(small_numbers)}|{'|'.join(big_numbers)}|hundred" \
-          fr"(?:th(?:s)?)?|dozen|and|a\s+half|quarters?)[\s-]*)+)(?:(?:no|\d{{1,2}})/100)?)|(?<=\W|^)" \
-          fr"(?:[\.\d][\d\.,'/]*))(?:\W|$))(?:{FRACTION_TAIL})*"
+NUM_PTN = (
+    rf"(?:(?:(?:(?:(?:[\.\d][\d\.,]*\s*|\W|^)(?:(?:{'|'.join(small_numbers)}|{'|'.join(big_numbers)}|hundred"
+    rf"(?:th(?:s)?)?|dozen|and|a\s+half|quarters?)[\s-]*)+)(?:(?:no|\d{{1,2}})/100)?)|(?<=\W|^)"
+    rf"(?:[\.\d][\d\.,'/]*))(?:\W|$))(?:{FRACTION_TAIL})*"
+)
 
 NUM_PTN_RE = re.compile(NUM_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
-NON_WRIT_RE = re.compile(r'[\d\.]+')
+NON_WRIT_RE = re.compile(r"[\d\.]+")
 ONLY_DIGITS_AND_DELIMITERS_RE = re.compile(r"[\d.,']+")
-BIG_NUMBERS_RE = re.compile(fr"\b({'|'.join(big_numbers)})\b")
-MIXED_WRIT_RE = re.compile(r'(^[\d\.,]*)(.+)', re.DOTALL)
-ONLY_BIG_WRIT_RE = re.compile(r'^\s*(?:{}|hundred|dozen)'.format('|'.join(MAGNITUDE_MAP)))
-NUM_FRACTION_RE = re.compile(r'(\s+no|\d{1,2})/(\d{1,3}[^/])')
-NUM_FRACTION_SUB_RE = re.compile(r'(?:\s*and)?(?:\s+no|\s*\d{1,2})/\d{1,3}')
-HALF_RE = re.compile(r'\s*and\s+a\s+half')
-QUARTER_RE = re.compile(r'(?:\s*and\s+)?(one|two|three)[\s-]+quarters?')
-AND_RE = re.compile(r'\W*and\W*', re.IGNORECASE | re.MULTILINE | re.DOTALL)
+BIG_NUMBERS_RE = re.compile(rf"\b({'|'.join(big_numbers)})\b")
+MIXED_WRIT_RE = re.compile(r"(^[\d\.,]*)(.+)", re.DOTALL)
+ONLY_BIG_WRIT_RE = re.compile(r"^\s*(?:{}|hundred|dozen)".format("|".join(MAGNITUDE_MAP)))
+NUM_FRACTION_RE = re.compile(r"(\s+no|\d{1,2})/(\d{1,3}[^/])")
+NUM_FRACTION_SUB_RE = re.compile(r"(?:\s*and)?(?:\s+no|\s*\d{1,2})/\d{1,3}")
+HALF_RE = re.compile(r"\s*and\s+a\s+half")
+QUARTER_RE = re.compile(r"(?:\s*and\s+)?(one|two|three)[\s-]+quarters?")
+AND_RE = re.compile(r"\W*and\W*", re.IGNORECASE | re.MULTILINE | re.DOTALL)
 
-FRACTION_PTN = r"(?:(?:\W|^)" \
-               r"(?:one[\s-]+(?:{writ_ord_2_90}|hundredth|thousandth|(?:{writ_20_90})[\s-]+" \
-               r"(?:{writ_ord_1_9})))|" \
-               r"(?:(?:{writ_1_90}|[\s-]+)+[\s-]+(?:{writ_ord_3_90_pl}|hundredths|thousandths" \
-               r"(?:{writ_20_90})[\s-]+(?:{writ_ord_1_9_pl}))))" \
-               r"(?:\W|$)".format(writ_ord_2_90='|'.join([num2words(n, ordinal=True) for n in SMALL_NUMBERS[2:]]),
-                                  writ_20_90='|'.join([num2words(n) for n in SMALL_NUMBERS[20:]]),
-                                  writ_ord_1_9='|'.join([num2words(n, ordinal=True) for n in SMALL_NUMBERS[1:10]]),
-                                  writ_1_90='|'.join([num2words(n) for n in SMALL_NUMBERS[1:]]),
-                                  writ_ord_3_90_pl='|'.join([num2words(n, ordinal=True) + 's'
-                                                             for n in SMALL_NUMBERS[3:]]),
-                                  writ_ord_1_9_pl='|'.join([num2words(n, ordinal=True) + 's'
-                                                            for n in SMALL_NUMBERS[1:10]]))
+FRACTION_PTN = (
+    r"(?:(?:\W|^)"
+    r"(?:one[\s-]+(?:{writ_ord_2_90}|hundredth|thousandth|(?:{writ_20_90})[\s-]+"
+    r"(?:{writ_ord_1_9})))|"
+    r"(?:(?:{writ_1_90}|[\s-]+)+[\s-]+(?:{writ_ord_3_90_pl}|hundredths|thousandths"
+    r"(?:{writ_20_90})[\s-]+(?:{writ_ord_1_9_pl}))))"
+    r"(?:\W|$)".format(
+        writ_ord_2_90="|".join([num2words(n, ordinal=True) for n in SMALL_NUMBERS[2:]]),
+        writ_20_90="|".join([num2words(n) for n in SMALL_NUMBERS[20:]]),
+        writ_ord_1_9="|".join([num2words(n, ordinal=True) for n in SMALL_NUMBERS[1:10]]),
+        writ_1_90="|".join([num2words(n) for n in SMALL_NUMBERS[1:]]),
+        writ_ord_3_90_pl="|".join([num2words(n, ordinal=True) + "s" for n in SMALL_NUMBERS[3:]]),
+        writ_ord_1_9_pl="|".join([num2words(n, ordinal=True) + "s" for n in SMALL_NUMBERS[1:10]]),
+    )
+)
 FRACTION_PTN_RE = re.compile(FRACTION_PTN)
 
-FRACTION_EXTRACT_PTN = r"((?:(?:{writ})|(?:(?:{writ_20_90})[\s-]+(?:{writ_1_9}))))[\s-]+" \
-                       r"((?:{writ_ord_mix}|(?:(?:{writ_20_90})[\s-]+" \
-                       r"(?:{writ_ord_1_9_mix}))|hundredths?|thousandths?))" \
-    .format(writ='|'.join([num2words(n) for n in SMALL_NUMBERS[1:]]),
-            writ_20_90='|'.join([num2words(n) for n in SMALL_NUMBERS[20:]]),
-            writ_1_9='|'.join([num2words(n) for n in SMALL_NUMBERS[1:10]]),
-            writ_ord_mix='|'.join([num2words(n, ordinal=True) + 's?' for n in SMALL_NUMBERS[2:]]),
-            writ_ord_1_9_mix='|'.join([num2words(n, ordinal=True) + 's?' for n in SMALL_NUMBERS[1:10]]))
+FRACTION_EXTRACT_PTN = (
+    r"((?:(?:{writ})|(?:(?:{writ_20_90})[\s-]+(?:{writ_1_9}))))[\s-]+"
+    r"((?:{writ_ord_mix}|(?:(?:{writ_20_90})[\s-]+"
+    r"(?:{writ_ord_1_9_mix}))|hundredths?|thousandths?))".format(
+        writ="|".join([num2words(n) for n in SMALL_NUMBERS[1:]]),
+        writ_20_90="|".join([num2words(n) for n in SMALL_NUMBERS[20:]]),
+        writ_1_9="|".join([num2words(n) for n in SMALL_NUMBERS[1:10]]),
+        writ_ord_mix="|".join([num2words(n, ordinal=True) + "s?" for n in SMALL_NUMBERS[2:]]),
+        writ_ord_1_9_mix="|".join([num2words(n, ordinal=True) + "s?" for n in SMALL_NUMBERS[1:10]]),
+    )
+)
 FRACTION_EXTRACT_PTN_RE = re.compile(FRACTION_EXTRACT_PTN, re.S | re.M)
 
 # Taken from Su Nam Kim Paper...
@@ -167,41 +183,32 @@ chunker = nltk.RegexpParser(grammar)
 
 
 def cleanup(text) -> str:
-    punctuation_and_whitespace: str = \
-        string.punctuation + string.whitespace
+    punctuation_and_whitespace: str = string.punctuation + string.whitespace
 
-    text = text \
-        .lower() \
-        .replace('-', ' ') \
-        .strip(string.whitespace) \
-        .rstrip(punctuation_and_whitespace)
+    text = text.lower().replace("-", " ").strip(string.whitespace).rstrip(punctuation_and_whitespace)
 
-    text = re.sub(r'\s+and\s*$|^\s*and\s+', '', text)
+    text = re.sub(r"\s+and\s*$|^\s*and\s+", "", text)
 
-    if not (
-        text.startswith('.')
-        and text[1].isdigit()
-    ):
+    if not (text.startswith(".") and text[1].isdigit()):
         text = text.lstrip(punctuation_and_whitespace)
 
     # TODO: do not hardcode 'en_US'! This should come from a locale string
     try:
         next(re.finditer(BIG_NUMBERS_RE, text))
-        only_digits_and_delimiters: str = \
-            next(re.finditer(ONLY_DIGITS_AND_DELIMITERS_RE, text)).captures()[0]
-        delimiters: dict | None = infer_delimiters(only_digits_and_delimiters, 'en_US')
+        only_digits_and_delimiters: str = next(re.finditer(ONLY_DIGITS_AND_DELIMITERS_RE, text)).captures()[0]
+        delimiters: dict | None = infer_delimiters(only_digits_and_delimiters, "en_US")
     except StopIteration:
-        delimiters: dict | None = infer_delimiters(text, 'en_US')
+        delimiters: dict | None = infer_delimiters(text, "en_US")
 
     if delimiters is None:
         return text
 
-    group_delimiter = delimiters.get('group_delimiter', False)
-    decimal_delimiter = delimiters.get('decimal_delimiter', False)
+    group_delimiter = delimiters.get("group_delimiter", False)
+    decimal_delimiter = delimiters.get("decimal_delimiter", False)
     if group_delimiter:
-        text = text.replace(group_delimiter, '')
+        text = text.replace(group_delimiter, "")
     if decimal_delimiter:
-        text = text.replace(decimal_delimiter, '.')
+        text = text.replace(decimal_delimiter, ".")
     return text
 
 
@@ -222,7 +229,7 @@ def text2num(
 
     # pre-process input string
     s: str = cleanup(s)
-    if s in ('k', 'm', 'b'):
+    if s in ("k", "m", "b"):
         return None
 
     # if only integer or decimal in string
@@ -237,7 +244,7 @@ def text2num(
 
     # if written big number has no prefix: "lovely million", "a dozen"
     if ONLY_BIG_WRIT_RE.search(s) and not prefix:
-        s: str = f'one {s}'
+        s: str = f"one {s}"
 
     d: Decimal = Decimal(0)
     dnd = NUM_FRACTION_RE.search(s)
@@ -246,7 +253,7 @@ def text2num(
 
     # convert quarters
     if q:
-        s: str = QUARTER_RE.sub('', s)
+        s: str = QUARTER_RE.sub("", s)
         nu = q.groups()[0]
         d = text2num(nu) / 4
 
@@ -255,12 +262,12 @@ def text2num(
         dn, dd = dnd.groups()
         if dn.isdigit():
             d: Decimal = Decimal(dn) / Decimal(dd)
-        s: str = NUM_FRACTION_SUB_RE.sub('', s)
+        s: str = NUM_FRACTION_SUB_RE.sub("", s)
 
     # extract written fractions
     elif fs and search_fraction:
         try:
-            s: str = FRACTION_PTN_RE.sub('', s)
+            s: str = FRACTION_PTN_RE.sub("", s)
             fe = fs.group(0)
             fn, fd = FRACTION_EXTRACT_PTN_RE.search(fe).groups()
             fn = text2num(fn, search_fraction=False)
@@ -274,27 +281,27 @@ def text2num(
 
     x1: int = 0
     for token in s_split:
-        if token in ('a', 'and'):
+        if token in ("a", "and"):
             continue
-        x: int = SMALL_NUMBERS_MAP.get(token, None)
+        x: int = SMALL_NUMBERS_MAP.get(token)
         if x is not None:
             prefix += x
-        elif 'hundred' in token and prefix != 0:
+        elif "hundred" in token and prefix != 0:
             prefix *= 100
-        elif token == 'dozen' and prefix != 0:
+        elif token == "dozen" and prefix != 0:
             prefix *= 12
-        elif token == 'half':
+        elif token == "half":
             if x1:
-                prefix += (x1 * Decimal(0.5))
+                prefix += x1 * Decimal(0.5)
             else:
                 prefix += Decimal(0.5)
         else:
-            x = x1 = MAGNITUDE_MAP.get(token, None)
+            x = x1 = MAGNITUDE_MAP.get(token)
             if x is not None:
                 n += prefix * x
                 prefix = Decimal(0)
             else:
-                raise RuntimeError(f'Unknown number: {token}')
+                raise RuntimeError(f"Unknown number: {token}")
     return Decimal(n + prefix + d)
 
 
@@ -302,8 +309,8 @@ def get_np(text) -> Generator[str]:
     tokens: list[str] = nltk.word_tokenize(text)
     pos_tokens: nltk.tree.Tree = nltk.tag.pos_tag(tokens)
     chunks: nltk.tree.Tree = chunker.parse(pos_tokens)
-    for subtree in chunks.subtrees(filter=lambda t: t.label() == 'NP'):
-        yield ' '.join(i[0] for i in subtree.leaves())
+    for subtree in chunks.subtrees(filter=lambda t: t.label() == "NP"):
+        yield " ".join(i[0] for i in subtree.leaves())
 
 
 def quantize_by_float_digit(amount: Decimal, float_digits: int) -> Decimal:
@@ -312,13 +319,13 @@ def quantize_by_float_digit(amount: Decimal, float_digits: int) -> Decimal:
     abs_exponent: int = abs(exponent)
     try:
         if abs_exponent == 0:
-            return amount.quantize(Decimal('0.0'))
+            return amount.quantize(Decimal("0.0"))
         if abs_exponent > float_digits:
             if any(amount_as_tuple.digits[exponent:]):
-                return amount.quantize(Decimal(f'0.{"0" * float_digits}'))
-            return amount.quantize(Decimal('0.0'))
+                return amount.quantize(Decimal(f"0.{'0' * float_digits}"))
+            return amount.quantize(Decimal("0.0"))
         return amount
-    except InvalidOperation as invalid_operation:
+    except InvalidOperation:
         # TODO: fix this problem in a better way later
         # raise InvalidOperation(
         #     f'{amount=}, {float_digits=}, {getcontext().prec=}'
@@ -388,10 +395,10 @@ def get_amount_annotations(
         found_item = match.group()
         fraction_tail_items = FRACTION_TAIL_RE.finditer(found_item)
         for fraction_tail in fraction_tail_items:  # type: re.Match
-            fraction_tail_smb = fraction_tail.group().strip(' ')
+            fraction_tail_smb = fraction_tail.group().strip(" ")
             if fraction_tail_smb in fraction_smb_to_string:
                 fraction_ending = fraction_smb_to_string[fraction_tail_smb]
-                found_item = found_item[:fraction_tail.span()[0]]
+                found_item = found_item[: fraction_tail.span()[0]]
                 found_item += fraction_ending
             break
 
@@ -405,38 +412,27 @@ def get_amount_annotations(
             continue
 
         if float_digits:
-            amount: Decimal = quantize_by_float_digit(
-                amount=amount,
-                float_digits=float_digits
-            )
+            amount: Decimal = quantize_by_float_digit(amount=amount, float_digits=float_digits)
 
         if extended_sources:
-            unit = ''
-            next_text = text[match.span()[1]:]
+            unit = ""
+            next_text = text[match.span()[1] :]
             if next_text:
                 for np in get_np(next_text):
                     if next_text.startswith(np):
                         unit = np
                 if unit:
-                    found_item = ' '.join([found_item.strip(), unit])
+                    found_item = " ".join([found_item.strip(), unit])
             if not unit:
-                prev_text = text[:match.span()[0]]
+                prev_text = text[: match.span()[0]]
                 prev_text_tags = nltk.word_tokenize(prev_text)
                 if prev_text_tags and prev_text_tags[-1].lower() in allowed_prev_units:
-                    sep = ' ' if text[match.span()[0] - 1] == ' ' else ''
+                    sep = " " if text[match.span()[0] - 1] == " " else ""
                     found_item = sep.join([prev_text_tags[-1], found_item.rstrip()])
 
-            yield AmountAnnotation(
-                coords=match.span(),
-                value=amount,
-                text=found_item.strip()
-            )
+            yield AmountAnnotation(coords=match.span(), value=amount, text=found_item.strip())
         else:
-            yield AmountAnnotation(
-                coords=match.span(),
-                value=amount,
-                text=match.group()
-            )
+            yield AmountAnnotation(coords=match.span(), value=amount, text=match.group())
 
 
 def get_amount_annotation_list(

@@ -17,27 +17,26 @@ from lexnlp.extract.common.base_path import lexnlp_test_path
 def load_resource_document(doc_path: str, encoding: str = "ascii") -> str:
     """
     Load a resource file from the package test data directory and return its contents as a string.
-    
+
     Parameters:
         doc_path (str): Path to the file relative to the package's test data root.
         encoding (str): Encoding used to read the file (default: "ascii").
-    
+
     Returns:
         str: The file contents.
     """
     full_path = os.path.join(lexnlp_test_path, doc_path)
-    with codecs.open(full_path, encoding=encoding, mode='r') as fr:
+    with codecs.open(full_path, encoding=encoding, mode="r") as fr:
         data = fr.read()
     return data
 
 
-def save_test_document(doc_path: str, text: str,
-                       encoding: str = "utf-8") -> None:
+def save_test_document(doc_path: str, text: str, encoding: str = "utf-8") -> None:
     """
     saves text as a file in test_data folder
     """
     full_path = os.path.join(lexnlp_test_path, doc_path)
-    with codecs.open(full_path, encoding=encoding, mode='w') as fw:
+    with codecs.open(full_path, encoding=encoding, mode="w") as fw:
         fw.write(text)
 
 
@@ -60,16 +59,16 @@ def annotate_text(text: str, annotations: list[TextAnnotation]) -> str:
     """
     end = 0
     for ant in annotations:
-        part = text[end:ant.coords[0]]
-        result += escape(part).replace('\n', '<br/>')
+        part = text[end : ant.coords[0]]
+        result += escape(part).replace("\n", "<br/>")
 
-        title = '[%d] ' % ant.index + escape(ant.text).replace('"', "'")
+        title = "[%d] " % ant.index + escape(ant.text).replace('"', "'")
         rf = '<a href="#" title="%s">' % title
-        link_title = escape(text[ant.coords[0]: ant.coords[1]])
+        link_title = escape(text[ant.coords[0] : ant.coords[1]])
         if ant.index > 0:
-            link_title = 'REFR#%d ' % ant.index + link_title
+            link_title = "REFR#%d " % ant.index + link_title
         rf += link_title
-        rf += '</a>'
+        rf += "</a>"
         result += rf
 
         end = ant.coords[1]
@@ -77,7 +76,7 @@ def annotate_text(text: str, annotations: list[TextAnnotation]) -> str:
             break
     if end < len(text):
         part = text[end:-1]
-        result += escape(part).replace('\n', '<br/>')
+        result += escape(part).replace("\n", "<br/>")
 
     result += "</p> <ol>"
     for ant in annotations:

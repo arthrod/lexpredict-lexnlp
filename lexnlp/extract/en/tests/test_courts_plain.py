@@ -36,9 +36,9 @@ class TestCourtsPlain(TestCase):
     def build_courts_config(self) -> list[DictionaryEntry]:
         """
         Builds a list of DictionaryEntry objects representing US courts from the test CSV.
-        
+
         Parses the CSV file at test_data/lexnlp/extract/en/tests/test_courts/us_courts.csv and constructs a DictionaryEntry for each row. Each entry's aliases include values from the CSV "Alias" column (split on ';') and the "Court Name" value appended as an alias.
-        
+
         Returns:
             list[DictionaryEntry]: A list of DictionaryEntry objects with populated id, name, priority, name_is_alias, and aliases.
         """

@@ -1,0 +1,99 @@
+Term Locale,Term Category,Court ID,Level,Jurisdiction,Court Type,Court Name,Alias
+pt-BR,Brazilian Courts,1,Supremo,Federal,Tribunal Supremo,Supremo Tribunal Federal,STF
+pt-BR,Brazilian Courts,2,Superior,Federal,Tribunal Superior,Superior Tribunal de Justiça,STJ
+pt-BR,Brazilian Courts,3,Superior,Federal,Tribunal Superior,Tribunal Superior do Trabalho,TST
+pt-BR,Brazilian Courts,4,Superior,Federal,Tribunal Superior,Tribunal Superior Eleitoral,TSE
+pt-BR,Brazilian Courts,5,Superior,Federal,Tribunal Superior,Superior Tribunal Militar,STM
+pt-BR,Brazilian Courts,6,Conselho,Federal,Conselho de Justiça,Conselho Nacional de Justiça,CNJ
+pt-BR,Brazilian Courts,7,Conselho,Federal,Conselho de Justiça,Conselho Nacional do Ministério Público,CNMP
+pt-BR,Brazilian Courts,8,Conselho,Federal,Conselho de Justiça,Conselho da Justiça Federal,CJF
+pt-BR,Brazilian Courts,9,Conselho,Federal,Conselho de Justiça,Conselho Superior da Justiça do Trabalho,CSJT
+pt-BR,Brazilian Courts,10,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 1ª Região,TRF1
+pt-BR,Brazilian Courts,11,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 2ª Região,TRF2
+pt-BR,Brazilian Courts,12,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 3ª Região,TRF3
+pt-BR,Brazilian Courts,13,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 4ª Região,TRF4
+pt-BR,Brazilian Courts,14,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 5ª Região,TRF5
+pt-BR,Brazilian Courts,15,Regional,Federal,Tribunal Regional Federal,Tribunal Regional Federal da 6ª Região,TRF6
+pt-BR,Brazilian Courts,16,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 1ª Região,TRT1
+pt-BR,Brazilian Courts,17,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 2ª Região,TRT2
+pt-BR,Brazilian Courts,18,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 3ª Região,TRT3
+pt-BR,Brazilian Courts,19,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 4ª Região,TRT4
+pt-BR,Brazilian Courts,20,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 5ª Região,TRT5
+pt-BR,Brazilian Courts,21,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 6ª Região,TRT6
+pt-BR,Brazilian Courts,22,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 7ª Região,TRT7
+pt-BR,Brazilian Courts,23,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 8ª Região,TRT8
+pt-BR,Brazilian Courts,24,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 9ª Região,TRT9
+pt-BR,Brazilian Courts,25,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 10ª Região,TRT10
+pt-BR,Brazilian Courts,26,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 11ª Região,TRT11
+pt-BR,Brazilian Courts,27,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 12ª Região,TRT12
+pt-BR,Brazilian Courts,28,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 13ª Região,TRT13
+pt-BR,Brazilian Courts,29,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 14ª Região,TRT14
+pt-BR,Brazilian Courts,30,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 15ª Região,TRT15
+pt-BR,Brazilian Courts,31,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 16ª Região,TRT16
+pt-BR,Brazilian Courts,32,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 17ª Região,TRT17
+pt-BR,Brazilian Courts,33,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 18ª Região,TRT18
+pt-BR,Brazilian Courts,34,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 19ª Região,TRT19
+pt-BR,Brazilian Courts,35,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 20ª Região,TRT20
+pt-BR,Brazilian Courts,36,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 21ª Região,TRT21
+pt-BR,Brazilian Courts,37,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 22ª Região,TRT22
+pt-BR,Brazilian Courts,38,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 23ª Região,TRT23
+pt-BR,Brazilian Courts,39,Regional,Federal,Tribunal Regional do Trabalho,Tribunal Regional do Trabalho da 24ª Região,TRT24
+pt-BR,Brazilian Courts,40,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Acre,TRE-AC
+pt-BR,Brazilian Courts,41,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral de Alagoas,TRE-AL
+pt-BR,Brazilian Courts,42,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Amapá,TRE-AP
+pt-BR,Brazilian Courts,43,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Amazonas,TRE-AM
+pt-BR,Brazilian Courts,44,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral da Bahia,TRE-BA
+pt-BR,Brazilian Courts,45,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Ceará,TRE-CE
+pt-BR,Brazilian Courts,46,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Distrito Federal,TRE-DF
+pt-BR,Brazilian Courts,47,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Espírito Santo,TRE-ES
+pt-BR,Brazilian Courts,48,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral de Goiás,TRE-GO
+pt-BR,Brazilian Courts,49,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Maranhão,TRE-MA
+pt-BR,Brazilian Courts,50,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Mato Grosso,TRE-MT
+pt-BR,Brazilian Courts,51,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Mato Grosso do Sul,TRE-MS
+pt-BR,Brazilian Courts,52,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral de Minas Gerais,TRE-MG
+pt-BR,Brazilian Courts,53,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Pará,TRE-PA
+pt-BR,Brazilian Courts,54,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral da Paraíba,TRE-PB
+pt-BR,Brazilian Courts,55,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Paraná,TRE-PR
+pt-BR,Brazilian Courts,56,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral de Pernambuco,TRE-PE
+pt-BR,Brazilian Courts,57,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Piauí,TRE-PI
+pt-BR,Brazilian Courts,58,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Rio de Janeiro,TRE-RJ
+pt-BR,Brazilian Courts,59,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Rio Grande do Norte,TRE-RN
+pt-BR,Brazilian Courts,60,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Rio Grande do Sul,TRE-RS
+pt-BR,Brazilian Courts,61,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral de Rondônia,TRE-RO
+pt-BR,Brazilian Courts,62,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral de Roraima,TRE-RR
+pt-BR,Brazilian Courts,63,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral de Santa Catarina,TRE-SC
+pt-BR,Brazilian Courts,64,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral de São Paulo,TRE-SP
+pt-BR,Brazilian Courts,65,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral de Sergipe,TRE-SE
+pt-BR,Brazilian Courts,66,Regional,Federal,Tribunal Regional Eleitoral,Tribunal Regional Eleitoral do Tocantins,TRE-TO
+pt-BR,Brazilian Courts,67,Estadual,Acre,Tribunal de Justiça,Tribunal de Justiça do Estado do Acre,TJAC
+pt-BR,Brazilian Courts,68,Estadual,Alagoas,Tribunal de Justiça,Tribunal de Justiça do Estado de Alagoas,TJAL
+pt-BR,Brazilian Courts,69,Estadual,Amapá,Tribunal de Justiça,Tribunal de Justiça do Estado do Amapá,TJAP
+pt-BR,Brazilian Courts,70,Estadual,Amazonas,Tribunal de Justiça,Tribunal de Justiça do Estado do Amazonas,TJAM
+pt-BR,Brazilian Courts,71,Estadual,Bahia,Tribunal de Justiça,Tribunal de Justiça do Estado da Bahia,TJBA
+pt-BR,Brazilian Courts,72,Estadual,Ceará,Tribunal de Justiça,Tribunal de Justiça do Estado do Ceará,TJCE
+pt-BR,Brazilian Courts,73,Estadual,Distrito Federal,Tribunal de Justiça,Tribunal de Justiça do Distrito Federal e Territórios,TJDFT
+pt-BR,Brazilian Courts,74,Estadual,Espírito Santo,Tribunal de Justiça,Tribunal de Justiça do Estado do Espírito Santo,TJES
+pt-BR,Brazilian Courts,75,Estadual,Goiás,Tribunal de Justiça,Tribunal de Justiça do Estado de Goiás,TJGO
+pt-BR,Brazilian Courts,76,Estadual,Maranhão,Tribunal de Justiça,Tribunal de Justiça do Estado do Maranhão,TJMA
+pt-BR,Brazilian Courts,77,Estadual,Mato Grosso,Tribunal de Justiça,Tribunal de Justiça do Estado de Mato Grosso,TJMT
+pt-BR,Brazilian Courts,78,Estadual,Mato Grosso do Sul,Tribunal de Justiça,Tribunal de Justiça do Estado de Mato Grosso do Sul,TJMS
+pt-BR,Brazilian Courts,79,Estadual,Minas Gerais,Tribunal de Justiça,Tribunal de Justiça do Estado de Minas Gerais,TJMG
+pt-BR,Brazilian Courts,80,Estadual,Pará,Tribunal de Justiça,Tribunal de Justiça do Estado do Pará,TJPA
+pt-BR,Brazilian Courts,81,Estadual,Paraíba,Tribunal de Justiça,Tribunal de Justiça do Estado da Paraíba,TJPB
+pt-BR,Brazilian Courts,82,Estadual,Paraná,Tribunal de Justiça,Tribunal de Justiça do Estado do Paraná,TJPR
+pt-BR,Brazilian Courts,83,Estadual,Pernambuco,Tribunal de Justiça,Tribunal de Justiça do Estado de Pernambuco,TJPE
+pt-BR,Brazilian Courts,84,Estadual,Piauí,Tribunal de Justiça,Tribunal de Justiça do Estado do Piauí,TJPI
+pt-BR,Brazilian Courts,85,Estadual,Rio de Janeiro,Tribunal de Justiça,Tribunal de Justiça do Estado do Rio de Janeiro,TJRJ
+pt-BR,Brazilian Courts,86,Estadual,Rio Grande do Norte,Tribunal de Justiça,Tribunal de Justiça do Estado do Rio Grande do Norte,TJRN
+pt-BR,Brazilian Courts,87,Estadual,Rio Grande do Sul,Tribunal de Justiça,Tribunal de Justiça do Estado do Rio Grande do Sul,TJRS
+pt-BR,Brazilian Courts,88,Estadual,Rondônia,Tribunal de Justiça,Tribunal de Justiça do Estado de Rondônia,TJRO
+pt-BR,Brazilian Courts,89,Estadual,Roraima,Tribunal de Justiça,Tribunal de Justiça do Estado de Roraima,TJRR
+pt-BR,Brazilian Courts,90,Estadual,Santa Catarina,Tribunal de Justiça,Tribunal de Justiça do Estado de Santa Catarina,TJSC
+pt-BR,Brazilian Courts,91,Estadual,São Paulo,Tribunal de Justiça,Tribunal de Justiça do Estado de São Paulo,TJSP
+pt-BR,Brazilian Courts,92,Estadual,Sergipe,Tribunal de Justiça,Tribunal de Justiça do Estado de Sergipe,TJSE
+pt-BR,Brazilian Courts,93,Estadual,Tocantins,Tribunal de Justiça,Tribunal de Justiça do Estado do Tocantins,TJTO
+pt-BR,Brazilian Courts,94,Militar,Minas Gerais,Tribunal de Justiça Militar,Tribunal de Justiça Militar do Estado de Minas Gerais,TJMMG
+pt-BR,Brazilian Courts,95,Militar,Rio Grande do Sul,Tribunal de Justiça Militar,Tribunal de Justiça Militar do Estado do Rio Grande do Sul,TJMRS
+pt-BR,Brazilian Courts,96,Militar,São Paulo,Tribunal de Justiça Militar,Tribunal de Justiça Militar do Estado de São Paulo,TJMSP
+pt-BR,Brazilian Courts,97,Especial,Federal,Turma Nacional de Uniformização,Turma Nacional de Uniformização dos Juizados Especiais Federais,TNU
+pt-BR,Brazilian Courts,98,Especial,Federal,Turma Regional de Uniformização,Turma Regional de Uniformização dos Juizados Especiais,TRU

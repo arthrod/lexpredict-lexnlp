@@ -10,3 +10,20 @@
 #   skip-audit: issue=<link-or-id> expires=YYYY-MM-DD
 #
 # This file is reserved for rare cases where annotation is not feasible.
+
+# Stanford tests — skip unless LEXNLP_USE_STANFORD=true gates network+JVM setup.
+# These are environment-driven, always appropriate to skip in non-Stanford runs.
+lexnlp/extract/en/entities/tests/test_stanford_ner.py:skipif:sha256=9cf3b495b727
+lexnlp/nlp/en/tests/test_stanford.py:skipif:sha256=9cf3b495b727
+
+# lexnlp.extract.batch uses PEP 695 generic dataclass syntax (Python 3.12+).
+# Project floor is 3.13; these skipifs never actually skip on CI, they just
+# document the minimum interpreter for direct users on older runtimes.
+lexnlp/extract/batch/tests/test_batch_init.py:skipif:sha256=d78dc86201a9
+lexnlp/extract/batch/tests/test_async_extras.py:skipif:sha256=d78dc86201a9
+lexnlp/extract/batch/tests/test_pr16_batch_init_supplementary.py:skipif:sha256=d78dc86201a9
+lexnlp/extract/batch/tests/test_pr16_progress_supplementary.py:skipif:sha256=657f9fbf6858
+
+# Optional Language class import guard (all_locales exports sensitive to
+# lazy-imported ``Language`` from ``lexnlp.extract.all_locales.languages``).
+lexnlp/extract/all_locales/tests/test_languages_extras.py:skipif:sha256=f382d9fb8621

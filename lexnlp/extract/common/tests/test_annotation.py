@@ -31,7 +31,7 @@ class TestAnnotation(TestCase):
     def test_format_copyright_annotation(self):
         """
         Verify that CopyrightAnnotation produces citation strings containing the copyright label, company name, and start/end years and that locale changes are applied.
-        
+
         Creates a CopyrightAnnotation with a start year and asserts the citation includes "copyright", the company name, and the start year; then sets a year_end and locale and asserts the citation includes the end year as well.
         """
         cp = CopyrightAnnotation(
@@ -99,7 +99,7 @@ class TestAnnotation(TestCase):
     def test_amount_annotation(self):
         """
         Verify AmountAnnotation records locale, provides a non-empty representation, and generates the expected cite string.
-        
+
         Asserts that:
         - the annotation's locale is set to "pg",
         - its __repr__() returns a non-empty string,
@@ -181,7 +181,7 @@ class TestAnnotation(TestCase):
     def test_ssn_annotation(self):
         """
         Verify that SsnAnnotation uses the default locale and produces the expected citation for a provided SSN.
-        
+
         Asserts that the annotation's locale is "en" and that get_cite() returns "/en/ssn/1234-4321-1234".
         """
         ant = SsnAnnotation(coords=(2, 20), number="1234-4321-1234")

@@ -32,7 +32,7 @@ class CommonDefinitionPatterns:
             if acr_start < 0:
                 continue
             df = PatternFound()
-            df.name = match.group().strip('() ')
+            df.name = match.group().strip("() ")
             df.start = acr_start
             df.end = match.start() - 1
             df.probability = 100
@@ -48,7 +48,7 @@ class CommonDefinitionPatterns:
         :return: start letter (42 for this case) index or -1
         """
         proc = UniversalDefinitionsParser.basic_line_processor
-        name = match.group().strip('() ').upper()
+        name = match.group().strip("() ").upper()
         start = match.start()
         words = proc.split_text_on_words(phrase[:start])
         if len(words) < 2:
@@ -100,11 +100,13 @@ class CommonDefinitionPatterns:
         return defs
 
     @staticmethod
-    def peek_quoted_part(phrase: str,
-                         match: Match,
-                         start_func: Callable[[str, Match, Match], int],
-                         end_func: Callable[[str, Match, Match], int],
-                         match_prob: int) -> list[PatternFound]:
+    def peek_quoted_part(
+        phrase: str,
+        match: Match,
+        start_func: Callable[[str, Match, Match], int],
+        end_func: Callable[[str, Match, Match], int],
+        match_prob: int,
+    ) -> list[PatternFound]:
         """
         :param phrase: the whole text, may be used for getting the definition's text length
         :param match: the matched part of the phrase that may contain several quote-packed definitions
@@ -128,12 +130,15 @@ class CommonDefinitionPatterns:
         return defs
 
     @staticmethod
-    def collect_regex_matches_with_quoted_chunks(phrase: str, reg: re, prob: int,
-                                                 quoted_def_start: Callable[[str, Match, Match], int],
-                                                 quoted_def_end: Callable[[str, Match, Match], int],
-                                                 def_start: Callable[[str, Match], int],
-                                                 def_end: Callable[[str, Match], int]
-                                                 ) -> list[PatternFound]:
+    def collect_regex_matches_with_quoted_chunks(
+        phrase: str,
+        reg: re,
+        prob: int,
+        quoted_def_start: Callable[[str, Match, Match], int],
+        quoted_def_end: Callable[[str, Match, Match], int],
+        def_start: Callable[[str, Match], int],
+        def_end: Callable[[str, Match], int],
+    ) -> list[PatternFound]:
         """
         First, find all matches by 'reg' ptr
         Second, go through matches
@@ -148,12 +153,9 @@ class CommonDefinitionPatterns:
         """
         defs = []
         for match in reg.finditer(phrase):
-            quoted_matches = \
-                CommonDefinitionPatterns.peek_quoted_part(phrase,
-                                                          match,
-                                                          quoted_def_start,
-                                                          quoted_def_end,
-                                                          prob)
+            quoted_matches = CommonDefinitionPatterns.peek_quoted_part(
+                phrase, match, quoted_def_start, quoted_def_end, prob
+            )
             if len(quoted_matches) > 0:
                 defs += quoted_matches
                 continue
@@ -168,10 +170,9 @@ class CommonDefinitionPatterns:
         return defs
 
     @staticmethod
-    def collect_regex_matches(phrase: str, reg: re, prob: int,
-                              def_start: Callable[[str, Match], int],
-                              def_end: Callable[[str, Match], int]
-                              ) -> list[PatternFound]:
+    def collect_regex_matches(
+        phrase: str, reg: re, prob: int, def_start: Callable[[str, Match], int], def_end: Callable[[str, Match], int]
+    ) -> list[PatternFound]:
         """
         find all matches by 'reg' ptr
         :param quoted_def_start: (phrase, match, quoted_match) -> definition's start
@@ -182,7 +183,6 @@ class CommonDefinitionPatterns:
         """
         defs = []
         for match in reg.finditer(phrase):
-
             df = PatternFound()
             df.name = match.group()
             df.start = def_start(phrase, match)

@@ -20,36 +20,74 @@ import csv
 import os
 
 _COMPANY_TYPES = [
-    'A.G.', 'AG', 'B.V.', 'C.A.', 'C.V.', 'Corp.', 'Corporation',
-    'G.P.', 'Inc.', 'Incorporated', 'K.K.', 'L.L.C.', 'L.L.L.P.', 'L.L.P.', 'L.P.',
-    'LLC.', 'LLP.', 'Lda.', 'Ltd.', 'Ltda.', 'N.A.', 'National Association',
-    'N.V.', 'Pte. Ltd.',
-    'S de R.L. de C.V.', 'S. DE R.L. DE C.V.', 'S. De R.L. De C.V.',
-    'S. De R.L. de C.V.', 'S. de R. L. de C.V.', 'S. de R.L. de C.V.',
-    'S.A.', 'S.A. DE C.V.', 'S.A. De C.V.', 'S.A. de C.V.', 'S.A.R.L.',
-    'S.A.S.', 'S.A.U.', 'S.A.de C.V.', 'S.C.', 'S.C.A.',
-    'S.L.', 'S.L.U.', 'S.R.L.', 'S.R.L. de C.V.', 'S.R.O.', 'S.a.r.l.',
-    'S.de R.L. de C.V.', 'S.r.l.', 'Sdn. Bhd.', 's.r.o.', 'CO'
+    "A.G.",
+    "AG",
+    "B.V.",
+    "C.A.",
+    "C.V.",
+    "Corp.",
+    "Corporation",
+    "G.P.",
+    "Inc.",
+    "Incorporated",
+    "K.K.",
+    "L.L.C.",
+    "L.L.L.P.",
+    "L.L.P.",
+    "L.P.",
+    "LLC.",
+    "LLP.",
+    "Lda.",
+    "Ltd.",
+    "Ltda.",
+    "N.A.",
+    "National Association",
+    "N.V.",
+    "Pte. Ltd.",
+    "S de R.L. de C.V.",
+    "S. DE R.L. DE C.V.",
+    "S. De R.L. De C.V.",
+    "S. De R.L. de C.V.",
+    "S. de R. L. de C.V.",
+    "S. de R.L. de C.V.",
+    "S.A.",
+    "S.A. DE C.V.",
+    "S.A. De C.V.",
+    "S.A. de C.V.",
+    "S.A.R.L.",
+    "S.A.S.",
+    "S.A.U.",
+    "S.A.de C.V.",
+    "S.C.",
+    "S.C.A.",
+    "S.L.",
+    "S.L.U.",
+    "S.R.L.",
+    "S.R.L. de C.V.",
+    "S.R.O.",
+    "S.a.r.l.",
+    "S.de R.L. de C.V.",
+    "S.r.l.",
+    "Sdn. Bhd.",
+    "s.r.o.",
+    "CO",
 ]
 
 
 class CompanyDescriptor:
-    def __init__(self,
-                 alias: str,
-                 abbreviation: str,
-                 label: str):
+    def __init__(self, alias: str, abbreviation: str, label: str):
         self.alias = alias
         self.abbreviation = abbreviation
         self.label = label
 
     def __str__(self):
-        return f'{self.alias}: {self.abbreviation} ({self.label})'
+        return f"{self.alias}: {self.abbreviation} ({self.label})"
 
     def __repr__(self):
         return self.__str__()
 
 
-default_company_types_file_path = os.path.join(os.path.dirname(__file__), 'company_types.csv')
+default_company_types_file_path = os.path.join(os.path.dirname(__file__), "company_types.csv")
 
 
 def get_company_types(file_path=None) -> dict[str, CompanyDescriptor]:
@@ -57,10 +95,10 @@ def get_company_types(file_path=None) -> dict[str, CompanyDescriptor]:
     file_path = file_path or default_company_types_file_path
     with open(file_path, encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            alias_dot = row['Alias'].strip(' ').lower()
-            alias = alias_dot.strip('.')
-            abbr = row['Abbreviation'].strip()
-            label = row['Label'].strip()
+            alias_dot = row["Alias"].strip(" ").lower()
+            alias = alias_dot.strip(".")
+            abbr = row["Abbreviation"].strip()
+            label = row["Label"].strip()
             ret[alias] = CompanyDescriptor(alias, abbr, label)
             if alias_dot != alias:
                 ret[alias_dot] = CompanyDescriptor(alias_dot, abbr, label)
@@ -69,5 +107,4 @@ def get_company_types(file_path=None) -> dict[str, CompanyDescriptor]:
 
 COMPANY_TYPES = get_company_types()
 
-COMPANY_DESCRIPTIONS = ['Trust Bank', 'Trust Company', 'Trust',
-                        'Bank', 'Company', 'Partnership', 'Agency']
+COMPANY_DESCRIPTIONS = ["Trust Bank", "Trust Company", "Trust", "Bank", "Company", "Partnership", "Agency"]

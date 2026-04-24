@@ -29,9 +29,9 @@ class TestBatchPackageImports:
         assert callable(extract_batch)
 
     def test_extract_batch_async_importable(self) -> None:
-        from lexnlp.extract.batch import extract_batch_async
-
         import asyncio
+
+        from lexnlp.extract.batch import extract_batch_async
 
         assert asyncio.iscoroutinefunction(extract_batch_async)
 
@@ -48,13 +48,11 @@ class TestBatchPackageImports:
         assert callable(find_fuzzy_dates)
 
     def test_fuzzy_date_match_importable(self) -> None:
-        from lexnlp.extract.batch import FuzzyDateMatch
-
         from datetime import date
 
-        m = FuzzyDateMatch(
-            start=0, end=10, matched_text="2024-01-01", parsed=date(2024, 1, 1), edit_distance=0
-        )
+        from lexnlp.extract.batch import FuzzyDateMatch
+
+        m = FuzzyDateMatch(start=0, end=10, matched_text="2024-01-01", parsed=date(2024, 1, 1), edit_distance=0)
         assert m.parsed == date(2024, 1, 1)
 
     def test_annotations_to_dataframe_importable(self) -> None:
@@ -90,6 +88,4 @@ class TestBatchPackageImports:
 
         async_results = asyncio.run(_run())
 
-        assert [r.annotations for r in sync_results] == [
-            r.annotations for r in async_results
-        ]
+        assert [r.annotations for r in sync_results] == [r.annotations for r in async_results]

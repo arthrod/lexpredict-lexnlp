@@ -36,12 +36,9 @@ MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 PAGE_SEGMENTER_MODEL = load_model(os.path.join(MODULE_PATH, "./page_segmenter.pickle"))
 
 
-def build_page_break_features(lines,
-                              line_id,
-                              line_window_pre,
-                              line_window_post,
-                              characters=string.printable,
-                              include_doc=None):
+def build_page_break_features(
+    lines, line_id, line_window_pre, line_window_post, characters=string.printable, include_doc=None
+):
     """
     Build a feature vector for a given line ID with given parameters.
     """
@@ -68,11 +65,9 @@ def build_page_break_features(lines,
 
         # Count characters
         feature_vector[f"line_n_alpha_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("L")])
-        feature_vector[f"line_n_number_{i}"] = sum(
-            [1 for c in line if unicodedata.category(c).startswith("N")])
+        feature_vector[f"line_n_number_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("N")])
         feature_vector[f"line_n_punct_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("P")])
-        feature_vector[f"line_n_whitespace_{i}"] = sum(
-            [1 for c in line if unicodedata.category(c).startswith("Z")])
+        feature_vector[f"line_n_whitespace_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("Z")])
 
     # Simple checks
     line = lines[line_id]
@@ -99,25 +94,23 @@ def build_page_break_features(lines,
     return feature_vector
 
 
-def get_page_break_feature_names(lines_count: int,
-                                 line_window_pre: int,
-                                 line_window_post: int,
-                                 characters=string.printable,
-                                 include_doc=None):
+def get_page_break_feature_names(
+    lines_count: int, line_window_pre: int, line_window_post: int, characters=string.printable, include_doc=None
+):
     """
     Build a feature vector for a given line ID with given parameters.
     """
     # Feature vector
     feature_vector = {
-        'page',
-        'PAGE',
-        'Page',
-        'sw_page',
-        'sw_pg',
-        'first_char_punct',
-        'last_char_punct',
-        'first_char_number',
-        'last_char_number'
+        "page",
+        "PAGE",
+        "Page",
+        "sw_page",
+        "sw_pg",
+        "first_char_punct",
+        "last_char_punct",
+        "first_char_number",
+        "last_char_number",
     }
 
     # Check start offset
@@ -130,18 +123,17 @@ def get_page_break_feature_names(lines_count: int,
 
     # Iterate through window
     for i in range(-line_window_pre, line_window_post + 1):
-
         # Count length
-        feature_vector.add(f'line_len_{i}')
+        feature_vector.add(f"line_len_{i}")
         # Count characters
-        feature_vector.add(f'line_n_alpha_{i}')
-        feature_vector.add(f'line_n_number_{i}')
-        feature_vector.add(f'line_n_punct_{i}')
-        feature_vector.add(f'line_n_whitespace_{i}')
+        feature_vector.add(f"line_n_alpha_{i}")
+        feature_vector.add(f"line_n_number_{i}")
+        feature_vector.add(f"line_n_punct_{i}")
+        feature_vector.add(f"line_n_whitespace_{i}")
 
     # Build character vector
     for character in characters:
-        feature_vector.add(f'char_{character}')
+        feature_vector.add(f"char_{character}")
 
     # Add doc if requested
     if include_doc:
@@ -166,18 +158,17 @@ def get_pages(text, window_pre=3, window_post=3, score_threshold=0.5) -> Generat
     test_feature_data = []
     for line_id in range(len(lines)):
         test_feature_data.append(
-            build_page_break_features(lines, line_id, window_pre, window_post,
-                                      include_doc=doc_distribution))
+            build_page_break_features(lines, line_id, window_pre, window_post, include_doc=doc_distribution)
+        )
 
     # Predict page breaks
-    column_names = list(get_page_break_feature_names(len(lines), window_pre, window_post,
-                                                     include_doc=doc_distribution))
+    column_names = list(get_page_break_feature_names(len(lines), window_pre, window_post, include_doc=doc_distribution))
     column_names.sort()
     test_feature_df = pandas.DataFrame(test_feature_data, columns=column_names).fillna(-1)
     # Avoid pandas dtype deprecation noise in sklearn validation by passing a numpy array.
     test_predicted_lines = PAGE_SEGMENTER_MODEL.predict_proba(test_feature_df.to_numpy(dtype=float))
-    predicted_df = pandas.DataFrame(test_predicted_lines, columns=['prob_false', 'prob_true'])
-    page_breaks = predicted_df.loc[predicted_df['prob_true'] >= score_threshold, :].index.tolist()
+    predicted_df = pandas.DataFrame(test_predicted_lines, columns=["prob_false", "prob_true"])
+    page_breaks = predicted_df.loc[predicted_df["prob_true"] >= score_threshold, :].index.tolist()
 
     if len(page_breaks) > 0:
         # Get first break
@@ -196,6 +187,6 @@ def get_pages(text, window_pre=3, window_post=3, score_threshold=0.5) -> Generat
                 yield page
 
         # Yield final page
-        page = "\n".join(lines[page_breaks[-1]:])
+        page = "\n".join(lines[page_breaks[-1] :])
         if len(page.strip()) > 1:
             yield page.strip()

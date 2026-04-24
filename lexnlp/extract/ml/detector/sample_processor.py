@@ -15,31 +15,30 @@ import pandas
 from lexnlp.extract.ml.classifier.base_token_sequence_classifier_model import BaseTokenSequenceClassifierModel
 
 
-def get_target_start_end_from_text(text: str,
-                                   column_name_formatted: str, row) -> list[tuple[int, int]]:
+def get_target_start_end_from_text(text: str, column_name_formatted: str, row) -> list[tuple[int, int]]:
     noun_phrase_formatted = row[column_name_formatted]
     start_pos = text.find(noun_phrase_formatted)
     end_pos = start_pos + len(noun_phrase_formatted)
     return [(start_pos, end_pos)]
 
 
-def get_target_start_end_from_corgetes(_: str,
-                                       column_name_formatted: str, row) -> list[tuple[int, int]]:
+def get_target_start_end_from_corgetes(_: str, column_name_formatted: str, row) -> list[tuple[int, int]]:
     return row[column_name_formatted]
 
 
-def process_sample(sample_df: pandas.DataFrame,
-                   s: BaseTokenSequenceClassifierModel,
-                   build_target_data: bool = True,
-                   pre_alloc_multiple: int = 30,
-                   column_name_formatted: str = 'quantity_formatted',
-                   outer_class: int = 0,
-                   start_class: int = 1,
-                   inner_class: int = 2,
-                   end_class: int = 3,
-                   get_target_start_end: Callable[[str, str, Any], list[tuple[int, int]]] = get_target_start_end_from_text,
-                   feature_mask_column: str | None = None
-                   ) -> numpy.ndarray | tuple[numpy.ndarray, numpy.ndarray]:
+def process_sample(
+    sample_df: pandas.DataFrame,
+    s: BaseTokenSequenceClassifierModel,
+    build_target_data: bool = True,
+    pre_alloc_multiple: int = 30,
+    column_name_formatted: str = "quantity_formatted",
+    outer_class: int = 0,
+    start_class: int = 1,
+    inner_class: int = 2,
+    end_class: int = 3,
+    get_target_start_end: Callable[[str, str, Any], list[tuple[int, int]]] = get_target_start_end_from_text,
+    feature_mask_column: str | None = None,
+) -> numpy.ndarray | tuple[numpy.ndarray, numpy.ndarray]:
     """
     Process a sample file to create feature and target data.
     :param sample_df: dataframe with at least 'sentence' column
@@ -76,7 +75,7 @@ def process_sample(sample_df: pandas.DataFrame,
 
         # check if we are within initial allocation
         if num_token + row_num_tokens <= feature_data.shape[0]:
-            feature_data[num_token:(num_token + row_num_tokens), :] = row_feature_data
+            feature_data[num_token : (num_token + row_num_tokens), :] = row_feature_data
         else:
             # handle resize for both feature and target data if required
             rescale_multiple = sample_df.shape[0] / float(row_id)
@@ -84,7 +83,7 @@ def process_sample(sample_df: pandas.DataFrame,
             feature_data.resize((rescale_size, feature_data.shape[1]), refcheck=False)
             if build_target_data:
                 target_data.resize((rescale_size,), refcheck=False)
-            feature_data[num_token:(num_token + row_num_tokens), :] = row_feature_data
+            feature_data[num_token : (num_token + row_num_tokens), :] = row_feature_data
 
         # set target vector entries
         if build_target_data:

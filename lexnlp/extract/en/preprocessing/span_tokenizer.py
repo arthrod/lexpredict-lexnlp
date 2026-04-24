@@ -15,8 +15,7 @@ from lexnlp.extract.common.text_beautifier import TextBeautifier
 
 class SpanTokenizer:
     @staticmethod
-    def get_token_spans(txt: str) -> \
-            Generator[tuple[str, str, int, int]]:
+    def get_token_spans(txt: str) -> Generator[tuple[str, str, int, int]]:
         """
         returns: [('word', 'token', (word_start, word_end)), ...]
         """
@@ -28,8 +27,7 @@ class SpanTokenizer:
         for word, token in tokens:
             next_offset = txt.find(word, offset)
             if next_offset < 0:
-                transf_word = TextBeautifier.find_transformed_word(
-                    txt, word, offset)
+                transf_word = TextBeautifier.find_transformed_word(txt, word, offset)
                 if transf_word:
                     word, next_offset = transf_word
 

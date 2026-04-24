@@ -24,8 +24,13 @@ class PossibleToken:
         self.prob = prob
 
     def __repr__(self):
-        return '%s [%s] at (%d, %d), prob: %d' % \
-               (self.value, self.token_type, self.coords[0], self.coords[1], self.prob)
+        return "%s [%s] at (%d, %d), prob: %d" % (
+            self.value,
+            self.token_type,
+            self.coords[0],
+            self.coords[1],
+            self.prob,
+        )
 
 
 class CourtCitationsParser:
@@ -40,21 +45,22 @@ class CourtCitationsParser:
 
     or
     """
+
     reg_cite_chunk = re.compile(r"\([^0-9\)]+[0-9\.]{2,}[^\)]+\)", re.UNICODE)
-    reg_trigger_words = re.compile('Beschluss|vom', re.UNICODE | re.IGNORECASE)
+    reg_trigger_words = re.compile("Beschluss|vom", re.UNICODE | re.IGNORECASE)
     reg_token_end = re.compile(r"[;,]")
 
     registries = {
-        'BStBl': 'Bundessteuerblatt (sonstige gebräuchliche Verwendung)',
-        'BFH': 'Deutschland, Rechtswesen: Bundesfinanzhof',
-        'BFHE': 'Sammlung der Entscheidungen des BFH',
-        'GmS-OGB': 'Beschluss des Gemeinsamen Senats der obersten Gerichtshöfe des Bundes',
-        'BVerwGE': 'Entscheidungen des Bundesverwaltungsgerichts',
-        'GrS': 'Beschluss des Großen Senats des BFH',
-        'BFH-Urteile': 'Bundesfinanzhof Urteile',
-        'BFH-Beschlüsse': 'Bundesfinanzhof Beschlüsse',
-        'DstR': 'Deutsches Steuerrecht - DStR',
-        'KStG': 'Körperschaftsteuergesetz'
+        "BStBl": "Bundessteuerblatt (sonstige gebräuchliche Verwendung)",
+        "BFH": "Deutschland, Rechtswesen: Bundesfinanzhof",
+        "BFHE": "Sammlung der Entscheidungen des BFH",
+        "GmS-OGB": "Beschluss des Gemeinsamen Senats der obersten Gerichtshöfe des Bundes",
+        "BVerwGE": "Entscheidungen des Bundesverwaltungsgerichts",
+        "GrS": "Beschluss des Großen Senats des BFH",
+        "BFH-Urteile": "Bundesfinanzhof Urteile",
+        "BFH-Beschlüsse": "Bundesfinanzhof Beschlüsse",
+        "DstR": "Deutsches Steuerrecht - DStR",
+        "KStG": "Körperschaftsteuergesetz",
     }
 
     registry_finder = None
@@ -69,9 +75,9 @@ class CourtCitationsParser:
 
     def __init__(self):
         self.items: list[CourtCitationAnnotation] = []
-        self.language: str = 'de'
+        self.language: str = "de"
 
-    def parse(self, text: str, language: str = 'de') -> list[CourtCitationAnnotation]:
+    def parse(self, text: str, language: str = "de") -> list[CourtCitationAnnotation]:
         # TODO: can we turn this into a generator?
         self.language: str = language
         self.items: list[CourtCitationAnnotation] = []
@@ -95,7 +101,7 @@ class CourtCitationsParser:
         self.split_chunk_and_find_citations(fragment, fragment_start)
 
     def process_chunks_in_embraced_text(self, embraced_text: str, start) -> None:
-        parts = embraced_text.group().split(';')
+        parts = embraced_text.group().split(";")
         for part in parts:
             self.get_detail_from_chunk(part, start)
             start += len(part) + 1
@@ -106,7 +112,7 @@ class CourtCitationsParser:
             self.get_detail_from_chunk(chunk[0], chunk[1] + start)
 
     def get_detail_from_chunk(self, chunk_text: str, chunk_start: int) -> None:
-        chunk_body = chunk_text.strip(r'() \t')
+        chunk_body = chunk_text.strip(r"() \t")
         dates = self.get_dates_from_text(chunk_body)
         registries = self.get_registries_from_text(chunk_body)
         triggers = CourtCitationsParser.reg_trigger_words.search(chunk_body)
@@ -116,23 +122,19 @@ class CourtCitationsParser:
 
         start = chunk_start + chunk_text.find(chunk_body)
         end = start + len(chunk_body)
-        ant = CourtCitationAnnotation(name=chunk_body,
-                                      coords=(start, end),
-                                      text=chunk_body,
-                                      locale=self.language)
+        ant = CourtCitationAnnotation(name=chunk_body, coords=(start, end), text=chunk_body, locale=self.language)
         if len(registries) > 0:
             ant.name = CourtCitationsParser.registries[registries[0].value]
             ant.short_name = self.get_reference_from_registry(registries[0], chunk_body)
         self.items.append(ant)
 
-    def get_reference_from_registry(self, registry: PossibleToken,
-                                    chunk_body: str) -> str:
+    def get_reference_from_registry(self, registry: PossibleToken, chunk_body: str) -> str:
         start = registry.coords[0]
         end = -1
         end_match = CourtCitationsParser.reg_token_end.search(chunk_body[start:])
         if end_match:
             end = end_match.start()
-        return chunk_body[start: end + 1].strip(' \t.,;()')
+        return chunk_body[start : end + 1].strip(" \t.,;()")
 
     def get_registries_from_text(self, text: str) -> list[PossibleToken]:
         reg_names = [(m, 100) for m in CourtCitationsParser.registry_finder.find_word(text, ignore_case=False)]
@@ -142,9 +144,7 @@ class CourtCitationsParser:
 
         toks = []
         for match_prob in reg_names:
-            tok = PossibleToken('registry', match_prob[0][0],
-                                (match_prob[0][1], match_prob[0][2]),
-                                match_prob[1])
+            tok = PossibleToken("registry", match_prob[0][0], (match_prob[0][1], match_prob[0][2]), match_prob[1])
             toks.append(tok)
         return toks
 
@@ -153,18 +153,18 @@ class CourtCitationsParser:
             date_ents = list(get_dates(text))
         except TypeError:
             date_ents = []
-        date_ents.sort(key=lambda d: d['location_start'])
+        date_ents.sort(key=lambda d: d["location_start"])
 
         tokens = []
         for d in date_ents:
-            tok = PossibleToken('date', d['value'], (d['location_start'], d['location_end']), 100)
+            tok = PossibleToken("date", d["value"], (d["location_start"], d["location_end"]), 100)
             tokens.append(tok)
         if len(tokens) > 0:
             return tokens
 
         # try only getting years
         for year in year_parser.year_parser.get_years_with_coords_from_string(text):
-            tokens.append(PossibleToken('date', str(year[0]), (year[1], year[2]), 50))
+            tokens.append(PossibleToken("date", str(year[0]), (year[1], year[2]), 50))
         return tokens
 
     @staticmethod
@@ -172,10 +172,10 @@ class CourtCitationsParser:
         # noinspection PyTypeChecker
         """
         Split text into slices anchored at recognized registry keywords and return each slice with its start position.
-        
+
         Parameters:
             text (str): The input string to scan for registry keywords.
-        
+
         Returns:
             list[tuple[str, int]]: A list of (chunk_text, start_index) tuples where `chunk_text` begins at a detected registry keyword and extends up to the next registry occurrence or a phrase-breaking delimiter (comma or semicolon), and `start_index` is the index of `chunk_text` in the original `text`.
         """
@@ -185,10 +185,10 @@ class CourtCitationsParser:
             ending = -1
             if i < len(matches) - 1:
                 ending = matches[i + 1].start() - 1
-            phrase_break = CourtCitationsParser.reg_token_end.search(text[match.end():ending])
+            phrase_break = CourtCitationsParser.reg_token_end.search(text[match.end() : ending])
             if phrase_break:
                 ending = min(ending, phrase_break.start())
-            chunks.append((text[match.start():ending], match.start()))
+            chunks.append((text[match.start() : ending], match.start()))
         return chunks
 
 
@@ -197,23 +197,23 @@ parser = CourtCitationsParser()
 
 def get_court_citation_annotations(
     text: str,
-    language: str = 'de',
+    language: str = "de",
 ) -> Generator[CourtCitationAnnotation]:
     yield from parser.parse(text, language)
 
 
 def get_court_citation_annotation_list(
     text: str,
-    language: str = 'de',
+    language: str = "de",
 ) -> list[CourtCitationAnnotation]:
     return parser.parse(text, language)
 
 
-def get_court_citations(text: str, language: str = 'de') -> Generator[dict]:
+def get_court_citations(text: str, language: str = "de") -> Generator[dict]:
     cts = parser.parse(text, language)
     for ct in cts:
         yield ct.to_dictionary()
 
 
-def get_court_citation_list(text: str, language: str = 'de') -> list[CourtCitationAnnotation]:
+def get_court_citation_list(text: str, language: str = "de") -> list[CourtCitationAnnotation]:
     return parser.parse(text, language)

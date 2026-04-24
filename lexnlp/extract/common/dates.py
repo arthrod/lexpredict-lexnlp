@@ -29,12 +29,12 @@ from lexnlp.extract.common.dates_classifier_model import get_date_features
 class LocaleInfoImport:
     def __init__(self, locale):
         try:
-            module = import_module('dateparser.data.date_translation_data.' + locale.language)
-            data_dict = getattr(module, 'info')
-            if data_dict.get('locale_specific', None) and locale.get_locale() in data_dict['locale_specific']:
-                self.date_order = data_dict['locale_specific'][locale.get_locale()]['date_order']
+            module = import_module("dateparser.data.date_translation_data." + locale.language)
+            data_dict = module.info
+            if data_dict.get("locale_specific", None) and locale.get_locale() in data_dict["locale_specific"]:
+                self.date_order = data_dict["locale_specific"][locale.get_locale()]["date_order"]
             else:
-                self.date_order = data_dict['date_order']
+                self.date_order = data_dict["date_order"]
         except ModuleNotFoundError:
             self.date_order = "MDY"
 
@@ -43,21 +43,24 @@ class DateParser:
     """
     Dates parser based on dateparser package
     """
-    BAD_FULL_RE = re.compile(r'\d+\W?|(?:\d+\.? )?die|so|\d+ und \d+|die in einem', re.I)
-    BAD_PARTIAL_RE = re.compile('[%s]' % re.escape(re.sub('[.,-:]', '', string.punctuation)))
-    DEFAULT_DATEPARSER_SETTINGS = {'PREFER_DAY_OF_MONTH': 'first', 'STRICT_PARSING': False}
 
-    def __init__(self,
-                 characters: list[str],
-                 text: str | None = None,
-                 locale: Locale = Locale('en-US'),
-                 dateparser_settings: dict[str, Any] | None = None,
-                 enable_classifier_check: bool = True,
-                 classifier_model: Any | None = None,
-                 classifier_threshold: float = 0.5,
-                 alphabet_character_set: set[str] | None = None,
-                 count_words=False,
-                 feature_window=5):
+    BAD_FULL_RE = re.compile(r"\d+\W?|(?:\d+\.? )?die|so|\d+ und \d+|die in einem", re.I)
+    BAD_PARTIAL_RE = re.compile("[%s]" % re.escape(re.sub("[.,-:]", "", string.punctuation)))
+    DEFAULT_DATEPARSER_SETTINGS = {"PREFER_DAY_OF_MONTH": "first", "STRICT_PARSING": False}
+
+    def __init__(
+        self,
+        characters: list[str],
+        text: str | None = None,
+        locale: Locale = Locale("en-US"),
+        dateparser_settings: dict[str, Any] | None = None,
+        enable_classifier_check: bool = True,
+        classifier_model: Any | None = None,
+        classifier_threshold: float = 0.5,
+        alphabet_character_set: set[str] | None = None,
+        count_words=False,
+        feature_window=5,
+    ):
         """
         :param locale: locale object with language code and locale code
         :param enable_classifier_check: bool - enable date check using classifier model
@@ -77,22 +80,20 @@ class DateParser:
         self.dateparser_settings = dateparser_settings or self.DEFAULT_DATEPARSER_SETTINGS
         self.feature_window = feature_window
 
-    def get_dateparser_dates(self,
-                             text: str | None,
-                             strict: bool) -> list[tuple[str, datetime.datetime]]:
+    def get_dateparser_dates(self, text: str | None, strict: bool) -> list[tuple[str, datetime.datetime]]:
         """
         Extract possible dates with dateparser
         """
         text = text or self.text
         # INFO: 'DATE_ORDER': 'DMY' prevents parsing date like 2004-12-13T00:00:00Z,
         #  use SKIP_TOKENS setting if needed along with DATE_ORDER
-        old_strict_mode = self.dateparser_settings['STRICT_PARSING']
-        self.dateparser_settings['STRICT_PARSING'] = strict
-        old_date_order = self.dateparser_settings['PREFER_DAY_OF_MONTH']
-        self.dateparser_settings['DATE_ORDER'] = LocaleInfoImport(self.locale).date_order
+        old_strict_mode = self.dateparser_settings["STRICT_PARSING"]
+        self.dateparser_settings["STRICT_PARSING"] = strict
+        old_date_order = self.dateparser_settings["PREFER_DAY_OF_MONTH"]
+        self.dateparser_settings["DATE_ORDER"] = LocaleInfoImport(self.locale).date_order
         dates = search_dates(text, languages=[self.locale.language], settings=self.dateparser_settings)
-        self.dateparser_settings['STRICT_PARSING'] = old_strict_mode
-        self.dateparser_settings['DATE_ORDER'] = old_date_order
+        self.dateparser_settings["STRICT_PARSING"] = old_strict_mode
+        self.dateparser_settings["DATE_ORDER"] = old_date_order
         return dates or []
 
     def get_extra_dates(self, strict: bool):
@@ -113,12 +114,17 @@ class DateParser:
         Use pre-trained classifier model to predict whether a date has right format
         Should be pluggable as it takes 90% parsing time
         """
-        features = [get_date_features(self.text,
-                                      location_start,
-                                      location_end, self.characters,
-                                      self.alphabet_character_set,
-                                      count_words=self.count_words,
-                                      window=self.feature_window)][0]
+        features = [
+            get_date_features(
+                self.text,
+                location_start,
+                location_end,
+                self.characters,
+                self.alphabet_character_set,
+                count_words=self.count_words,
+                window=self.feature_window,
+            )
+        ][0]
         # rearrange the features to self.classifier_model.columns order
         feature_list = len(features) * [0.0]
         for i, col in enumerate(self.classifier_model.columns):
@@ -126,54 +132,63 @@ class DateParser:
         date_score = self.classifier_model.predict_proba([feature_list])
         return date_score[0, 1] > self.classifier_threshold
 
-    def get_dates(self,
-                  text: str | None = None,
-                  locale: Locale | None = None) \
-            -> Generator[dict[str, Any]]:
-        """Yield dictionaries describing each extracted date found in the text."""
+    def get_dates(self, text: str | None = None, locale: Locale | None = None) -> Generator[dict[str, Any]]:
+        """
+        Yield dictionaries describing each date found in the provided text.
+
+        Parameters:
+            text (str | None): Text to search for dates; if None, uses the instance's stored text.
+            locale (Locale | None): Locale to guide parsing; if None, uses the instance's configured locale.
+
+        Returns:
+            Generator[dict[str, Any]]: Yields dictionaries with keys:
+                - location_start (int): start index of the matched substring.
+                - location_end (int): end index of the matched substring.
+                - value (datetime.datetime): parsed/normalized date value.
+                - source (str): the exact substring from the text that produced the date.
+        """
         strict = self.dateparser_settings.get(
-            'STRICT_PARSING',
-            self.DEFAULT_DATEPARSER_SETTINGS.get('STRICT_PARSING', False),
+            "STRICT_PARSING", self.DEFAULT_DATEPARSER_SETTINGS.get("STRICT_PARSING", False)
         )
         for ant in self.get_date_annotations(text, locale, strict=strict):
-            yield {'location_start': ant.coords[0],
-                   'location_end': ant.coords[1],
-                   'value': ant.date,
-                   'source': ant.text}
+            yield {
+                "location_start": ant.coords[0],
+                "location_end": ant.coords[1],
+                "value": ant.date,
+                "source": ant.text,
+            }
 
-    def get_date_annotations(self,
-                             text: str | None = None,
-                             locale: Locale | None = None,
-                             strict: bool = True) -> \
-            Generator[DateAnnotation]:
+    def get_date_annotations(
+        self, text: str | None = None, locale: Locale | None = None, strict: bool = True
+    ) -> Generator[DateAnnotation]:
         """
-                             Generate date annotations from the parser and optional custom extractors for the given text and locale.
-                             
-                             Parameters:
-                                 text (str | None): Input text to search for dates. Newlines are replaced with spaces. If None, the parser uses the instance's existing `self.text`.
-                                 locale (Locale | None): Locale to use for extraction; if provided, its `language` overrides the parser's current language.
-                                 strict (bool): If true, enable strict parsing behavior when calling the underlying date extraction.
-                             
-                             Returns:
-                                 Generator[DateAnnotation]: Lazily yields DateAnnotation objects with coords, date, text, and locale for each accepted date mention.
-                             
-                             Raises:
-                                 RuntimeError: If neither text nor locale language is defined.
-                             
-                             Notes:
-                                 - Extraction first uses the dateparser searcher, then any custom extractions from `get_extra_dates`.
-                                 - Candidate matches are filtered by general heuristics and, if enabled, by the classifier check; overlapping spans are suppressed.
-                             """
+        Generate DateAnnotation objects for each accepted date mention found in the input text.
+
+        If `text` is provided, newlines are replaced with spaces before extraction. If `locale` is provided, its `language` overrides the parser's current language. Extraction results are filtered for unwanted patterns, suppressed for overlapping spans, and optionally validated by a classifier.
+
+        Parameters:
+            text (str | None): Text to search for dates; if None, uses the instance's existing `self.text`.
+            locale (Locale | None): Locale to use for extraction; if provided, its `language` overrides the parser's current language.
+            strict (bool): Controls strictness of the underlying date extraction.
+
+        Returns:
+            Generator[DateAnnotation]: Yields DateAnnotation objects with `coords` (start,end), `date`, `text` (matched substring), and `locale` for each accepted date mention.
+
+        Raises:
+            RuntimeError: If neither `text` nor the parser's locale language is defined.
+        """
         if text is not None:
-            self.text = text.replace('\n', ' ')
+            self.text = text.replace("\n", " ")
         self.locale.language = (locale.language if locale else "") or self.locale.language
 
         if not self.text or not self.locale.language:
-            raise RuntimeError('Define text and language.')
+            raise RuntimeError("Define text and language.")
 
-        # First try dateparser searcher
+        # First try dateparser searcher. Pass the newline-normalised text so
+        # dateparser does not split coordinated phrases like
+        # "28 de abril e 17 de\nnovembro de 1995".
         try:
-            self.dates = self.get_dateparser_dates(text, strict)
+            self.dates = self.get_dateparser_dates(self.text, strict)
         except Exception as e:
             # TODO: add logging
             print(str(e))
@@ -183,7 +198,6 @@ class DateParser:
 
         positions = []
         for date_str, date in sorted(self.dates, key=lambda i: -len(i[0])):
-
             # if possible date has weird format or unwanted symbols
             if not self.passed_general_check(date_str, date):
                 continue
@@ -197,14 +211,15 @@ class DateParser:
                 positions.append(match.span())
 
                 # filter out possible dates using classifier
-                if self.enable_classifier_check and \
-                        not self.passed_classifier_check(location_start, location_end):
+                if self.enable_classifier_check and not self.passed_classifier_check(location_start, location_end):
                     continue
 
-                ant = DateAnnotation(coords=(location_start, location_end),
-                                     date=date,
-                                     text=self.text[location_start:location_end],
-                                     locale=self.locale.language)
+                ant = DateAnnotation(
+                    coords=(location_start, location_end),
+                    date=date,
+                    text=self.text[location_start:location_end],
+                    locale=self.locale.language,
+                )
                 yield ant
 
     def get_date_list(self, text, locale):
@@ -218,12 +233,12 @@ class DateParser:
     ) -> list[DateAnnotation]:
         """
         Produce a list of date annotations extracted from the given text.
-        
+
         Parameters:
             text (str | None): Text to analyze; if None, the parser uses the instance's stored text.
             locale (Locale | None): Locale override for parsing language; if None, the instance's locale is used.
             strict (bool): If True, enable strict parsing rules for date extraction.
-        
+
         Returns:
             list[DateAnnotation]: List of detected date annotations with coordinates, normalized date value, and source text.
         """

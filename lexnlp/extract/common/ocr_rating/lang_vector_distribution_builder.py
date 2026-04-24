@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -42,7 +41,7 @@ class LangVectorDistributionBuilder:
     def build_files_reference_distribution(self, file_paths: Iterable[str]):
         def get_texts(f_paths):
             for file_path in f_paths:
-                with codecs.open(file_path, 'r', encoding='utf-8') as fr:
+                with codecs.open(file_path, "r", encoding="utf-8") as fr:
                     text = fr.read()
                     yield text
 

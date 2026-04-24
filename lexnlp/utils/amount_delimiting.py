@@ -16,16 +16,18 @@ from lexnlp.extract.all_locales.languages import LocaleContextManager
 # https://en.wikipedia.org/wiki/Decimal_separator
 
 
-DELIMITERS: frozenset = frozenset((
-    '\u0020',  # U+0020   SPACE (HTML &#32;)
-    '\u0027',  # U+0027 ' APOSTROPHE (HTML &#39; · &apos;)
-    '\u002C',  # U+002C , COMMA (HTML &#44; · &comma;)
-    '\u002E',  # U+002E . FULL STOP (HTML &#46; · &period;) - Full stop punctuation mark.
-    '\u00B7',  # U+00B7 · MIDDLE DOT (HTML &#183; · &middot;, &CenterDot;, &centerdot;)
-    '\u2009',  # U+2009 THIN SPACE (HTML &#8201; · &thinsp;, &ThinSpace;)
-    '\u202F',  # U+202F NARROW NO-BREAK SPACE (HTML &#8239;)
-    '\u02D9',  # U+02D9 ˙ DOT ABOVE (HTML &#729; · &DiacriticalDot;, &dot;)
-))
+DELIMITERS: frozenset = frozenset(
+    (
+        "\u0020",  # U+0020   SPACE (HTML &#32;)
+        "\u0027",  # U+0027 ' APOSTROPHE (HTML &#39; · &apos;)
+        "\u002c",  # U+002C , COMMA (HTML &#44; · &comma;)
+        "\u002e",  # U+002E . FULL STOP (HTML &#46; · &period;) - Full stop punctuation mark.
+        "\u00b7",  # U+00B7 · MIDDLE DOT (HTML &#183; · &middot;, &CenterDot;, &centerdot;)
+        "\u2009",  # U+2009 THIN SPACE (HTML &#8201; · &thinsp;, &ThinSpace;)
+        "\u202f",  # U+202F NARROW NO-BREAK SPACE (HTML &#8239;)
+        "\u02d9",  # U+02D9 ˙ DOT ABOVE (HTML &#729; · &DiacriticalDot;, &dot;)
+    )
+)
 
 
 class DelimitedBlock(NamedTuple):
@@ -35,6 +37,7 @@ class DelimitedBlock(NamedTuple):
         - ,000, represented as <length=3, delimiter=",">
         - '500, represented as <length=3, delimiter="'">
     """
+
     length: int
     delimiter: str
 
@@ -60,12 +63,7 @@ def get_delimited_blocks(
         if character in DELIMITERS:
             delimiters.add(character)
             if delimiter is not None:
-                blocks.append(
-                    DelimitedBlock(
-                        length=count - start - 1,
-                        delimiter=delimiter
-                    )
-                )
+                blocks.append(DelimitedBlock(length=count - start - 1, delimiter=delimiter))
             start = count
             delimiter = character
     try:
@@ -106,7 +104,6 @@ def check_block_grouping(
     encountered_delimiters: set[str] = set()
 
     for index, block in enumerate(reversed(blocks)):
-
         if index < len_grouping:
             if grouping[index] != 0:
                 permitted_length = grouping[index]
@@ -156,43 +153,38 @@ def infer_delimiters(
     if not text.isnumeric():
         temp_text = text
         for delimiter in DELIMITERS:
-            temp_text = temp_text.replace(delimiter, '')
+            temp_text = temp_text.replace(delimiter, "")
         if not temp_text.isnumeric():
             return None
 
     # TODO: be careful with the locale string!
     #   - ".UTF-8" is hardcoded... will this always be correct?
     #   - exception handling for when locales are not available
-    with LocaleContextManager(locale.LC_NUMERIC, f'{_locale}.UTF-8'):
+    with LocaleContextManager(locale.LC_NUMERIC, f"{_locale}.UTF-8"):
         locale_conventions = locale.localeconv()
-        decimal_delimiter: str = locale_conventions['decimal_point']
-        group_delimiter: str = locale_conventions['thousands_sep']
-        grouping: list[int] = locale_conventions['grouping']
+        decimal_delimiter: str = locale_conventions["decimal_point"]
+        group_delimiter: str = locale_conventions["thousands_sep"]
+        grouping: list[int] = locale_conventions["grouping"]
 
     # Some runners do not have locale packs (e.g., de_DE.UTF-8) installed and
     # silently fall back to another locale (often C or en_US). This breaks
     # delimiter inference for values like "10.800" in German contexts.
     # de_DE is hardcoded in DE extractors, so enforce its canonical delimiters
     # whenever locale resolution does not match those conventions.
-    if (
-        _locale.lower().startswith('de_de')
-        and (
-            decimal_delimiter != ','
-            or group_delimiter != '.'
-            or grouping != [3, 3, 0]
-        )
+    if _locale.lower().startswith("de_de") and (
+        decimal_delimiter != "," or group_delimiter != "." or grouping != [3, 3, 0]
     ):
-        decimal_delimiter = ','
-        group_delimiter = '.'
+        decimal_delimiter = ","
+        group_delimiter = "."
         grouping = [3, 3, 0]
-    elif _locale.lower().startswith('en_us') and (
-        decimal_delimiter != '.' or group_delimiter != ',' or grouping != [3, 3, 0]
+    elif _locale.lower().startswith("en_us") and (
+        decimal_delimiter != "." or group_delimiter != "," or grouping != [3, 3, 0]
     ):
         # Runners without the en_US.UTF-8 locale pack fall back to the "C"
         # locale where ``grouping`` is ``[]`` and ``thousands_sep`` is empty.
         # Enforce the canonical en_US conventions the extractors rely on.
-        decimal_delimiter = '.'
-        group_delimiter = ','
+        decimal_delimiter = "."
+        group_delimiter = ","
         grouping = [3, 3, 0]
     elif not grouping:
         # Generic fallback: any locale that resolved to ``C`` lacks grouping
@@ -209,14 +201,11 @@ def infer_delimiters(
 
     if len_delimiters == 0:
         # `text` is an integer without delimiters
-        return {
-            'decimal_delimiter': decimal_delimiter,
-            'group_delimiter': group_delimiter
-        }
+        return {"decimal_delimiter": decimal_delimiter, "group_delimiter": group_delimiter}
 
     if len_delimiters == 2:
-        decimal_delimiter = ''
-        group_delimiter = ''
+        decimal_delimiter = ""
+        group_delimiter = ""
 
         # `text` is a floating point number greater than one
         for delimiter in delimiters:
@@ -226,18 +215,12 @@ def infer_delimiters(
                 group_delimiter = delimiter
 
         if decimal_delimiter and group_delimiter:
-            return {
-                'decimal_delimiter': decimal_delimiter,
-                'group_delimiter': group_delimiter
-            }
+            return {"decimal_delimiter": decimal_delimiter, "group_delimiter": group_delimiter}
 
         if not check_block_grouping(blocks, decimal_delimiter, grouping):
             return None
 
-        return {
-            'decimal_delimiter': decimal_delimiter,
-            'group_delimiter': group_delimiter
-        }
+        return {"decimal_delimiter": decimal_delimiter, "group_delimiter": group_delimiter}
 
     # len_delimiters == 1
     if len(blocks) == 1:
@@ -245,28 +228,25 @@ def infer_delimiters(
         delimiter: str = delimiters.pop()
 
         if block.length == 3 and block.delimiter != decimal_delimiter:
-            return {
-                'decimal_delimiter': None,
-                'group_delimiter': block.delimiter
-            }
+            return {"decimal_delimiter": None, "group_delimiter": block.delimiter}
 
         if block.length == grouping[0]:
             # `text` is an integer
             return {
-                'decimal_delimiter': decimal_delimiter,
-                'group_delimiter': delimiter if delimiter != decimal_delimiter else group_delimiter
+                "decimal_delimiter": decimal_delimiter,
+                "group_delimiter": delimiter if delimiter != decimal_delimiter else group_delimiter,
             }
 
         # `text` is a floating point number less than one
         return {
-            'decimal_delimiter': block.delimiter,
-            'group_delimiter': group_delimiter if group_delimiter != block.delimiter else None
+            "decimal_delimiter": block.delimiter,
+            "group_delimiter": group_delimiter if group_delimiter != block.delimiter else None,
         }
 
     # other cases
     if not check_block_grouping(blocks, decimal_delimiter, grouping):
         return None
     return {
-        'decimal_delimiter': decimal_delimiter if decimal_delimiter not in delimiters else None,
-        'group_delimiter': delimiters.pop() or group_delimiter
+        "decimal_delimiter": decimal_delimiter if decimal_delimiter not in delimiters else None,
+        "group_delimiter": delimiters.pop() or group_delimiter,
     }

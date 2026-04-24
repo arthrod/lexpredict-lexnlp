@@ -50,7 +50,6 @@ class TestHistGradientBoostingFactory:
 class TestConfigurePipeline:
     def test_sets_output_on_pipeline(self) -> None:
         pytest.importorskip("sklearn")
-        import numpy as np
         from sklearn.pipeline import Pipeline
         from sklearn.preprocessing import StandardScaler
 

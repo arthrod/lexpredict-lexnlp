@@ -12,17 +12,12 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-DEFAULT_FIXTURE = Path(
-    "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_contract_type.csv"
-)
+DEFAULT_FIXTURE = Path("test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_contract_type.csv")
 REQUIRED_METRIC_KEYS = ("accuracy_top1", "accuracy_topn", "f1_macro", "f1_weighted")
 
 
 def resolve_contract_type_model_tag() -> str:
-    return (
-        os.getenv("LEXNLP_CONTRACT_TYPE_MODEL_TAG")
-        or "pipeline/contract-type/0.2-runtime"
-    ).strip()
+    return (os.getenv("LEXNLP_CONTRACT_TYPE_MODEL_TAG") or "pipeline/contract-type/0.2-runtime").strip()
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
@@ -105,10 +100,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument(
         "--write-baseline-metrics-json",
         type=Path,
-        help=(
-            "Optional path to write canonical baseline metrics JSON "
-            "(baseline_tag, fixture, top_n, metrics)."
-        ),
+        help=("Optional path to write canonical baseline metrics JSON (baseline_tag, fixture, top_n, metrics)."),
     )
     return parser.parse_args(argv)
 
@@ -149,11 +141,17 @@ def ensure_tag_downloaded(tag: str) -> Path:
 
 
 def load_pipeline_for_tag(tag: str):
-    from cloudpickle import load
+    """Resolve a catalogue tag to a pipeline object.
 
-    model_path = ensure_tag_downloaded(tag)
-    with model_path.open("rb") as model_file:
-        return load(model_file)
+    Routes through :func:`lexnlp.ml.model_io.load_model`, which understands
+    both the legacy pickle / cloudpickle formats used by older releases and
+    the ``.skops`` format produced by the runtime-trained
+    ``pipeline/contract-type/0.2-runtime`` model.
+    """
+
+    from lexnlp.ml.model_io import load_model
+
+    return load_model(ensure_tag_downloaded(tag))
 
 
 def score_pipeline(pipeline, texts: list[str], labels: list[str], *, top_n: int) -> dict[str, float]:
@@ -217,9 +215,7 @@ def load_baseline_metrics(path: Path) -> dict[str, Any]:
     elif "baseline" in payload:
         metrics = parse_metrics(payload["baseline"], f"{path}::baseline")
     else:
-        raise ValueError(
-            f"Baseline metrics JSON must contain either 'metrics' or 'baseline': {path}"
-        )
+        raise ValueError(f"Baseline metrics JSON must contain either 'metrics' or 'baseline': {path}")
 
     return {
         "metrics": metrics,
@@ -265,10 +261,7 @@ def main(argv: Sequence[str]) -> int:
 
         file_top_n = baseline_metrics_file.get("top_n")
         if file_top_n is not None and int(file_top_n) != int(args.top_n):
-            raise ValueError(
-                "top_n mismatch between CLI and baseline metrics JSON: "
-                f"{args.top_n} != {file_top_n}"
-            )
+            raise ValueError(f"top_n mismatch between CLI and baseline metrics JSON: {args.top_n} != {file_top_n}")
     else:
         baseline_metrics = score_pipeline(
             load_pipeline_for_tag(args.baseline_tag),

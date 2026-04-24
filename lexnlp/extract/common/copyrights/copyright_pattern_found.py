@@ -22,11 +22,11 @@ class CopyrightPatternFound(PatternFound):
             self.end = ptrn.end
             self.probability = ptrn.probability
         else:
-            self.name = None    # type: str
+            self.name = None  # type: str
             self.start = 0
             self.end = 0
             self.probability = 0
-        self.company = ''
+        self.company = ""
         self.start_year = 0
         self.end_year = 0
 
@@ -38,7 +38,7 @@ class CopyrightPatternFound(PatternFound):
 
     def get_detalization_level(self, text: str) -> int:
         level = 0
-        text_part = text[self.start: self.end]
+        text_part = text[self.start : self.end]
         if self.reg_uppercase.search(text_part):
             level += 1
         if self.company:
@@ -50,9 +50,8 @@ class CopyrightPatternFound(PatternFound):
         return level
 
     # override checking when patterns span
-    def pattern_worse_than_target(self, p, text: str) -> bool:    # p: PatternFound
-        spans = self.start <= p.start <= self.end or \
-                self.start <= p.end <= self.end
+    def pattern_worse_than_target(self, p, text: str) -> bool:  # p: PatternFound
+        spans = self.start <= p.start <= self.end or self.start <= p.end <= self.end
         if not spans:
             return False
         # what is more detailed?

@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -29,9 +28,9 @@ class ProbabilityPredictorIsContract(ProbabilityPredictor):
     Uses a Scikit-Learn Pipeline to classify textual input as is/is-not a contract.
     """
 
-    _DEFAULT_PIPELINE: str = 'pipeline/is-contract/0.2'
-    _DEFAULT_PIPELINE_ENV_VAR: str = 'LEXNLP_IS_CONTRACT_MODEL_TAG'
-    _LEGACY_FALLBACK_PIPELINE: str = 'pipeline/is-contract/0.1'
+    _DEFAULT_PIPELINE: str = "pipeline/is-contract/0.2"
+    _DEFAULT_PIPELINE_ENV_VAR: str = "LEXNLP_IS_CONTRACT_MODEL_TAG"
+    _LEGACY_FALLBACK_PIPELINE: str = "pipeline/is-contract/0.1"
 
     @classmethod
     def get_default_pipeline(cls):
@@ -117,9 +116,9 @@ class ProbabilityPredictorContractType(ProbabilityPredictor):
     Uses a Scikit-Learn Pipeline to classify textual input as a type of contract.
     """
 
-    _DEFAULT_PIPELINE: str = 'pipeline/contract-type/0.1'
-    _DEFAULT_PIPELINE_ENV_VAR: str = 'LEXNLP_CONTRACT_TYPE_MODEL_TAG'
-    _RUNTIME_FALLBACK_PIPELINE: str = 'pipeline/contract-type/0.2-runtime'
+    _DEFAULT_PIPELINE: str = "pipeline/contract-type/0.1"
+    _DEFAULT_PIPELINE_ENV_VAR: str = "LEXNLP_CONTRACT_TYPE_MODEL_TAG"
+    _RUNTIME_FALLBACK_PIPELINE: str = "pipeline/contract-type/0.2-runtime"
 
     def _sanity_check(self) -> None:
         """
@@ -199,7 +198,7 @@ class ProbabilityPredictorContractType(ProbabilityPredictor):
         predictions: Series,
         min_probability: float = 0.15,
         max_closest_probability: float = 0.75,
-        unknown_classification: str = '',
+        unknown_classification: str = "",
     ) -> str:
         """
         Args:
@@ -242,7 +241,7 @@ class ProbabilityPredictorContractType(ProbabilityPredictor):
         text: str | Iterable[str],
         min_probability: float = 0.15,
         max_closest_probability: float = 0.75,
-        unknown_classification: str = '',
+        unknown_classification: str = "",
     ) -> str:
         """
         Assigns text a contract type classification.

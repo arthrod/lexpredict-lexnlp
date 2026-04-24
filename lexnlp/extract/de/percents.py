@@ -19,8 +19,8 @@ get_amounts = amounts_parser.parse
 
 
 PERCENT_UNITS_MAP = {
-    'prozent': Decimal(0.01),
-    '%': Decimal(0.01),
+    "prozent": Decimal(0.01),
+    "%": Decimal(0.01),
 }
 
 PERCENT_PTN = rf"""
@@ -39,18 +39,16 @@ def get_percents(text: str, float_digits: int = 4) -> Generator[dict]:
     """
     for ant in get_percent_annotations(text, float_digits):
         yield dict(
-                location_start=ant.coords[0],
-                location_end=ant.coords[1],
-                source_text=ant.text,
-                unit_name=ant.sign,
-                amount=ant.amount,
-                real_amount=ant.fraction)
+            location_start=ant.coords[0],
+            location_end=ant.coords[1],
+            source_text=ant.text,
+            unit_name=ant.sign,
+            amount=ant.amount,
+            real_amount=ant.fraction,
+        )
 
 
-def get_percent_annotations(
-    text: str,
-    float_digits: int = 4
-) -> Generator[PercentAnnotation]:
+def get_percent_annotations(text: str, float_digits: int = 4) -> Generator[PercentAnnotation]:
     """
     Get percent usages within text.
     :param text:
@@ -60,14 +58,14 @@ def get_percent_annotations(
     """
     for match in PERCENT_PTN_RE.finditer(text):
         capture = match.capturesdict()
-        amount_text = ''.join(capture.get('num_text', ''))
-        unit_name = ''.join(capture.get('unit_name', ''))
+        amount_text = "".join(capture.get("num_text", ""))
+        unit_name = "".join(capture.get("unit_name", ""))
         amount = list(get_amounts(amount_text, float_digits=float_digits))
         if len(amount) != 1:
             continue
         amount = amount[0]
-        if 'prozent' in unit_name.lower():
-            unit_name = 'prozent'
+        if "prozent" in unit_name.lower():
+            unit_name = "prozent"
         real_amount = PERCENT_UNITS_MAP.get(unit_name, Decimal(0)) * amount
 
         if float_digits:
@@ -75,11 +73,11 @@ def get_percent_annotations(
 
         yield PercentAnnotation(
             coords=match.span(),
-            text=''.join(capture.get('text', '')),
+            text="".join(capture.get("text", "")),
             sign=unit_name,
             amount=amount,
             fraction=real_amount,
-            locale='de'
+            locale="de",
         )
 
 

@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -15,37 +14,35 @@ class CourtAnnotation(TextAnnotation):
     create an object of CourtAnnotation like
     cp = CourtAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'court'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = 'en',
-                 name: str = '',
-                 text: str = '',
-                 jurisdiction: str = '',
-                 court_type: str = '',
-                 entity_id: int = 0):
-        super().__init__(
-            locale=locale,
-            coords=coords,
-            name=name,
-            text=text)
+    record_type = "court"
+
+    def __init__(
+        self,
+        coords: tuple[int, int],
+        locale: str = "en",
+        name: str = "",
+        text: str = "",
+        jurisdiction: str = "",
+        court_type: str = "",
+        entity_id: int = 0,
+    ):
+        super().__init__(locale=locale, coords=coords, name=name, text=text)
         self.jurisdiction = jurisdiction
         self.court_type = court_type
         self.entity_id = entity_id  # reference to the dictionary of courts
 
     def get_cite_value_parts(self) -> list[str]:
-        parts = [self.name,
-                 self.jurisdiction or '',
-                 self.court_type or '']
+        parts = [self.name, self.jurisdiction or "", self.court_type or ""]
         return parts
 
     def get_dictionary_values(self) -> dict:
         ant = dict(
             tags={
-                'Extracted Entity Court Name': self.name,
-                'Extracted Entity Text': self.text,
-                'Extracted Entity Court Type': self.court_type,
-                'Extracted Entity Court Jurisdiction': self.jurisdiction
-            })
+                "Extracted Entity Court Name": self.name,
+                "Extracted Entity Text": self.text,
+                "Extracted Entity Court Type": self.court_type,
+                "Extracted Entity Court Jurisdiction": self.jurisdiction,
+            }
+        )
         return ant

@@ -15,12 +15,8 @@ from pathlib import Path
 
 from cloudpickle import load
 
-DEFAULT_FIXTURE = Path(
-    "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv"
-)
-DEFAULT_BASELINE_METRICS = Path(
-    "test_data/model_quality/is_contract_baseline_metrics.json"
-)
+DEFAULT_FIXTURE = Path("test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv")
+DEFAULT_BASELINE_METRICS = Path("test_data/model_quality/is_contract_baseline_metrics.json")
 LEGACY_WARNING_TOKEN = "Trying to unpickle estimator"
 
 
@@ -35,8 +31,7 @@ def resolve_contract_model_tag() -> str:
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Load an existing contract classifier tag and re-serialize it with "
-            "the current runtime under a new tag."
+            "Load an existing contract classifier tag and re-serialize it with the current runtime under a new tag."
         )
     )
     parser.add_argument(
@@ -69,10 +64,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         "--baseline-metrics-json",
         type=Path,
         default=DEFAULT_BASELINE_METRICS,
-        help=(
-            "Baseline metrics JSON for quality gate. "
-            f"Default: {DEFAULT_BASELINE_METRICS}"
-        ),
+        help=(f"Baseline metrics JSON for quality gate. Default: {DEFAULT_BASELINE_METRICS}"),
     )
     parser.add_argument(
         "--max-accuracy-regression",
@@ -104,10 +96,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         "--max-legacy-warning-regression",
         type=int,
         default=0,
-        help=(
-            "Maximum allowed increase in legacy sklearn unpickle warning count "
-            "between source and candidate model."
-        ),
+        help=("Maximum allowed increase in legacy sklearn unpickle warning count between source and candidate model."),
     )
     return parser.parse_args(argv)
 
@@ -205,16 +194,16 @@ except Exception as exc:  # noqa: BLE001 - catch all errors during model probe f
 def main(argv: Sequence[str]) -> int:
     """
     Re-export a contract classifier from a source catalog tag to a target tag, apply runtime compatibility adjustments, write the re-serialized model and metadata, probe for legacy sklearn unpickle warnings, and optionally run a post-export quality gate.
-    
+
     Parameters:
-    	argv (Sequence[str]): Command-line arguments (excluding program name).
-    
+        argv (Sequence[str]): Command-line arguments (excluding program name).
+
     Returns:
-    	int: Exit code (0 on success, 1 if legacy sklearn warning regression exceeds the configured threshold).
-    
+        int: Exit code (0 on success, 1 if legacy sklearn warning regression exceeds the configured threshold).
+
     Raises:
-    	ValueError: If `--source-tag` and `--target-tag` are identical.
-    	FileExistsError: If the destination model already exists and `--force` is not provided.
+        ValueError: If `--source-tag` and `--target-tag` are identical.
+        FileExistsError: If the destination model already exists and `--force` is not provided.
     """
     args = parse_args(argv)
     if args.source_tag == args.target_tag:
@@ -231,10 +220,7 @@ def main(argv: Sequence[str]) -> int:
     destination_path = destination_dir / source_path.name
 
     if destination_path.exists() and not args.force:
-        raise FileExistsError(
-            f"Destination already exists: {destination_path} "
-            "(use --force to overwrite)."
-        )
+        raise FileExistsError(f"Destination already exists: {destination_path} (use --force to overwrite).")
 
     destination_dir.mkdir(parents=True, exist_ok=True)
 
@@ -248,9 +234,7 @@ def main(argv: Sequence[str]) -> int:
     with destination_path.open("wb") as destination_file:
         pickle.dump(pipeline, destination_file)
 
-    default_metadata_path = Path("artifacts/model_reexports") / (
-        f"{args.target_tag.replace('/', '__')}.metadata.json"
-    )
+    default_metadata_path = Path("artifacts/model_reexports") / (f"{args.target_tag.replace('/', '__')}.metadata.json")
     metadata_path = args.output_metadata_json or default_metadata_path
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
     metadata_payload = {

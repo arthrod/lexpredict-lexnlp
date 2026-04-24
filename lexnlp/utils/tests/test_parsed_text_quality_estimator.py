@@ -15,20 +15,17 @@ from lexnlp.utils.lines_processing.parsed_text_quality_estimator import ParsedTe
 
 class TestParsedTextQualityEstimator(TestCase):
     def test_estimate_dense_text(self):
-        text = load_resource_document(
-            "lexnlp/utils/parsing/pdf_malformat_parsed_default.txt", 'utf-8')
+        text = load_resource_document("lexnlp/utils/parsing/pdf_malformat_parsed_default.txt", "utf-8")
         estimator = ParsedTextQualityEstimator()
         estim = estimator.estimate_text(text)
         self.assertGreater(estim.extra_line_breaks_prob, 50)
 
-        text = load_resource_document(
-            'lexnlp/utils/parsing/pdf_malformat_parsed_stripper.txt', 'utf-8')
+        text = load_resource_document("lexnlp/utils/parsing/pdf_malformat_parsed_stripper.txt", "utf-8")
         estim = estimator.estimate_text(text)
         self.assertLess(estim.extra_line_breaks_prob, 30)
 
     def test_estimate_text_abusing_headers(self):
-        text = load_resource_document(
-            'lexnlp/utils/parsing/text_abusing_headers.txt', 'utf-8')
+        text = load_resource_document("lexnlp/utils/parsing/text_abusing_headers.txt", "utf-8")
         text = pre_process_document(text)
         estimator = ParsedTextQualityEstimator()
         estim = estimator.estimate_text(text)

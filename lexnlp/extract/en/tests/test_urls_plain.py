@@ -17,7 +17,7 @@ class TestRatiosPlain(TestCase):
     def test_ratios(self):
         """
         Test that URL extraction and URL annotation functions identify a single URL and its locale.
-        
+
         Verifies that get_urls returns exactly one URL "www.google.com" for the sample text and that get_url_annotations returns a single UrlAnnotation with locale "en" and url "www.google.com".
         """
         text = "I've been banned on www.google.com :("

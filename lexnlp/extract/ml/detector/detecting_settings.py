@@ -7,11 +7,9 @@ __email__ = "support@contraxsuite.com"
 
 
 class DetectingSettings:
-    def __init__(self,
-                 use_spacy: bool = False,
-                 pre_window: int = 0,
-                 post_window: int = 0,
-                 model_type: str = 'random_forest'):
+    def __init__(
+        self, use_spacy: bool = False, pre_window: int = 0, post_window: int = 0, model_type: str = "random_forest"
+    ):
         """
         :param use_spacy: Whether to use spacy to train
         :param pre_window: Number of characters prior to include
@@ -24,5 +22,7 @@ class DetectingSettings:
         self.model_type = model_type
 
     def __repr__(self):
-        return f'use_spacy={self.use_spacy}, pre_window={self.pre_window}, ' +\
-            f'post_window={self.post_window}, model_type={self.model_type}'
+        return (
+            f"use_spacy={self.use_spacy}, pre_window={self.pre_window}, "
+            + f"post_window={self.post_window}, model_type={self.model_type}"
+        )

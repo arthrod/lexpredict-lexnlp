@@ -23,7 +23,7 @@ class TestDecoratorsModule:
     def test_source_compiles(self) -> None:
         """
         Ensure the decorators module source code parses as valid Python.
-        
+
         Fails the test if parsing the module's source raises a syntax or parse-related exception.
         """
         source = Path(decorators_module.__file__).read_text(encoding="utf-8")
@@ -41,7 +41,7 @@ class TestDecoratorsModule:
     def test_safe_failure_decorator_present(self) -> None:
         """
         Verifies the decorators module exposes at least one public callable decorator.
-        
+
         Checks that the module defines `safe_failure` or `safe_call`, or that it exposes any public (non-underscore-prefixed) attribute whose value is callable.
         """
         assert (

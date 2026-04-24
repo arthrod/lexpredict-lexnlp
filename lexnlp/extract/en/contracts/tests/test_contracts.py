@@ -16,13 +16,14 @@ def actual_data_converter(val):
 
 def test_is_contract():
 
-    probability_predictor_is_contract: ProbabilityPredictorIsContract = \
-        ProbabilityPredictorIsContract(pipeline=ProbabilityPredictorIsContract.get_default_pipeline())
+    probability_predictor_is_contract: ProbabilityPredictorIsContract = ProbabilityPredictorIsContract(
+        pipeline=ProbabilityPredictorIsContract.get_default_pipeline()
+    )
 
     lexnlp_tests.test_extraction_func_on_test_data(
-        probability_predictor_is_contract.is_contract,
-        actual_data_converter=actual_data_converter,
-        min_probability=0.3)
+        probability_predictor_is_contract.is_contract, actual_data_converter=actual_data_converter, min_probability=0.3
+    )
+
 
 # def test_bad_cases():
 #    lexnlp_tests.test_extraction_func_on_test_data(get_addresses)

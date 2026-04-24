@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 import os
 
 import numpy
@@ -15,21 +14,124 @@ import spacy
 from lexnlp.extract.ml.classifier.base_token_sequence_classifier_model import BaseTokenSequenceClassifierModel
 
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
-NLP_EN = spacy.load('en_core_web_sm')
+NLP_EN = spacy.load("en_core_web_sm")
 
 
 # TODO: Refactor to support multiple languages
 # TODO: Determine how to introspect model for pos/tag/dep metadata
-SPACY_POS_LIST = ['NOUN', 'PROPN', 'PUNCT', 'ADP', 'VERB', 'SPACE', 'DET', 'CCONJ', 'ADJ', 'ADV', 'PART',
-                  'NUM', 'X', 'SYM', 'PRON', 'INTJ']
-SPACY_TAG_LIST = ['NNP', 'IN', 'NN', 'DT', '""', 'CC', 'NNS', ',', 'JJ', 'VBN', 'VB', '_SP', 'RB', '.', 'CD', 'MD',
-                  '-RRB-', '-LRB-', 'VBZ', 'TO', 'VBG', ':', 'POS', 'VBP', "''", '``', 'NNPS', 'WDT', 'VBD', 'XX',
-                  'PRP$', 'LS', 'RP', 'HYPH', 'PRP', '$', 'SYM', 'JJR', 'EX', 'NFP', 'RBS', 'RBR', 'WRB', 'JJS', 'WP',
-                  'AFX', 'UH']
-SPACY_DEP_LIST = ['punct', 'prep', 'pobj', '""', 'det', 'conj', 'cc', 'compound', 'amod', 'ROOT', 'aux', 'nsubj',
-                  'dobj', 'advmod', 'appos', 'acl', 'nmod', 'mark', 'nummod', 'auxpass', 'poss', 'advcl', 'case',
-                  'nsubjpass', 'agent', 'relcl', 'neg', 'ccomp', 'xcomp', 'acomp', 'attr', 'npadvmod', 'pcomp', 'intj',
-                  'prt', 'meta', 'oprd', 'dative', 'parataxis', 'quantmod', 'expl', 'dep', 'csubj', 'preconj']
+SPACY_POS_LIST = [
+    "NOUN",
+    "PROPN",
+    "PUNCT",
+    "ADP",
+    "VERB",
+    "SPACE",
+    "DET",
+    "CCONJ",
+    "ADJ",
+    "ADV",
+    "PART",
+    "NUM",
+    "X",
+    "SYM",
+    "PRON",
+    "INTJ",
+]
+SPACY_TAG_LIST = [
+    "NNP",
+    "IN",
+    "NN",
+    "DT",
+    '""',
+    "CC",
+    "NNS",
+    ",",
+    "JJ",
+    "VBN",
+    "VB",
+    "_SP",
+    "RB",
+    ".",
+    "CD",
+    "MD",
+    "-RRB-",
+    "-LRB-",
+    "VBZ",
+    "TO",
+    "VBG",
+    ":",
+    "POS",
+    "VBP",
+    "''",
+    "``",
+    "NNPS",
+    "WDT",
+    "VBD",
+    "XX",
+    "PRP$",
+    "LS",
+    "RP",
+    "HYPH",
+    "PRP",
+    "$",
+    "SYM",
+    "JJR",
+    "EX",
+    "NFP",
+    "RBS",
+    "RBR",
+    "WRB",
+    "JJS",
+    "WP",
+    "AFX",
+    "UH",
+]
+SPACY_DEP_LIST = [
+    "punct",
+    "prep",
+    "pobj",
+    '""',
+    "det",
+    "conj",
+    "cc",
+    "compound",
+    "amod",
+    "ROOT",
+    "aux",
+    "nsubj",
+    "dobj",
+    "advmod",
+    "appos",
+    "acl",
+    "nmod",
+    "mark",
+    "nummod",
+    "auxpass",
+    "poss",
+    "advcl",
+    "case",
+    "nsubjpass",
+    "agent",
+    "relcl",
+    "neg",
+    "ccomp",
+    "xcomp",
+    "acomp",
+    "attr",
+    "npadvmod",
+    "pcomp",
+    "intj",
+    "prt",
+    "meta",
+    "oprd",
+    "dative",
+    "parataxis",
+    "quantmod",
+    "expl",
+    "dep",
+    "csubj",
+    "preconj",
+]
 
 
 class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
@@ -39,20 +141,41 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
     TODO: Implement sum and normalize.
     """
 
-    def __init__(self, letter_set=None, digit_set=None, punc_set=None, symbol_set=None, match_tokens=None,
-                 pre_window=0, post_window=0, calculate_sum=False, normalize=False, string_checks=False):
-        super().__init__(letter_set=letter_set, digit_set=digit_set, punc_set=punc_set,
-                         symbol_set=symbol_set, match_tokens=match_tokens, pre_window=pre_window,
-                         post_window=post_window, calculate_sum=calculate_sum,
-                         normalize=normalize, string_checks=string_checks)
+    def __init__(
+        self,
+        letter_set=None,
+        digit_set=None,
+        punc_set=None,
+        symbol_set=None,
+        match_tokens=None,
+        pre_window=0,
+        post_window=0,
+        calculate_sum=False,
+        normalize=False,
+        string_checks=False,
+    ):
+        super().__init__(
+            letter_set=letter_set,
+            digit_set=digit_set,
+            punc_set=punc_set,
+            symbol_set=symbol_set,
+            match_tokens=match_tokens,
+            pre_window=pre_window,
+            post_window=post_window,
+            calculate_sum=calculate_sum,
+            normalize=normalize,
+            string_checks=string_checks,
+        )
 
-    def get_feature_list(self,
-                         letter_set=None,
-                         digit_set=None,
-                         punc_set=None,
-                         symbol_set=None,
-                         pre_window: int | None = None,
-                         post_window: int | None = None):
+    def get_feature_list(
+        self,
+        letter_set=None,
+        digit_set=None,
+        punc_set=None,
+        symbol_set=None,
+        pre_window: int | None = None,
+        post_window: int | None = None,
+    ):
         """
         Return set of features for a character tokenizer.
         """
@@ -76,9 +199,7 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
             post_window = self.post_window
 
         # initialize
-        token_feature_list = ['position',
-                              'length',
-                              'mask']
+        token_feature_list = ["position", "length", "mask"]
 
         for pos in SPACY_POS_LIST:
             token_feature_list.append(f"is_pos_{pos}")
@@ -157,27 +278,29 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
 
         return token_feature_list
 
-    def get_feature_data(self,
-                         text: str,
-                         feature_mask: list[int] | None = None):
+    def get_feature_data(self, text: str, feature_mask: list[int] | None = None):
         """
-                         Build a per-token feature matrix and corresponding token character offsets from the input text using spaCy and the model's character and unicode mappings.
-                         
-                         Parameters:
-                             text (str): Input text to tokenize and extract features from.
-                             feature_mask (list[int] | None): Optional per-character mask; when provided the token-level `mask` feature is set to the maximum mask value among the token's characters.
-                         
-                         Returns:
-                             feature_data (numpy.ndarray): Integer array of shape (num_tokens, num_features) and dtype numpy.int8 containing token-level features for each token.
-                             tokens (list[tuple[int, int]]): List of (start_pos, end_pos) character offsets for each token in `text`.
-                         """
+        Build a per-token feature matrix and corresponding token character offsets from the input text using spaCy and the model's character and unicode mappings.
+
+        Parameters:
+            text (str): Input text to tokenize and extract features from.
+            feature_mask (list[int] | None): Optional per-character mask; when provided the token-level `mask` feature is set to the maximum mask value among the token's characters.
+
+        Returns:
+            feature_data (numpy.ndarray): Integer array of shape (num_tokens, num_features) and dtype numpy.int8 containing token-level features for each token.
+            tokens (list[tuple[int, int]]): List of (start_pos, end_pos) character offsets for each token in `text`.
+        """
         # parse text with spacy
-        text_data = [(self.unicode_character_top_category_mapping[
-                          c] if c in self.unicode_character_top_category_mapping else "C",
-                      self.unicode_character_category_mapping[
-                          c] if c in self.unicode_character_category_mapping else "Cc",
-                      ord(c)
-                      ) for c in text]
+        text_data = [
+            (
+                self.unicode_character_top_category_mapping[c]
+                if c in self.unicode_character_top_category_mapping
+                else "C",
+                self.unicode_character_category_mapping[c] if c in self.unicode_character_category_mapping else "Cc",
+                ord(c),
+            )
+            for c in text
+        ]
         text_lower = text.lower()
         doc = NLP_EN(text)
 
@@ -190,24 +313,24 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
         # iterate through tokens
         for i, token in enumerate(doc):
             o = str(0)
-            feature_data[i, self._feature_index_map['position']] = i
-            feature_data[i, self._feature_index_map['length']] = len(token)
-            feature_data[i, self._feature_index_map['mask']] = 0
+            feature_data[i, self._feature_index_map["position"]] = i
+            feature_data[i, self._feature_index_map["length"]] = len(token)
+            feature_data[i, self._feature_index_map["mask"]] = 0
 
             if token.pos_ in SPACY_POS_LIST:
-                feature_data[i, self._feature_index_map['is_pos_' + token.pos_]] = 1
+                feature_data[i, self._feature_index_map["is_pos_" + token.pos_]] = 1
             else:
-                feature_data[i, self._feature_index_map['is_pos_other']] = 1
+                feature_data[i, self._feature_index_map["is_pos_other"]] = 1
 
             if token.tag_ in SPACY_TAG_LIST:
-                feature_data[i, self._feature_index_map['is_tag_' + token.tag_]] = 1
+                feature_data[i, self._feature_index_map["is_tag_" + token.tag_]] = 1
             else:
-                feature_data[i, self._feature_index_map['is_tag_other']] = 1
+                feature_data[i, self._feature_index_map["is_tag_other"]] = 1
 
             if token.dep_ in SPACY_DEP_LIST:
-                feature_data[i, self._feature_index_map['is_dep_' + token.dep_]] = 1
+                feature_data[i, self._feature_index_map["is_dep_" + token.dep_]] = 1
             else:
-                feature_data[i, self._feature_index_map['is_dep_other']] = 1
+                feature_data[i, self._feature_index_map["is_dep_other"]] = 1
 
             if self.string_checks:
                 feature_data[i, self._feature_index_map[o + "_is_title"]] = token.is_title
@@ -224,8 +347,9 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
                 c = text[j]
                 cl = text_lower[j]
                 if feature_mask:
-                    feature_data[i, self._feature_index_map['mask']] = max(
-                        feature_data[i, self._feature_index_map['mask']], feature_mask[j])
+                    feature_data[i, self._feature_index_map["mask"]] = max(
+                        feature_data[i, self._feature_index_map["mask"]], feature_mask[j]
+                    )
 
                 if c in self.letter_set:
                     feature_data[i, self._feature_index_map[o + "_char_" + c]] += 1
@@ -281,7 +405,8 @@ class SpacyTokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
                         continue
                     o = str(j - i)
                     for f in self._base_feature_list:
-                        feature_data[i, self._feature_index_map[o + '_' + f]] = \
-                            feature_data[j, self._feature_index_map['0_' + f]]
+                        feature_data[i, self._feature_index_map[o + "_" + f]] = feature_data[
+                            j, self._feature_index_map["0_" + f]
+                        ]
 
         return feature_data, tokens

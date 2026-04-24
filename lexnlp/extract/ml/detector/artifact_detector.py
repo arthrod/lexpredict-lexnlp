@@ -35,8 +35,7 @@ class ArtifactDetector:
     def load_from_stream(self, stream: Any):
         self.model = BaseTokenSequenceClassifierModel.load_from_stream(stream)
 
-    def predict(self, sample_df: pandas.DataFrame,
-                size_limit: int = 0) -> tuple[numpy.ndarray, numpy.ndarray]:
+    def predict(self, sample_df: pandas.DataFrame, size_limit: int = 0) -> tuple[numpy.ndarray, numpy.ndarray]:
         if size_limit:
             sample_df = sample_df.head(size_limit)
         test_feature_data, test_target_data = self.process_sample(sample_df, build_target_data=True)
@@ -44,37 +43,39 @@ class ArtifactDetector:
         return test_predicted, test_target_data
 
     @abstractmethod
-    def process_sample(self,
-                       sample_df: pandas.DataFrame,
-                       build_target_data: bool = False) -> numpy.ndarray | tuple[numpy.ndarray, numpy.ndarray]:
-        raise NotImplementedError('process_sample() should be implemented in derived class')
+    def process_sample(
+        self, sample_df: pandas.DataFrame, build_target_data: bool = False
+    ) -> numpy.ndarray | tuple[numpy.ndarray, numpy.ndarray]:
+        raise NotImplementedError("process_sample() should be implemented in derived class")
 
-    def predict_text(self,
-                     text: str,
-                     join_settings: PhraseConstructorSettings = None,
-                     feature_mask: list[int] | None = None) -> Generator[tuple[int, int]]:
+    def predict_text(
+        self, text: str, join_settings: PhraseConstructorSettings = None, feature_mask: list[int] | None = None
+    ) -> Generator[tuple[int, int]]:
         """
-        Identify phrase spans in the given text using the detector's loaded model and joining rules.
-                     
+        Identify phrase spans (token index ranges) in the input text using the loaded model and join settings.
+
         Parameters:
-        join_settings (PhraseConstructorSettings | None): Optional settings that control how token predictions are merged into phrase spans. If omitted, the detector's default join settings are used.
-        feature_mask (list[int] | None): Optional list of feature/token indices to consider when constructing features; if provided, only the specified positions are used.
-                     
+            join_settings (PhraseConstructorSettings | None): Optional settings that control how predicted token labels are merged into contiguous phrase spans; if omitted, the detector's default join settings are used.
+            feature_mask (list[int] | None): Optional list of token/feature indices to include when extracting features; if provided, only these positions are considered.
+
         Returns:
-        Generator[tuple[int, int]]: Generator of (start_index, end_index) tuples representing the token-span positions of detected phrases in the input text.
+            Generator[tuple[int, int]]: Generator yielding (start_index, end_index) tuples for each detected phrase span in token index coordinates.
         """
         feature_data, tokens = self.model.get_feature_data(text, feature_mask)
         predicted_class = self.model.model.predict(feature_data)
         join_settings = join_settings or self.join_token_settings
         yield from PhraseConstructor.join_tokens(
-            tokens, predicted_class, settings=join_settings, feature_mask=feature_mask)
+            tokens, predicted_class, settings=join_settings, feature_mask=feature_mask
+        )
 
-    def train_and_save(self,
-                       settings: DetectingSettings,
-                       train_file: str,
-                       train_size: int = -1,
-                       save_path: str = '',
-                       compress: bool = False) -> None:
+    def train_and_save(
+        self,
+        settings: DetectingSettings,
+        train_file: str,
+        train_size: int = -1,
+        save_path: str = "",
+        compress: bool = False,
+    ) -> None:
         """
         Create a percent identification model using tokens.
         :param settings: Model settings
@@ -90,33 +91,37 @@ class ArtifactDetector:
         amount_tokens = self.build_amount_tokens()
 
         # create model class
-        self.train_and_save_on_tokens(amount_tokens, save_path,
-                                      settings, train_sample_df,
-                                      compress=compress)
+        self.train_and_save_on_tokens(amount_tokens, save_path, settings, train_sample_df, compress=compress)
 
-    def train_and_save_on_tokens(self,
-                                 tokens: list[str],
-                                 save_path: str,
-                                 settings: DetectingSettings,
-                                 train_sample_df: pandas.DataFrame,
-                                 punc_set: str = ".,/-",
-                                 symbol_set: str | None = None,
-                                 string_checks: bool = False,
-                                 compress: bool = False):
+    def train_and_save_on_tokens(
+        self,
+        tokens: list[str],
+        save_path: str,
+        settings: DetectingSettings,
+        train_sample_df: pandas.DataFrame,
+        punc_set: str = ".,/-",
+        symbol_set: str | None = None,
+        string_checks: bool = False,
+        compress: bool = False,
+    ):
         self.model = BaseTokenSequenceClassifierModel.get_classifier(
             settings.use_spacy,
-            pre_window=settings.pre_window, post_window=settings.post_window,
-            match_tokens=tokens, letter_set=string.ascii_letters,
-            digit_set=string.digits, punc_set=punc_set, symbol_set=symbol_set,
-            string_checks=string_checks)
+            pre_window=settings.pre_window,
+            post_window=settings.post_window,
+            match_tokens=tokens,
+            letter_set=string.ascii_letters,
+            digit_set=string.digits,
+            punc_set=punc_set,
+            symbol_set=symbol_set,
+            string_checks=string_checks,
+        )
 
         # build feature and target training sample
-        train_feature_data, train_target_data = self.process_sample(
-            train_sample_df, build_target_data=True)
+        train_feature_data, train_target_data = self.process_sample(train_sample_df, build_target_data=True)
         # initialize sklearn model based on request
-        if settings.model_type == 'extra_trees':
+        if settings.model_type == "extra_trees":
             model = sklearn.ensemble.ExtraTreesClassifier(class_weight="balanced")
-        elif settings.model_type == 'random_forest':
+        elif settings.model_type == "random_forest":
             model = sklearn.ensemble.RandomForestClassifier(class_weight="balanced")
         # train
         self.model.train_model(model, train_feature_data, train_target_data)
@@ -140,12 +145,15 @@ class ArtifactDetector:
     def build_amount_tokens(self) -> list[str]:
         amount_tokens = []
         for day in range(1, 101):
-            amount_tokens.extend([num2words.num2words(day, to='ordinal'),
-                                  num2words.num2words(day, to='ordinal').lower(),
-                                  num2words.num2words(day, to='ordinal').upper(),
-                                  num2words.num2words(day, to='ordinal_num'),
-                                  num2words.num2words(day, to='ordinal_num').lower(),
-                                  num2words.num2words(day, to='ordinal_num').upper(),
-                                  ])
+            amount_tokens.extend(
+                [
+                    num2words.num2words(day, to="ordinal"),
+                    num2words.num2words(day, to="ordinal").lower(),
+                    num2words.num2words(day, to="ordinal").upper(),
+                    num2words.num2words(day, to="ordinal_num"),
+                    num2words.num2words(day, to="ordinal_num").lower(),
+                    num2words.num2words(day, to="ordinal_num").upper(),
+                ]
+            )
         amount_tokens.extend(["dozen", "million", "millionth", "billion", "billionth", "trillion", "trillionth"])
         return amount_tokens

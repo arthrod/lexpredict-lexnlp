@@ -8,13 +8,25 @@ __email__ = "support@contraxsuite.com"
 
 import string
 
-DE_UNICODE_ALPHAS = 'äöüẞ'
+DE_UNICODE_ALPHAS = "äöüẞ"
 DE_ALPHA_CHAR_SET = set(string.ascii_letters + DE_UNICODE_ALPHAS + DE_UNICODE_ALPHAS.upper())
 
 DE_ALPHABET = DE_UNICODE_ALPHAS + DE_UNICODE_ALPHAS.upper()
 DATE_MODEL_CHARS = []
 DATE_MODEL_CHARS.extend(DE_ALPHABET + string.ascii_letters)
 DATE_MODEL_CHARS.extend(string.digits)
-DATE_MODEL_CHARS.extend(['-', '/', ' ', '%', '#', '$', '.', ','])
-MONTH_NAMES = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-               'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+DATE_MODEL_CHARS.extend(["-", "/", " ", "%", "#", "$", ".", ","])
+MONTH_NAMES = [
+    "Januar",
+    "Februar",
+    "März",
+    "April",
+    "Mai",
+    "Juni",
+    "Juli",
+    "August",
+    "September",
+    "Oktober",
+    "November",
+    "Dezember",
+]

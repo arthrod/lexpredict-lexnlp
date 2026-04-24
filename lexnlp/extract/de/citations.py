@@ -59,8 +59,7 @@ class DeCitationParser:
     CITATION_RANGE_PTN_RE = re.compile(CITATION_RANGE_PTN, re_flags)
 
     @classmethod
-    def get_citation_annotations(cls, text: str) -> \
-            Generator[CitationAnnotation]:
+    def get_citation_annotations(cls, text: str) -> Generator[CitationAnnotation]:
         """
         Get citations containing "BGBl"
         :param text: str
@@ -70,43 +69,42 @@ class DeCitationParser:
         for ptn in [cls.CITATION_PTN_RE, cls.SECOND_CITATION_PTN_RE, cls.CITATION_RANGE_PTN_RE]:
             for match in ptn.finditer(text):
                 capture = match.capturesdict()
-                date = ''.join(capture.get('date', ''))
+                date = "".join(capture.get("date", ""))
                 if date:
                     try:
-                        date = str(list(get_dates(date, 'de'))[0]['value'])
+                        date = str(list(get_dates(date, "de"))[0]["value"])
                     except:
                         pass
 
-                ant = CitationAnnotation(coords=match.span(),
-                                         text=capture['text'][0],
-                                         paragraph=''.join(capture.get('paragraph', '')),
-                                         subparagraph=''.join(capture.get('subparagraph', '')),
-                                         letter=''.join(capture.get('letter', '')),
-                                         date=date,
-                                         part=capture['part'][0],
-                                         locale='de')
-                ant.article = TextAnnotation.get_int_value(
-                    ''.join(capture.get('article', '')))
-                ant.number = TextAnnotation.get_int_value(
-                    ''.join(capture.get('number', '')))
-                ant.sentence = TextAnnotation.get_int_value(
-                    ''.join(capture.get('sentence', '')))
+                ant = CitationAnnotation(
+                    coords=match.span(),
+                    text=capture["text"][0],
+                    paragraph="".join(capture.get("paragraph", "")),
+                    subparagraph="".join(capture.get("subparagraph", "")),
+                    letter="".join(capture.get("letter", "")),
+                    date=date,
+                    part=capture["part"][0],
+                    locale="de",
+                )
+                ant.article = TextAnnotation.get_int_value("".join(capture.get("article", "")))
+                ant.number = TextAnnotation.get_int_value("".join(capture.get("number", "")))
+                ant.sentence = TextAnnotation.get_int_value("".join(capture.get("sentence", "")))
 
-                page_range = ', '.join(capture['page'])
+                page_range = ", ".join(capture["page"])
                 page = TextAnnotation.get_int_value(page_range)
                 if page:
                     ant.page = page
                 else:
                     ant.page_range = page_range
 
-                volume_str = ''.join(capture.get('number', ''))
+                volume_str = "".join(capture.get("number", ""))
                 volume = TextAnnotation.get_int_value(volume_str)
                 if volume:
                     ant.volume = volume
                 else:
                     ant.volume_str = volume_str
 
-                year_str = ', '.join(capture.get('year', ''))
+                year_str = ", ".join(capture.get("year", ""))
                 year = TextAnnotation.get_int_value(year_str)
                 if year:
                     ant.year = year
@@ -116,8 +114,7 @@ class DeCitationParser:
                 yield ant
 
 
-def get_citation_annotations(text: str) -> \
-        Generator[CitationAnnotation]:
+def get_citation_annotations(text: str) -> Generator[CitationAnnotation]:
     yield from DeCitationParser.get_citation_annotations(text)
 
 
@@ -136,16 +133,16 @@ def get_citations(text: str) -> Generator[dict]:
             location_start=ant.coords[0],
             location_end=ant.coords[1],
             text=ant.text,
-            article=str(ant.article) if ant.article else '',
+            article=str(ant.article) if ant.article else "",
             number=str(ant.volume) if ant.volume else ant.volume_str,
-            sentence=str(ant.sentence) if ant.sentence else '',
+            sentence=str(ant.sentence) if ant.sentence else "",
             date=ant.date,
             page=str(ant.page) if ant.page else ant.page_range,
             year=str(ant.year) if ant.year else ant.year_str,
             letter=ant.letter,
             paragraph=ant.paragraph,
             subparagraph=ant.subparagraph,
-            part=ant.part
+            part=ant.part,
         )
 
 

@@ -23,7 +23,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from dataclasses import dataclass
-from functools import cache, lru_cache
+from functools import lru_cache
 
 import us
 
@@ -71,7 +71,10 @@ def _state_index() -> dict[str, us.states.State]:
     return index
 
 
-@cache
+# Bounded cache: noisy corpora produce many unique tokens; unbounded @cache
+# would leak memory over long-running services. 4096 entries covers every
+# US state / territory plus common punctuation variants many times over.
+@lru_cache(maxsize=4096)
 def lookup_state(text: str) -> StateInfo | None:
     """Return a :class:`StateInfo` for the given name or abbreviation.
 

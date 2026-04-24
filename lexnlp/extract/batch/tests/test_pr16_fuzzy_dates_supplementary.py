@@ -109,10 +109,7 @@ class TestMultipleDatesInText:
         assert date(2024, 12, 31) in parsed
 
     def test_three_dates_in_long_text(self) -> None:
-        text = (
-            "Contract signed 2020-03-01, amended 2021-06-15, "
-            "and terminated 2023-09-30."
-        )
+        text = "Contract signed 2020-03-01, amended 2021-06-15, and terminated 2023-09-30."
         matches = list(find_fuzzy_dates(text, max_edits=0))
         parsed = {m.parsed for m in matches}
         assert date(2020, 3, 1) in parsed

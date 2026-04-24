@@ -17,20 +17,21 @@ class RatioAnnotation(TextAnnotation):
     create an object of RatioAnnotation like
     cp = RatioAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'ratio'
+
+    record_type = "ratio"
 
     def __init__(
         self,
         coords: tuple[int, int],
-        locale: str = 'en',
+        locale: str = "en",
         text: str | None = None,
         left: Decimal | None = None,
         right: Decimal | None = None,
-        ratio: Decimal | None = None
+        ratio: Decimal | None = None,
     ) -> None:
         """
         Initialize a RatioAnnotation representing an extracted ratio with optional numeric components.
-        
+
         Parameters:
             coords (tuple[int, int]): Start and end character offsets of the annotation in the source text.
             locale (str): Locale code for the annotation (default 'en').
@@ -39,30 +40,19 @@ class RatioAnnotation(TextAnnotation):
             right (Decimal | None): Right numeric component (e.g., denominator or second operand) when present.
             ratio (Decimal | None): Computed or extracted ratio value when present.
         """
-        super().__init__(
-            name='',
-            locale=locale,
-            coords=coords,
-            text=text
-        )
+        super().__init__(name="", locale=locale, coords=coords, text=text)
         self.left: Decimal = left
         self.right: Decimal = right
         self.ratio: Decimal = ratio
 
     def get_cite_value_parts(self) -> list[str]:
-        parts = [str(self.left or ''),
-                 str(self.right or '')]
+        parts = [str(self.left or ""), str(self.right or "")]
         return parts
 
     def get_dictionary_values(self) -> dict:
-        df = Map({
-            'tags': {
-                'Extracted Entity Ratio': str(self.ratio or ''),
-                'Extracted Entity Text': self.text
-            }
-        })
+        df = Map({"tags": {"Extracted Entity Ratio": str(self.ratio or ""), "Extracted Entity Text": self.text}})
         if self.left:
-            df.tags['left'] = str(self.left)
+            df.tags["left"] = str(self.left)
         if self.right:
-            df.tags['right'] = str(self.right)
+            df.tags["right"] = str(self.right)
         return df

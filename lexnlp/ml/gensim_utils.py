@@ -36,7 +36,7 @@ class DummyGensimKeyedVectors:
         try:
             return super().__getattribute__(item)
         except AttributeError as attribute_error:
-            raise AttributeError('This is a DummyDV!') from attribute_error
+            raise AttributeError("This is a DummyDV!") from attribute_error
 
 
 class TrainingCallback(CallbackAny2Vec):
@@ -56,8 +56,7 @@ class TrainingCallback(CallbackAny2Vec):
     """
 
     def __init__(self) -> None:
-        """
-        """
+        """ """
         self.completed_epochs: int = 0
         self.epoch: int = 0
 
@@ -66,7 +65,7 @@ class TrainingCallback(CallbackAny2Vec):
         Called at the start of each training epoch.
         """
         self.epoch += 1
-        print(f'Started epoch {self.epoch} / {model.epochs}')
+        print(f"Started epoch {self.epoch} / {model.epochs}")
 
     def on_epoch_end(self, model: Doc2Vec) -> None:
         """
@@ -77,27 +76,20 @@ class TrainingCallback(CallbackAny2Vec):
         https://stackoverflow.com/a/56085717/4189676
         https://datascience.stackexchange.com/a/81926
         """
-        print(
-            f'...[Epoch {self.epoch} |'
-            f' total_train_time: {model.total_train_time}]'
-        )
+        print(f"...[Epoch {self.epoch} | total_train_time: {model.total_train_time}]")
         self.completed_epochs += 1
 
     def on_train_begin(self, model: Doc2Vec) -> None:
         """
         Called at the start of the training process.
         """
-        print('Started training...')
+        print("Started training...")
         print(
-            f'Gensim version: {version_gensim}, '
-            f'{model.vector_size=}, '
-            f'{model.window=}, '
-            f'{model.min_count=}, '
-            f'{model.dm=}'
+            f"Gensim version: {version_gensim}, {model.vector_size=}, {model.window=}, {model.min_count=}, {model.dm=}"
         )
 
     def on_train_end(self, model: Doc2Vec) -> None:
         """
         Called at the start of the training process.
         """
-        print('Ended training.')
+        print("Ended training.")

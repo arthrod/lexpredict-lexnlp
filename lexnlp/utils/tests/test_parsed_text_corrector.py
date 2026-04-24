@@ -18,8 +18,7 @@ from lexnlp.utils.lines_processing.parsed_text_corrector import ParsedTextCorrec
 
 class TestParsedTextCorrector(TestCase):
     def test_estimate_dense_text(self):
-        text = load_resource_document(
-            'lexnlp/utils/parsing/pdf_malformat_parsed_default.txt', 'utf-8')
+        text = load_resource_document("lexnlp/utils/parsing/pdf_malformat_parsed_default.txt", "utf-8")
         corrector = ParsedTextCorrector()
         corr = corrector.correct_line_breaks(text)
         self.assertLess(len(corr), len(text))
@@ -27,7 +26,7 @@ class TestParsedTextCorrector(TestCase):
     def test_correct_if_corrupted(self):
         ok_text = """
 While we pursued the horsemen of the north, He slily stole away and left his men:
-Whereat the great Lord of Northumberland. Whose warlike ears could never brook retreat. Cheer'd up the drooping army; 
+Whereat the great Lord of Northumberland. Whose warlike ears could never brook retreat. Cheer'd up the drooping army;
 and himself, Lord Clifford and Lord Stafford, all abreast, Charged our main battle's front, and breaking in
 were by the swords of common soldiers slain.
 
@@ -61,16 +60,16 @@ RENT"""
 
         files = [f for f in listdir(src_folder) if isfile(join(src_folder, f))]
         for file in files:
-            text = ''
+            text = ""
             full_path = src_folder + file
-            with codecs.open(full_path, encoding='utf-8', mode='r') as myfile:
+            with codecs.open(full_path, encoding="utf-8", mode="r") as myfile:
                 text = myfile.read()
             text = pre_process_document(text)
 
             corr = corrector.correct_if_corrupted(text)
             if len(text) == len(corr):
-                continue    # corr = ''
+                continue  # corr = ''
 
             savepath = dst_folder + file
-            with codecs.open(savepath, encoding='utf-8', mode='w') as myfile:
+            with codecs.open(savepath, encoding="utf-8", mode="w") as myfile:
                 myfile.write(corr)

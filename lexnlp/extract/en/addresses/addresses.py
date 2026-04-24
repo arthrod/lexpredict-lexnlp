@@ -19,16 +19,11 @@ from lexnlp.extract.en.addresses import address_features
 from lexnlp.extract.en.preprocessing.span_tokenizer import SpanTokenizer
 from lexnlp.utils.unpickler import renamed_load
 
-NGRAM_CLASSIFIER_FN = os.path.join(os.path.dirname(__file__), 'addresses_clf.pickle')
+NGRAM_CLASSIFIER_FN = os.path.join(os.path.dirname(__file__), "addresses_clf.pickle")
 
 
 class Address:
-    def __init__(self, zip_code: str,
-                 country: str,
-                 state: str,
-                 city: str,
-                 addr1: str,
-                 addr2: str) -> None:
+    def __init__(self, zip_code: str, country: str, state: str, city: str, addr1: str, addr2: str) -> None:
         super().__init__()
         self.zip_code = zip_code
         self.country = country
@@ -38,7 +33,7 @@ class Address:
         self.addr2 = addr2 if addr2 != addr1 else None
 
     def __str__(self) -> str:
-        return f'{self.addr1}, {self.addr2}, {self.city}, {self.state}, {self.country}, {self.zip_code}'
+        return f"{self.addr1}, {self.addr2}, {self.city}, {self.state}, {self.country}, {self.zip_code}"
 
     def members(self):
         return self.zip_code, self.country, self.state, self.city, self.addr1, self.addr2
@@ -68,9 +63,7 @@ def _safe_index(sentence, token, point, safe: bool = False):
     except ValueError:
         if safe:
             return None
-        raise ValueError(f'Substring "{token}" not found in:\n'
-                         f'"{sentence}"\n'
-                         f'Search start pos: {point}')
+        raise ValueError(f'Substring "{token}" not found in:\n"{sentence}"\nSearch start pos: {point}')
 
 
 def align_tokens(tokens, sentence):
@@ -83,10 +76,10 @@ def align_tokens(tokens, sentence):
     point = 0
     offsets = []
     for token in tokens:
-        if token in ('``', "''"):
+        if token in ("``", "''"):
             start = _safe_index(sentence, '"', point, True)
             if start is None:
-                start = _safe_index(sentence, '\'', point)
+                start = _safe_index(sentence, "'", point)
             point += 1
         else:
             start = _safe_index(sentence, token, point)
@@ -96,7 +89,7 @@ def align_tokens(tokens, sentence):
 
 
 def load_classifier():
-    with open(NGRAM_CLASSIFIER_FN, 'rb') as f:
+    with open(NGRAM_CLASSIFIER_FN, "rb") as f:
         return renamed_load(f)
 
 
@@ -106,9 +99,7 @@ NGRAM_WINDOW_STEP = 1
 
 
 def prepare_ngrams_in_text(
-    text: str,
-    window_half_width: int,
-    window_step: int
+    text: str, window_half_width: int, window_step: int
 ) -> Generator[tuple[list[int], str, int, int]]:
     words2 = []
 
@@ -135,8 +126,8 @@ _MARGIN_TOLERANCE = 2
 
 
 def cleanup(address: str) -> str:
-    address = address.strip('?:!.,;-_ \t')
-    address = re.sub(r'\s+', ' ', address)
+    address = address.strip("?:!.,;-_ \t")
+    address = re.sub(r"\s+", " ", address)
     return address
 
 
@@ -144,8 +135,8 @@ def get_address_annotations(text: str) -> Generator[AddressAnnotation]:
     for address, start, end in get_address_spans(text):
         yield AddressAnnotation(
             coords=(start, end),
-            name='',
-            locale='en',
+            name="",
+            locale="en",
             text=text,
         )
 
@@ -159,8 +150,9 @@ def get_address_spans(text: str) -> Generator[tuple[str, int, int]]:
     possible_address_start = None
     possible_address_end = None
     margin = 0
-    for ngram_features, _word, word_start_pos, word_end_pos \
-            in prepare_ngrams_in_text(text, NGRAM_WINDOW_HALF_WIDTH, NGRAM_WINDOW_STEP):
+    for ngram_features, _word, word_start_pos, word_end_pos in prepare_ngrams_in_text(
+        text, NGRAM_WINDOW_HALF_WIDTH, NGRAM_WINDOW_STEP
+    ):
         ngram_type = NGRAM_CLASSIFIER.predict([ngram_features])
 
         if possible_address_start is None:

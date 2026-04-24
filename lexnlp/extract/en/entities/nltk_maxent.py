@@ -36,14 +36,16 @@ default_company_detector = CompanyDetector(COMPANY_TYPES, COMPANY_DESCRIPTIONS)
 
 
 def get_company_annotations(
-        text: str,
-        strict: bool = False,
-        use_gnp: bool = False,
-        count_unique: bool = False,
-        name_upper: bool = False,
-        banlist_usage: BanListUsage | None = None) -> Generator[CompanyAnnotation]:
+    text: str,
+    strict: bool = False,
+    use_gnp: bool = False,
+    count_unique: bool = False,
+    name_upper: bool = False,
+    banlist_usage: BanListUsage | None = None,
+) -> Generator[CompanyAnnotation]:
     yield from default_company_detector.get_company_annotations(
-        text, strict, use_gnp, count_unique, name_upper, banlist_usage)
+        text, strict, use_gnp, count_unique, name_upper, banlist_usage
+    )
 
 
 def get_geopolitical(text, strict=False, return_source=False, window=2) -> Generator:
@@ -61,7 +63,7 @@ def get_geopolitical(text, strict=False, return_source=False, window=2) -> Gener
         for i, chunk in enumerate(nltk.ne_chunk(sentence_pos)):
             if isinstance(chunk, nltk.tree.Tree):
                 # Check label
-                if chunk.label() == 'GPE':
+                if chunk.label() == "GPE":
                     if not strict and last_gpe_pos is not None and (i - last_gpe_pos) < window:
                         gpes[-1] += " " + " ".join([c[0] for c in chunk])
                     else:
@@ -98,18 +100,20 @@ def get_geopolitical(text, strict=False, return_source=False, window=2) -> Gener
                 yield gpe
 
 
-def get_companies(text: str,
-                  strict: bool = False,
-                  use_gnp: bool = False,
-                  detail_type: bool = False,
-                  count_unique: bool = False,
-                  name_upper: bool = False,
-                  parse_name_abbr: bool = False,
-                  return_source: bool = False,
-                  banlist_usage: BanListUsage | None = None):
+def get_companies(
+    text: str,
+    strict: bool = False,
+    use_gnp: bool = False,
+    detail_type: bool = False,
+    count_unique: bool = False,
+    name_upper: bool = False,
+    parse_name_abbr: bool = False,
+    return_source: bool = False,
+    banlist_usage: BanListUsage | None = None,
+):
     return default_company_detector.get_companies(
-        text, strict, use_gnp, detail_type, count_unique, name_upper,
-        parse_name_abbr, return_source, banlist_usage)
+        text, strict, use_gnp, detail_type, count_unique, name_upper, parse_name_abbr, return_source, banlist_usage
+    )
 
 
 def get_persons(text: str, strict=False, return_source=False, window=2) -> Generator:
@@ -117,8 +121,7 @@ def get_persons(text: str, strict=False, return_source=False, window=2) -> Gener
 
 
 # pylint: disable=unused-argument
-def get_parties_as(text: str, detail_type=False) -> \
-        Generator[tuple[str, str, str, str]]:
+def get_parties_as(text: str, detail_type=False) -> Generator[tuple[str, str, str, str]]:
     """
     :param text: source text to search for companies
     :param detail_type: obsolete

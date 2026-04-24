@@ -56,7 +56,7 @@ class TestCourtCitationsParser(TestCase):
     def test_parse(self):
         """
         Verify parsing and extraction of a German court citation from a text sample.
-        
+
         Asserts that a citation inside parentheses is detected with record_type "court citation",
         the extracted citation text equals "BStBl I 2003, 240", the locale is "de", and that the
         dictionary output contains the tag "Extracted Entity Type" set to "court citation" and

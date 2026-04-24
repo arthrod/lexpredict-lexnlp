@@ -26,9 +26,7 @@ class TestAdaptiveMaxWorkers:
 class TestExtractBatchWithProgress:
     def test_preserves_order(self) -> None:
         texts = [f"doc {i}" for i in range(20)]
-        results = extract_batch_with_progress(
-            _split, texts, show_progress=False, max_workers=4
-        )
+        results = extract_batch_with_progress(_split, texts, show_progress=False, max_workers=4)
         assert [r.index for r in results] == list(range(20))
 
     def test_captures_failures(self) -> None:
@@ -37,9 +35,7 @@ class TestExtractBatchWithProgress:
                 raise RuntimeError("boom")
             return text.split()
 
-        results = extract_batch_with_progress(
-            flaky, ["good", "boom please", "also good"], show_progress=False
-        )
+        results = extract_batch_with_progress(flaky, ["good", "boom please", "also good"], show_progress=False)
         assert results[0].ok
         assert not results[1].ok
         assert isinstance(results[1].error, RuntimeError)

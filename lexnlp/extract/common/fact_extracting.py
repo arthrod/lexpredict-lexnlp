@@ -77,20 +77,23 @@ class ExtractorResultFormat(Enum):
     What output format we expect:
     - fmt_class produces collections of classes, derived from TextAnnotation
     - fmt_dict collects TextAnnotations, then makes dictionaries of them
-    ({ 'attrs': { 'start': 105, 'end': 119 }, 'tags': ... })
+      ({ 'attrs': { 'start': 105, 'end': 119 }, 'tags': ... })
     - fmt_object gives tuples or other "legacy" formats
     """
+
     fmt_class = 1
     fmt_dict = 2
     fmt_object = 3
 
 
 class ExtractingFunction:
-    def __init__(self,
-                 method: Callable,
-                 fact_type: AnnotationType = None,
-                 lang: str = '',
-                 result_fmt: ExtractorResultFormat = None):
+    def __init__(
+        self,
+        method: Callable,
+        fact_type: AnnotationType = None,
+        lang: str = "",
+        result_fmt: ExtractorResultFormat = None,
+    ):
         self.method = method  # <get_acts_annotations>
         self.fact_type = fact_type  # act
         self.language = lang  # "en"
@@ -109,41 +112,44 @@ class FactExtractor:
     """
 
     ALL_ANT_TYPES = set(AnnotationType)
-    LANGUAGE_EN = 'en'
-    LANGUAGE_DE = 'de'
-    LANGUAGE_ES = 'es'
+    LANGUAGE_EN = "en"
+    LANGUAGE_DE = "de"
+    LANGUAGE_ES = "es"
     # { "en": { "class": { "amount": <routine>, ...
     func_by_lang = {}  # type:Dict[str, Dict[ExtractorResultFormat, Dict[AnnotationType, ExtractingFunction]]]
 
     parser_extra_arguments = {}  # type:Dict[str, Dict[ExtractorResultFormat, Dict[AnnotationType, Tuple]]]
 
     @staticmethod
-    def parse_text(text: str,
-                   lang: str,
-                   result_fmt: ExtractorResultFormat = ExtractorResultFormat.fmt_class,
-                   extract_all: bool = True,
-                   include_types: set[AnnotationType] | None = None,
-                   exclude_types: set[AnnotationType] | None = None) -> dict[AnnotationType, list[Any]]:
+    def parse_text(
+        text: str,
+        lang: str,
+        result_fmt: ExtractorResultFormat = ExtractorResultFormat.fmt_class,
+        extract_all: bool = True,
+        include_types: set[AnnotationType] | None = None,
+        exclude_types: set[AnnotationType] | None = None,
+    ) -> dict[AnnotationType, list[Any]]:
         """
-        Selects and runs registered extractors for a language and returns extracted facts organized by annotation type.
-                   
+        Run registered extractors for a language and return extracted facts grouped by annotation type.
+
+        Selects which extractors to run based on `extract_all`, `include_types`, and `exclude_types`. If `result_fmt` is `fmt_dict`, uses class-format extractors as source and converts each returned annotation via `to_dictionary()`.
+
         Parameters:
-        text (str): Input text to be analyzed.
-        lang (str): Language code identifying which extractor registry to use.
-        result_fmt (ExtractorResultFormat): Desired output format; when `fmt_dict` is requested, class-based extractors are used and their results are converted to dictionaries.
-        extract_all (bool): If True, run all available annotation types (subject to `exclude_types`); if False, run only types in `include_types`.
-        include_types (set[AnnotationType] | None): Specific annotation types to extract when `extract_all` is False. Ignored when `extract_all` is True.
-        exclude_types (set[AnnotationType] | None): Annotation types to omit when `extract_all` is True.
-                   
+            text (str): Input text to analyze.
+            lang (str): Language code identifying which extractor registry to use.
+            result_fmt (ExtractorResultFormat): Desired output format; if `fmt_dict` is specified the function uses class-format extractors and converts their results to dictionaries.
+            extract_all (bool): If True, run all available annotation types (minus any in `exclude_types`); if False, run only types in `include_types`.
+            include_types (set[AnnotationType] | None): Specific annotation types to extract when `extract_all` is False.
+            exclude_types (set[AnnotationType] | None): Annotation types to omit when `extract_all` is True.
+
         Returns:
-        dict[AnnotationType, list[Any]]: Mapping from each extracted `AnnotationType` to a list of extracted items (annotation objects or dictionaries depending on `result_fmt`).
+            dict[AnnotationType, list[Any]]: Mapping from each extracted `AnnotationType` to a list of extracted items (annotation objects or dictionaries depending on `result_fmt`).
         """
         if lang not in FactExtractor.func_by_lang:
-            langs = ', '.join(FactExtractor.func_by_lang)
+            langs = ", ".join(FactExtractor.func_by_lang)
             raise Exception(f'Language "{lang}" was not found among {langs}')
         lang_extractors = FactExtractor.func_by_lang[lang]
-        result_fmt_key = ExtractorResultFormat.fmt_class \
-            if result_fmt == ExtractorResultFormat.fmt_dict else result_fmt
+        result_fmt_key = ExtractorResultFormat.fmt_class if result_fmt == ExtractorResultFormat.fmt_dict else result_fmt
 
         if result_fmt_key not in lang_extractors:
             raise Exception(f'Format "{result_fmt_key.name}" is not supported for {lang}')
@@ -156,7 +162,9 @@ class FactExtractor:
         if not extract_all and include_types:
             target_types = include_types
         elif extract_all:
-            target_types = FactExtractor.ALL_ANT_TYPES
+            # Copy the registry before mutating — ``-=`` on the class attribute
+            # would permanently drop excluded types for subsequent callers.
+            target_types = set(FactExtractor.ALL_ANT_TYPES)
             if exclude_types:
                 target_types -= exclude_types
 
@@ -167,7 +175,10 @@ class FactExtractor:
 
         extra_args = FactExtractor.parser_extra_arguments.get(lang)
         if extra_args:
-            extra_args = extra_args.get(result_fmt)
+            # Mirror the result_fmt_key fallback used above when choosing the
+            # extractor set so ``fmt_dict`` calls do not silently lose their
+            # extra-argument wiring.
+            extra_args = extra_args.get(result_fmt_key)
         extra_args = extra_args or {}  # type: Dict[AnnotationType, Tuple]
 
         facts = {}  # type: Dict[AnnotationType, List[Any]]
@@ -184,36 +195,32 @@ class FactExtractor:
         return facts
 
     @staticmethod
-    def ensure_parser_arguments_en(
-            geo_config: list[Any] | None = None) -> None:
+    def ensure_parser_arguments_en(geo_config: list[Any] | None = None) -> None:
         """
-        Register extra parser arguments for English geoentity extractors across all output formats.
-            
-        For each ExtractorResultFormat, stores a one-element tuple containing `geo_config` as the parser extra-arguments for `AnnotationType.geoentity` under the English language registry.
-            
+        Register the English geoentity parser extra arguments for every result format.
+
+        Stores the given `geo_config` tuple as the extra parser argument for AnnotationType.geoentity under the English registry for each ExtractorResultFormat.
+
         Parameters:
-        geo_config (list[Any] | None): Configuration passed to geoentity extractors; may be `None`.
+            geo_config (list[Any] | None): Configuration passed to geoentity extractors; may be None.
         """
         for fmt in ExtractorResultFormat:
-            FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_EN,
-                                                  fmt,
-                                                  AnnotationType.geoentity,
-                                                  (geo_config,))
+            FactExtractor.ensure_parser_arguments(
+                FactExtractor.LANGUAGE_EN, fmt, AnnotationType.geoentity, (geo_config,)
+            )
 
     @staticmethod
-    def ensure_parser_arguments_de(
-            geo_config: list[Any] | None = None) -> None:
+    def ensure_parser_arguments_de(geo_config: list[Any] | None = None) -> None:
         """
-        Register the geoentity parser extra-arguments for German extractors across all result formats.
-            
+        Register German geoentity parser extra-arguments for all extractor result formats.
+
         Parameters:
-        geo_config (list[Any] | None): Optional configuration object passed to German geoentity extractors; it is stored as the single extra-argument tuple `(geo_config,)`.
+            geo_config (list[Any] | None): Configuration passed to German geoentity extractors; stored as the extra-argument tuple (geo_config,).
         """
         for fmt in ExtractorResultFormat:
-            FactExtractor.ensure_parser_arguments(FactExtractor.LANGUAGE_DE,
-                                                  fmt,
-                                                  AnnotationType.geoentity,
-                                                  (geo_config,))
+            FactExtractor.ensure_parser_arguments(
+                FactExtractor.LANGUAGE_DE, fmt, AnnotationType.geoentity, (geo_config,)
+            )
 
     @staticmethod
     def initialize():
@@ -222,10 +229,9 @@ class FactExtractor:
         FactExtractor.initialize_es()
 
     @staticmethod
-    def ensure_parser_arguments(lang: str,
-                                result_fmt: ExtractorResultFormat,
-                                ant_type: AnnotationType,
-                                func_args: tuple) -> None:
+    def ensure_parser_arguments(
+        lang: str, result_fmt: ExtractorResultFormat, ant_type: AnnotationType, func_args: tuple
+    ) -> None:
         lang_args = FactExtractor.parser_extra_arguments.get(lang)
         if not lang_args:
             lang_args = {}
@@ -241,207 +247,318 @@ class FactExtractor:
     @staticmethod
     def initialize_en():
         all_functs = [
-            ExtractingFunction(method=get_acts_annotations, fact_type=AnnotationType.act,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_acts, fact_type=AnnotationType.act,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_amount_annotations, fact_type=AnnotationType.amount,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_amounts, fact_type=AnnotationType.amount,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_citation_annotations, fact_type=AnnotationType.citation,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_citations, fact_type=AnnotationType.citation,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_condition_annotations, fact_type=AnnotationType.condition,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_conditions, fact_type=AnnotationType.condition,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_constraint_annotations, fact_type=AnnotationType.constraint,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_constraints, fact_type=AnnotationType.constraint,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_copyright_annotations, fact_type=AnnotationType.copyright,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_copyrights, fact_type=AnnotationType.copyright,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_court_annotations, fact_type=AnnotationType.court,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_courts, fact_type=AnnotationType.court,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_cusip_annotations, fact_type=AnnotationType.cusip,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_cusip, fact_type=AnnotationType.cusip,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_date_annotations, fact_type=AnnotationType.date,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_dates, fact_type=AnnotationType.date,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_definition_annotations, fact_type=AnnotationType.definition,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_definitions, fact_type=AnnotationType.definition,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_distance_annotations, fact_type=AnnotationType.distance,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_distances, fact_type=AnnotationType.distance,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_duration_annotations, fact_type=AnnotationType.duration,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_durations, fact_type=AnnotationType.duration,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
+            ExtractingFunction(
+                method=get_acts_annotations, fact_type=AnnotationType.act, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_acts, fact_type=AnnotationType.act, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_amount_annotations,
+                fact_type=AnnotationType.amount,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_amounts, fact_type=AnnotationType.amount, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_citation_annotations,
+                fact_type=AnnotationType.citation,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_citations, fact_type=AnnotationType.citation, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_condition_annotations,
+                fact_type=AnnotationType.condition,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_conditions, fact_type=AnnotationType.condition, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_constraint_annotations,
+                fact_type=AnnotationType.constraint,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_constraints, fact_type=AnnotationType.constraint, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_copyright_annotations,
+                fact_type=AnnotationType.copyright,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_copyrights, fact_type=AnnotationType.copyright, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_court_annotations, fact_type=AnnotationType.court, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_courts, fact_type=AnnotationType.court, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_cusip_annotations, fact_type=AnnotationType.cusip, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_cusip, fact_type=AnnotationType.cusip, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_date_annotations, fact_type=AnnotationType.date, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_dates, fact_type=AnnotationType.date, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_definition_annotations,
+                fact_type=AnnotationType.definition,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_definitions, fact_type=AnnotationType.definition, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_distance_annotations,
+                fact_type=AnnotationType.distance,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_distances, fact_type=AnnotationType.distance, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_duration_annotations,
+                fact_type=AnnotationType.duration,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_durations, fact_type=AnnotationType.duration, result_fmt=ExtractorResultFormat.fmt_object
+            ),
             # SIC! dictionary is required
-            ExtractingFunction(method=get_geoentity_annotations, fact_type=AnnotationType.geoentity,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_geoentities, fact_type=AnnotationType.geoentity,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_money_annotations, fact_type=AnnotationType.money,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_money, fact_type=AnnotationType.money,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_percent_annotations, fact_type=AnnotationType.percent,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_percents, fact_type=AnnotationType.percent,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_pii_annotations, fact_type=AnnotationType.pii,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_pii, fact_type=AnnotationType.pii,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_us_phone_annotations, fact_type=AnnotationType.phone,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_us_phones, fact_type=AnnotationType.phone,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_ssn_annotations, fact_type=AnnotationType.ssn,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_ssns, fact_type=AnnotationType.ssn,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_ratio_annotations, fact_type=AnnotationType.ratio,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_ratios, fact_type=AnnotationType.ratio,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_regulation_annotations, fact_type=AnnotationType.regulation,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_regulations, fact_type=AnnotationType.regulation,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_trademark_annotations, fact_type=AnnotationType.trademark,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_trademarks, fact_type=AnnotationType.trademark,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_url_annotations, fact_type=AnnotationType.url,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_urls, fact_type=AnnotationType.url,
-                               result_fmt=ExtractorResultFormat.fmt_object),
+            ExtractingFunction(
+                method=get_geoentity_annotations,
+                fact_type=AnnotationType.geoentity,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_geoentities, fact_type=AnnotationType.geoentity, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_money_annotations, fact_type=AnnotationType.money, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_money, fact_type=AnnotationType.money, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_percent_annotations,
+                fact_type=AnnotationType.percent,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_percents, fact_type=AnnotationType.percent, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_pii_annotations, fact_type=AnnotationType.pii, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_pii, fact_type=AnnotationType.pii, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_us_phone_annotations,
+                fact_type=AnnotationType.phone,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_us_phones, fact_type=AnnotationType.phone, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_ssn_annotations, fact_type=AnnotationType.ssn, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_ssns, fact_type=AnnotationType.ssn, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_ratio_annotations, fact_type=AnnotationType.ratio, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_ratios, fact_type=AnnotationType.ratio, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_regulation_annotations,
+                fact_type=AnnotationType.regulation,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_regulations, fact_type=AnnotationType.regulation, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_trademark_annotations,
+                fact_type=AnnotationType.trademark,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_trademarks, fact_type=AnnotationType.trademark, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_url_annotations, fact_type=AnnotationType.url, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_urls, fact_type=AnnotationType.url, result_fmt=ExtractorResultFormat.fmt_object
+            ),
         ]
         FactExtractor.store_functions(all_functs, FactExtractor.LANGUAGE_EN)
 
     @staticmethod
     def initialize_de():
         all_functs = [
-            ExtractingFunction(method=get_de_amount_annotations, fact_type=AnnotationType.amount,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_amounts, fact_type=AnnotationType.amount,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_de_citation_annotations, fact_type=AnnotationType.citation,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_citations, fact_type=AnnotationType.citation,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_de_copyright_annotations, fact_type=AnnotationType.copyright,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_copyrights, fact_type=AnnotationType.copyright,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_de_court_citation_annotations, fact_type=AnnotationType.court_citation,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_court_citations, fact_type=AnnotationType.court_citation,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_de_court_annotations, fact_type=AnnotationType.court,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_courts, fact_type=AnnotationType.court,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_de_date_annotations, fact_type=AnnotationType.date,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_dates, fact_type=AnnotationType.date,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_de_definition_annotations, fact_type=AnnotationType.definition,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_definitions, fact_type=AnnotationType.definition,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_de_duration_annotations, fact_type=AnnotationType.duration,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_durations, fact_type=AnnotationType.duration,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
+            ExtractingFunction(
+                method=get_de_amount_annotations,
+                fact_type=AnnotationType.amount,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_amounts, fact_type=AnnotationType.amount, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_de_citation_annotations,
+                fact_type=AnnotationType.citation,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_citations, fact_type=AnnotationType.citation, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_de_copyright_annotations,
+                fact_type=AnnotationType.copyright,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_copyrights,
+                fact_type=AnnotationType.copyright,
+                result_fmt=ExtractorResultFormat.fmt_object,
+            ),
+            ExtractingFunction(
+                method=get_de_court_citation_annotations,
+                fact_type=AnnotationType.court_citation,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_court_citations,
+                fact_type=AnnotationType.court_citation,
+                result_fmt=ExtractorResultFormat.fmt_object,
+            ),
+            ExtractingFunction(
+                method=get_de_court_annotations,
+                fact_type=AnnotationType.court,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_courts, fact_type=AnnotationType.court, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_de_date_annotations,
+                fact_type=AnnotationType.date,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_dates, fact_type=AnnotationType.date, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_de_definition_annotations,
+                fact_type=AnnotationType.definition,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_definitions,
+                fact_type=AnnotationType.definition,
+                result_fmt=ExtractorResultFormat.fmt_object,
+            ),
+            ExtractingFunction(
+                method=get_de_duration_annotations,
+                fact_type=AnnotationType.duration,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_durations, fact_type=AnnotationType.duration, result_fmt=ExtractorResultFormat.fmt_object
+            ),
             # SIC! dictionary is required
-            ExtractingFunction(method=get_de_geoentity_annotations, fact_type=AnnotationType.geoentity,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_geoentities, fact_type=AnnotationType.geoentity,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_de_law_annotations, fact_type=AnnotationType.laws,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_laws, fact_type=AnnotationType.laws,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_de_percent_annotations, fact_type=AnnotationType.percent,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_de_percents, fact_type=AnnotationType.percent,
-                               result_fmt=ExtractorResultFormat.fmt_object),
+            ExtractingFunction(
+                method=get_de_geoentity_annotations,
+                fact_type=AnnotationType.geoentity,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_geoentities,
+                fact_type=AnnotationType.geoentity,
+                result_fmt=ExtractorResultFormat.fmt_object,
+            ),
+            ExtractingFunction(
+                method=get_de_law_annotations, fact_type=AnnotationType.laws, result_fmt=ExtractorResultFormat.fmt_class
+            ),
+            ExtractingFunction(
+                method=get_de_laws, fact_type=AnnotationType.laws, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_de_percent_annotations,
+                fact_type=AnnotationType.percent,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_de_percents, fact_type=AnnotationType.percent, result_fmt=ExtractorResultFormat.fmt_object
+            ),
         ]
         FactExtractor.store_functions(all_functs, FactExtractor.LANGUAGE_DE)
 
     @staticmethod
     def initialize_es():
         all_functs = [
-            ExtractingFunction(method=get_es_copyright_annotations, fact_type=AnnotationType.copyright,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_es_copyrights, fact_type=AnnotationType.copyright,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_es_court_annotations, fact_type=AnnotationType.court,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_es_courts, fact_type=AnnotationType.court,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_es_date_annotations, fact_type=AnnotationType.date,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_es_dates, fact_type=AnnotationType.date,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_es_definition_annotations, fact_type=AnnotationType.definition,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_es_definitions, fact_type=AnnotationType.definition,
-                               result_fmt=ExtractorResultFormat.fmt_object),
-
-            ExtractingFunction(method=get_es_regulation_annotations, fact_type=AnnotationType.regulation,
-                               result_fmt=ExtractorResultFormat.fmt_class),
-            ExtractingFunction(method=get_es_regulations, fact_type=AnnotationType.regulation,
-                               result_fmt=ExtractorResultFormat.fmt_object),
+            ExtractingFunction(
+                method=get_es_copyright_annotations,
+                fact_type=AnnotationType.copyright,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_es_copyrights,
+                fact_type=AnnotationType.copyright,
+                result_fmt=ExtractorResultFormat.fmt_object,
+            ),
+            ExtractingFunction(
+                method=get_es_court_annotations,
+                fact_type=AnnotationType.court,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_es_courts, fact_type=AnnotationType.court, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_es_date_annotations,
+                fact_type=AnnotationType.date,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_es_dates, fact_type=AnnotationType.date, result_fmt=ExtractorResultFormat.fmt_object
+            ),
+            ExtractingFunction(
+                method=get_es_definition_annotations,
+                fact_type=AnnotationType.definition,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_es_definitions,
+                fact_type=AnnotationType.definition,
+                result_fmt=ExtractorResultFormat.fmt_object,
+            ),
+            ExtractingFunction(
+                method=get_es_regulation_annotations,
+                fact_type=AnnotationType.regulation,
+                result_fmt=ExtractorResultFormat.fmt_class,
+            ),
+            ExtractingFunction(
+                method=get_es_regulations,
+                fact_type=AnnotationType.regulation,
+                result_fmt=ExtractorResultFormat.fmt_object,
+            ),
         ]
         FactExtractor.store_functions(all_functs, FactExtractor.LANGUAGE_ES)
 

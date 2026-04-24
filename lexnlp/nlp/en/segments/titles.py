@@ -38,8 +38,9 @@ MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 SECTION_SEGMENTER_MODEL = load_model(os.path.join(MODULE_PATH, "./title_locator.pickle"))
 
 
-def build_title_features(lines, line_id, line_window_pre, line_window_post, characters=string.printable,
-                         include_doc=None):
+def build_title_features(
+    lines, line_id, line_window_pre, line_window_post, characters=string.printable, include_doc=None
+):
     """
     Build a feature vector for a given line ID with given parameters.
 
@@ -78,13 +79,13 @@ def build_title_features(lines, line_id, line_window_pre, line_window_post, char
 
         alpha_count, number_count, punct_count, blankspace_count = 0, 0, 0, 0
         for c in line:
-            if UNICODE_CHAR_TOP_CATEGORY_MAPPING[c] == 'L':
+            if UNICODE_CHAR_TOP_CATEGORY_MAPPING[c] == "L":
                 alpha_count += 1
-            elif UNICODE_CHAR_TOP_CATEGORY_MAPPING[c] == 'Z':
+            elif UNICODE_CHAR_TOP_CATEGORY_MAPPING[c] == "Z":
                 blankspace_count += 1
-            elif UNICODE_CHAR_TOP_CATEGORY_MAPPING[c] == 'N':
+            elif UNICODE_CHAR_TOP_CATEGORY_MAPPING[c] == "N":
                 number_count += 1
-            elif UNICODE_CHAR_TOP_CATEGORY_MAPPING[c] == 'P':
+            elif UNICODE_CHAR_TOP_CATEGORY_MAPPING[c] == "P":
                 punct_count += 1
 
         # Count characters
@@ -173,8 +174,9 @@ def build_model(training_file_path):
     # Build training data
     for _, row in training_data.iterrows():
         # Download file
-        file_url = row["File"].replace("https://github.com/", "https://raw.githubusercontent.com/").replace("/blob/",
-                                                                                                            "/")
+        file_url = (
+            row["File"].replace("https://github.com/", "https://raw.githubusercontent.com/").replace("/blob/", "/")
+        )
         file_text = requests.get(file_url, timeout=60).text
         file_lines = file_text.splitlines()
 
@@ -185,8 +187,7 @@ def build_model(training_file_path):
         # Parse line numbers
         if "-" in row["Line Number"]:
             target_line_ranges = row["Line Number"].split("-")
-            target_lines = list(range(int(target_line_ranges[0]),
-                                      int(target_line_ranges[1]) + 1))
+            target_lines = list(range(int(target_line_ranges[0]), int(target_line_ranges[1]) + 1))
         else:
             target_lines = [int(row["Line Number"])]
 

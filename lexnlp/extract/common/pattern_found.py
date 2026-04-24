@@ -11,8 +11,9 @@ class PatternFound:
     used inside EsDefinitionsParser and SpanishParsingMethods
     to store intermediate parsing results
     """
+
     def __init__(self):
-        self.name = None    # type: str
+        self.name = None  # type: str
         self.start = 0
         self.end = 0
         self.probability = 0
@@ -23,8 +24,7 @@ class PatternFound:
         check what pattern is better then 2 patterns are considered duplicated
         "text" may be used in derived classes
         """
-        spans = self.start <= p.start <= self.end and \
-                self.start <= p.end <= self.end
+        spans = self.start <= p.start <= self.end and self.start <= p.end <= self.end
         if not spans:
             return False
         return self.name.find(p.name) >= 0

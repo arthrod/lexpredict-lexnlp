@@ -28,8 +28,8 @@ _ALIAS_BAN_LIST_PREPARED = prepare_alias_banlist_dict(geoentities_config.ALIAS_B
 def get_geoentities(
     text: str,
     geo_config_list: list[DictionaryEntry],
-    conflict_resolving_field: str = 'none',
-    priority_direction: str = 'asc',
+    conflict_resolving_field: str = "none",
+    priority_direction: str = "asc",
     text_languages: list[str] | None = None,
     min_alias_len: int | None = None,
     prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
@@ -37,7 +37,7 @@ def get_geoentities(
 ) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     """
     Locate English geo-entity matches in `text` using the provided geo-entity dictionary configuration and yield matching dictionary entry / alias pairs.
-    
+
     Parameters:
         text (str): Input text to search for geo-entity aliases.
         geo_config_list (list[DictionaryEntry]): Dictionary entries and their aliases used for matching.
@@ -47,14 +47,12 @@ def get_geoentities(
         min_alias_len (int | None): Minimum alias length to consider; falls back to configured default when `None`.
         prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional prepared alias ban-list mapping an alias to a tuple of two lists (entry IDs, alias IDs) to exclude; uses the module default when `None`.
         simplified_normalization (bool): When true, apply a simplified normalization strategy to aliases before matching.
-    
+
     Returns:
         Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]: Generator yielding (dictionary entry, matching alias) pairs for each found geo-entity in `text`.
     """
     prepared_alias_ban_list = (
-        prepared_alias_ban_list
-        if prepared_alias_ban_list is not None
-        else _ALIAS_BAN_LIST_PREPARED
+        prepared_alias_ban_list if prepared_alias_ban_list is not None else _ALIAS_BAN_LIST_PREPARED
     )
 
     min_alias_len = min_alias_len if min_alias_len else geoentities_config.MIN_ALIAS_LEN
@@ -67,7 +65,7 @@ def get_geoentities(
         priority_direction=priority_direction,
         text_languages=text_languages,
         min_alias_len=min_alias_len,
-        simplified_normalization=simplified_normalization
+        simplified_normalization=simplified_normalization,
     )
 
     yield from locator.get_geoentity_entries(text)
@@ -76,8 +74,8 @@ def get_geoentities(
 def get_geoentity_list(
     text: str,
     geo_config_list: list[DictionaryEntry],
-    conflict_resolving_field: str = 'none',
-    priority_direction: str = 'asc',
+    conflict_resolving_field: str = "none",
+    priority_direction: str = "asc",
     text_languages: list[str] | None = None,
     min_alias_len: int | None = None,
     prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
@@ -85,7 +83,7 @@ def get_geoentity_list(
 ) -> list[tuple[DictionaryEntry, DictionaryEntryAlias]]:
     """
     Return all geo-entity dictionary entries and their matching aliases found in the input text as a list.
-    
+
     Parameters:
         text (str): Input text to search for geo-entity aliases.
         geo_config_list (list[DictionaryEntry]): Ordered list of geo-entity dictionary entries used for matching.
@@ -95,7 +93,7 @@ def get_geoentity_list(
         min_alias_len (int | None): Minimum alias length to consider; when `None` the module default is used.
         prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional precomputed alias ban-list mapping; when `None` the module default is used.
         simplified_normalization (bool): When true, apply simplified normalization to input and aliases before matching.
-    
+
     Returns:
         list[tuple[DictionaryEntry, DictionaryEntryAlias]]: A list of tuples where each tuple contains the matched dictionary entry and the specific alias that matched.
     """
@@ -116,17 +114,16 @@ def get_geoentity_list(
 def get_geoentity_annotations(
     text: str,
     geo_config_list: list[DictionaryEntry],
-    conflict_resolving_field: str = 'none',
-    priority_direction: str = 'asc',
+    conflict_resolving_field: str = "none",
+    priority_direction: str = "asc",
     text_languages: list[str] | None = None,
     min_alias_len: int | None = None,
     prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
     simplified_normalization: bool = False,
 ) -> Generator[GeoAnnotation]:
-
     """
     Extract English geo-entity annotations from input text using the provided geo-entity configuration.
-    
+
     Parameters:
         text (str): Input text to analyze.
         geo_config_list (list[DictionaryEntry]): Ordered list of dictionary entries that define geo-entities and their aliases.
@@ -136,14 +133,12 @@ def get_geoentity_annotations(
         min_alias_len (int | None): Minimum alias length to consider; if falsy, uses geoentities_config.MIN_ALIAS_LEN.
         prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Precomputed alias ban-list mapping; if None, uses the module default.
         simplified_normalization (bool): If True, apply a simplified normalization pipeline to aliases before matching.
-    
+
     Returns:
         Generator[GeoAnnotation]: A generator yielding GeoAnnotation objects for each detected geo-entity in the text.
     """
     prepared_alias_ban_list = (
-        prepared_alias_ban_list
-        if prepared_alias_ban_list is not None
-        else _ALIAS_BAN_LIST_PREPARED
+        prepared_alias_ban_list if prepared_alias_ban_list is not None else _ALIAS_BAN_LIST_PREPARED
     )
 
     min_alias_len = min_alias_len if min_alias_len else geoentities_config.MIN_ALIAS_LEN
@@ -165,8 +160,8 @@ def get_geoentity_annotations(
 def get_geoentity_annotation_list(
     text: str,
     geo_config_list: list[DictionaryEntry],
-    conflict_resolving_field: str = 'none',
-    priority_direction: str = 'asc',
+    conflict_resolving_field: str = "none",
+    priority_direction: str = "asc",
     text_languages: list[str] | None = None,
     min_alias_len: int | None = None,
     prepared_alias_ban_list: dict[str, tuple[list[str], list[str]]] | None = None,
@@ -174,7 +169,7 @@ def get_geoentity_annotation_list(
 ) -> list[GeoAnnotation]:
     """
     Return a list of GeoAnnotation objects extracted from the provided English text.
-    
+
     Parameters:
         text (str): Input text to search for geo-entities.
         geo_config_list (list[DictionaryEntry]): Dictionary entries used for matching geo-entities.
@@ -184,7 +179,7 @@ def get_geoentity_annotation_list(
         min_alias_len (int | None): Minimum alias length to consider; if `None`, the module default is used.
         prepared_alias_ban_list (dict[str, tuple[list[str], list[str]]] | None): Optional precomputed alias ban-list mapping; if `None`, the module default is used.
         simplified_normalization (bool): If true, apply simplified normalization to text and aliases before matching.
-    
+
     Returns:
         list[GeoAnnotation]: A list of geo-entity annotations found in the text.
     """

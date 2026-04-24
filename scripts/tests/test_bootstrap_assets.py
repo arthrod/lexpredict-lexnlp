@@ -120,9 +120,7 @@ class TestDownloadFileSchemeValidation:
             timeout=5,
         )
 
-    def test_existing_destination_skips_scheme_check_when_not_forced(
-        self, tmp_path: Path
-    ) -> None:
+    def test_existing_destination_skips_scheme_check_when_not_forced(self, tmp_path: Path) -> None:
         """When destination already exists and force=False, skip before scheme check."""
         destination = tmp_path / "out.zip"
         destination.write_bytes(b"existing")
@@ -257,9 +255,7 @@ class TestLambdaClosureFix:
         )
         return ns
 
-    def test_contract_model_lambda_captures_tag_at_construction(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_contract_model_lambda_captures_tag_at_construction(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """
         The lambda for contract-model task must capture the tag resolved
         at task-list construction time, not any later mutation.
@@ -269,9 +265,7 @@ class TestLambdaClosureFix:
         def fake_bootstrap_contract_model(*, dry_run: bool, tag: str) -> None:
             captured_tags.append(tag)
 
-        monkeypatch.setattr(
-            bootstrap_assets, "bootstrap_contract_model", fake_bootstrap_contract_model
-        )
+        monkeypatch.setattr(bootstrap_assets, "bootstrap_contract_model", fake_bootstrap_contract_model)
         monkeypatch.setattr(
             bootstrap_assets,
             "resolve_contract_model_tag",
@@ -283,9 +277,7 @@ class TestLambdaClosureFix:
 
         assert captured_tags == ["pipeline/is-contract/TEST-TAG"]
 
-    def test_contract_type_model_lambda_captures_tag_at_construction(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_contract_type_model_lambda_captures_tag_at_construction(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """
         The lambda for contract-type-model task must capture the tag resolved
         at task-list construction time.
@@ -311,9 +303,7 @@ class TestLambdaClosureFix:
 
         assert captured_tags == ["pipeline/contract-type/TEST-TAG"]
 
-    def test_both_lambdas_capture_independent_tags(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_both_lambdas_capture_independent_tags(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """When both tasks are scheduled they each use their own tag."""
         captured: list[tuple[str, str]] = []
 
@@ -324,15 +314,9 @@ class TestLambdaClosureFix:
             captured.append(("contract-type-model", tag))
 
         monkeypatch.setattr(bootstrap_assets, "bootstrap_contract_model", fake_contract_model)
-        monkeypatch.setattr(
-            bootstrap_assets, "bootstrap_contract_type_model", fake_contract_type_model
-        )
-        monkeypatch.setattr(
-            bootstrap_assets, "resolve_contract_model_tag", lambda: "tag-contract"
-        )
-        monkeypatch.setattr(
-            bootstrap_assets, "resolve_contract_type_model_tag", lambda: "tag-contract-type"
-        )
+        monkeypatch.setattr(bootstrap_assets, "bootstrap_contract_type_model", fake_contract_type_model)
+        monkeypatch.setattr(bootstrap_assets, "resolve_contract_model_tag", lambda: "tag-contract")
+        monkeypatch.setattr(bootstrap_assets, "resolve_contract_type_model_tag", lambda: "tag-contract-type")
 
         args = self._make_args(contract_model=True, contract_type_model=True)
         bootstrap_assets.run_selected_tasks(args)

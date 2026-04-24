@@ -73,6 +73,7 @@ def test_write_pipeline_to_catalog_returns_path_and_true_when_new(monkeypatch, t
 
     # Patch the CATALOG import inside write_pipeline_to_catalog
     import lexnlp.ml.catalog as catalog_mod
+
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     # Use a simple picklable object as the "pipeline".
@@ -99,6 +100,7 @@ def test_write_pipeline_to_catalog_returns_false_when_artifact_exists(monkeypatc
     """
     import lexnlp.ml.catalog as catalog_mod
     from lexnlp.extract.en.contracts import runtime_model
+
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     # Pre-create the destination file.
@@ -129,6 +131,7 @@ def test_write_pipeline_to_catalog_force_overwrites_existing(monkeypatch, tmp_pa
     import lexnlp.ml.catalog as catalog_mod
     from lexnlp.extract.en.contracts import runtime_model
     from lexnlp.ml.model_io import load_model
+
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     target_dir = tmp_path / "pipeline" / "test" / "0.2"
@@ -156,6 +159,7 @@ def test_write_pipeline_to_catalog_creates_parent_directories(monkeypatch, tmp_p
     """
     import lexnlp.ml.catalog as catalog_mod
     from lexnlp.extract.en.contracts import runtime_model
+
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     # Ensure the nested tag directories do not exist yet.
@@ -179,6 +183,7 @@ def test_write_pipeline_to_catalog_skips_when_legacy_file_exists(monkeypatch, tm
     """
     import lexnlp.ml.catalog as catalog_mod
     from lexnlp.extract.en.contracts import runtime_model
+
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     # Pre-create a legacy .cloudpickle artifact (not the new .skops filename).
@@ -212,6 +217,7 @@ def test_write_pipeline_to_catalog_force_true_overwrites_even_with_legacy(monkey
     import lexnlp.ml.catalog as catalog_mod
     from lexnlp.extract.en.contracts import runtime_model
     from lexnlp.ml.model_io import load_model
+
     monkeypatch.setattr(catalog_mod, "CATALOG", tmp_path)
 
     target_dir = tmp_path / "pipeline" / "test" / "force"

@@ -12,25 +12,24 @@ from lexnlp.extract.all_locales.languages import LANG_DE, Locale
 from lexnlp.extract.common.annotations.court_citation_annotation import CourtCitationAnnotation
 from lexnlp.extract.de.court_citations import get_court_citation_annotations as get_court_citation_annotations_de
 
-ROUTINE_BY_LOCALE = {
-    LANG_DE.code: get_court_citation_annotations_de
-}
+ROUTINE_BY_LOCALE = {LANG_DE.code: get_court_citation_annotations_de}
 
 
-def get_court_citation_annotations(locale: str, text: str, language: str | None = None) -> \
-        Generator[CourtCitationAnnotation]:
+def get_court_citation_annotations(
+    locale: str, text: str, language: str | None = None
+) -> Generator[CourtCitationAnnotation]:
     """
-    Extract court citation annotations from text using a locale-specific routine.
-        
-    If no routine is registered for the locale's language, the German extraction routine is used as a fallback.
-        
+    Yield court citation annotations extracted from `text` using a routine selected by `locale`.
+
+    Falls back to the German extraction routine when no routine is registered for the computed locale language.
+
     Parameters:
-    locale (str): Locale identifier used to select the extraction routine (for example, "de_DE").
-    text (str): Text to scan for court citation annotations.
-    language (str | None): Optional language code to pass to the extraction routine to refine or override locale selection.
-        
+        locale (str): Locale identifier used to select the extraction routine (e.g., "de_DE").
+        text (str): Text to scan for court citation annotations.
+        language (str | None): Optional language code passed to the extraction routine to refine or override locale-derived language selection.
+
     Returns:
-    Generator[CourtCitationAnnotation]: An iterator yielding found court citation annotations.
+        Generator[CourtCitationAnnotation]: Yields `CourtCitationAnnotation` objects found in `text`.
     """
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[LANG_DE.code])
     yield from routine(text, language)

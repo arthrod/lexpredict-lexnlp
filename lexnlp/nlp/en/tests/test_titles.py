@@ -20,30 +20,31 @@ from lexnlp.nlp.en.segments.titles import get_titles
 
 
 class TestTitles(TestCase):
-
     def test_title_1(self):
         """
         Test first example title.
         """
         # Setup URL
-        url = "https://raw.githubusercontent.com/LexPredict/lexpredict-contraxsuite-samples/master/agreements/" + \
-              "construction/1000694_2002-03-15_AGREEMENT%20OF%20LEASE-W.M.RICKMAN%20CONSTRUCTION%20CO..txt"
+        url = (
+            "https://raw.githubusercontent.com/LexPredict/lexpredict-contraxsuite-samples/master/agreements/"
+            + "construction/1000694_2002-03-15_AGREEMENT%20OF%20LEASE-W.M.RICKMAN%20CONSTRUCTION%20CO..txt"
+        )
 
         # Download file
         file_text = requests.get(url, timeout=60).text
 
-        self.assertEqual(['LEASE AGREEMENT'], list(get_titles(file_text)))
+        self.assertEqual(["LEASE AGREEMENT"], list(get_titles(file_text)))
 
     def test_title_2(self):
         """
         Test second example title.
         """
         # Open file
-        test_file_path = os.path.join(get_module_path(), '..', 'test_data', '1100644_2016-11-21')
-        with codecs.open(test_file_path, 'r', encoding='utf-8') as file_handle:
+        test_file_path = os.path.join(get_module_path(), "..", "test_data", "1100644_2016-11-21")
+        with codecs.open(test_file_path, "r", encoding="utf-8") as file_handle:
             # Read and parse
             file_text = file_handle.read()
-            self.assertEqual(['VALIDIAN SOFTWARE LICENSE AGREEMENT'], list(get_titles(file_text)))
+            self.assertEqual(["VALIDIAN SOFTWARE LICENSE AGREEMENT"], list(get_titles(file_text)))
 
     def test_title_3(self):
         """

@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -21,7 +20,6 @@ from numpy import fromiter, ndarray
 
 
 class Vectorizer(ABC):
-
     @abstractmethod
     def vectorize(self, tokens) -> ndarray:
         raise NotImplementedError

@@ -25,12 +25,15 @@ class PhraseFinder:
 
     def word_to_regex(self, word: str, ignore_case: bool) -> str:
         # " Amtsgericht Stuttgart" ->  re("Amtsgericht[\s]+Stuttgart")
-        subphrase = word.replace(r'\t', ' ').strip(' ').replace('  ', ' ').replace(' ', r'[\s]+')
+        subphrase = word.replace(r"\t", " ").strip(" ").replace("  ", " ").replace(" ", r"[\s]+")
         if self.extra_format_function is not None:
             subphrase = self.extra_format_function(subphrase)
-        sps = '(\\b|\\s)'
-        return re.compile(sps + subphrase + sps, re.IGNORECASE | re.UNICODE) if ignore_case else \
-            re.compile(sps + subphrase + sps, re.UNICODE)
+        sps = "(\\b|\\s)"
+        return (
+            re.compile(sps + subphrase + sps, re.IGNORECASE | re.UNICODE)
+            if ignore_case
+            else re.compile(sps + subphrase + sps, re.UNICODE)
+        )
 
     def find_word(self, phrase: str, ignore_case: bool = True) -> list[PhraseMatch]:
         """

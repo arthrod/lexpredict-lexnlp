@@ -21,9 +21,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-ANNOTATION_RE = re.compile(
-    r"skip-audit:\s*issue=(?P<issue>\S+)\s+expires=(?P<expires>\d{4}-\d{2}-\d{2})"
-)
+ANNOTATION_RE = re.compile(r"skip-audit:\s*issue=(?P<issue>\S+)\s+expires=(?P<expires>\d{4}-\d{2}-\d{2})")
 MARKER_NAMES = {"skip", "skipif", "xfail"}
 LOOKBACK_LINES = 2
 
@@ -50,9 +48,7 @@ class Marker:
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Fail if unapproved pytest skip markers are present."
-    )
+    parser = argparse.ArgumentParser(description="Fail if unapproved pytest skip markers are present.")
     script_path = Path(__file__).resolve()
     default_repo_root = script_path.parent.parent
     parser.add_argument(
@@ -119,9 +115,7 @@ def collect_markers(repo_root: Path) -> tuple[list[Marker], list[str]]:
         try:
             source = file_path.read_text(encoding="utf-8")
         except UnicodeDecodeError as exc:
-            parse_errors.append(
-                f"{relative_path.as_posix()}: failed to decode as UTF-8 ({exc})"
-            )
+            parse_errors.append(f"{relative_path.as_posix()}: failed to decode as UTF-8 ({exc})")
             continue
 
         try:
@@ -131,9 +125,7 @@ def collect_markers(repo_root: Path) -> tuple[list[Marker], list[str]]:
                 warnings.simplefilter("ignore", SyntaxWarning)
                 tree = ast.parse(source, filename=str(relative_path))
         except SyntaxError as exc:
-            parse_errors.append(
-                f"{relative_path.as_posix()}:{exc.lineno}: syntax error while parsing ({exc.msg})"
-            )
+            parse_errors.append(f"{relative_path.as_posix()}:{exc.lineno}: syntax error while parsing ({exc.msg})")
             continue
 
         parents: dict[int, ast.AST] = {}
@@ -228,15 +220,11 @@ def main(argv: Sequence[str]) -> int:
             allowlisted_count += 1
             continue
 
-        lines = files_cache.setdefault(
-            marker.path, (repo_root / marker.path).read_text(encoding="utf-8").splitlines()
-        )
+        lines = files_cache.setdefault(marker.path, (repo_root / marker.path).read_text(encoding="utf-8").splitlines())
         annotation_match = find_annotation(lines, marker.line)
         display_id = f"{marker.path.as_posix()}:{marker.line}:{marker.kind}"
         if annotation_match is None:
-            violations.append(
-                f"{display_id} missing annotation `skip-audit: issue=... expires=YYYY-MM-DD`"
-            )
+            violations.append(f"{display_id} missing annotation `skip-audit: issue=... expires=YYYY-MM-DD`")
             continue
 
         expires_raw = annotation_match.group("expires")
@@ -247,9 +235,7 @@ def main(argv: Sequence[str]) -> int:
             continue
 
         if expires_date < today:
-            violations.append(
-                f"{display_id} has expired annotation (expires={expires_raw}, today={today.isoformat()})"
-            )
+            violations.append(f"{display_id} has expired annotation (expires={expires_raw}, today={today.isoformat()})")
 
     if violations:
         print("skip-audit: policy violations found", file=sys.stderr)

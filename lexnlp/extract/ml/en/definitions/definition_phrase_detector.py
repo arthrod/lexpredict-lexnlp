@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 import numpy
 import pandas
 
@@ -25,44 +24,63 @@ class DefinitionPhraseDetector(ArtifactDetector):
     ... model_definition will find <term of employment (the "Employment Period”)>
     """
 
-    def process_sample(self,
-                       sample_df: pandas.DataFrame,
-                       build_target_data: bool = False) -> numpy.ndarray | tuple[numpy.ndarray, numpy.ndarray]:
-        return process_sample(sample_df, self.model,
-                              get_target_start_end=get_target_start_end_from_corgetes,
-                              column_name_formatted='labels',
-                              feature_mask_column='feature_mask')
+    def process_sample(
+        self, sample_df: pandas.DataFrame, build_target_data: bool = False
+    ) -> numpy.ndarray | tuple[numpy.ndarray, numpy.ndarray]:
+        return process_sample(
+            sample_df,
+            self.model,
+            get_target_start_end=get_target_start_end_from_corgetes,
+            column_name_formatted="labels",
+            feature_mask_column="feature_mask",
+        )
 
-    def train_and_save(self,
-                       settings: DetectingSettings,
-                       train_file: str,
-                       train_size: int = -1,
-                       save_path: str = '',
-                       compress: bool = False) -> None:
+    def train_and_save(
+        self,
+        settings: DetectingSettings,
+        train_file: str,
+        train_size: int = -1,
+        save_path: str = "",
+        compress: bool = False,
+    ) -> None:
         # load sample
         train_sample_df = self.read_sample_df(train_file, train_size)
 
-        self.train_and_save_on_dataframe(settings,
-                                         train_sample_df,
-                                         save_path,
-                                         compress)
+        self.train_and_save_on_dataframe(settings, train_sample_df, save_path, compress)
 
     def train_and_save_on_dataframe(
-            self,
-            settings: DetectingSettings,
-            train_sample_df: pandas.DataFrame,
-            save_path: str = '',
-            compress: bool = False) -> None:
+        self,
+        settings: DetectingSettings,
+        train_sample_df: pandas.DataFrame,
+        save_path: str = "",
+        compress: bool = False,
+    ) -> None:
         # setup token match strings in locale
-        def_tokens = ['shall', 'includes', 'including',
-                      'mean', 'meaning', 'referred', 'known',
-                      'refers', 'used', 'hereby', 'interpreted',
-                      'defined', 'interpreted', 'collectively',
-                      'include', 'individually', 'together',
-                      'being', 'foregoing', 'purpose', 'purposed']
+        def_tokens = [
+            "shall",
+            "includes",
+            "including",
+            "mean",
+            "meaning",
+            "referred",
+            "known",
+            "refers",
+            "used",
+            "hereby",
+            "interpreted",
+            "defined",
+            "interpreted",
+            "collectively",
+            "include",
+            "individually",
+            "together",
+            "being",
+            "foregoing",
+            "purpose",
+            "purposed",
+        ]
 
         # create model class
-        self.train_and_save_on_tokens(def_tokens, save_path,
-                                      settings, train_sample_df,
-                                      punc_set=":\"()",
-                                      compress=compress)
+        self.train_and_save_on_tokens(
+            def_tokens, save_path, settings, train_sample_df, punc_set=':"()', compress=compress
+        )

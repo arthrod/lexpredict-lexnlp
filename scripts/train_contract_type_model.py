@@ -26,8 +26,7 @@ from lexnlp.extract.en.contracts.runtime_model import (
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Train a contract-type classifier from LexNLP corpus assets and write "
-            "it into the local LexNLP catalog."
+            "Train a contract-type classifier from LexNLP corpus assets and write it into the local LexNLP catalog."
         )
     )
     parser.add_argument(

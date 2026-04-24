@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -50,7 +49,7 @@ class Normalizer:
     def __call__(self, text) -> str:
         for function, replacement in self.normalizations:
             # Note: adding whitespace to the replacement ensures proper tokenization later
-            text: str = ''.join(self._find_replace(text, function, f' {replacement.strip()} '))
+            text: str = "".join(self._find_replace(text, function, f" {replacement.strip()} "))
         return text
 
     @classmethod

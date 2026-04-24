@@ -17,41 +17,48 @@ class CusipAnnotation(TextAnnotation):
     create an object of CusipAnnotation like
     cp = CusipAnnotation(coords=(0, 100))
     """
-    record_type = 'cusip'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = 'en',
-                 name: str = '',
-                 text: str | None = None,
-                 code: str | None = None,
-                 internal: bool | None = None,
-                 ppn: str | None = None,
-                 tba: dict | None = None,
-                 checksum: str | None = None,
-                 issue_id: str | None = None,
-                 issuer_id: str | None = None):
+    record_type = "cusip"
+
+    def __init__(
+        self,
+        coords: tuple[int, int],
+        locale: str = "en",
+        name: str = "",
+        text: str | None = None,
+        code: str | None = None,
+        internal: bool | None = None,
+        # ``lexnlp.extract.en.cusip`` passes a ``bool`` into ``ppn`` (flag
+        # indicating the CUSIP matches the private-placement pattern) and an
+        # ``int`` into ``checksum`` (the validated check digit). Keep ``str``
+        # support so external callers constructing the annotation manually
+        # still work.
+        ppn: str | bool | None = None,
+        tba: dict | None = None,
+        checksum: str | int | None = None,
+        issue_id: str | None = None,
+        issuer_id: str | None = None,
+    ):
         """
-        Initialize the CusipAnnotation with position, locale, text, and CUSIP-specific metadata.
-                 
+        Initialize a CusipAnnotation with positional bounds, locale, display name, text, and CUSIP-specific metadata.
+
         Parameters:
-        coords (tuple[int, int]): Start and end positions of the annotation.
-        locale (str): Language/locale of the annotation.
-        name (str): Annotation name or label.
-        text (str | None): Extracted text associated with the annotation.
-        code (str | None): Extracted CUSIP code value.
-        internal (bool | None): Flag indicating an internal identifier or internal extraction status.
-        ppn (str | None): Associated PPN (proprietary product number) if present.
-        tba (dict | None): TBA-related data when the annotation refers to a To Be Announced instrument.
-        checksum (str | None): Checksum value associated with the CUSIP, if available.
-        issue_id (str | None): Identifier for the specific issue.
-        issuer_id (str | None): Identifier for the issuer.
+            coords (tuple[int, int]): Start and end character positions of the annotation in the source text.
+            locale (str): Language/locale identifier (default 'en').
+            name (str): Human-readable annotation name or label.
+            text (str | None): Extracted substring for the annotation, if available.
+            code (str | None): Extracted CUSIP code value.
+            internal (bool | None): True if the code is an internal identifier; False or None otherwise.
+            ppn (str | bool | None): Either a string PPN identifier or the
+                private-placement-number boolean flag set by the EN extractor.
+            tba (dict | None): Data for "To Be Announced" instruments, when applicable.
+            checksum (str | int | None): Checksum character(s) for the CUSIP. The
+                EN extractor supplies an ``int`` digit; external callers may
+                supply a string.
+            issue_id (str | None): Identifier for the specific issue.
+            issuer_id (str | None): Identifier for the issuer.
         """
-        super().__init__(
-            name=name,
-            locale=locale,
-            coords=coords,
-            text=text)
+        super().__init__(name=name, locale=locale, coords=coords, text=text)
 
         self.code = code
         self.internal = internal
@@ -62,40 +69,45 @@ class CusipAnnotation(TextAnnotation):
         self.issuer_id = issuer_id
 
     def get_cite_value_parts(self) -> list[str]:
-        parts = [self.code or '',
-                 self.ppn or '',
-                 # self.tba or '',
-                 self.issue_id or '',
-                 self.issuer_id or '']
+        # ``self.ppn`` is a boolean flag in practice; coerce to "" for the cite
+        # rendering so non-string values never leak into the citation path.
+        ppn_str = self.ppn if isinstance(self.ppn, str) else ""
+        parts = [
+            self.code or "",
+            ppn_str,
+            # self.tba or '',
+            self.issue_id or "",
+            self.issuer_id or "",
+        ]
         return parts
 
     def get_dictionary_values(self) -> dict:
-        df = Map({
-            'tags': {
-                'Extracted Entity Code': self.code,
-                'Extracted Entity Internal': self.internal
-            }
-        })
+        df = Map({"tags": {"Extracted Entity Code": self.code, "Extracted Entity Internal": self.internal}})
         if self.tba:
-            df.tags['Extracted Entity TBA'] = self.tba
+            df.tags["Extracted Entity TBA"] = self.tba
         if self.ppn:
-            df.tags['Extracted Entity PPN'] = self.ppn
-        if self.checksum:
-            df.tags['Extracted Entity Checksum'] = self.ppn
+            df.tags["Extracted Entity PPN"] = self.ppn
+        # ``self.checksum`` can legitimately be ``0`` — treat only ``None`` as
+        # "not present" so the zero digit doesn't silently vanish from the
+        # serialized tags.
+        if self.checksum is not None:
+            df.tags["Extracted Entity Checksum"] = self.checksum
         if self.issuer_id:
-            df.tags['Extracted Entity Issuer ID'] = self.issuer_id
+            df.tags["Extracted Entity Issuer ID"] = self.issuer_id
         if self.issue_id:
-            df.tags['Extracted Entity Issue ID'] = self.issue_id
+            df.tags["Extracted Entity Issue ID"] = self.issue_id
 
         return df
 
     def to_dictionary_legacy(self) -> dict[str, Any]:
-        return {'location_start': self.coords[0],
-                'location_end': self.coords[1],
-                'text': self.code,
-                'issuer_id': self.issuer_id,
-                'issue_id': self.issue_id,
-                'checksum': self.checksum,
-                'internal': self.internal,
-                'tba': self.tba,
-                'ppn': self.ppn}
+        return {
+            "location_start": self.coords[0],
+            "location_end": self.coords[1],
+            "text": self.code,
+            "issuer_id": self.issuer_id,
+            "issue_id": self.issue_id,
+            "checksum": self.checksum,
+            "internal": self.internal,
+            "tba": self.tba,
+            "ppn": self.ppn,
+        }
