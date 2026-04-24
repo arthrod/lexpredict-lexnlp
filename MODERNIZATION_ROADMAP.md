@@ -37,7 +37,7 @@ freely pick up security / feature releases.
 | --- | --- | --- | --- | --- |
 | Python | `3.10.*` | **3.13.12** | `>=3.13,<3.15` | PEP 604 `X \| Y`, PEP 585 builtin generics, PEP 695 `type` alias, PEP 698 `@override`, PEP 701 multiline f-strings, PEP 709 inlined comprehensions, PEP 667 frame semantics, free-threaded build (`--disable-gil`), `tomllib` stdlib, `asyncio.TaskGroup`, `Self` type, JIT (experimental), better error messages and tracebacks, faster interpreter startup, improved `typing.override` |
 | scikit-learn | `0.24.0` | **1.8.0** | `>=1.5` | `set_config(transform_output="pandas")`, full metadata routing (SLEP006), `TunedThresholdClassifierCV`, `HistGradientBoosting` native categorical handling, `feature_names_out` standardised across all transformers, `__sklearn_tags__` API (1.6+), `ColumnTransformer.set_output`, `FrozenEstimator`, Array API support (GPU arrays), `roc_auc_score(multi_class="ovr", average="macro")` defaults, `PartialDependenceDisplay` categorical support, constrained linear models |
-| numpy | `1.23.4` | **2.4.4** | `>=2.1,<3` | **NumPy 2.0 (Jun 2024)**: NEP 50 default scalar promotion (cleaner int/float rules), removal of deprecated aliases (`np.int`, `np.float`, `np.NaN`, `np.product`, `np.trapz`, `np.in1d`, `np.round_`, `np.sometrue`, …), new `numpy.exceptions` namespace, strict type promotion, stable `numpy.typing.NDArray`, revamped C/Python ABI, `numpy.strings` unicode vectorised ops. **NumPy 2.1 (Aug 2024)**: default `np.dtype` repr, `matvec`/`vecmat`/`vecdot` generalised ufuncs, improved `__array_namespace__` for Array API, `numpy.dtypes.StringDType`, windows Py3.13 wheels. **NumPy 2.2 (Dec 2024)**: `numpy.lib.array_utils.normalize_axis_index`, nanquantile fast path, faster f-contiguous reductions, `out=` kwarg on `np.unique*`, `numpy.strings.slice()`. **NumPy 2.3 (Jun 2025)**: `np.random.Generator.spawn`, SIMD-accelerated string functions, free-threaded CPython support, extended Array API compliance. **NumPy 2.4 (Oct 2025)**: SVE/SME kernels on ARM, `out=` support in more ufuncs, faster `setdiff1d`, BLAS vendored wheels. Features the codebase specifically benefits from: stable `numpy.typing`, Array API passthrough for sklearn 1.8 GPU path, strict scalar promotion (eliminates silent float→int coercion), new `exceptions` namespace for precise error handling. |
+| numpy | `1.23.4` | **2.4.4** | `>=2.3,<3` | **NumPy 2.0 (Jun 2024)**: NEP 50 default scalar promotion (cleaner int/float rules), removal of deprecated aliases (`np.int`, `np.float`, `np.NaN`, `np.product`, `np.trapz`, `np.in1d`, `np.round_`, `np.sometrue`, …), new `numpy.exceptions` namespace, strict type promotion, stable `numpy.typing.NDArray`, revamped C/Python ABI, `numpy.strings` unicode vectorised ops. **NumPy 2.1 (Aug 2024)**: default `np.dtype` repr, `matvec`/`vecmat`/`vecdot` generalised ufuncs, improved `__array_namespace__` for Array API, `numpy.dtypes.StringDType`, windows Py3.13 wheels. **NumPy 2.2 (Dec 2024)**: `numpy.lib.array_utils.normalize_axis_index`, nanquantile fast path, faster f-contiguous reductions, `out=` kwarg on `np.unique*`, `numpy.strings.slice()`. **NumPy 2.3 (Jun 2025)**: `np.random.Generator.spawn`, SIMD-accelerated string functions, free-threaded CPython support, extended Array API compliance. **NumPy 2.4 (Oct 2025)**: SVE/SME kernels on ARM, `out=` support in more ufuncs, faster `setdiff1d`, BLAS vendored wheels. Features the codebase specifically benefits from: stable `numpy.typing`, Array API passthrough for sklearn 1.8 GPU path, strict scalar promotion (eliminates silent float→int coercion), new `exceptions` namespace for precise error handling. |
 | pandas | `1.5.1` | **2.3.3** | `>=2.2.0,<3` | Copy-on-Write default, PyArrow-backed dtypes, `read_csv(dtype_backend="pyarrow")`, nullable dtypes stable, `DataFrame.map`, `Series.case_when`, deprecated `inplace=True` path removed, `.from_records` on Arrow types, `.agg` preserves dtype |
 | regex | `2022.3.2` | **2025.11.3** | `>=2024.0` | Possessive quantifiers, improved unicode property matching, fuzzy matching (`{e<=n}`), grapheme-cluster `\X`, named-group recursion, multi-threaded compile cache |
 | nltk | `3.7` | **3.9.4** | `>=3.9` | `punkt_tab` replaces `punkt` (faster, deterministic), security fixes (CVE-2024-39705 pickle), updated averaged-perceptron tagger, POS tagging on OOV tokens, stopwords refresh |
@@ -69,7 +69,26 @@ Upper caps retained:
 ### 2.1 NumPy 2.x migration notes (April 2026)
 
 The floor moved from **1.26 → 2.1** on branch
-`claude/mirror-spanish-module-architecture-cUI6Z`. Relevant findings:
+`claude/mirror-spanish-module-architecture-cUI6Z`, and was bumped again
+to **2.3** on branch `claude/numpy-upgrade-features-qVF34` so that the
+library can unconditionally rely on a handful of newer primitives:
+
+- `numpy.random.Generator.spawn` (2.3) — deterministic child streams for
+  parallel batch extraction without the legacy `RandomState` global.
+- `numpy.strings.slice()` (2.2) — vectorised substring slicing for bulk
+  text windowing.
+- `numpy.lib.array_utils.normalize_axis_index` (2.2) — formerly private
+  axis-bounds helper now promoted to the public API.
+- SIMD-accelerated `numpy.strings` string ufuncs (2.3) — `lower`,
+  `upper`, `strip`, `startswith`, `count`, `slice` run orders of
+  magnitude faster than the equivalent Python-level listcomp.
+- `numpy.vecdot` ufunc (2.1) — single-call cosine-similarity numerator
+  (used by `lexnlp.utils.cosine`).
+
+The upper cap remains at `<3` because NumPy 3.0 is not yet released
+and the ABI break is known-upcoming.
+
+Relevant findings from the earlier 1.26 → 2.1 migration:
 
 - **Codebase surface**: `ruff`-grep across `lexnlp/` + `scripts/` found
   **zero** uses of the removed aliases (`np.int`, `np.float`, `np.bool`,
@@ -434,6 +453,52 @@ def get_path_from_hub(tag: str, *, revision: str | None = None) -> Path:
 
 `get_path_from_catalog` falls back to the Hub if
 `download_github_release` 404s.
+
+### 4.4 NumPy 2.3+ feature uplift *(shipped on `claude/numpy-upgrade-features-qVF34`)*
+
+Three focused helpers convert the existing Python-loop idioms into
+vectorised calls that the NumPy ≥ 2.3 floor unlocks:
+
+* **`lexnlp.utils.text_vectors`** — a thin, typed wrapper around
+  `numpy.strings` so bulk text preprocessing (normalising whitespace,
+  lower-casing, prefix filtering, substring-counting, fixed-width
+  slicing) runs as a single SIMD-accelerated C call instead of a Python
+  listcomp. Signature is deliberately small and NumPy-native:
+
+  ```python
+  from lexnlp.utils.text_vectors import (
+      vectorized_lower, vectorized_strip, vectorized_startswith,
+      vectorized_substring_count, vectorized_slice,
+  )
+  ```
+
+  Inputs accept any iterable of strings; outputs are `numpy.ndarray`
+  with the `StringDType()` (NumPy 2.1+) or the matching boolean/integer
+  result dtype. Used by downstream extractors that currently run
+  `[t.lower().strip() for t in texts]` over tens of thousands of
+  snippets.
+
+* **`lexnlp.extract.batch.parallel_rng`** — deterministic child
+  `numpy.random.Generator` streams for parallel batch extraction. Built
+  on `Generator.spawn` (NumPy 2.3), which guarantees statistically
+  independent sub-streams from a single parent seed — the legacy
+  `RandomState(seed + worker_id)` idiom is known to collide. Returns
+  `n` fully-seeded `Generator` instances for use inside
+  `extract_batch_async`'s thread pool.
+
+* **`lexnlp.utils.cosine`** — single-line cosine-similarity helper built
+  on `numpy.vecdot` (NumPy 2.1+ generalised ufunc). Replaces the
+  three-term `dot / linalg.norm / linalg.norm` expression inside
+  `lexnlp.extract.common.ocr_rating.ocr_rating_calculator`; the OCR
+  rating path now calls the shared helper so the same numerics back
+  every cosine comparison in the library.
+
+All three helpers are **`slots=True`** / **`frozen=True`** where
+applicable and carry full `numpy.typing.NDArray` hints, so ty can
+verify shapes across the batch-extraction stack. Coverage: dedicated
+red-first / green tests under
+`lexnlp/utils/tests/` and
+`lexnlp/extract/batch/tests/`.
 
 ## 5. Verification plan
 

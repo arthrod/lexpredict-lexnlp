@@ -15,6 +15,7 @@ import numpy
 import pandas
 
 from lexnlp.nlp.en.transforms.characters import get_character_ngram_distribution
+from lexnlp.utils.cosine import cosine_similarity
 
 
 class BaseOcrRatingCalculator:
@@ -91,12 +92,7 @@ class CosineSimilarityOcrRatingCalculator(BaseOcrRatingCalculator):
         if ngram_prob_norm_df is None:
             ngram_prob_norm_df = self.distribution_by_lang.get(self.default_language)
         merge_df = pandas.concat([ngram_prob_norm_df, text_prob_vector], axis=1, sort=True).fillna(0)
-        similarity_score = (
-            numpy.dot(merge_df.loc[:, 0], merge_df.loc[:, 1])
-            / numpy.linalg.norm(merge_df.loc[:, 0])
-            / numpy.linalg.norm(merge_df.loc[:, 1])
-        )
-        return similarity_score
+        return cosine_similarity(merge_df.loc[:, 0].to_numpy(), merge_df.loc[:, 1].to_numpy())
 
     def get_rating(self, text: str, language: str) -> float:
         cs = self.get_cs(text, language)

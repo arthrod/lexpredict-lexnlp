@@ -42,6 +42,7 @@ from lexnlp.extract.batch.fuzzy_patterns import (
     find_fuzzy_money,
 )
 from lexnlp.extract.batch.pandas_output import annotations_to_dataframe
+from lexnlp.extract.batch.parallel_rng import spawn_child_generators
 from lexnlp.extract.batch.progress import extract_batch_with_progress
 
 __all__ = [
@@ -58,4 +59,5 @@ __all__ = [
     "find_fuzzy_money",
     "flatten",
     "group_successful",
+    "spawn_child_generators",
 ]
