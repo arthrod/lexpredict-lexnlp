@@ -531,7 +531,10 @@ def get_quotes_count_in_string(text: str) -> int:
     :return: calculates count of quotes within the text passed
     """
     c = Counter(text)
-    return sum(filter(None, [c['"'], c["”"]]))
+    # Include both left and right curly double quotes alongside the straight
+    # double quote so ``possible_definitions`` isn't under-counted when the
+    # text pairs ``“`` with ``”``.
+    return c['"'] + c["“"] + c["”"]
 
 
 def regex_matches_to_word_coords(pattern: Pattern[str], text: str, phrase_start: int = 0) -> list[tuple[str, int, int]]:

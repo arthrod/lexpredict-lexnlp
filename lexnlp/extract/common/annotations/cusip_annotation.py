@@ -28,9 +28,14 @@ class CusipAnnotation(TextAnnotation):
         text: str | None = None,
         code: str | None = None,
         internal: bool | None = None,
-        ppn: str | None = None,
+        # ``lexnlp.extract.en.cusip`` passes a ``bool`` into ``ppn`` (flag
+        # indicating the CUSIP matches the private-placement pattern) and an
+        # ``int`` into ``checksum`` (the validated check digit). Keep ``str``
+        # support so external callers constructing the annotation manually
+        # still work.
+        ppn: str | bool | None = None,
         tba: dict | None = None,
-        checksum: str | None = None,
+        checksum: str | int | None = None,
         issue_id: str | None = None,
         issuer_id: str | None = None,
     ):
@@ -44,9 +49,12 @@ class CusipAnnotation(TextAnnotation):
             text (str | None): Extracted substring for the annotation, if available.
             code (str | None): Extracted CUSIP code value.
             internal (bool | None): True if the code is an internal identifier; False or None otherwise.
-            ppn (str | None): Associated proprietary product number, if present.
+            ppn (str | bool | None): Either a string PPN identifier or the
+                private-placement-number boolean flag set by the EN extractor.
             tba (dict | None): Data for "To Be Announced" instruments, when applicable.
-            checksum (str | None): Checksum characters for the CUSIP, if available.
+            checksum (str | int | None): Checksum character(s) for the CUSIP. The
+                EN extractor supplies an ``int`` digit; external callers may
+                supply a string.
             issue_id (str | None): Identifier for the specific issue.
             issuer_id (str | None): Identifier for the issuer.
         """
@@ -61,9 +69,12 @@ class CusipAnnotation(TextAnnotation):
         self.issuer_id = issuer_id
 
     def get_cite_value_parts(self) -> list[str]:
+        # ``self.ppn`` is a boolean flag in practice; coerce to "" for the cite
+        # rendering so non-string values never leak into the citation path.
+        ppn_str = self.ppn if isinstance(self.ppn, str) else ""
         parts = [
             self.code or "",
-            self.ppn or "",
+            ppn_str,
             # self.tba or '',
             self.issue_id or "",
             self.issuer_id or "",

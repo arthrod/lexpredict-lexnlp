@@ -36,10 +36,12 @@ class EnDurationParser(DurationParser):
         "anniversaries": Fraction(365),
     }
 
-    # Build alternation longest-first and with ``re.escape`` so new entries with
-    # metacharacters or shared prefixes (``min`` vs ``minute``) do not silently
-    # shadow each other.
-    _DURATION_ALTS = "|".join(sorted((re.escape(k) for k in DURATION_MAP), key=len, reverse=True))
+    # Build alternation longest-first — sort **raw** keys (pre-escape) so
+    # precedence is based on token length, not on how many extra backslashes
+    # ``re.escape`` adds. Then escape each key when joining so metacharacters
+    # in future unit keys stay safe.
+    _DURATION_KEYS = sorted(DURATION_MAP, key=len, reverse=True)
+    _DURATION_ALTS = "|".join(re.escape(k) for k in _DURATION_KEYS)
     DURATION_PTN = rf"(({NUM_PTN})(?:\s*(?:calendar|business|actual))?[\s-]*({_DURATION_ALTS})s?(?!-))(?:\W|$)"
     DURATION_PTN_RE = re.compile(DURATION_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 

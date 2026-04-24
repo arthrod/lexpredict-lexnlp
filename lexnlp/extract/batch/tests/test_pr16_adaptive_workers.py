@@ -21,12 +21,35 @@ __email__ = "support@contraxsuite.com"
 import importlib.util
 import pathlib
 import sys
+from types import ModuleType
 from unittest.mock import MagicMock, patch
 
 # Import async_extract via the normal package path. It's already PEP 695
 # compatible on Python 3.13 (the project floor), so the previous
 # importlib-based bypass is no longer necessary.
 from lexnlp.extract.batch.async_extract import adaptive_max_workers
+
+
+def _load_module_from_path(module_name: str, path: pathlib.Path) -> ModuleType:
+    """Load a Python module from a filesystem path under a given ``module_name``.
+
+    Centralises ``spec`` / ``loader`` validation so the several helpers below
+    don't each need their own ``# type: ignore`` pair. The module is registered
+    in ``sys.modules`` *before* ``exec_module`` so PEP 695 generic-dataclass
+    machinery can resolve ``cls.__module__`` via ``sys.modules.get(...)``.
+    """
+    spec = importlib.util.spec_from_file_location(module_name, str(path))
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Failed to load module {module_name!r} from {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    try:
+        spec.loader.exec_module(module)
+    except Exception:
+        sys.modules.pop(module_name, None)
+        raise
+    return module
+
 
 # ---------------------------------------------------------------------------
 # Basic contract
@@ -58,6 +81,8 @@ class TestAdaptiveMaxWorkersContract:
 class TestAdaptiveMaxWorkersWithMockedPsutil:
     """Mock psutil so the test is deterministic regardless of the host machine."""
 
+    _ASYNC_EXTRACT_PATH = pathlib.Path(__file__).parent.parent / "async_extract.py"
+
     def _call_with_mocked_psutil(self, physical_cores: int, available_gb: float) -> int:
         """Run ``adaptive_max_workers`` with deterministic psutil responses."""
         mock_psutil = MagicMock()
@@ -67,19 +92,9 @@ class TestAdaptiveMaxWorkersWithMockedPsutil:
         mock_psutil.virtual_memory.return_value = mem_mock
 
         with patch.dict(sys.modules, {"psutil": mock_psutil}):
-            # Re-execute the module so it picks up the patched psutil import.
             module_name = "lexnlp.extract.batch.async_extract_patched"
-            spec = importlib.util.spec_from_file_location(
-                module_name,
-                str(pathlib.Path(__file__).parent.parent / "async_extract.py"),
-            )
-            patched_mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]  # spec validated by spec_from_file_location above
-            # Register in sys.modules BEFORE exec_module so PEP 695 generic
-            # dataclass machinery (which resolves annotations via
-            # ``sys.modules.get(cls.__module__)``) can find the module.
-            sys.modules[module_name] = patched_mod
             try:
-                spec.loader.exec_module(patched_mod)  # type: ignore[union-attr]  # loader is non-None for file-backed specs
+                patched_mod = _load_module_from_path(module_name, self._ASYNC_EXTRACT_PATH)
                 return patched_mod.adaptive_max_workers()
             finally:
                 sys.modules.pop(module_name, None)
@@ -114,14 +129,8 @@ class TestAdaptiveMaxWorkersWithMockedPsutil:
 
         with patch.dict(sys.modules, {"psutil": mock_psutil}):
             module_name = "lexnlp.extract.batch.async_extract_patched2"
-            spec = importlib.util.spec_from_file_location(
-                module_name,
-                str(pathlib.Path(__file__).parent.parent / "async_extract.py"),
-            )
-            patched_mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]  # spec validated by spec_from_file_location above
-            sys.modules[module_name] = patched_mod
             try:
-                spec.loader.exec_module(patched_mod)  # type: ignore[union-attr]  # loader is non-None for file-backed specs
+                patched_mod = _load_module_from_path(module_name, self._ASYNC_EXTRACT_PATH)
                 result = patched_mod.adaptive_max_workers()
             finally:
                 sys.modules.pop(module_name, None)
@@ -149,14 +158,11 @@ class TestAdaptiveWorkersUsedByProgressModule:
     when max_workers is not provided."""
 
     def test_no_max_workers_uses_default(self) -> None:
-        # Import progress module directly.
-        spec = importlib.util.spec_from_file_location(
+        # Import progress module directly via the shared loader helper.
+        prog_mod = _load_module_from_path(
             "lexnlp.extract.batch.progress",
-            str(pathlib.Path(__file__).parent.parent / "progress.py"),
+            pathlib.Path(__file__).parent.parent / "progress.py",
         )
-        prog_mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]  # spec validated by spec_from_file_location above
-        spec.loader.exec_module(prog_mod)  # type: ignore[union-attr]  # loader is non-None for file-backed specs
-
         extract_batch_with_progress = prog_mod.extract_batch_with_progress
 
         def _words(text: str) -> list[str]:

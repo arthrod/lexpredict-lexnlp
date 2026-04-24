@@ -387,11 +387,13 @@ class DateFinder:
 
     def parse_date_string(self, date_string: str, captures: dict[str, list], locale: Locale | None = None):
         # For well formatted string, we can already let dateparser parse them
-        # otherwise self._find_and_replace method might corrupt them
-        was_raised_error = False
+        # otherwise self._find_and_replace method might corrupt them. Note that
+        # ``dateparser.parse`` returns ``None`` on failure (not an exception),
+        # so the fallback chain below is driven by ``as_dt is None`` rather
+        # than a raised-error flag.
         as_dt = None
 
-        if not locale:
+        if locale is None:
             try:
                 as_dt = dateparser.parse(date_string, settings={"RELATIVE_BASE": self.base_date})
                 # Dateparser has issues with time when parsing something like `29MAY19 1350`
@@ -399,26 +401,25 @@ class DateFinder:
                 if as_dt != as_dateutil:
                     as_dt = as_dateutil
             except ValueError:
-                was_raised_error = True
+                as_dt = None
         else:
             try:
                 as_dt = dateparser.parse(
                     date_string, settings={"RELATIVE_BASE": self.base_date}, locales=[locale.get_locale()]
                 )
             except ValueError:
-                was_raised_error = True
+                as_dt = None
 
-        # Try to parse date using only language (only when a locale was given).
-        if was_raised_error and locale is not None:
+        # Language-only fallback (only meaningful when a locale was given).
+        if as_dt is None and locale is not None:
             try:
                 as_dt = dateparser.parse(
                     date_string, settings={"RELATIVE_BASE": self.base_date}, languages=[locale.language]
                 )
-                was_raised_error = False
             except ValueError:
                 pass
 
-        if was_raised_error:
+        if as_dt is None:
             # replace tokens that are problematic for dateutil
             date_string, tz_string = self._find_and_replace(date_string, captures)
 
