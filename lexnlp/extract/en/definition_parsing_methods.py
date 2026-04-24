@@ -322,7 +322,7 @@ ABBREVIATION_PTRN = "|".join([a.replace(".", "\\.") for a in EnLanguageTokens.ab
 ABBREVIATION_ENDING_RE = re.compile(f"({ABBREVIATION_PTRN})$")
 
 # split one phrase containing several definitions into definitions
-SPLIT_SUBDEFINITIONS_PTRN = rf"""["“](?:[^"“]{{1,{MAX_TERM_CHARS}}})["“]"""
+SPLIT_SUBDEFINITIONS_PTRN = rf"""["“](?:[^"“”]{{1,{MAX_TERM_CHARS}}})["”]"""
 
 SPLIT_SUBDEFINITIONS_RE = re.compile(SPLIT_SUBDEFINITIONS_PTRN, re.DOTALL)
 
@@ -400,8 +400,11 @@ def get_definition_list_in_sentence(
         if was_quoted:
             max_words_per_definition = MAX_QUOTED_TERM_TOKENS
 
-        words_in_term = sum(1 for w in word_processor.split_text_on_words(term_cleared[0]) if not w.is_separator)
-        quotes_in_text = get_quotes_count_in_string(term_cleared[0])
+        # Use the normalized ``term`` (after introductory words have been stripped)
+        # rather than the original ``term_cleared[0]``; otherwise the token/quote
+        # budget is inflated and otherwise valid definitions get dropped.
+        words_in_term = sum(1 for w in word_processor.split_text_on_words(term) if not w.is_separator)
+        quotes_in_text = get_quotes_count_in_string(term)
         possible_definitions = quotes_in_text // 2 if quotes_in_text > 1 else 1
         possible_tokens_count = max_words_per_definition * possible_definitions
         if words_in_term > possible_tokens_count:

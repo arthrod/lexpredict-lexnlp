@@ -50,7 +50,7 @@ class TestParsePortugueseLawsRegulations(TestCase):
         )
 
 
-class TestRegulationsParserDataFrameInjection:
+class TestRegulationsParserDataFrameInjection(TestCase):
     def test_none_dataframe_loads_from_csv(self):
         """
         Verifies that RegulationsParser loads default triggers when no DataFrame is provided.
@@ -58,19 +58,19 @@ class TestRegulationsParserDataFrameInjection:
         Ensures a newly created RegulationsParser populates its `start_triggers` from the built-in CSV/data source so that `start_triggers` is non-empty.
         """
         p = RegulationsParser()
-        assert len(p.start_triggers) > 0
+        self.assertGreater(len(p.start_triggers), 0)
 
     def test_non_none_dataframe_is_preserved(self):
         empty_df = pd.DataFrame(columns=["trigger", "position"])
         p = RegulationsParser(regulations_dataframe=empty_df)
-        assert p.start_triggers == []
-        assert len(p.regulations_dataframe) == 0
+        self.assertEqual([], p.start_triggers)
+        self.assertEqual(0, len(p.regulations_dataframe))
 
     def test_custom_dataframe_rows_are_used(self):
         custom_df = pd.DataFrame({"trigger": ["lei", "decreto"], "position": ["start", "start"]})
         p = RegulationsParser(regulations_dataframe=custom_df)
-        assert "lei" in p.start_triggers
-        assert "decreto" in p.start_triggers
+        self.assertIn("lei", p.start_triggers)
+        self.assertIn("decreto", p.start_triggers)
 
     def test_custom_dataframe_non_start_rows_are_excluded(self):
         """
@@ -80,5 +80,5 @@ class TestRegulationsParserDataFrameInjection:
         """
         custom_df = pd.DataFrame({"trigger": ["lei", "regulamento"], "position": ["start", "end"]})
         p = RegulationsParser(regulations_dataframe=custom_df)
-        assert "lei" in p.start_triggers
-        assert "regulamento" not in p.start_triggers
+        self.assertIn("lei", p.start_triggers)
+        self.assertNotIn("regulamento", p.start_triggers)

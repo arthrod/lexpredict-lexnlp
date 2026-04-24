@@ -36,7 +36,11 @@ class EnDurationParser(DurationParser):
         "anniversaries": Fraction(365),
     }
 
-    DURATION_PTN = rf"(({NUM_PTN})(?:\s*(?:calendar|business|actual))?[\s-]*({'|'.join(DURATION_MAP)})s?(?!-))(?:\W|$)"
+    # Build alternation longest-first and with ``re.escape`` so new entries with
+    # metacharacters or shared prefixes (``min`` vs ``minute``) do not silently
+    # shadow each other.
+    _DURATION_ALTS = "|".join(sorted((re.escape(k) for k in DURATION_MAP), key=len, reverse=True))
+    DURATION_PTN = rf"(({NUM_PTN})(?:\s*(?:calendar|business|actual))?[\s-]*({_DURATION_ALTS})s?(?!-))(?:\W|$)"
     DURATION_PTN_RE = re.compile(DURATION_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
     INNER_CONJUNCTIONS = ["and", "plus"]

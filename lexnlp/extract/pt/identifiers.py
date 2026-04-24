@@ -1,8 +1,13 @@
 """Brazilian identifier extraction (CPF, CNPJ, OAB).
 
-Each extractor validates the identifier by its check-digit algorithm, so only
-well-formed numbers are emitted. This keeps false positives low when the
-extractors are run over noisy document OCR.
+CPF and CNPJ extractors validate identifiers by the Receita Federal
+check-digit algorithm (``_cpf_is_valid`` / ``_cnpj_is_valid``), so only
+well-formed numbers are emitted. The OAB extractor
+(``get_oab_annotations``) is regex-only — the Ordem dos Advogados do
+Brasil does not publish a checksum — so callers should treat OAB matches
+as surface-level candidates rather than validated identifiers. Together
+these keep false positives low when the extractors are run over noisy
+document OCR.
 """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
@@ -34,14 +39,18 @@ _CNPJ_RE = re.compile(
     r"(?!\d)"
 )
 
-# OAB registration: "OAB/SP 123.456" or "OAB SP nº 123456"
+# OAB registration: "OAB/SP 123.456" or "OAB SP nº 123456".
+# - ``(?<!\w)`` prevents matches inside a larger word like "FOOBAROAB/SP …".
+# - ``(?!\d)`` after the number group stops ``\d{4,7}`` from truncating a
+#   longer run ("12345678" would otherwise yield "1234567").
 _OAB_RE = re.compile(
-    r"OAB"
+    r"(?<!\w)OAB"
     r"(?:\s*/\s*|\s+)"
     r"(?P<uf>AC|AL|AM|AP|BA|CE|DF|ES|GO|MA|MG|MS|MT|PA|PB|PE|PI|PR|RJ|RN|RO|RR|RS|SC|SE|SP|TO)"
     r"\s*(?:nº|n\.?º?|no\.?)?\s*"
     # Require ≥4 digits total so "OAB/SP 1" does not produce a spurious match.
-    r"(?P<number>\d{1,3}(?:\.\d{3})+|\d{4,7})",
+    r"(?P<number>\d{1,3}(?:\.\d{3})+|\d{4,7})"
+    r"(?!\d)",
     re.IGNORECASE,
 )
 

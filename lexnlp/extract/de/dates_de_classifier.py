@@ -29,6 +29,7 @@ WRITTEN_DATE_NUMS = [
     "dritten",
     "vierten",
     "fünften",
+    "sechsten",
     "siebten",
     "achten",
     "neunten",
@@ -541,10 +542,12 @@ def add_numeric_date_samples(examples):
                         examples.append(("am " + d.strftime("%B %d, %Y"), [d]))
                         examples.append((f"bis {d} zum {d2}", [d, d2]))
                         examples.append(
-                            ("bis {} zum {}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")), [d, d2])
+                            ("bis {} zum {}".format(d.strftime("%b %d, %Y"), d2.strftime("%b %d, %Y")), [d, d2])
                         )
                         examples.append((f"{d.isoformat()} bis {d2.isoformat()}", [d, d2]))
-                        examples.append(("{} bis {}".format(d.strftime("%b d, %Y"), d2.strftime("%b d, %Y")), [d, d2]))
+                        examples.append(
+                            ("{} bis {}".format(d.strftime("%b %d, %Y"), d2.strftime("%b %d, %Y")), [d, d2])
+                        )
                     except ValueError:
                         continue
 

@@ -77,7 +77,7 @@ class CusipAnnotation(TextAnnotation):
         if self.ppn:
             df.tags["Extracted Entity PPN"] = self.ppn
         if self.checksum:
-            df.tags["Extracted Entity Checksum"] = self.ppn
+            df.tags["Extracted Entity Checksum"] = self.checksum
         if self.issuer_id:
             df.tags["Extracted Entity Issuer ID"] = self.issuer_id
         if self.issue_id:

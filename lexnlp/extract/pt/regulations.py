@@ -127,8 +127,12 @@ class RegulationsParser:
         triggers_ordered = sorted(self.start_triggers, key=len, reverse=True)
         triggers_escaped = [re.escape(t) for t in triggers_ordered]
         triggers_str = "|".join(triggers_escaped)
+        # NOTE: ``\b`` inside a character class is ASCII backspace (0x08), not
+        # the word-boundary anchor. The lookbehind therefore uses bare ``\s``
+        # and the negated character class omits backspace to keep the
+        # delimiter semantics right.
         pattern = re.compile(
-            rf"(?:(?<=[\s\b])|(?<=^))({triggers_str})[^,\b;\.\n]+",
+            rf"(?:(?<=\s)|(?<=^))({triggers_str})[^,;\.\n]+",
             re.UNICODE | re.IGNORECASE,
         )
         self.reg_start_triggers = [pattern]
@@ -139,14 +143,13 @@ class RegulationsParser:
 
         If no DataFrame was supplied at construction, the function loads lexnlp/config/pt/pt_regulations.csv (UTF-8) and expects rows with "trigger" and "position" columns; it selects and stores the "trigger" values whose "position" equals "start" in self.start_triggers. Malformed CSV lines are skipped.
         """
-        dtypes = {"trigger": str, "position": str}
         if self.regulations_dataframe is None:
             path = os.path.join(lexnlp_base_path, "lexnlp/config/pt/pt_regulations.csv")
             self.regulations_dataframe = read_csv(
                 path,
                 encoding="utf-8",
                 on_bad_lines="skip",
-                converters=dtypes,
+                dtype={"trigger": str, "position": str},
             )
         subset = self.regulations_dataframe[["trigger", "position"]]
         tuples = [tuple(x) for x in subset.values]
@@ -279,6 +282,7 @@ def get_regulation_annotations(text: str, language: str = "pt") -> Generator[Reg
     Yield annotations for each regulation reference found in the text.
 
     Parameters:
+        text (str): Input string to scan for regulation references.
         language (str): Locale code used to select parsing rules (for example, "pt").
 
     Returns:

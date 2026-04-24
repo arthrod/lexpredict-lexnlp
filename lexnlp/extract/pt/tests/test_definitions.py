@@ -18,7 +18,7 @@ from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 
 
 class TestParsePortugueseDefinitions(TestCase):
-    def test_parse_pt_def_semicolon(self):
+    def test_parse_pt_def_colon(self):
         """
         Verify the Portuguese definitions parser extracts a quoted term followed by a colon as a single definition annotation.
 
@@ -56,6 +56,7 @@ class TestParsePortugueseDefinitions(TestCase):
         self.assertEqual("ru", ret[1].locale)
 
         ret = get_definition_annotation_list(text)
+        self.assertGreaterEqual(len(ret), 2)
         self.assertEqual("pt", ret[1].locale)
 
     def test_acronym(self):

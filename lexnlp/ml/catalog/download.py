@@ -186,7 +186,11 @@ class GitHubReleaseDownloader:
         Raises:
             ChecksumError: If the server provided a Content-MD5 header and the computed file checksum does not match.
         """
-        response: Response = _session().get(
+        # ``stream=True`` keeps the underlying TCP connection open until the
+        # body is consumed. Use a context manager so the connection is returned
+        # to the pool even when ``yield_asset`` raises — otherwise the process
+        # leaks sockets across repeated downloads.
+        with _session().get(
             url=asset["url"],
             stream=True,
             headers=_build_github_headers(
@@ -195,26 +199,26 @@ class GitHubReleaseDownloader:
                 }
             ),
             timeout=_get_github_timeout_seconds(),
-        )
-        response.raise_for_status()
-        headers: CaseInsensitiveDict[str, Any] = response.headers
-        name: str = asset.get("name")
-        content_length: int = int(headers.get("Content-Length", asset.get("size", 0)))
-        content_iterator: Iterator = response.iter_content(chunk_size=chunk_size)
+        ) as response:  # type: Response
+            response.raise_for_status()
+            headers: CaseInsensitiveDict[str, Any] = response.headers
+            name: str = asset.get("name")
+            content_length: int = int(headers.get("Content-Length", asset.get("size", 0)))
+            content_iterator: Iterator = response.iter_content(chunk_size=chunk_size)
 
-        LOGGER.info(f"Downloading {name}...")
-        destination_directory = Path(destination_directory)
-        destination_directory.mkdir(exist_ok=True, parents=True)
-        path_file: Path = destination_directory / name
-        with open(path_file, "wb") as f:
-            for chunk in cls.yield_asset(content_iterator, content_length, chunk_size):
-                f.write(chunk)
-        LOGGER.info(f"...downloaded {name} to {destination_directory}")
-        content_md5: str = headers.get("Content-MD5")
-        if content_md5:
-            LOGGER.info(f"Detected MD5; verifying ({content_md5})...")
-            cls.verify_md5(path_file, content_md5)
-            LOGGER.info("...verified.")
+            LOGGER.info(f"Downloading {name}...")
+            destination_directory = Path(destination_directory)
+            destination_directory.mkdir(exist_ok=True, parents=True)
+            path_file: Path = destination_directory / name
+            with open(path_file, "wb") as f:
+                for chunk in cls.yield_asset(content_iterator, content_length, chunk_size):
+                    f.write(chunk)
+            LOGGER.info(f"...downloaded {name} to {destination_directory}")
+            content_md5: str = headers.get("Content-MD5")
+            if content_md5:
+                LOGGER.info(f"Detected MD5; verifying ({content_md5})...")
+                cls.verify_md5(path_file, content_md5)
+                LOGGER.info("...verified.")
 
     @staticmethod
     def verify_md5(

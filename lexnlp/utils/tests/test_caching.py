@@ -49,10 +49,8 @@ class TestCacheDecorator:
 
         assert square(7) == 49
         assert square(7) == 49
-        # The second call may still hit the function once because joblib
-        # decides based on the cache directory state; what we care about
-        # is that the result is correct and the helper does not raise.
-        assert calls.count(7) <= 2
+        # Same argument → should execute once; second call served from cache.
+        assert calls.count(7) == 1
 
 
 class TestClearCache:

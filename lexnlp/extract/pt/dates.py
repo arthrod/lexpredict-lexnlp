@@ -191,9 +191,16 @@ class PtDateParser(DateParser):
         Returns:
             `true` if the candidate passes additional length, content, and weekday-prefix checks and should be kept, `false` otherwise.
         """
+        token = date_str.strip()
+        # Full numeric Brazilian DMY tokens ("15/02/2020", "15.02.2020",
+        # "15-02-2020") are rejected by the base ``DateParser.BAD_PARTIAL_RE``
+        # because ``/`` counts as "partial" punctuation there. Accept them
+        # up-front so the numeric format advertised in the module docstring
+        # actually reaches the emitted annotations.
+        if self.NUMERIC_DMY_RE.fullmatch(token):
+            return True
         if not super().passed_general_check(date_str, _date):
             return False
-        token = date_str.strip()
         if not token or len(token) < 3:
             return False
         if self._SHORT_REJECT_RE.match(token):
@@ -312,7 +319,6 @@ class PtDateParser(DateParser):
                 continue
             dt = self._build_date(day, month, year)
             if dt:
-                surface = m.group(0)
                 # Only keep the date portion, not the locality prefix, so the
                 # annotation coords land on the actual date span.
                 date_portion_start = m.start("day")

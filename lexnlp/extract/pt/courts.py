@@ -13,8 +13,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-# pylint: disable=unused-argument  # deprecated _get_courts keeps legacy kwargs for API parity
-
 import os
 import re
 import warnings
@@ -57,7 +55,11 @@ def _get_courts(
     Returns:
         generator: Yields `(DictionaryEntry, DictionaryEntryAlias)` for each matched court.
     """
-    warnings.warn("This function will be removed in a future version of LexNLP", DeprecationWarning)
+    warnings.warn(
+        "This function will be removed in a future version of LexNLP",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     for ent in find_dict_entities(
         text,
         court_config_list,

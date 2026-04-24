@@ -162,7 +162,9 @@ class FactExtractor:
         if not extract_all and include_types:
             target_types = include_types
         elif extract_all:
-            target_types = FactExtractor.ALL_ANT_TYPES
+            # Copy the registry before mutating — ``-=`` on the class attribute
+            # would permanently drop excluded types for subsequent callers.
+            target_types = set(FactExtractor.ALL_ANT_TYPES)
             if exclude_types:
                 target_types -= exclude_types
 
@@ -173,7 +175,10 @@ class FactExtractor:
 
         extra_args = FactExtractor.parser_extra_arguments.get(lang)
         if extra_args:
-            extra_args = extra_args.get(result_fmt)
+            # Mirror the result_fmt_key fallback used above when choosing the
+            # extractor set so ``fmt_dict`` calls do not silently lose their
+            # extra-argument wiring.
+            extra_args = extra_args.get(result_fmt_key)
         extra_args = extra_args or {}  # type: Dict[AnnotationType, Tuple]
 
         facts = {}  # type: Dict[AnnotationType, List[Any]]

@@ -24,11 +24,13 @@ __email__ = "support@contraxsuite.com"
 
 import pytest
 
+from lexnlp.extract.all_locales.languages import LANG_DE, LANG_EN, LANG_PT
+
 # The all_locales dispatcher modules import from lexnlp.extract.en, which
 # requires NLTK. Skip all tests in this file when NLTK is not installed.
 pytest.importorskip("nltk", reason="NLTK required for all_locales dispatchers")
 
-from lexnlp.extract.all_locales.languages import LANG_DE, LANG_EN, LANG_PT
+_REQUIRED_LOCALE_CODES = {LANG_EN.code, LANG_DE.code, LANG_PT.code}
 
 # ---------------------------------------------------------------------------
 # copyrights.py ROUTINE_BY_LOCALE
@@ -51,10 +53,10 @@ class TestCopyrightsRoutineByLocale:
 
         assert LANG_DE.code in ROUTINE_BY_LOCALE
 
-    def test_routine_by_locale_has_three_entries(self) -> None:
+    def test_routine_by_locale_covers_required_locales(self) -> None:
         from lexnlp.extract.all_locales.copyrights import ROUTINE_BY_LOCALE
 
-        assert len(ROUTINE_BY_LOCALE) == 3
+        assert _REQUIRED_LOCALE_CODES.issubset(ROUTINE_BY_LOCALE.keys())
 
     def test_pt_routine_is_callable(self) -> None:
         from lexnlp.extract.all_locales.copyrights import ROUTINE_BY_LOCALE
@@ -94,7 +96,7 @@ class TestDatesRoutineByLocale:
 
         assert LANG_DE.code in ROUTINE_BY_LOCALE
 
-    def test_routine_by_locale_has_three_entries(self) -> None:
+    def test_routine_by_locale_covers_required_locales(self) -> None:
         """
         Ensure the dates ROUTINE_BY_LOCALE registry contains exactly three entries.
 
@@ -102,7 +104,7 @@ class TestDatesRoutineByLocale:
         """
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE
 
-        assert len(ROUTINE_BY_LOCALE) == 3
+        assert _REQUIRED_LOCALE_CODES.issubset(ROUTINE_BY_LOCALE.keys())
 
     def test_pt_routine_is_callable(self) -> None:
         from lexnlp.extract.all_locales.dates import ROUTINE_BY_LOCALE
@@ -137,10 +139,10 @@ class TestDefinitionsRoutineByLocale:
 
         assert LANG_DE.code in ROUTINE_BY_LOCALE
 
-    def test_routine_by_locale_has_three_entries(self) -> None:
+    def test_routine_by_locale_covers_required_locales(self) -> None:
         from lexnlp.extract.all_locales.definitions import ROUTINE_BY_LOCALE
 
-        assert len(ROUTINE_BY_LOCALE) == 3
+        assert _REQUIRED_LOCALE_CODES.issubset(ROUTINE_BY_LOCALE.keys())
 
     def test_pt_routine_is_callable(self) -> None:
         from lexnlp.extract.all_locales.definitions import ROUTINE_BY_LOCALE

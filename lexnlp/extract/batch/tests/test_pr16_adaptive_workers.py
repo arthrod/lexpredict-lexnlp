@@ -73,13 +73,13 @@ class TestAdaptiveMaxWorkersWithMockedPsutil:
                 module_name,
                 str(pathlib.Path(__file__).parent.parent / "async_extract.py"),
             )
-            patched_mod = importlib.util.module_from_spec(spec)  # type: ignore
+            patched_mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]  # spec validated by spec_from_file_location above
             # Register in sys.modules BEFORE exec_module so PEP 695 generic
             # dataclass machinery (which resolves annotations via
             # ``sys.modules.get(cls.__module__)``) can find the module.
             sys.modules[module_name] = patched_mod
             try:
-                spec.loader.exec_module(patched_mod)  # type: ignore
+                spec.loader.exec_module(patched_mod)  # type: ignore[union-attr]  # loader is non-None for file-backed specs
                 return patched_mod.adaptive_max_workers()
             finally:
                 sys.modules.pop(module_name, None)
@@ -118,10 +118,10 @@ class TestAdaptiveMaxWorkersWithMockedPsutil:
                 module_name,
                 str(pathlib.Path(__file__).parent.parent / "async_extract.py"),
             )
-            patched_mod = importlib.util.module_from_spec(spec)  # type: ignore
+            patched_mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]  # spec validated by spec_from_file_location above
             sys.modules[module_name] = patched_mod
             try:
-                spec.loader.exec_module(patched_mod)  # type: ignore
+                spec.loader.exec_module(patched_mod)  # type: ignore[union-attr]  # loader is non-None for file-backed specs
                 result = patched_mod.adaptive_max_workers()
             finally:
                 sys.modules.pop(module_name, None)
@@ -154,8 +154,8 @@ class TestAdaptiveWorkersUsedByProgressModule:
             "lexnlp.extract.batch.progress",
             str(pathlib.Path(__file__).parent.parent / "progress.py"),
         )
-        prog_mod = importlib.util.module_from_spec(spec)  # type: ignore
-        spec.loader.exec_module(prog_mod)  # type: ignore
+        prog_mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]  # spec validated by spec_from_file_location above
+        spec.loader.exec_module(prog_mod)  # type: ignore[union-attr]  # loader is non-None for file-backed specs
 
         extract_batch_with_progress = prog_mod.extract_batch_with_progress
 

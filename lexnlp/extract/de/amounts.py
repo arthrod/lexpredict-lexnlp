@@ -162,7 +162,7 @@ class AmountParserDE:
 
         text = text.lower().strip(string.whitespace).rstrip(punctuation_and_whitespace)
 
-        if not (text.startswith(".") and text[1].isdigit()):
+        if not (text.startswith(".") and len(text) > 1 and text[1].isdigit()):
             text = text.lstrip(punctuation_and_whitespace)
 
         # TODO: do not hardcode 'de_DE'! This should come from a locale string

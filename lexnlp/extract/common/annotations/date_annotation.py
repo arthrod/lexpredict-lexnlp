@@ -24,7 +24,7 @@ class DateAnnotation(TextAnnotation):
         coords: tuple[int, int],
         locale: str = "en",
         text: str | None = None,
-        date: _date = None,
+        date: _date | None = None,
         score: float | None = None,
     ):
         """

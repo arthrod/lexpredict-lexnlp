@@ -385,7 +385,7 @@ class DateFinder:
                 returnables = returnables[0]
             yield returnables
 
-    def parse_date_string(self, date_string: str, captures: dict[str, list], locale: Locale):
+    def parse_date_string(self, date_string: str, captures: dict[str, list], locale: Locale | None = None):
         # For well formatted string, we can already let dateparser parse them
         # otherwise self._find_and_replace method might corrupt them
         was_raised_error = False
@@ -408,8 +408,8 @@ class DateFinder:
             except ValueError:
                 was_raised_error = True
 
-        # Try to parse date using only language
-        if was_raised_error:
+        # Try to parse date using only language (only when a locale was given).
+        if was_raised_error and locale is not None:
             try:
                 as_dt = dateparser.parse(
                     date_string, settings={"RELATIVE_BASE": self.base_date}, languages=[locale.language]
