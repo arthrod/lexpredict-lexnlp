@@ -9,10 +9,12 @@ This runbook is the operational guide for maintaining a modern, reproducible Lex
 - Installer/runner: `uv`
 
 Legacy files are retained for historical reproduction only:
-- `Pipfile`
 - `python-requirements.txt`
 - `python-requirements-dev.txt`
 - `python-requirements-full.txt`
+
+`Pipfile` / `Pipfile.lock` have been removed; `ci/check_dist_contents.py`
+still bans both filenames from built artifacts.
 
 ## 2) Fresh Setup
 

@@ -92,10 +92,12 @@ Quick Setup (uv + pyproject)
 Deprecated Setup Variants
 -------------------------
 
-``Pipfile``, ``python-requirements.txt``, ``python-requirements-dev.txt``,
-and ``python-requirements-full.txt`` are deprecated and kept only for
-legacy reproduction. New development and CI updates should use ``uv`` with
-``pyproject.toml``.
+``python-requirements.txt``, ``python-requirements-dev.txt``, and
+``python-requirements-full.txt`` are deprecated and kept only for legacy
+reproduction. The ``Pipfile`` / ``Pipfile.lock`` pair has been removed;
+``ci/check_dist_contents.py`` still bans both from built artifacts so
+they cannot re-enter the sdist/wheel. Use ``uv`` with ``pyproject.toml``
+for all local setup and CI workflows.
 
 Releases
 --------

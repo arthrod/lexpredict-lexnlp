@@ -177,6 +177,13 @@ These remain open and are **not** blockers for shipping the PT module:
    that still import `joblib`/`pickle`/`cloudpickle`.
 6. **Delete unused Pipfile / Pipfile.lock / requirements*.txt** now that
    `uv` / `pyproject` is the source of truth.
+   *Pipfile + Pipfile.lock removed on branch
+   `claude/mirror-spanish-module-architecture-cUI6Z` — the Pipfile pin of
+   `scikit-learn == 0.24` directly contradicted the `>=1.5` constraint in
+   `pyproject.toml` and was flagged by CodeRabbit as a conflict-of-
+   truth. `ci/check_dist_contents.py` continues to ban both filenames
+   from built artifacts. The `python-requirements*.txt` snapshots are
+   still retained for now.*
 7. **Run `ruff check --select UP,B,SIM,RUF,PERF,PIE --fix`** —
    modern Python idioms and small-perf wins, file-by-file review.
 
@@ -263,7 +270,9 @@ These remain open and are **not** blockers for shipping the PT module:
       on `LogisticRegression`, etc.
 27. **Bump CI Python matrix**: add 3.14-nightly to catch forward
     regressions (Python 3.14 is already in RC stages).
-28. **Delete `Pipfile*`** once CI / docs reference `uv` only.
+28. **Delete `Pipfile*`** once CI / docs reference `uv` only. ✅ *Done
+    on branch `claude/mirror-spanish-module-architecture-cUI6Z` — see
+    §3 Tier-A.6 for context.*
 
 ## 4. New functionality proposals (concrete designs)
 
