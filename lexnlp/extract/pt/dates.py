@@ -32,8 +32,18 @@ from lexnlp.extract.common.annotations.date_annotation import DateAnnotation
 from lexnlp.extract.common.dates import DateParser
 
 _MONTHS_EN = (
-    "january", "february", "march", "april", "may", "june",
-    "july", "august", "september", "october", "november", "december",
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
 )
 
 PT_MONTHS: list[str] = sorted(
@@ -117,10 +127,26 @@ class PtDateParser(DateParser):
     # numbers as dates. We require at least one digit AND some substance before
     # accepting the candidate.
     _SHORT_REJECT_RE = re.compile(r"^\s*(?:[a-zà-ÿ]{1,4}|\d{1,2}\s*[,;]?\s*[a-zà-ÿ]?)\s*$", re.I)
-    _WEEKDAY_PREFIXES = frozenset({
-        "seg", "ter", "qua", "qui", "sex", "sab", "dom",
-        "segunda", "terca", "terça", "quarta", "quinta", "sexta", "sabado", "sábado", "domingo",
-    })
+    _WEEKDAY_PREFIXES = frozenset(
+        {
+            "seg",
+            "ter",
+            "qua",
+            "qui",
+            "sex",
+            "sab",
+            "dom",
+            "segunda",
+            "terca",
+            "terça",
+            "quarta",
+            "quinta",
+            "sexta",
+            "sabado",
+            "sábado",
+            "domingo",
+        }
+    )
 
     def __init__(
         self,
@@ -133,7 +159,7 @@ class PtDateParser(DateParser):
     ):
         """
         Configure a PtDateParser for Brazilian Portuguese text with optional classifier validation.
-        
+
         Parameters:
             text: Optional input text to parse; if omitted the parser is not preloaded with text.
             locale: Locale to use for parsing; defaults to Portuguese (pt-BR).
@@ -157,11 +183,11 @@ class PtDateParser(DateParser):
     def passed_general_check(self, date_str: str, _date) -> bool:
         """
         Decide whether a parsed date surface should be accepted by applying additional Portuguese-specific surface checks.
-        
+
         Parameters:
             date_str (str): Candidate surface text for the date.
             _date: Parsed date value from the underlying parser (may be unused by this check).
-        
+
         Returns:
             `true` if the candidate passes additional length, content, and weekday-prefix checks and should be kept, `false` otherwise.
         """
@@ -184,10 +210,10 @@ class PtDateParser(DateParser):
     def _coerce_year(raw: str) -> int | None:
         """
         Normalize a numeric year string into a four-digit calendar year.
-        
+
         Parameters:
             raw (str): Year text, typically two or four digits.
-        
+
         Returns:
             int | None: Four-digit year where `00`–`49` map to `2000`–`2049`, `50`–`99` map to `1950`–`1999`, and any empty or non-integer input yields `None`.
         """
@@ -204,12 +230,12 @@ class PtDateParser(DateParser):
     def _build_date(self, day: int, month: int, year: int | None) -> datetime.datetime | None:
         """
         Construct a validated datetime from day, month, and year, or return None if the components do not form a valid calendar date.
-        
+
         Parameters:
             day (int): Day of month; must be between 1 and 31.
             month (int): Month number; must be between 1 and 12.
             year (int | None): Four-digit year to use; if falsy (`None` or `0`), the current calendar year is used.
-        
+
         Returns:
             datetime.datetime | None: The constructed datetime for the supplied date, or `None` if the inputs are out of range or represent an impossible date (e.g., April 31).
         """
@@ -226,9 +252,9 @@ class PtDateParser(DateParser):
     def get_extra_dates(self, strict: bool) -> None:
         """
         Extend the parser's `dates` list with additional Brazilian Portuguese date forms and inferred years.
-        
+
         This adds dates found by: inheriting trailing years in coordinated sequences (e.g., "15 de fevereiro, 28 de abril e 17 de novembro de 1995"), normalizing ordinal day glyphs before parsing (e.g., "1º de janeiro"), extracting locality-prefixed legal-gazette dates (e.g., "Brasília, 12 de março de 2024") and numeric DMY forms including two-digit years and dot-separated variants; results are de-duplicated and stored back to `self.dates`.
-        
+
         Parameters:
             strict (bool): If True, require strict parsing when re-parsing normalized or derived date substrings; passed through to the underlying dateparser-based parsing helpers.
         """
@@ -248,11 +274,7 @@ class PtDateParser(DateParser):
                     parsed = self.get_dateparser_dates(capture_text, strict)
                     if parsed:
                         dateparser_dates_dict[parsed[0][0]] = parsed[0]
-            elif (
-                last_match_year
-                and last_match_start is not None
-                and last_match_start == match_end
-            ):
+            elif last_match_year and last_match_start is not None and last_match_start == match_end:
                 if capture_text not in dateparser_dates_dict:
                     parsed = self.get_dateparser_dates(capture_text, strict)
                     if parsed:
@@ -260,9 +282,7 @@ class PtDateParser(DateParser):
                         a_date = a_date.replace(year=last_match_year)
                         dateparser_dates_dict[date_str] = (capture_text, a_date)
                 else:
-                    a_date = dateparser_dates_dict[capture_text][1].replace(
-                        year=last_match_year
-                    )
+                    a_date = dateparser_dates_dict[capture_text][1].replace(year=last_match_year)
                     dateparser_dates_dict[capture_text] = (
                         dateparser_dates_dict[capture_text][0],
                         a_date,

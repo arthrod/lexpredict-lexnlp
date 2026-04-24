@@ -23,16 +23,10 @@ import pathlib
 import sys
 from unittest.mock import MagicMock, patch
 
-# Import async_extract directly to bypass the PEP-695 __init__.py.
-_spec = importlib.util.spec_from_file_location(
-    "lexnlp.extract.batch.async_extract",
-    str(pathlib.Path(__file__).parent.parent / "async_extract.py"),
-)
-_mod = importlib.util.module_from_spec(_spec)  # type: ignore[arg-type]
-_spec.loader.exec_module(_mod)  # type: ignore[union-attr]
-
-adaptive_max_workers = _mod.adaptive_max_workers
-
+# Import async_extract via the normal package path. It's already PEP 695
+# compatible on Python 3.13 (the project floor), so the previous
+# importlib-based bypass is no longer necessary.
+from lexnlp.extract.batch.async_extract import adaptive_max_workers  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Basic contract
@@ -74,13 +68,21 @@ class TestAdaptiveMaxWorkersWithMockedPsutil:
 
         with patch.dict(sys.modules, {"psutil": mock_psutil}):
             # Re-execute the module so it picks up the patched psutil import.
+            module_name = "lexnlp.extract.batch.async_extract_patched"
             spec = importlib.util.spec_from_file_location(
-                "lexnlp.extract.batch.async_extract_patched",
+                module_name,
                 str(pathlib.Path(__file__).parent.parent / "async_extract.py"),
             )
             patched_mod = importlib.util.module_from_spec(spec)  # type: ignore
-            spec.loader.exec_module(patched_mod)  # type: ignore
-            return patched_mod.adaptive_max_workers()
+            # Register in sys.modules BEFORE exec_module so PEP 695 generic
+            # dataclass machinery (which resolves annotations via
+            # ``sys.modules.get(cls.__module__)``) can find the module.
+            sys.modules[module_name] = patched_mod
+            try:
+                spec.loader.exec_module(patched_mod)  # type: ignore
+                return patched_mod.adaptive_max_workers()
+            finally:
+                sys.modules.pop(module_name, None)
 
     def test_caps_at_physical_cores(self) -> None:
         # 4 cores, 32 GiB RAM → by_memory = 64, capped at 4 cores.
@@ -111,13 +113,18 @@ class TestAdaptiveMaxWorkersWithMockedPsutil:
         mock_psutil.virtual_memory.return_value = mem_mock
 
         with patch.dict(sys.modules, {"psutil": mock_psutil}):
+            module_name = "lexnlp.extract.batch.async_extract_patched2"
             spec = importlib.util.spec_from_file_location(
-                "lexnlp.extract.batch.async_extract_patched2",
+                module_name,
                 str(pathlib.Path(__file__).parent.parent / "async_extract.py"),
             )
             patched_mod = importlib.util.module_from_spec(spec)  # type: ignore
-            spec.loader.exec_module(patched_mod)  # type: ignore
-            result = patched_mod.adaptive_max_workers()
+            sys.modules[module_name] = patched_mod
+            try:
+                spec.loader.exec_module(patched_mod)  # type: ignore
+                result = patched_mod.adaptive_max_workers()
+            finally:
+                sys.modules.pop(module_name, None)
         # Falls back to 4 physical cores → capped at 4, memory allows many.
         assert result == 4
 
@@ -155,8 +162,6 @@ class TestAdaptiveWorkersUsedByProgressModule:
         def _words(text: str) -> list[str]:
             return text.split()
 
-        results = extract_batch_with_progress(
-            _words, ["hello world", "foo bar"], show_progress=False
-        )
+        results = extract_batch_with_progress(_words, ["hello world", "foo bar"], show_progress=False)
         assert len(results) == 2
         assert all(r.ok for r in results)

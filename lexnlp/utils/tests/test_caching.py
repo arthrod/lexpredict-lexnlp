@@ -10,7 +10,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-import os
 from pathlib import Path
 
 import pytest

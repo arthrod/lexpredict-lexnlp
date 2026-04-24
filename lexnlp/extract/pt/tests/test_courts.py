@@ -28,13 +28,12 @@ class TestParsePtCourts(TestCase):
     def test_parse_full_entry(self):
         """
         Verifies that a full Portuguese court name is extracted correctly from a sentence.
-        
+
         Asserts that exactly one court annotation is returned and that its "Extracted Entity Court Name"
         tag equals "Tribunal de Justiça do Estado de São Paulo".
         """
         text = (
-            "O atual Tribunal de Justiça do Estado de São Paulo foi criado "
-            "em 1874 e é um dos mais antigos do Brasil."
+            "O atual Tribunal de Justiça do Estado de São Paulo foi criado em 1874 e é um dos mais antigos do Brasil."
         )
         ret = list(get_courts(text))
         self.assertEqual(1, len(ret))
@@ -44,7 +43,7 @@ class TestParsePtCourts(TestCase):
     def test_parse_stf(self):
         """
         Verify the extractor recognizes "Supremo Tribunal Federal" as a Portuguese court.
-        
+
         Asserts that exactly one court annotation is returned and that its `locale` is "pt".
         """
         text = "A decisão do Supremo Tribunal Federal foi publicada ontem."
@@ -55,7 +54,7 @@ class TestParsePtCourts(TestCase):
     def test_file_samples(self):
         """
         Run typed-annotation validation for Portuguese court annotations using the sample file.
-        
+
         This test constructs a TypedAnnotationsTester and invokes its test_and_raise_errors method
         to validate get_court_annotations against "lexnlp/typed_annotations/pt/court/courts.txt"
         expecting annotations of type CourtAnnotation; the test fails if validation errors are raised.

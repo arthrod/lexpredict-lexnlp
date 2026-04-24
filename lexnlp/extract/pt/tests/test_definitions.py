@@ -21,7 +21,7 @@ class TestParsePortugueseDefinitions(TestCase):
     def test_parse_pt_def_semicolon(self):
         """
         Verify the Portuguese definitions parser extracts a quoted term followed by a colon as a single definition annotation.
-        
+
         Asserts that exactly one annotation is produced and that its `name` equals the quoted term without surrounding quotation marks.
         """
         parser = make_pt_definitions_parser()
@@ -31,21 +31,21 @@ class TestParsePortugueseDefinitions(TestCase):
         Eu gosto de cantar ao sol"""
 
         ret = list(parser.parse(text))
-        assert len(ret) == 1
+        self.assertEqual(1, len(ret))
         name = ret[0].name
         self.assertEqual("O ser humano", name.strip('"'))
 
     def test_parse_pt_def_quotes(self):
         """
         Verify the Portuguese definitions parser extracts a quoted term introduced by a colon.
-        
+
         Asserts that parsing the sample text yields exactly one definition annotation and that the annotation's `name`, after stripping surrounding double quotes, equals "Software".
         """
         parser = make_pt_definitions_parser()
         text = 'Mariachi me acompanha quando canto minha canção. Neste acordo, o termo "Software" refere-se a: (i) o programa de computador e todos os seus componentes;'
 
         ret = list(parser.parse(text))
-        assert len(ret) == 1
+        self.assertEqual(1, len(ret))
         name = ret[0].name
         self.assertEqual("Software", name.strip('"'))
 

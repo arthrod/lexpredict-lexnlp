@@ -19,6 +19,7 @@ from pathlib import Path
 from unittest import TestCase
 
 import pytest
+import regex as re
 
 from lexnlp.extract.pt.dates import get_date_annotations
 from lexnlp.extract.pt.definitions import get_definition_annotations
@@ -33,13 +34,13 @@ CORPUS_DIR = Path(__file__).resolve().parents[4] / "test_data" / "lexnlp" / "ext
 def _load(name: str) -> str:
     """
     Load the UTF-8 text of a corpus file located under CORPUS_DIR.
-    
+
     Parameters:
         name (str): Filename relative to CORPUS_DIR.
-    
+
     Returns:
         str: File contents decoded as UTF-8.
-    
+
     Notes:
         If the file does not exist, the current test is skipped by calling pytest.skip.
     """
@@ -56,7 +57,7 @@ class TestLeiAcessoInformacao(TestCase):
     def setUpClass(cls):
         """
         Load the Lei nº 12.527/2011 (LAI) corpus into the class fixture for tests.
-        
+
         Sets cls.text to the UTF-8 contents of "lei_12527_lai.txt". If the corpus file is missing, the test suite will be skipped.
         """
         cls.text = _load("lei_12527_lai.txt")
@@ -64,7 +65,7 @@ class TestLeiAcessoInformacao(TestCase):
     def test_non_trivial_length(self):
         """
         Assert that the loaded LAI corpus text is longer than 40,000 characters.
-        
+
         This verifies the class fixture contains a non-trivial document suitable for downstream extraction tests.
         """
         self.assertGreater(len(self.text), 40_000)
@@ -72,7 +73,7 @@ class TestLeiAcessoInformacao(TestCase):
     def test_dates_extraction_is_sane(self):
         """
         Verify date extraction yields a sufficient number of annotations and that every extracted year is between 1980 and 2025 inclusive.
-        
+
         Materializes date annotations from the LAI corpus with `strict=False`, asserts more than 10 annotations are found, and asserts all annotation `date.year` values are within the inclusive range 1980–2025.
         """
         dates = list(get_date_annotations(self.text, strict=False))
@@ -87,7 +88,6 @@ class TestLeiAcessoInformacao(TestCase):
         """
         Check that the set of formal citations extracted from the loaded LAI corpus includes the identifier "12.527".
         """
-        import regex as re
         flat_text = re.sub(r"\s+", " ", self.text)
         citations = [m.group("full") for m in FORMAL_CITATION_RE.finditer(flat_text)]
         joined = " | ".join(citations)
@@ -96,7 +96,7 @@ class TestLeiAcessoInformacao(TestCase):
     def test_article_references_present(self):
         """
         Assert the test corpus contains numerous references to articles (e.g., "Art." or "Artigo").
-        
+
         Collects regulation annotations from the class-level `text` fixture and verifies there are more than 30 annotations whose `name` begins with "art." or "artigo" (case-insensitive).
         """
         regs = list(get_regulation_annotations(self.text))
@@ -106,7 +106,7 @@ class TestLeiAcessoInformacao(TestCase):
     def test_constitutional_references(self):
         """
         Assert the loaded corpus contains at least one regulation annotation whose name includes "Constituição".
-        
+
         This verifies that regulation extraction yields constitutional references in the test corpus.
         """
         regs = list(get_regulation_annotations(self.text))
@@ -121,7 +121,7 @@ class TestCodigoDefesaConsumidor(TestCase):
     def setUpClass(cls):
         """
         Load the Código de Defesa do Consumidor corpus into the class fixture.
-        
+
         Assigns the UTF-8 contents of "lei_8078_cdc.txt" to `cls.text`.
         """
         cls.text = _load("lei_8078_cdc.txt")
@@ -129,7 +129,7 @@ class TestCodigoDefesaConsumidor(TestCase):
     def test_non_trivial_length(self):
         """
         Check that the loaded corpus text has more than 70,000 characters.
-        
+
         Verifies the corpus was loaded completely and is not truncated by asserting len(self.text) > 70_000.
         """
         self.assertGreater(len(self.text), 70_000)
@@ -138,7 +138,7 @@ class TestCodigoDefesaConsumidor(TestCase):
         # CDC has explicit definitions in art. 2º, 3º ("consumidor é toda pessoa ...")
         """
         Verify that the consumer protection code (CDC) text contains at least three definition annotations.
-        
+
         Runs the definition extractor on the first 20,000 characters of the CDC corpus and asserts that three or more definition annotations are found.
         """
         defs = list(get_definition_annotations(self.text[:20_000]))
@@ -147,7 +147,7 @@ class TestCodigoDefesaConsumidor(TestCase):
     def test_regulations_are_plentiful(self):
         """
         Verify regulation extraction finds a large number of regulation annotations in the CDC corpus.
-        
+
         Asserts that calling `get_regulation_annotations` on the loaded text yields more than 100 regulation annotations.
         """
         regs = list(get_regulation_annotations(self.text))
@@ -161,7 +161,7 @@ class TestConstituicaoFederal(TestCase):
     def setUpClass(cls):
         """
         Load the 'constituicao_federal.txt' corpus into the class attribute `text`, skipping the tests if the file is missing.
-        
+
         Uses the module helper `_load` to read the UTF-8 corpus from the test data directory and assign its contents to `cls.text`; `_load` will call `pytest.skip` when the file is not present.
         """
         cls.text = _load("constituicao_federal.txt")

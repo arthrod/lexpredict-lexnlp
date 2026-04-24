@@ -22,10 +22,10 @@ from typing import Any
 from requests import Response, Session
 from requests.adapters import HTTPAdapter
 from requests.structures import CaseInsensitiveDict
-from urllib3.util.retry import Retry
 
 # third-party libraries
 from tqdm import tqdm
+from urllib3.util.retry import Retry
 
 # LexNLP
 from lexnlp import get_models_repo

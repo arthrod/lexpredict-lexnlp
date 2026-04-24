@@ -98,7 +98,7 @@ class RegulationsParser:
     def __init__(self, regulations_dataframe: DataFrame | None = None):
         """
         Initialize the RegulationsParser and prepare trigger phrases and compiled start-trigger regexes.
-        
+
         Parameters:
             regulations_dataframe (DataFrame | None): Optional DataFrame containing trigger rows to use as the source for trigger phrases; if omitted, the parser will load the default Portuguese trigger CSV.
         """
@@ -113,7 +113,7 @@ class RegulationsParser:
     def setup_regexes(self) -> None:
         """
         Compile and store regex patterns that detect configured regulation start triggers.
-        
+
         If no start triggers are configured, sets `self.reg_start_triggers` to an empty list.
         Otherwise, orders triggers from longest to shortest, escapes them for safe inclusion in a pattern,
         and stores a single compiled regex (as a one-element list in `self.reg_start_triggers`)
@@ -136,7 +136,7 @@ class RegulationsParser:
     def load_trigger_words(self) -> None:
         """
         Populate the parser's start_triggers list from the provided DataFrame or, if none was provided, from the module's default pt-BR CSV.
-        
+
         If no DataFrame was supplied at construction, the function loads lexnlp/config/pt/pt_regulations.csv (UTF-8) and expects rows with "trigger" and "position" columns; it selects and stores the "trigger" values whose "position" equals "start" in self.start_triggers. Malformed CSV lines are skipped.
         """
         dtypes = {"trigger": str, "position": str}
@@ -155,8 +155,9 @@ class RegulationsParser:
     # --- extraction helpers --------------------------------------------
 
     @staticmethod
-    def _annotate(name: str, coords: tuple[int, int], surface: str, locale: str,
-                  country: str = "Brazil") -> RegulationAnnotation:
+    def _annotate(
+        name: str, coords: tuple[int, int], surface: str, locale: str, country: str = "Brazil"
+    ) -> RegulationAnnotation:
         """
         Create a RegulationAnnotation for a matched regulation fragment.
 
@@ -181,11 +182,11 @@ class RegulationsParser:
     def _parse_trigger_phrases(self, text: str, locale: str) -> Generator[RegulationAnnotation]:
         """
         Find configured start-trigger phrases in the text and yield a RegulationAnnotation for each match.
-        
+
         Parameters:
             text (str): Text to scan for start-trigger phrases.
             locale (str): Locale identifier to assign to each produced annotation.
-        
+
         Returns:
             Generator[RegulationAnnotation]: Yields annotations whose `name` and `text` are the matched surface string, `coords` are the match span (start, end), and `locale` is the provided value.
         """
@@ -197,13 +198,13 @@ class RegulationsParser:
     def _parse_formal_citations(self, text: str, locale: str) -> Generator[RegulationAnnotation]:
         """
         Extract formal Brazilian act citations and yield RegulationAnnotation objects for each match.
-        
+
         Each yielded annotation has its `name` and `text` set to the matched citation surface, `coords` set to the match span, and `locale` set to the provided locale.
-        
+
         Parameters:
             text (str): Input text to scan for formal citations.
             locale (str): Locale identifier to attach to produced annotations (e.g., "pt").
-        
+
         Returns:
             Generator[RegulationAnnotation]: Yields a RegulationAnnotation for each formal citation found in `text`.
         """
@@ -214,11 +215,11 @@ class RegulationsParser:
     def _parse_article_references(self, text: str, locale: str) -> Generator[RegulationAnnotation]:
         """
         Extracts article-style references from text and yields a RegulationAnnotation for each match.
-        
+
         Parameters:
             text (str): Text to search for article references (for example, "art. 5º" or "§ 2º do art. 12").
             locale (str): Locale tag to set on each produced annotation.
-        
+
         Returns:
             Generator[RegulationAnnotation]: An iterator yielding annotations whose `name` and `text` are the exact matched surface and whose `coords` span the match.
         """
@@ -230,15 +231,15 @@ class RegulationsParser:
     def _parse_constitutional(self, text: str, locale: str) -> Generator[RegulationAnnotation]:
         """
         Emit annotations for Brazilian constitutional references normalized to the canonical name "Constituição Federal".
-        
+
         Scans `text` for constitutional reference patterns and yields a RegulationAnnotation for each match.
-        
+
         Parameters:
-        	text (str): Text to scan for constitutional references.
-        	locale (str): Locale label to attach to produced annotations.
-        
+                text (str): Text to scan for constitutional references.
+                locale (str): Locale label to attach to produced annotations.
+
         Returns:
-        	Generator[RegulationAnnotation]: Yields one annotation per match with `name` set to "Constituição Federal", `coords` set to the match span, and `text` set to the matched surface form.
+                Generator[RegulationAnnotation]: Yields one annotation per match with `name` set to "Constituição Federal", `coords` set to the match span, and `text` set to the matched surface form.
         """
         for match in CONSTITUTIONAL_REF_RE.finditer(text):
             surface = match.group("full")
@@ -254,13 +255,13 @@ class RegulationsParser:
     def parse(self, text: str, locale: str = "pt") -> Generator[RegulationAnnotation]:
         """
         Produce RegulationAnnotation objects for regulatory references found in Portuguese (Brazilian) legal text.
-        
+
         Emits annotations in this order: trigger-word phrases, formal act citations, article references, constitutional references.
-        
+
         Parameters:
             text (str): Text to scan for regulatory references.
             locale (str): Locale tag placed on each annotation's `locale` field (default "pt").
-        
+
         Returns:
             Generator[RegulationAnnotation]: An iterator of RegulationAnnotation objects for each match.
         """
@@ -276,10 +277,10 @@ parser = RegulationsParser()
 def get_regulation_annotations(text: str, language: str = "pt") -> Generator[RegulationAnnotation]:
     """
     Yield annotations for each regulation reference found in the text.
-    
+
     Parameters:
         language (str): Locale code used to select parsing rules (for example, "pt").
-    
+
     Returns:
         Each yielded RegulationAnnotation corresponds to a detected regulation reference.
     """
@@ -289,11 +290,11 @@ def get_regulation_annotations(text: str, language: str = "pt") -> Generator[Reg
 def get_regulation_annotation_list(text: str, language: str = "pt") -> list[RegulationAnnotation]:
     """
     Extract regulation references from the given text and return them as a list of RegulationAnnotation objects.
-    
+
     Parameters:
         text (str): Text to scan for regulation references.
         language (str): Locale/language code used to select parsing rules (default: "pt").
-    
+
     Returns:
         list[RegulationAnnotation]: List of annotations, one per detected regulation reference.
     """
@@ -303,11 +304,11 @@ def get_regulation_annotation_list(text: str, language: str = "pt") -> list[Regu
 def get_regulations(text: str, language: str = "pt") -> Generator[dict]:
     """
     Yield regulation annotations extracted from text as dictionaries.
-    
+
     Parameters:
         text (str): Text to scan for regulation references.
         language (str): Locale code used by the parser (default "pt").
-    
+
     Returns:
         dict: A dictionary for each RegulationAnnotation produced from the input text.
     """
@@ -318,11 +319,11 @@ def get_regulations(text: str, language: str = "pt") -> Generator[dict]:
 def get_regulation_list(text: str, language: str | None = None) -> list[dict]:
     """
     Return regulation annotations as dictionaries extracted from the input text.
-    
+
     Parameters:
         text (str): Text to scan for regulation references.
         language (str | None): Language code for parsing; when None, defaults to "pt" (Portuguese/Brazil).
-    
+
     Returns:
         list[dict]: A list of dictionaries where each dictionary represents a regulation annotation with keys for `name`, `text`, `locale`, `country`, and `coords` (start and end offsets).
     """

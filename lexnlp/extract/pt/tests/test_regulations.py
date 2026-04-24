@@ -32,13 +32,10 @@ class TestParsePortugueseLawsRegulations(TestCase):
     def test_parse_decreto(self):
         """
         Verify that parsing a Portuguese "Decreto" produces at least one regulation and the first result has country set to "Brazil".
-        
+
         Uses a sample decree mentioning "Decreto nº ..." and asserts that the parser returns one or more annotations and that the first annotation's `country` attribute equals "Brazil".
         """
-        text = (
-            "O Decreto nº 7.724 de 2012 regulamenta a Lei nº 12.527, "
-            "conhecida como Lei de Acesso à Informação."
-        )
+        text = "O Decreto nº 7.724 de 2012 regulamenta a Lei nº 12.527, conhecida como Lei de Acesso à Informação."
         ret = list(parser.parse(text))
         self.assertGreater(len(ret), 0)
         reg = ret[0]
@@ -57,7 +54,7 @@ class TestRegulationsParserDataFrameInjection:
     def test_none_dataframe_loads_from_csv(self):
         """
         Verifies that RegulationsParser loads default triggers when no DataFrame is provided.
-        
+
         Ensures a newly created RegulationsParser populates its `start_triggers` from the built-in CSV/data source so that `start_triggers` is non-empty.
         """
         p = RegulationsParser()
@@ -78,7 +75,7 @@ class TestRegulationsParserDataFrameInjection:
     def test_custom_dataframe_non_start_rows_are_excluded(self):
         """
         Verify that RegulationsParser adds triggers whose position is "start" to start_triggers and excludes triggers with any other position.
-        
+
         This test constructs a DataFrame with one "start" row ("lei") and one non-start row ("regulamento"), initializes RegulationsParser with it, and asserts that only the "start" trigger appears in p.start_triggers.
         """
         custom_df = pd.DataFrame({"trigger": ["lei", "regulamento"], "position": ["start", "end"]})

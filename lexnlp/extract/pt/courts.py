@@ -13,7 +13,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument  # deprecated _get_courts keeps legacy kwargs for API parity
 
 import os
 import re
@@ -44,16 +44,16 @@ def _get_courts(
 ) -> Generator[tuple[DictionaryEntry, DictionaryEntryAlias], Any, Any]:
     """
     Yield tuples of dictionary entries and their matched aliases for court names found in the input text.
-    
+
     This function is deprecated and emits a DeprecationWarning; it will be removed in a future version.
-    
+
     Parameters:
         text (str): Text to search for court entries.
         court_config_list (list[DictionaryEntry]): Dictionary entries (with aliases) used for matching courts.
         priority (bool): When True, resolve conflicting matches by taking the first match for an identifier.
         text_languages (list[str] | None): Optional list of language codes to restrict matching.
         simplified_normalization (bool): If True, apply a simplified normalization routine during matching.
-    
+
     Returns:
         generator: Yields `(DictionaryEntry, DictionaryEntryAlias)` for each matched court.
     """
@@ -72,60 +72,60 @@ def _get_courts(
 def setup_pt_parser():
     """
     Build a UniversalCourtsParser configured for Portuguese court-name extraction.
-    
+
     Configures parser initialization parameters to use the Portuguese courts CSV dataset, Portuguese-specific line-splitting rules (line breaks: newline, period, semicolon, comma), case-insensitive abbreviation handling, and a case-insensitive keyword pattern matching common court terms (e.g., tribunal, juízo, vara).
-    
+
     Returns:
         UniversalCourtsParser: A parser instance configured for extracting Portuguese court names and aliases.
     """
     ptrs = ParserInitParams()
-    ptrs.dataframe_paths = [os.path.join(lexnlp_base_path, 'lexnlp/config/pt/pt_courts.csv')]
+    ptrs.dataframe_paths = [os.path.join(lexnlp_base_path, "lexnlp/config/pt/pt_courts.csv")]
     ptrs.split_ptrs = LineSplitParams()
     # line_breaks is matched character-by-character; only multi-character
     # conjunctions are no-ops there. Single-letter PT conjunctions ("e", "ou")
     # would shatter phrases mid-word, so they are intentionally excluded.
-    ptrs.split_ptrs.line_breaks = {'\n', '.', ';', ','}
+    ptrs.split_ptrs.line_breaks = {"\n", ".", ";", ","}
     ptrs.split_ptrs.abbreviations = PtLanguageTokens.abbreviations
     ptrs.split_ptrs.abbr_ignore_case = True
-    ptrs.court_pattern_checker = re.compile(r'tribunal|juízo|vara|turma|câmara|seção|plenário', re.IGNORECASE)
+    ptrs.court_pattern_checker = re.compile(r"tribunal|juízo|vara|turma|câmara|seção|plenário", re.IGNORECASE)
     return UniversalCourtsParser(ptrs)
 
 
 parser = setup_pt_parser()
 
 
-def get_court_annotations(text: str, language: str = 'pt') -> Generator[CourtAnnotation]:
+def get_court_annotations(text: str, language: str = "pt") -> Generator[CourtAnnotation]:
     """
     Yield CourtAnnotation objects for court mentions found in the provided text.
-    
+
     Parameters:
         text (str): Text to search for court mentions.
         language (str): ISO language code to guide parsing; defaults to 'pt' (Portuguese).
-    
+
     Returns:
         Generator[CourtAnnotation]: Generator yielding `CourtAnnotation` objects for each detected court mention.
     """
     yield from parser.parse(text, language)
 
 
-def get_court_annotation_list(text: str, language: str = 'pt') -> list[CourtAnnotation]:
+def get_court_annotation_list(text: str, language: str = "pt") -> list[CourtAnnotation]:
     """
     Collects court annotations from the input text.
-    
+
     Parameters:
         text (str): Text to analyze for court mentions.
         language (str): Language code to use for parsing (default: 'pt').
-    
+
     Returns:
         list[CourtAnnotation]: List of extracted CourtAnnotation objects; empty list if none found.
     """
     return list(get_court_annotations(text, language))
 
 
-def get_courts(text: str, language: str = 'pt') -> Generator[dict]:
+def get_courts(text: str, language: str = "pt") -> Generator[dict]:
     """
     Yield dictionary representations of court annotations found in the input text.
-    
+
     Yields:
         dict: Dictionary representation of each detected court annotation.
     """
@@ -133,14 +133,14 @@ def get_courts(text: str, language: str = 'pt') -> Generator[dict]:
         yield court_annotation.to_dictionary()
 
 
-def get_court_list(text: str, language: str = 'pt') -> list[CourtAnnotation]:
+def get_court_list(text: str, language: str = "pt") -> list[CourtAnnotation]:
     """
     Extract court annotations from the given text.
-    
+
     Parameters:
         text (str): Text to parse for court names and aliases.
         language (str): ISO 639-1 language code used to guide parsing (default 'pt').
-    
+
     Returns:
         list[CourtAnnotation]: List of extracted CourtAnnotation objects.
     """

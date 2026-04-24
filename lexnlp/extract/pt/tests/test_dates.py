@@ -25,7 +25,7 @@ class TestParsePtDates(TestCase):
     def test_pt_dates(self):
         """
         Verify that Portuguese date expressions in a sample text are detected.
-        
+
         Asserts that calling get_date_annotations on a Portuguese sample text with strict=False produces at least three date annotations.
         """
         text = (
@@ -38,7 +38,7 @@ class TestParsePtDates(TestCase):
     def test_file_samples(self):
         """
         Run validation of Portuguese date annotations against the sample file.
-        
+
         Uses TypedAnnotationsTester to run get_date_annotations (with strict=False) on examples from
         "lexnlp/typed_annotations/pt/date/dates.txt" and raises an error if any produced annotation
         does not match the expected DateAnnotation type.

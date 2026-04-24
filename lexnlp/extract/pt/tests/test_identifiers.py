@@ -94,7 +94,7 @@ class TestIdentifierExtraction(TestCase):
     def test_combined_extractor(self):
         """
         Verify that the combined identifier extractor finds CPF, CNPJ, and OAB annotations in a single text.
-        
+
         Asserts that calling the combined extractor on text containing a formatted CNPJ, a formatted CPF, and an OAB reference returns annotations whose kinds, when sorted, are exactly ["cnpj", "cpf", "oab"].
         """
         text = (

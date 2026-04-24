@@ -27,7 +27,14 @@ NLTK_RESOURCES = (
     "maxent_ne_chunker",
     "words",
 )
-OPTIONAL_NLTK_RESOURCES = ("punkt_tab",)
+OPTIONAL_NLTK_RESOURCES = (
+    "punkt_tab",
+    # NLTK 3.9 renames averaged_perceptron_tagger → averaged_perceptron_tagger_eng.
+    # The tagger is loaded lazily from `nltk.pos_tag`; grabbing both keeps
+    # older and newer NLTK runtimes happy.
+    "averaged_perceptron_tagger_eng",
+    "maxent_ne_chunker_tab",
+)
 
 
 def resolve_contract_model_tag() -> str:
