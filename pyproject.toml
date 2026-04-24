@@ -85,6 +85,8 @@ dev = [
 ]
 stanford = []
 tika = ["tika>=2.6.0"]
+hub = ["huggingface_hub>=0.25"]
+arrow = ["pyarrow>=17"]
 
 # PEP 735 dependency groups (uv/pip install --group) mirror the
 # contributor-facing dev/test extras above.

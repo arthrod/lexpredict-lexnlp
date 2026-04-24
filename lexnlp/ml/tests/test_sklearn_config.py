@@ -14,6 +14,7 @@ import pytest
 
 from lexnlp.ml.sklearn_config import (
     configure_pipeline_for_dataframes,
+    enable_metadata_routing,
     enable_pandas_output,
     new_hist_gradient_boosting_classifier,
 )
@@ -45,6 +46,42 @@ class TestHistGradientBoostingFactory:
         clf = new_hist_gradient_boosting_classifier(max_iter=50, learning_rate=0.05)
         assert clf.max_iter == 50
         assert clf.learning_rate == 0.05
+
+
+class TestEnableMetadataRouting:
+    def test_turns_routing_on(self) -> None:
+        from sklearn import get_config, set_config
+
+        previous = get_config().get("enable_metadata_routing", False)
+        try:
+            enable_metadata_routing()
+            assert get_config()["enable_metadata_routing"] is True
+        finally:
+            set_config(enable_metadata_routing=previous)
+
+    def test_turns_routing_off(self) -> None:
+        from sklearn import get_config, set_config
+
+        previous = get_config().get("enable_metadata_routing", False)
+        try:
+            enable_metadata_routing()
+            enable_metadata_routing(enabled=False)
+            assert get_config()["enable_metadata_routing"] is False
+        finally:
+            set_config(enable_metadata_routing=previous)
+
+    def test_returns_previous_value(self) -> None:
+        from sklearn import set_config
+
+        set_config(enable_metadata_routing=False)
+        try:
+            previous = enable_metadata_routing()
+            assert previous is False
+            next_prev = enable_metadata_routing(enabled=True)
+            # The call flipped True→True, so the "previous" now reports True
+            assert next_prev is True
+        finally:
+            set_config(enable_metadata_routing=False)
 
 
 class TestConfigurePipeline:

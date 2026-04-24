@@ -66,6 +66,24 @@ def new_hist_gradient_boosting_classifier(**kwargs: Any):
     return HistGradientBoostingClassifier(**defaults)
 
 
+def enable_metadata_routing(*, enabled: bool = True) -> bool:
+    """Toggle scikit-learn's metadata-routing path (SLEP006, sklearn ≥ 1.4).
+
+    With metadata routing enabled, estimators and pipelines transparently
+    forward ``sample_weight`` / ``groups`` / any other routed key into
+    nested consumers — the older private ``pipeline._iter()`` /
+    ``_final_estimator`` workarounds become unnecessary.
+
+    Returns the previous value of ``enable_metadata_routing`` so the
+    caller can restore it (useful inside tests or short-lived scripts).
+    """
+    from sklearn import get_config, set_config
+
+    previous = bool(get_config().get("enable_metadata_routing", False))
+    set_config(enable_metadata_routing=enabled)
+    return previous
+
+
 def configure_pipeline_for_dataframes(pipeline: Any) -> Any:
     """Return ``pipeline`` after calling ``set_output(transform="pandas")``.
 
@@ -79,6 +97,7 @@ def configure_pipeline_for_dataframes(pipeline: Any) -> Any:
 
 __all__ = [
     "configure_pipeline_for_dataframes",
+    "enable_metadata_routing",
     "enable_pandas_output",
     "new_hist_gradient_boosting_classifier",
 ]

@@ -20,6 +20,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -67,6 +68,26 @@ def convert_to_arrow(frame: pd.DataFrame) -> pd.DataFrame:
         return frame
 
 
+def read_csv_arrow(path: str | Path, **kwargs: Any) -> pd.DataFrame:
+    """Read a CSV into a pandas DataFrame, preferring the PyArrow backend.
+
+    When :mod:`pyarrow` is importable the call forwards
+    ``dtype_backend="pyarrow"`` to :func:`pandas.read_csv`, which is
+    both faster and more memory-efficient for the typical LexNLP
+    catalog CSVs (geoentities, regulations, courts). When PyArrow is
+    missing the helper silently falls back to the default NumPy backend
+    so downstream callers do not have to guard the import.
+    """
+    import pandas as pd
+
+    try:
+        import pyarrow  # noqa: F401 — availability probe only
+    except ImportError:
+        return pd.read_csv(path, **kwargs)
+    kwargs.setdefault("dtype_backend", "pyarrow")
+    return pd.read_csv(path, **kwargs)
+
+
 def apply_default_options() -> dict[str, Any]:
     """Turn on CoW + future-string inference together.
 
@@ -83,4 +104,5 @@ __all__ = [
     "convert_to_arrow",
     "enable_copy_on_write",
     "enable_future_string_dtype",
+    "read_csv_arrow",
 ]
