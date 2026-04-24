@@ -141,11 +141,17 @@ def ensure_tag_downloaded(tag: str) -> Path:
 
 
 def load_pipeline_for_tag(tag: str):
-    from cloudpickle import load
+    """Resolve a catalogue tag to a pipeline object.
 
-    model_path = ensure_tag_downloaded(tag)
-    with model_path.open("rb") as model_file:
-        return load(model_file)
+    Routes through :func:`lexnlp.ml.model_io.load_model`, which understands
+    both the legacy pickle / cloudpickle formats used by older releases and
+    the ``.skops`` format produced by the runtime-trained
+    ``pipeline/contract-type/0.2-runtime`` model.
+    """
+
+    from lexnlp.ml.model_io import load_model
+
+    return load_model(ensure_tag_downloaded(tag))
 
 
 def score_pipeline(pipeline, texts: list[str], labels: list[str], *, top_n: int) -> dict[str, float]:

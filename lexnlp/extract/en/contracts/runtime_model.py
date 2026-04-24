@@ -135,10 +135,14 @@ def train_contract_type_pipeline(
             ),
             (
                 "logistic_regression",
+                # sklearn 1.8 removed the ``multi_class`` argument — multinomial
+                # is now the default for lbfgs/newton-cg/sag/saga solvers when
+                # more than two classes are present, which matches the old
+                # ``multi_class="multinomial"`` behaviour we want for contract
+                # type classification.
                 LogisticRegression(
                     class_weight="balanced",
                     max_iter=1000,
-                    multi_class="multinomial",
                     random_state=random_state,
                     solver="lbfgs",
                 ),
