@@ -387,13 +387,16 @@ class DateFinder:
 
     def parse_date_string(self, date_string: str, captures: dict[str, list], locale: Locale | None = None):
         # For well formatted string, we can already let dateparser parse them
-        # otherwise self._find_and_replace method might corrupt them. Note that
-        # ``dateparser.parse`` returns ``None`` on failure (not an exception),
-        # so the fallback chain below is driven by ``as_dt is None`` rather
-        # than a raised-error flag.
+        # otherwise self._find_and_replace method might corrupt them.
+        was_raised_error = False
         as_dt = None
 
-        if locale is None:
+        # A ``Locale("")`` with empty language is how callers spell "no locale
+        # hint"; treat it as such so dateparser is not asked to look up the
+        # bogus ``'-'`` locale code that ``Locale("").get_locale()`` produces.
+        has_real_locale = locale is not None and bool(locale.language)
+
+        if not has_real_locale:
             try:
                 as_dt = dateparser.parse(date_string, settings={"RELATIVE_BASE": self.base_date})
                 # Dateparser has issues with time when parsing something like `29MAY19 1350`
@@ -401,25 +404,34 @@ class DateFinder:
                 if as_dt != as_dateutil:
                     as_dt = as_dateutil
             except ValueError:
-                as_dt = None
+                was_raised_error = True
         else:
             try:
                 as_dt = dateparser.parse(
                     date_string, settings={"RELATIVE_BASE": self.base_date}, locales=[locale.get_locale()]
                 )
             except ValueError:
-                as_dt = None
+                was_raised_error = True
 
-        # Language-only fallback (only meaningful when a locale was given).
-        if as_dt is None and locale is not None:
+        # Language-only fallback: ``dateparser.parse`` returns ``None`` on
+        # failure (not an exception), so we also trigger this branch when the
+        # locale-aware call silently produced no date. Only meaningful when we
+        # have a real language identity to retry with.
+        if (was_raised_error or as_dt is None) and has_real_locale:
             try:
                 as_dt = dateparser.parse(
                     date_string, settings={"RELATIVE_BASE": self.base_date}, languages=[locale.language]
                 )
+                was_raised_error = False
             except ValueError:
                 pass
 
-        if as_dt is None:
+        # The dateutil ``_find_and_replace`` fallback does NOT respect locale
+        # (it always parses as US MDY). Only run it when no real locale was
+        # supplied — otherwise an en-GB caller would silently get MDY dates
+        # whenever dateparser's locale-aware parse couldn't identify the
+        # string (e.g. a "Date:" prefix that confuses dateparser).
+        if was_raised_error and not has_real_locale:
             # replace tokens that are problematic for dateutil
             date_string, tz_string = self._find_and_replace(date_string, captures)
 

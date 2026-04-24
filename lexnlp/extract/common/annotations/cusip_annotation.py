@@ -87,7 +87,10 @@ class CusipAnnotation(TextAnnotation):
             df.tags["Extracted Entity TBA"] = self.tba
         if self.ppn:
             df.tags["Extracted Entity PPN"] = self.ppn
-        if self.checksum:
+        # ``self.checksum`` can legitimately be ``0`` — treat only ``None`` as
+        # "not present" so the zero digit doesn't silently vanish from the
+        # serialized tags.
+        if self.checksum is not None:
             df.tags["Extracted Entity Checksum"] = self.checksum
         if self.issuer_id:
             df.tags["Extracted Entity Issuer ID"] = self.issuer_id

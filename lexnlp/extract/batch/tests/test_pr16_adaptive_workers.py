@@ -4,9 +4,10 @@ The function was added to :mod:`lexnlp.extract.batch.async_extract` and
 re-exported from :mod:`lexnlp.extract.batch.progress`. It uses ``psutil``
 to derive a worker count from physical CPU cores and available RAM.
 
-The module itself is PEP-695-free, so these tests run on Python 3.11+.
-We import from the progress module (also PEP-695-free) to avoid the
-batch ``__init__.py`` which requires Python 3.12.
+Per ``pyproject.toml``, the project's current Python floor is **3.13**
+(``requires-python = ">=3.13,<3.15"``), which fully supports the PEP 695
+generic-dataclass syntax used by ``async_extract.py``. These tests
+therefore import the module directly without any version guard.
 """
 
 from __future__ import annotations
@@ -24,9 +25,10 @@ import sys
 from types import ModuleType
 from unittest.mock import MagicMock, patch
 
-# Import async_extract via the normal package path. It's already PEP 695
-# compatible on Python 3.13 (the project floor), so the previous
-# importlib-based bypass is no longer necessary.
+# Import async_extract via the normal package path. The project's minimum
+# Python version is 3.13 (pyproject.toml ``requires-python = ">=3.13,<3.15"``),
+# so the PEP 695 generic syntax used by async_extract.py parses natively and
+# the previous importlib-based bypass is no longer needed.
 from lexnlp.extract.batch.async_extract import adaptive_max_workers
 
 

@@ -18,7 +18,6 @@ __email__ = "support@contraxsuite.com"
 
 
 from collections import Counter
-from re import Pattern
 
 import regex as re
 import unidecode
@@ -332,9 +331,14 @@ def get_definition_list_in_sentence(
 ) -> list[DefinitionCaught]:
     """
     Find possible definitions in natural language in a single sentence.
-    :param sentence_coords: sentence, sentence start, end
-    :param decode_unicode:
-    :return:
+
+    :param sentence_coords: ``(start, end, sentence)`` tuple — the first two
+        entries are character offsets of the sentence within the larger
+        document, and the third entry is the sentence text itself.
+    :param decode_unicode: when True, run ``unidecode`` on the sentence before
+        matching so curly quotes and other non-ASCII punctuation collapse to
+        their ASCII equivalents.
+    :return: list of :class:`DefinitionCaught` instances.
     """
     definitions: list[DefinitionCaught] = []
     sentence = sentence_coords[2]
@@ -537,7 +541,7 @@ def get_quotes_count_in_string(text: str) -> int:
     return c['"'] + c["“"] + c["”"]
 
 
-def regex_matches_to_word_coords(pattern: Pattern[str], text: str, phrase_start: int = 0) -> list[tuple[str, int, int]]:
+def regex_matches_to_word_coords(pattern: re.Pattern, text: str, phrase_start: int = 0) -> list[tuple[str, int, int]]:
     """
     :param pattern: pattern for searching for matches within the text
     :param text: text to search for matches
