@@ -21,23 +21,22 @@ from lexnlp.nlp.train.en.train_section_segmanizer import SectionSegmentizerTrain
 class TestTrainSectionSegmentizer(TestCase):
     def train_and_dump(self):
         trainer = SectionSegmentizerTrainManager()
-        trainer.build_features(
-            'contraxsuite/lexpredict-contraxsuite-samples/',
-            'train_documents')
+        trainer.build_features("contraxsuite/lexpredict-contraxsuite-samples/", "train_documents")
         model = trainer.train_decision_tree()
         trainer.dump_model_on_project_level(model)
 
     def find_closest_model(self):
         from lexnlp.nlp.en.segments.sections import MODULE_PATH as SECTIONS_MODULE_PATH
-        target_path = os.path.join(SECTIONS_MODULE_PATH, 'section_segmenter.pickle')
+
+        target_path = os.path.join(SECTIONS_MODULE_PATH, "section_segmenter.pickle")
 
         iterations = 25
         error, new_error = self.get_error(), 0
         initial_error = error
-        print(f'Initial square error: {error}')
+        print(f"Initial square error: {error}")
 
         tmpdir = tempfile.gettempdir()
-        dump_model_path = os.path.join(tmpdir, 'model_dump.pickle')
+        dump_model_path = os.path.join(tmpdir, "model_dump.pickle")
         copyfile(target_path, dump_model_path)
         for _ in range(iterations):
             self.train_and_dump()
@@ -45,18 +44,15 @@ class TestTrainSectionSegmentizer(TestCase):
 
             new_error = self.get_error()
             if new_error < error:
-                print(f'Error dropped from {error} to {new_error}')
+                print(f"Error dropped from {error} to {new_error}")
                 copyfile(target_path, dump_model_path)
                 error = new_error
 
-        print(f'After {iterations} iterations error has changed from {initial_error} to {error}')
+        print(f"After {iterations} iterations error has changed from {initial_error} to {error}")
         copyfile(dump_model_path, target_path)
 
     def get_error(self):
-        file_count = {
-            '1582586_2015-08-31': 23,
-            'test_get_section_spans_1.txt': 207
-        }
+        file_count = {"1582586_2015-08-31": 23, "test_get_section_spans_1.txt": 207}
         sum_delta = 0
         for file in file_count:
             text = self.get_text(file)

@@ -45,7 +45,7 @@ class TestParsingSpeed(TestCase):
     def en_parsers_speed(self):
         """
         Measure parsing performance of English extractors against a long test text and record elapsed times.
-        
+
         Loads a long sample text and geographic entity configuration, runs each English extractor to materialize its results while timing execution, stores elapsed times in a shared dictionary, and asserts that timing for "get_amounts" was recorded.
         """
         file_path = os.path.join(lexnlp_test_path, "long_parsed_text.txt")
@@ -84,7 +84,7 @@ class TestParsingSpeed(TestCase):
     def check_time(self, text: str, func: Callable, func_name: str, times: dict[str, float]) -> None:
         """
         Measure and record the execution time of a callable invoked with the given text.
-        
+
         Parameters:
             text (str): The text passed to the callable.
             func (Callable): A callable that accepts a single string argument; it will be invoked as `func(text)`.

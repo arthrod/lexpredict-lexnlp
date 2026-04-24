@@ -54,7 +54,7 @@ class TestPatternZeroBudget:
     def test_zero_budget_slash_separator(self) -> None:
         """
         Check that an ISO-like date using '/' separators is matched and parsed when max_edits is 0.
-        
+
         Asserts that exactly one match is returned and that its parsed value equals date(2024, 3, 15).
         """
         matches = list(find_fuzzy_dates("2024/03/15", max_edits=0))
@@ -64,7 +64,7 @@ class TestPatternZeroBudget:
     def test_zero_budget_dot_separator(self) -> None:
         """
         Verifies that an exact ISO-like date using dot separators is matched and parsed when the edit budget is zero.
-        
+
         Asserts that exactly one match is returned for "2024.03.15" with max_edits=0 and that the match parses to date(2024, 3, 15).
         """
         matches = list(find_fuzzy_dates("2024.03.15", max_edits=0))
@@ -173,7 +173,7 @@ class TestFuzzyDateMatchStructure:
     def test_match_is_immutable(self) -> None:
         """
         Assert that a FuzzyDateMatch instance is immutable.
-        
+
         Attempts to assign to the `start` attribute of the first match from find_fuzzy_dates("2024-07-04", max_edits=0) and expects an AttributeError or TypeError to be raised.
         """
         import pytest
@@ -200,7 +200,7 @@ class TestFuzzyDateMatchStructure:
     def test_edit_distance_is_int(self) -> None:
         """
         Verify that the `edit_distance` attribute on a returned FuzzyDateMatch is an `int`.
-        
+
         This test checks that matches produced by find_fuzzy_dates expose `edit_distance` with the integer type.
         """
         m = next(find_fuzzy_dates("2024-07-04", max_edits=0))
@@ -214,7 +214,7 @@ class TestFuzzyDateMatchStructure:
     def test_start_less_than_end(self) -> None:
         """
         Verifies that a fuzzy-date match's start index is less than its end index.
-        
+
         Uses the exact ISO-like date "2024-07-04" with max_edits=0 to obtain a match and assert the span ordering.
         """
         m = next(find_fuzzy_dates("2024-07-04", max_edits=0))

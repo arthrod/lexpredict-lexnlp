@@ -6,27 +6,21 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 from lexnlp.tests.values_comparer import values_look_equal
 
 
 class DictionaryComparer:
-    def __init__(self,
-                 check_order: bool = True,
-                 allow_extra_key: bool = False,
-                 number_precision_percent: float = 0.001):
+    def __init__(
+        self, check_order: bool = True, allow_extra_key: bool = False, number_precision_percent: float = 0.001
+    ):
         self.check_order = check_order
         self.allow_extra_key = allow_extra_key
         self.number_precision_percent = number_precision_percent
 
-    def compare_list_of_dicts(
-            self,
-            expected: list[dict],
-            actual: list[dict]) -> list[str]:
+    def compare_list_of_dicts(self, expected: list[dict], actual: list[dict]) -> list[str]:
         errors = []
         if len(expected) != len(actual):
-            errors.append('Parsed items counts missmatch: ' +
-                          f'expected {len(expected)}, got {len(actual)} items')
+            errors.append("Parsed items counts missmatch: " + f"expected {len(expected)}, got {len(actual)} items")
         if not actual or not expected:
             return errors
 
@@ -36,7 +30,7 @@ class DictionaryComparer:
                     break
                 act = actual[i]
                 itm_errors = self.check_dicts_equal(exp, act)
-                errors += [f'{i}): {e}' for e in itm_errors]
+                errors += [f"{i}): {e}" for e in itm_errors]
             else:
                 # is there any actual item that matches expected one?
                 best_effort = None
@@ -48,12 +42,11 @@ class DictionaryComparer:
                         best_index = j
                 if not best_effort:
                     continue
-                errors += [f'{i} - {best_index}): {e}' for e in best_effort]
+                errors += [f"{i} - {best_index}): {e}" for e in best_effort]
 
         return errors
 
-    def check_dicts_equal(self,
-                          expected: dict, actual: dict) -> list[str]:
+    def check_dicts_equal(self, expected: dict, actual: dict) -> list[str]:
         errors = []
 
         for key in expected:
@@ -73,6 +66,5 @@ class DictionaryComparer:
                 continue
             if values_look_equal(exp_val, act_val):
                 continue
-            errors.append(f'actual[\'{key}\'] = ' +
-                          f'"{act_val}" that differs from expected ("{exp_val}")')
+            errors.append(f"actual['{key}'] = " + f'"{act_val}" that differs from expected ("{exp_val}")')
         return errors

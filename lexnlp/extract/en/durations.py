@@ -36,16 +36,14 @@ class EnDurationParser(DurationParser):
         "anniversaries": Fraction(365),
     }
 
-    DURATION_PTN = fr"(({NUM_PTN})(?:\s*(?:calendar|business|actual))?[\s-]*({'|'.join(DURATION_MAP)})s?(?!-))(?:\W|$)"
+    DURATION_PTN = rf"(({NUM_PTN})(?:\s*(?:calendar|business|actual))?[\s-]*({'|'.join(DURATION_MAP)})s?(?!-))(?:\W|$)"
     DURATION_PTN_RE = re.compile(DURATION_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
-    INNER_CONJUNCTIONS = ['and', 'plus']
-    INNER_PUNCTUATION = re.compile(r'[\s\,]')
+    INNER_CONJUNCTIONS = ["and", "plus"]
+    INNER_PUNCTUATION = re.compile(r"[\s\,]")
 
     @classmethod
-    def get_all_annotations(cls,
-                            text: str,
-                            float_digits: int = 4) -> list[DurationAnnotation]:
+    def get_all_annotations(cls, text: str, float_digits: int = 4) -> list[DurationAnnotation]:
         all_annotations: list[DurationAnnotation] = []
         for match in cls.DURATION_PTN_RE.finditer(text.lower()):
             source_text, number_text, duration_type = match.groups()
@@ -56,31 +54,35 @@ class EnDurationParser(DurationParser):
             _duration_fraction: Fraction = cls.DURATION_MAP[duration_type]
             duration_days: Decimal = Decimal(_duration_fraction.numerator * amount / _duration_fraction.denominator)
             if float_digits:
-                duration_days: Decimal = quantize_by_float_digit(amount=duration_days,
-                                                                 float_digits=float_digits)
-            if duration_type == 'anniversaries':
-                duration_type = 'anniversary'
-            ant: DurationAnnotation = DurationAnnotation(coords=match.span(),
-                                                         amount=amount,
-                                                         duration_type=duration_type,
-                                                         duration_days=duration_days,
-                                                         text=source_text.strip(),
-                                                         value_dict={duration_type: float(amount)})
+                duration_days: Decimal = quantize_by_float_digit(amount=duration_days, float_digits=float_digits)
+            if duration_type == "anniversaries":
+                duration_type = "anniversary"
+            ant: DurationAnnotation = DurationAnnotation(
+                coords=match.span(),
+                amount=amount,
+                duration_type=duration_type,
+                duration_days=duration_days,
+                text=source_text.strip(),
+                value_dict={duration_type: float(amount)},
+            )
             all_annotations.append(ant)
         return all_annotations
 
 
-def get_durations(text: str,
-                  return_sources: bool = False,
-                  float_digits: int = 4) -> Generator[tuple[str, Decimal, Decimal] | tuple[str, Decimal, Decimal, str]]:
+def get_durations(
+    text: str, return_sources: bool = False, float_digits: int = 4
+) -> Generator[tuple[str, Decimal, Decimal] | tuple[str, Decimal, Decimal, str]]:
     for ant in EnDurationParser.get_annotations(text, float_digits):
-        yield (ant.duration_type, ant.amount, ant.duration_days, ant.text) \
-            if return_sources else (ant.duration_type, ant.amount, ant.duration_days)
+        yield (
+            (ant.duration_type, ant.amount, ant.duration_days, ant.text)
+            if return_sources
+            else (ant.duration_type, ant.amount, ant.duration_days)
+        )
 
 
-def get_duration_list(text: str,
-                      return_sources: bool = False,
-                      float_digits: int = 4) -> list[tuple[str, Decimal, Decimal] | tuple[str, Decimal, Decimal, str]]:
+def get_duration_list(
+    text: str, return_sources: bool = False, float_digits: int = 4
+) -> list[tuple[str, Decimal, Decimal] | tuple[str, Decimal, Decimal, str]]:
     return list(get_durations(text, return_sources, float_digits))
 
 

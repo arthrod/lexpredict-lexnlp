@@ -1,20 +1,20 @@
 """Universal extraction of entities for which we have full dictionaries of possible names and aliases from English text.
 
-   Example: Courts - we have the full dictionary of known courts with their names and aliases and are able to
-   search the text for each possible court.
-            Geo entities - we have the full set of known geo entities and can search any text for their occurrences.
+Example: Courts - we have the full dictionary of known courts with their names and aliases and are able to
+search the text for each possible court.
+         Geo entities - we have the full set of known geo entities and can search any text for their occurrences.
 
 
-   Search methods of this module require lists of possible entities with their ids, names and sets of aliases
-   in different languages.
-   To allow using these methods in Celery and especially for allowing building these configuration lists once and using
-   them in multiple Celery tasks it is required to allow their easy and fast serialization.
-   By default Celery uses JSON serialization starting from v. 4 and does not allow serializing objects of custom
-   classes out of the box. So we will have to use either dicts or tuples to avoid requiring special configuration for
-   Celery. Tuples are faster.
+Search methods of this module require lists of possible entities with their ids, names and sets of aliases
+in different languages.
+To allow using these methods in Celery and especially for allowing building these configuration lists once and using
+them in multiple Celery tasks it is required to allow their easy and fast serialization.
+By default Celery uses JSON serialization starting from v. 4 and does not allow serializing objects of custom
+classes out of the box. So we will have to use either dicts or tuples to avoid requiring special configuration for
+Celery. Tuples are faster.
 
-   To avoid typos in development and utilize typization hints in IDE there are few methods in this module for operating
-   tuples which represent entities and aliases. They accept named parameters lists and return tuples.
+To avoid typos in development and utilize typization hints in IDE there are few methods in this module for operating
+tuples which represent entities and aliases. They accept named parameters lists and return tuples.
 """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
@@ -36,16 +36,18 @@ from lexnlp.extract.all_locales.languages import DEFAULT_LANGUAGE
 from lexnlp.extract.common.annotations.phrase_position_finder import PhrasePositionFinder
 from lexnlp.nlp.en.tokens import get_stem_list, get_token_list
 
-reg_space = re.compile(r'\s+')
+reg_space = re.compile(r"\s+")
 
 
 class DictionaryEntryAlias:
-    def __init__(self,
-                 alias: str = '',
-                 language: str = '',
-                 is_abbreviation: bool = False,
-                 alias_id: int | None = None,
-                 normalized_alias: str = ''):
+    def __init__(
+        self,
+        alias: str = "",
+        language: str = "",
+        is_abbreviation: bool = False,
+        alias_id: int | None = None,
+        normalized_alias: str = "",
+    ):
         self.alias = alias  # 'Mississippi'
         self.language = language  # 'fr'
         self.is_abbreviation = is_abbreviation  # False
@@ -55,35 +57,34 @@ class DictionaryEntryAlias:
     def __repr__(self):
         """
         Provide a developer-friendly string representation of the alias including its language and optional alias_id.
-        
+
         Returns:
             repr_str (str): The alias text followed by "lang: <language>" and, when present, ", id: <alias_id>".
         """
         if self.alias_id is not None:
-            return f'{self.alias}, lang: {self.language}, id: {self.alias_id}'
-        return f'{self.alias}, lang: {self.language}'
+            return f"{self.alias}, lang: {self.language}, id: {self.alias_id}"
+        return f"{self.alias}, lang: {self.language}"
 
     @classmethod
-    def entity_alias(cls, alias: str, language: str | None = None, is_abbreviation: bool = False, alias_id: int | None = None) \
-            -> 'DictionaryEntryAlias':
+    def entity_alias(
+        cls, alias: str, language: str | None = None, is_abbreviation: bool = False, alias_id: int | None = None
+    ) -> "DictionaryEntryAlias":
         """
-            Create a DictionaryEntryAlias with its normalized alias computed.
-            
-            Parameters:
-                alias (str): Alias text to store.
-                language (str | None): Optional ISO language code for the alias.
-                is_abbreviation (bool): If True, preserve the alias case when computing the normalized form; otherwise lowercase before normalization.
-                alias_id (int | None): Optional identifier for this alias variant.
-            
-            Returns:
-                DictionaryEntryAlias: A new alias record whose `normalized_alias` is computed from `alias` (case preserved when `is_abbreviation` is True, lowercased otherwise).
-            """
+        Create a DictionaryEntryAlias with its normalized alias computed.
+
+        Parameters:
+            alias (str): Alias text to store.
+            language (str | None): Optional ISO language code for the alias.
+            is_abbreviation (bool): If True, preserve the alias case when computing the normalized form; otherwise lowercase before normalization.
+            alias_id (int | None): Optional identifier for this alias variant.
+
+        Returns:
+            DictionaryEntryAlias: A new alias record whose `normalized_alias` is computed from `alias` (case preserved when `is_abbreviation` is True, lowercased otherwise).
+        """
         normalized_alias = normalize_text(alias, lowercase=not is_abbreviation)
         return DictionaryEntryAlias(alias, language, is_abbreviation, alias_id, normalized_alias)
 
-    def has_closer_locale(self,
-                          alias: 'DictionaryEntryAlias',
-                          text_languages: list[str] | None) -> bool:
+    def has_closer_locale(self, alias: "DictionaryEntryAlias", text_languages: list[str] | None) -> bool:
         # does 'self' have its locale higher on the passed 'text_languages' list?
         """
         Determine whether this alias's language should be preferred over another alias based on the ordering in `text_languages`.
@@ -112,16 +113,18 @@ class DictionaryEntryAlias:
 
 
 class DictionaryEntry:
-    def __init__(self,
-                 # pylint: disable=redefined-builtin
-                 id: int = 0,
-                 name: str = '',
-                 priority: int = 0,
-                 name_is_alias: bool = True,
-                 aliases: list[DictionaryEntryAlias] | None = None,
-                 entity_name: str = '',
-                 category: str = '',
-                 extra_columns: dict[str, str] | None = None):
+    def __init__(
+        self,
+        # pylint: disable=redefined-builtin
+        id: int = 0,
+        name: str = "",
+        priority: int = 0,
+        name_is_alias: bool = True,
+        aliases: list[DictionaryEntryAlias] | None = None,
+        entity_name: str = "",
+        category: str = "",
+        extra_columns: dict[str, str] | None = None,
+    ):
         self.id = id
         self.name = name
         self.priority = priority
@@ -141,69 +144,77 @@ class DictionaryEntry:
         return f'"{self.name}": #{self.id}'
 
     @classmethod
-    def load_entities_from_files(cls, entities_fn: str, aliases_fn: str) -> list['DictionaryEntry']:
+    def load_entities_from_files(cls, entities_fn: str, aliases_fn: str) -> list["DictionaryEntry"]:
         entities = {}
 
-        with open(entities_fn, encoding='utf8') as f:
+        with open(entities_fn, encoding="utf8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                entities[row['id']] = DictionaryEntry(
-                    id=int(row['id']), name=row['name'], priority=int(row['priority']) if row['priority'] else 0,
-                    name_is_alias=True)
+                entities[row["id"]] = DictionaryEntry(
+                    id=int(row["id"]),
+                    name=row["name"],
+                    priority=int(row["priority"]) if row["priority"] else 0,
+                    name_is_alias=True,
+                )
 
-        with open(aliases_fn, encoding='utf8') as f:
+        with open(aliases_fn, encoding="utf8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                entity: DictionaryEntry = entities.get(row['entity_id'])
+                entity: DictionaryEntry = entities.get(row["entity_id"])
                 if entity:
-                    aliases = row['alias']
-                    for alias in aliases.split(';'):
+                    aliases = row["alias"]
+                    for alias in aliases.split(";"):
                         dictionary_entry_alias = DictionaryEntryAlias(
                             alias=alias.strip(),
-                            language=row['locale'],
-                            is_abbreviation=row['type'].startswith('iso') or row['type'] == 'abbreviation',
+                            language=row["locale"],
+                            is_abbreviation=row["type"].startswith("iso") or row["type"] == "abbreviation",
                         )
                         entity.aliases.append(dictionary_entry_alias)
         return list(entities.values())
 
     @classmethod
     def load_entities_from_single_df(
-            cls,
-            config: pd.DataFrame,
-            language: str,
-            alias_columns: list[DictionaryEntryAlias] | None = None,  # columns (values) to search for in text
-            entity_id_column: str = 'Entity ID',
-            entity_category_column: str = 'Entity Category',
-            # source_column: str = '',
-            name_column: str = 'Entity Name',
-            local_name_column: str = '',  # 'German Name' etc
-            priority_column: str = 'Entity Priority',
-            # { 'column_name': 'annotation attribute name', ... }
-            extra_columns: dict[str, str] | None = None) -> list['DictionaryEntry']:
+        cls,
+        config: pd.DataFrame,
+        language: str,
+        alias_columns: list[DictionaryEntryAlias] | None = None,  # columns (values) to search for in text
+        entity_id_column: str = "Entity ID",
+        entity_category_column: str = "Entity Category",
+        # source_column: str = '',
+        name_column: str = "Entity Name",
+        local_name_column: str = "",  # 'German Name' etc
+        priority_column: str = "Entity Priority",
+        # { 'column_name': 'annotation attribute name', ... }
+        extra_columns: dict[str, str] | None = None,
+    ) -> list["DictionaryEntry"]:
 
         records: list[DictionaryEntry] = []
         local_name_column = local_name_column or name_column
-        extra_columns = extra_columns if extra_columns is not None else \
-            {'ISO-3166-2': 'iso_3166_2', 'ISO-3166-3': 'iso_3166_3'}
+        extra_columns = (
+            extra_columns if extra_columns is not None else {"ISO-3166-2": "iso_3166_2", "ISO-3166-3": "iso_3166_3"}
+        )
         for _, row in config.iterrows():
             r = DictionaryEntry(
                 id=int(row[entity_id_column]),
                 name=row[local_name_column],
                 priority=int(row[priority_column]) if priority_column and row[priority_column] else 0,
                 entity_name=row[name_column] if name_column else row[local_name_column],
-                category=row.get(entity_category_column) or '')
+                category=row.get(entity_category_column) or "",
+            )
             if not alias_columns:
-                alias_columns = [DictionaryEntryAlias(name_column, DEFAULT_LANGUAGE.code, False),
-                                 DictionaryEntryAlias(local_name_column, language, False),
-                                 DictionaryEntryAlias('Alias', language, False),
-                                 DictionaryEntryAlias('ISO-3166-2', language, True),
-                                 DictionaryEntryAlias('ISO-3166-3', language, True)]
+                alias_columns = [
+                    DictionaryEntryAlias(name_column, DEFAULT_LANGUAGE.code, False),
+                    DictionaryEntryAlias(local_name_column, language, False),
+                    DictionaryEntryAlias("Alias", language, False),
+                    DictionaryEntryAlias("ISO-3166-2", language, True),
+                    DictionaryEntryAlias("ISO-3166-3", language, True),
+                ]
             r.aliases = []
             for a in alias_columns:
                 aliases = row.get(a.alias)
                 if not aliases or not isinstance(aliases, str):
                     continue
-                for alias in aliases.split(';'):
+                for alias in aliases.split(";"):
                     r.aliases.append(DictionaryEntryAlias(alias, a.language, a.is_abbreviation))
 
             if extra_columns:
@@ -216,23 +227,18 @@ class DictionaryEntry:
 
 
 class AliasBanRecord:
-    def __init__(self,
-                 alias: str = '',
-                 lang: str | None = '',
-                 is_abbrev: bool = False):
+    def __init__(self, alias: str = "", lang: str | None = "", is_abbrev: bool = False):
         self.alias = alias
         self.lang = lang
         self.is_abbrev = is_abbrev
 
     def __repr__(self):
-        abr_str = ' abbr.' if self.is_abbrev else ''
-        return f'{self.alias}, {self.lang}{abr_str}'
+        abr_str = " abbr." if self.is_abbrev else ""
+        return f"{self.alias}, {self.lang}{abr_str}"
 
 
 class AliasBanList:
-    def __init__(self,
-                 aliases: list[str] | None = None,
-                 abbreviations: list[str] | None = None):
+    def __init__(self, aliases: list[str] | None = None, abbreviations: list[str] | None = None):
         self.aliases = aliases or []
         self.abbreviations = abbreviations or []
 
@@ -242,14 +248,12 @@ class SearchResultPosition:
     Represents a position in the normalized source text at which one or more entities have been detected.
     One or more entities having equal aliases can be detected on a position in the text.
     """
-    __slots__ = ('entities_dict', 'alias_text', 'start', 'end', 'source_text')
 
-    def __init__(self,
-                 entity: DictionaryEntry,
-                 alias: DictionaryEntryAlias,
-                 start: int,
-                 end: int,
-                 source_text: str = ''):
+    __slots__ = ("alias_text", "end", "entities_dict", "source_text", "start")
+
+    def __init__(
+        self, entity: DictionaryEntry, alias: DictionaryEntryAlias, start: int, end: int, source_text: str = ""
+    ):
         self.entities_dict = {entity.id: (entity, alias)}
         self.alias_text = alias.alias
         self.start = start
@@ -257,14 +261,13 @@ class SearchResultPosition:
         self.source_text = source_text
 
     def __repr__(self):
-        ent_str = f'{self.entities_dict}'
+        ent_str = f"{self.entities_dict}"
         ending = f'alias="{self.alias_text}", @[{self.start}, {self.end}]'
-        return f'{ent_str}; {ending}'
+        return f"{ent_str}; {ending}"
 
-    def add_entity(self,
-                   entity: DictionaryEntry,
-                   alias: DictionaryEntryAlias,
-                   alias_language_order: list[str] | None) -> 'SearchResultPosition':
+    def add_entity(
+        self, entity: DictionaryEntry, alias: DictionaryEntryAlias, alias_language_order: list[str] | None
+    ) -> "SearchResultPosition":
         if entity:
             existing = self.entities_dict.get(entity.id)
             if not existing or not existing[1].has_closer_locale(alias, alias_language_order):
@@ -274,17 +277,20 @@ class SearchResultPosition:
     def get_entities_aliases(self) -> list[tuple[DictionaryEntry, DictionaryEntryAlias]]:
         return list(self.entities_dict.values())
 
-    def overlaps(self, other: 'SearchResultPosition') -> bool:
-        return max(self.start, other.start) <= min(self.start + len(self.alias_text) - 1,
-                                                   other.start + len(other.alias_text) - 1)
+    def overlaps(self, other: "SearchResultPosition") -> bool:
+        return max(self.start, other.start) <= min(
+            self.start + len(self.alias_text) - 1, other.start + len(other.alias_text) - 1
+        )
 
 
-def normalize_text(text: str,
-                   spaces_on_start_end: bool = True,
-                   spaces_after_dots: bool = True,
-                   lowercase: bool = True,
-                   use_stemmer: bool = False,
-                   simple_tokenization: bool = False) -> str:
+def normalize_text(
+    text: str,
+    spaces_on_start_end: bool = True,
+    spaces_after_dots: bool = True,
+    lowercase: bool = True,
+    use_stemmer: bool = False,
+    simple_tokenization: bool = False,
+) -> str:
     """
     Normalizes text for substring search operations - extracts tokens, joins them back with spaces,
     adds missing spaces after dots for abbreviations, e.t.c.
@@ -310,21 +316,22 @@ def normalize_text(text: str,
             tokens = [t.lower() for t in tokens]
     else:
         tokens = get_token_list(text, lowercase=lowercase)
-    res = ' '.join(tokens)
+    res = " ".join(tokens)
     if spaces_on_start_end:
-        res = ' ' + res + ' '
+        res = " " + res + " "
     if spaces_after_dots:
-        res = res.replace('.', ' . ').replace('  ', ' ')
+        res = res.replace(".", " . ").replace("  ", " ")
     return res
 
 
 def normalize_text_with_map(
-        text: str,
-        spaces_on_start_end: bool = True,
-        spaces_after_dots: bool = True,
-        lowercase: bool = True,
-        use_stemmer: bool = False,
-        simple_tokenization: bool = False) -> tuple[str, list[int]]:
+    text: str,
+    spaces_on_start_end: bool = True,
+    spaces_after_dots: bool = True,
+    lowercase: bool = True,
+    use_stemmer: bool = False,
+    simple_tokenization: bool = False,
+) -> tuple[str, list[int]]:
     """
     Almost like normalize_text, but also returns source-to-resulted char index map:
     map[i] = I, where i is the character coordinate within the source text,
@@ -340,42 +347,40 @@ def normalize_text_with_map(
     else:
         tokens = get_token_list(text, lowercase=lowercase)
     # [ (token, start, end), ... ]
-    entity_positions = PhrasePositionFinder.find_phrase_in_source_text(
-        text, list(tokens))
+    entity_positions = PhrasePositionFinder.find_phrase_in_source_text(text, list(tokens))
 
-    resulted = ''
+    resulted = ""
     src_index, first_token = 0, True
     for tok, s, _e in entity_positions:
         if first_token or spaces_on_start_end:
-            resulted += ' '
+            resulted += " "
         first_token = False
         while src_index < s:
             src_dest_map.append(len(resulted) - 1)
             src_index += 1
 
         for c_index, c in enumerate(tok):
-            if spaces_after_dots and c == '.' and c_index > 0:
-                resulted += ' '
+            if spaces_after_dots and c == "." and c_index > 0:
+                resulted += " "
             resulted += c
             src_dest_map.append(len(resulted) - 1)
-            if spaces_after_dots and c == '.' and c_index < len(tok) - 1:
-                resulted += ' '
+            if spaces_after_dots and c == "." and c_index < len(tok) - 1:
+                resulted += " "
 
             src_index += 1
 
     if spaces_on_start_end:
-        resulted += ' '
+        resulted += " "
     return resulted, src_dest_map
 
 
-def reverse_src_to_dest_map(
-        conv_map: list[int], normalized_text_len=0) -> list[int]:
-    """       1         2         3         4         5
+def reverse_src_to_dest_map(conv_map: list[int], normalized_text_len=0) -> list[int]:
+    """1         2         3         4         5
     012345678901234567890123456789012345678901234567890
     One one Bankr. E.D.N.C. two two two.
-     One one Bankr . E . D . N . C . two two two . 
-    
-     0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 
+     One one Bankr . E . D . N . C . two two two .
+
+     0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,15,16,17,19  <- map
     [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,12,13,13  <- reversed
     """
@@ -392,10 +397,9 @@ def reverse_src_to_dest_map(
     return reversed
 
 
-def alias_is_banlisted(alias_ban_list: dict[str, AliasBanList] | None,
-                       norm_alias: str,
-                       alias_lang: str,
-                       is_abbrev: bool) -> bool:
+def alias_is_banlisted(
+    alias_ban_list: dict[str, AliasBanList] | None, norm_alias: str, alias_lang: str, is_abbrev: bool
+) -> bool:
     if not alias_ban_list:
         return False
     for lang in (alias_lang, None):
@@ -407,38 +411,40 @@ def alias_is_banlisted(alias_ban_list: dict[str, AliasBanList] | None,
     return False
 
 
-def _find_entity_positions(normalized_text: str,
-                           normalized_text_lowercase: str,
-                           entity: DictionaryEntry,
-                           text_languages: list[str] | tuple[str] | set[str],
-                           alias_language_order: list[str] | None,
-                           context: dict[int, SearchResultPosition] | None = None,
-                           use_stemmer: bool = False,
-                           abbrev_uppercase_check_range: int = 20,
-                           min_alias_len: int | None = None,
-                           alias_ban_list: None | dict[str, AliasBanList] = None,
-                           simplified_normalization: bool = False):
+def _find_entity_positions(
+    normalized_text: str,
+    normalized_text_lowercase: str,
+    entity: DictionaryEntry,
+    text_languages: list[str] | tuple[str] | set[str],
+    alias_language_order: list[str] | None,
+    context: dict[int, SearchResultPosition] | None = None,
+    use_stemmer: bool = False,
+    abbrev_uppercase_check_range: int = 20,
+    min_alias_len: int | None = None,
+    alias_ban_list: None | dict[str, AliasBanList] = None,
+    simplified_normalization: bool = False,
+):
     """
-                           Populate a context mapping with positions in normalized text where the given entity's aliases appear.
-                           
-                           Searches for all aliases of `entity` in the provided normalized text (using `normalized_text` for abbreviation searches and `normalized_text_lowercase` for non-abbreviations) and records best matches into `context` keyed by normalized start index. If multiple aliases start at the same index, the context keeps the longest alias (with locale preference resolved via `alias_language_order`). This function mutates `context` and does not return a value.
-                           
-                           Parameters:
-                               normalized_text (str): Normalized source text preserving original case (used for abbreviation matching).
-                               normalized_text_lowercase (str): Lowercased normalized source text (used for non-abbreviation matching).
-                               entity (DictionaryEntry): The dictionary entry whose aliases will be searched.
-                               text_languages (list[str] | tuple[str] | set[str] | None): If set, only aliases whose `language` is in this collection are considered.
-                               alias_language_order (list[str] | None): Language preference ordering used to break ties when multiple aliases for the same entity match the same span.
-                               context (dict[int, SearchResultPosition] | None): Mutable mapping from normalized start index to `SearchResultPosition`. If None, a new mapping is created internally; otherwise this mapping is updated in-place.
-                               use_stemmer (bool): If true, use stemming during alias normalization when computing missing `normalized_alias`.
-                               abbrev_uppercase_check_range (int): Number of characters on each side of an abbreviation match to inspect; matches that lie inside an all-uppercase block are ignored to reduce false positives.
-                               min_alias_len (int | None): If set, aliases shorter than this length are skipped.
-                               alias_ban_list (dict[str, AliasBanList] | None): Optional precomputed banlist mapping language -> `AliasBanList`; aliases present in the banlist are excluded. The special key `None` represents language-agnostic bans.
-                               simplified_normalization (bool): If true, use simplified tokenization when computing a normalized alias for aliases that lack a precomputed `normalized_alias`.
-                           """
+    Populate a context mapping with positions in normalized text where the given entity's aliases appear.
+
+    Searches for all aliases of `entity` in the provided normalized text (using `normalized_text` for abbreviation searches and `normalized_text_lowercase` for non-abbreviations) and records best matches into `context` keyed by normalized start index. If multiple aliases start at the same index, the context keeps the longest alias (with locale preference resolved via `alias_language_order`). This function mutates `context` and does not return a value.
+
+    Parameters:
+        normalized_text (str): Normalized source text preserving original case (used for abbreviation matching).
+        normalized_text_lowercase (str): Lowercased normalized source text (used for non-abbreviation matching).
+        entity (DictionaryEntry): The dictionary entry whose aliases will be searched.
+        text_languages (list[str] | tuple[str] | set[str] | None): If set, only aliases whose `language` is in this collection are considered.
+        alias_language_order (list[str] | None): Language preference ordering used to break ties when multiple aliases for the same entity match the same span.
+        context (dict[int, SearchResultPosition] | None): Mutable mapping from normalized start index to `SearchResultPosition`. If None, a new mapping is created internally; otherwise this mapping is updated in-place.
+        use_stemmer (bool): If true, use stemming during alias normalization when computing missing `normalized_alias`.
+        abbrev_uppercase_check_range (int): Number of characters on each side of an abbreviation match to inspect; matches that lie inside an all-uppercase block are ignored to reduce false positives.
+        min_alias_len (int | None): If set, aliases shorter than this length are skipped.
+        alias_ban_list (dict[str, AliasBanList] | None): Optional precomputed banlist mapping language -> `AliasBanList`; aliases present in the banlist are excluded. The special key `None` represents language-agnostic bans.
+        simplified_normalization (bool): If true, use simplified tokenization when computing a normalized alias for aliases that lack a precomputed `normalized_alias`.
+    """
 
     def abbrev_in_uppercase_block(text: str, position: int, check_range: int):
-        block = text[max(0, position - check_range): min(len(text), position + check_range)]
+        block = text[max(0, position - check_range) : min(len(text), position + check_range)]
         block_upper = block.upper()
         return block == block_upper
 
@@ -454,14 +460,18 @@ def _find_entity_positions(normalized_text: str,
         alias_is_abbreviation = ea.is_abbreviation
 
         # get or create normalized alias
-        normalized_alias = ea.normalized_alias if ea.normalized_alias \
-            else normalize_text(alias_text,
-                                lowercase=not alias_is_abbreviation,
-                                use_stemmer=use_stemmer,
-                                simple_tokenization=simplified_normalization)
+        normalized_alias = (
+            ea.normalized_alias
+            if ea.normalized_alias
+            else normalize_text(
+                alias_text,
+                lowercase=not alias_is_abbreviation,
+                use_stemmer=use_stemmer,
+                simple_tokenization=simplified_normalization,
+            )
+        )
 
-        if not alias_text or (
-                        text_languages and alias_lang and alias_lang not in text_languages):
+        if not alias_text or (text_languages and alias_lang and alias_lang not in text_languages):
             continue
         if min_alias_len and len(alias_text) < min_alias_len:
             continue
@@ -474,12 +484,14 @@ def _find_entity_positions(normalized_text: str,
         start = None
         while True:
             start = normalized_text_for_alias.find(
-                normalized_alias, start + len(normalized_alias) - 1 if start is not None else 0)
+                normalized_alias, start + len(normalized_alias) - 1 if start is not None else 0
+            )
             if start < 0:
                 break
 
-            if alias_is_abbreviation and \
-                    abbrev_in_uppercase_block(normalized_text_for_alias, start, abbrev_uppercase_check_range):
+            if alias_is_abbreviation and abbrev_in_uppercase_block(
+                normalized_text_for_alias, start, abbrev_uppercase_check_range
+            ):
                 continue
             end = start + len(normalized_alias) - 1
 
@@ -487,8 +499,7 @@ def _find_entity_positions(normalized_text: str,
             if already_found and len(already_found.alias_text) >= len(alias_text):
                 already_found.add_entity(entity, ea, alias_language_order)
             else:
-                context[start] = SearchResultPosition(
-                    entity, ea, start, end, normalized_text[start: end])
+                context[start] = SearchResultPosition(entity, ea, start, end, normalized_text[start:end])
 
 
 class DictionaryEntity:
@@ -497,55 +508,57 @@ class DictionaryEntity:
         self.coords = coords
 
     def __repr__(self):
-        ent_str = 'None'
+        ent_str = "None"
         if self.entity:
             ent_str = str(self.entity[0])
             if len(self.entity) > 1:
-                ent_str += f', {self.entity[1]}'
-        coord_str = ', -'
+                ent_str += f", {self.entity[1]}"
+        coord_str = ", -"
         if self.coords:
-            coord_str = f', @[{self.coords[0]}, {self.coords[1]}]'
+            coord_str = f", @[{self.coords[0]}, {self.coords[1]}]"
         return ent_str + coord_str
 
 
-def find_dict_entities(text: str,
-                       all_possible_entities: list[DictionaryEntry],
-                       default_language: str,
-                       text_languages: list[str] | tuple[str] | set[str] | None = None,
-                       conflict_resolving_func: Callable[[list[tuple[DictionaryEntry, DictionaryEntryAlias]], str],
-                                                         list[tuple[DictionaryEntry, DictionaryEntryAlias]]] = None,
-                       priority_direction: str = 'asc',
-                       use_stemmer: bool = False,
-                       remove_time_am_pm: bool = True,
-                       min_alias_len: int | None = None,
-                       prepared_alias_ban_list: dict[str, AliasBanList] | None = None,
-                       simplified_normalization: bool = False)\
-        -> Generator[DictionaryEntity]:
+def find_dict_entities(
+    text: str,
+    all_possible_entities: list[DictionaryEntry],
+    default_language: str,
+    text_languages: list[str] | tuple[str] | set[str] | None = None,
+    conflict_resolving_func: Callable[
+        [list[tuple[DictionaryEntry, DictionaryEntryAlias]], str], list[tuple[DictionaryEntry, DictionaryEntryAlias]]
+    ] = None,
+    priority_direction: str = "asc",
+    use_stemmer: bool = False,
+    remove_time_am_pm: bool = True,
+    min_alias_len: int | None = None,
+    prepared_alias_ban_list: dict[str, AliasBanList] | None = None,
+    simplified_normalization: bool = False,
+) -> Generator[DictionaryEntity]:
     """
-                       Extract entities from `text` using the provided dictionary of candidate entities.
-                       
-                       Searches for alias occurrences of each element in `all_possible_entities`, respects `text_languages` and `default_language` when matching alias locales, prefers the longest overlapping match, and optionally resolves position-level conflicts using `conflict_resolving_func`. Also handles abbreviation-specific matching rules and can drop AM/PM tokens that are part of time expressions.
-                       
-                       Parameters:
-                           text: Source text to search.
-                           all_possible_entities: Iterable of DictionaryEntry objects to search for.
-                           default_language: Language preferred when choosing between aliases with different locale tags.
-                           text_languages: If set, restricts matches to aliases whose language is in this collection.
-                           conflict_resolving_func: Optional callable(conflicting_entities_aliases, priority_direction)
-                               -> list[tuple[DictionaryEntry, DictionaryEntryAlias]] used to pick which entities to keep
-                               when multiple entities with equally long aliases match the same position.
-                           priority_direction: 'asc' or 'desc', passed to the conflict resolver to influence tie-breaking.
-                           use_stemmer: If true, use stemming-based normalization for matching instead of tokenization.
-                           remove_time_am_pm: If true, drop matches of "am"/"pm" that appear to be part of time literals.
-                           min_alias_len: Minimum alias length to consider; shorter aliases are ignored when set.
-                           prepared_alias_ban_list: Optional mapping language -> AliasBanList of normalized aliases/abbreviations
-                               to exclude from matching.
-                           simplified_normalization: If true, avoid full tokenizer-based normalization.
-                       
-                       Returns:
-                           Generator yielding DictionaryEntity objects representing each match; each DictionaryEntity contains
-                           the matched DictionaryEntry and a (start, end) tuple with source-text character indices.
-                       """
+    Extract entities from `text` using the provided dictionary of candidate entities.
+
+    Searches for alias occurrences of each element in `all_possible_entities`, respects `text_languages` and `default_language` when matching alias locales, prefers the longest overlapping match, and optionally resolves position-level conflicts using `conflict_resolving_func`. Also handles abbreviation-specific matching rules and can drop AM/PM tokens that are part of time expressions.
+
+    Parameters:
+        text: Source text to search.
+        all_possible_entities: Iterable of DictionaryEntry objects to search for.
+        default_language: Language preferred when choosing between aliases with different locale tags.
+        text_languages: If set, restricts matches to aliases whose language is in this collection.
+        conflict_resolving_func: Optional callable(conflicting_entities_aliases, priority_direction)
+            -> list[tuple[DictionaryEntry, DictionaryEntryAlias]] used to pick which entities to keep
+            when multiple entities with equally long aliases match the same position.
+        priority_direction: 'asc' or 'desc', passed to the conflict resolver to influence tie-breaking.
+        use_stemmer: If true, use stemming-based normalization for matching instead of tokenization.
+        remove_time_am_pm: If true, drop matches of "am"/"pm" that appear to be part of time literals.
+        min_alias_len: Minimum alias length to consider; shorter aliases are ignored when set.
+        prepared_alias_ban_list: Optional mapping language -> AliasBanList of normalized aliases/abbreviations
+            to exclude from matching.
+        simplified_normalization: If true, avoid full tokenizer-based normalization.
+
+    Returns:
+        Generator yielding DictionaryEntity objects representing each match; each DictionaryEntity contains
+        the matched DictionaryEntry and a (start, end) tuple with source-text character indices.
+    """
 
     if not text:
         return
@@ -553,10 +566,9 @@ def find_dict_entities(text: str,
     # text (usually bloated with spaces) plus map:
     # map[i] = I, where i is the character coordinate within the source text,
     # I is the same character's coordinate within the resulted text
-    normalized_text, norm_map = normalize_text_with_map(text,
-                                                        lowercase=False,
-                                                        use_stemmer=use_stemmer,
-                                                        simple_tokenization=False)
+    normalized_text, norm_map = normalize_text_with_map(
+        text, lowercase=False, use_stemmer=use_stemmer, simple_tokenization=False
+    )
     normalized_text_lowercase = normalized_text.lower()
 
     search_context = {}
@@ -565,16 +577,18 @@ def find_dict_entities(text: str,
     # we may
     alias_lang_order = [default_language] + (text_languages or [])
     for dict_entity in all_possible_entities:
-        _find_entity_positions(normalized_text,
-                               normalized_text_lowercase,
-                               dict_entity,
-                               text_languages,
-                               alias_lang_order,
-                               search_context,
-                               use_stemmer=use_stemmer,
-                               min_alias_len=min_alias_len,
-                               alias_ban_list=prepared_alias_ban_list,
-                               simplified_normalization=simplified_normalization)
+        _find_entity_positions(
+            normalized_text,
+            normalized_text_lowercase,
+            dict_entity,
+            text_languages,
+            alias_lang_order,
+            search_context,
+            use_stemmer=use_stemmer,
+            min_alias_len=min_alias_len,
+            alias_ban_list=prepared_alias_ban_list,
+            simplified_normalization=simplified_normalization,
+        )
 
     # At this moment we have a map of positions in the text
     # to SearchResultPosition entries (position + appeared name/alias + DictEntity).
@@ -590,8 +604,7 @@ def find_dict_entities(text: str,
     # And this way it is done via a single loop.
     prev_pos = None  # type: Optional[SearchResultPosition]
 
-    def resolve_conflicts(pos: SearchResultPosition) \
-            -> list[DictionaryEntity]:
+    def resolve_conflicts(pos: SearchResultPosition) -> list[DictionaryEntity]:
         """
         Takes SearchResultPosition (multiple found entities+aliases at the same position in the text)
         and return a single entity+its alias which should be returned for this position or their smaller list.
@@ -600,20 +613,19 @@ def find_dict_entities(text: str,
         :return:
         """
         entities_at_pos = pos.get_entities_aliases()
-        if remove_time_am_pm and pos.alias_text.lower() in ('am', 'pm'):
+        if remove_time_am_pm and pos.alias_text.lower() in ("am", "pm"):
             # We should check if this is not something like 11:45 am or 11:45.123 pm
-            maybe_time1 = normalized_text_lowercase[max(0, pos.start - 3):pos.start + 1]
-            maybe_time2 = normalized_text_lowercase[max(0, pos.start - 4):pos.start + 1]
-            if re.match(r':\d\d\s', maybe_time1) \
-                    or re.match(r'\.\d\d\d\s', maybe_time2):
+            maybe_time1 = normalized_text_lowercase[max(0, pos.start - 3) : pos.start + 1]
+            maybe_time2 = normalized_text_lowercase[max(0, pos.start - 4) : pos.start + 1]
+            if re.match(r":\d\d\s", maybe_time1) or re.match(r"\.\d\d\d\s", maybe_time2):
                 return []
 
         if len(entities_at_pos) == 1:
             return [DictionaryEntity(entities_at_pos[0], (pos.start, pos.end))]
-        cfree_ents = conflict_resolving_func(entities_at_pos, priority_direction) \
-            if conflict_resolving_func else entities_at_pos
-        return [DictionaryEntity(ent, (pos.start, pos.end))
-                for ent in cfree_ents]
+        cfree_ents = (
+            conflict_resolving_func(entities_at_pos, priority_direction) if conflict_resolving_func else entities_at_pos
+        )
+        return [DictionaryEntity(ent, (pos.start, pos.end)) for ent in cfree_ents]
 
     # [ (start, data), ... ]
     search_results = sorted(search_context.items())  # type: List[Tuple[int, SearchResultPosition]]
@@ -624,8 +636,8 @@ def find_dict_entities(text: str,
     for i, search_result in enumerate(search_results):
         search_result = search_result[1]
         text_fragment = search_result.source_text
-        norm_start = search_result.start + 1 if text_fragment.startswith(' ') else search_result.start
-        norm_end = search_result.end - 1 if text_fragment.endswith(' ') else search_result.end
+        norm_start = search_result.start + 1 if text_fragment.startswith(" ") else search_result.start
+        norm_end = search_result.end - 1 if text_fragment.endswith(" ") else search_result.end
 
         search_result.start = rev_map[norm_start]
         search_result.end = rev_map[norm_end]
@@ -637,8 +649,7 @@ def find_dict_entities(text: str,
                 yield entity
             prev_pos = next_pos
         else:
-            prev_pos = prev_pos if prev_pos and \
-                                   len(prev_pos.alias_text) >= len(next_pos.alias_text) else next_pos
+            prev_pos = prev_pos if prev_pos and len(prev_pos.alias_text) >= len(next_pos.alias_text) else next_pos
 
     if prev_pos:
         resolved_ents = resolve_conflicts(prev_pos)
@@ -647,34 +658,30 @@ def find_dict_entities(text: str,
 
 
 def conflicts_take_first_by_id(
-        conflicting_entities_aliases: list[tuple[DictionaryEntry, DictionaryEntryAlias]],
-        priority_direction: str = 'asc') \
-        -> list[tuple[DictionaryEntry, DictionaryEntryAlias]]:
+    conflicting_entities_aliases: list[tuple[DictionaryEntry, DictionaryEntryAlias]], priority_direction: str = "asc"
+) -> list[tuple[DictionaryEntry, DictionaryEntryAlias]]:
     """
     Default conflict resolving function for dropping all entities detected at the same position excepting the one
     having the smallest id. To be used in find_dict_entities() method.
     """
-    target_func = min if priority_direction == 'asc' else max
+    target_func = min if priority_direction == "asc" else max
     return [target_func(conflicting_entities_aliases, key=lambda entity_alias_pair: entity_alias_pair[0].id)]
 
 
 def conflicts_top_by_priority(
-        conflicting_entities_aliases: list[tuple[DictionaryEntry, DictionaryEntryAlias]],
-        priority_direction: str = 'asc') \
-        -> list[tuple[DictionaryEntry, DictionaryEntryAlias]]:
+    conflicting_entities_aliases: list[tuple[DictionaryEntry, DictionaryEntryAlias]], priority_direction: str = "asc"
+) -> list[tuple[DictionaryEntry, DictionaryEntryAlias]]:
     """
     Default conflict resolving function for dropping all entities detected at the same position excepting the one
     having the smallest id. To be used in find_dict_entities() method.
     """
-    target_func = max if priority_direction == 'asc' else min
-    return [target_func(
-        conflicting_entities_aliases,
-        key=lambda entity_alias_pair: entity_alias_pair[0].priority)]
+    target_func = max if priority_direction == "asc" else min
+    return [target_func(conflicting_entities_aliases, key=lambda entity_alias_pair: entity_alias_pair[0].priority)]
 
 
-def prepare_alias_banlist_dict(alias_banlist: list[AliasBanRecord],
-                               use_stemmer: bool = False) \
-        -> dict[str, AliasBanList] | None:
+def prepare_alias_banlist_dict(
+    alias_banlist: list[AliasBanRecord], use_stemmer: bool = False
+) -> dict[str, AliasBanList] | None:
     """
     Prepare alias ban list for providing it to find_dict_entities() function.
     :param alias_banlist: Non-normalized form of the banlist: [(alias, lang, is_abbrev), ...]
@@ -692,9 +699,7 @@ def prepare_alias_banlist_dict(alias_banlist: list[AliasBanRecord],
             lang_tuple = AliasBanList()
             res[record.lang] = lang_tuple
         if record.is_abbrev:
-            lang_tuple.abbreviations.append(normalize_text(record.alias,
-                                                           lowercase=False, use_stemmer=use_stemmer))
+            lang_tuple.abbreviations.append(normalize_text(record.alias, lowercase=False, use_stemmer=use_stemmer))
         else:
-            lang_tuple.aliases.append(normalize_text(record.alias,
-                                                     lowercase=True, use_stemmer=use_stemmer))
+            lang_tuple.aliases.append(normalize_text(record.alias, lowercase=True, use_stemmer=use_stemmer))
     return res

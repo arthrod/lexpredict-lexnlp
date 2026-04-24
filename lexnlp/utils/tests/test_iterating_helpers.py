@@ -26,7 +26,7 @@ class TestCollapseSequence:
         def gen() -> object:
             """
             Yield a fixed sequence of integers 10, 20, and 30.
-            
+
             Returns:
                 generator: Yields the integers 10, 20, and 30 in order.
             """

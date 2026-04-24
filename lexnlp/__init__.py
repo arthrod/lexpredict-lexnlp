@@ -14,9 +14,7 @@ import os
 USE_STANFORD = os.environ["LEXNLP_USE_STANFORD"].lower() == "true" if "LEXNLP_USE_STANFORD" in os.environ else False
 
 DEFAULT_MODELS_REPO_SLUG: str = "LexPredict/lexpredict-lexnlp"
-DEFAULT_MODELS_REPO: str = (
-    f"https://api.github.com/repos/{DEFAULT_MODELS_REPO_SLUG}/releases/tags/"
-)
+DEFAULT_MODELS_REPO: str = f"https://api.github.com/repos/{DEFAULT_MODELS_REPO_SLUG}/releases/tags/"
 
 
 def get_models_repo() -> str:

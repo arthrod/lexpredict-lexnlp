@@ -20,34 +20,36 @@ from lexnlp.extract.common.annotations.money_annotation import MoneyAnnotation
 from lexnlp.extract.common.money_detector import MoneyDetector
 from lexnlp.extract.de.amounts import CURRENCY_PREFIX_MAP, CURRENCY_SYMBOL_MAP, amount_parser, get_amounts
 
-CURRENCY_TOKEN_MAP = OrderedDict([
-    ('chinesische yuan', 'CNY'),
-    ('chinesischer yuan', 'CNY'),
-    ('dollars', 'USD'),
-    ('dollar', 'USD'),
-    ('euros', 'EUR'),
-    ('euro', 'EUR'),
-    ('pfunde', 'GBP'),
-    ('pfund', 'GBP'),
-    ('renminbi', 'CNY'),
-    ('yens', 'JPY'),
-    ('yen', 'JPY'),
-    ('yuans', 'CNY'),
-    ('yuan', 'CNY'),
-    ('deutsche mark', 'DEM')
-])
+CURRENCY_TOKEN_MAP = OrderedDict(
+    [
+        ("chinesische yuan", "CNY"),
+        ("chinesischer yuan", "CNY"),
+        ("dollars", "USD"),
+        ("dollar", "USD"),
+        ("euros", "EUR"),
+        ("euro", "EUR"),
+        ("pfunde", "GBP"),
+        ("pfund", "GBP"),
+        ("renminbi", "CNY"),
+        ("yens", "JPY"),
+        ("yen", "JPY"),
+        ("yuans", "CNY"),
+        ("yuan", "CNY"),
+        ("deutsche mark", "DEM"),
+    ]
+)
 
-TRIGGER_WORDS = ['preis', 'kosten']
+TRIGGER_WORDS = ["preis", "kosten"]
 
 money_detector = MoneyDetector(
-    'de',
-    'EUR',
+    "de",
+    "EUR",
     CURRENCY_TOKEN_MAP,
     CURRENCY_SYMBOL_MAP,
     CURRENCY_PREFIX_MAP,
     amount_parser.NUM_PTN,
     TRIGGER_WORDS,
-    get_amounts
+    get_amounts,
 )
 
 
@@ -56,8 +58,7 @@ def get_money(
     return_sources: bool = False,
     float_digits: int = 4,
 ) -> Generator[tuple[str, str, str] | tuple[str, str]]:
-    """
-    """
+    """ """
     yield from money_detector.get_money(text, return_sources, float_digits)
 
 
@@ -73,8 +74,7 @@ def get_money_annotations(
     text: str,
     float_digits: int = 4,
 ) -> Generator[MoneyAnnotation]:
-    """
-    """
+    """ """
     yield from money_detector.get_money_annotations(text, float_digits)
 
 

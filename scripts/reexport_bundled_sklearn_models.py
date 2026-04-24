@@ -148,4 +148,4 @@ def main(argv: Sequence[str]) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(__import__('sys').argv[1:]))
+    raise SystemExit(main(__import__("sys").argv[1:]))

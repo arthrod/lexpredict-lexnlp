@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -28,34 +27,26 @@ from lexnlp.utils.pos_adjustments import TokenPosTagAdjustment
 
 VALID_PUNCTUATION = [",", ".", "&"]
 
-PERSONS_STOP_WORDS = re.compile(
-    r'avenue|amendment|agreement|addendum|article|assignment|exhibit', re.IGNORECASE)
+PERSONS_STOP_WORDS = re.compile(r"avenue|amendment|agreement|addendum|article|assignment|exhibit", re.IGNORECASE)
 
-MONTH_NAMES = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-               'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-MONTH_NAMES_STR = '|'.join([fr'\-{m}\-' for m in MONTH_NAMES])
-PARTY_PREFIX_STR = fr'^\d\d([0-9\.\s\,]*({MONTH_NAMES_STR}|\-)*[0-9\.\s\,]*)+'
+MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+MONTH_NAMES_STR = "|".join([rf"\-{m}\-" for m in MONTH_NAMES])
+PARTY_PREFIX_STR = rf"^\d\d([0-9\.\s\,]*({MONTH_NAMES_STR}|\-)*[0-9\.\s\,]*)+"
 COMPANY_NAME_PREFIX_RE = re.compile(PARTY_PREFIX_STR, re.IGNORECASE)
-COMPANY_NAME_TRIM_RE = re.compile(r'^\s*(?:and|&|of)\s+|\s+(?:and|&|of)\s*$', re.IGNORECASE)
+COMPANY_NAME_TRIM_RE = re.compile(r"^\s*(?:and|&|of)\s+|\s+(?:and|&|of)\s*$", re.IGNORECASE)
 
 
 class CompanyDetector:
-    BACKTRACK_CATASTROPHY_COMPANY_PATTERN = r'[0-9A-Za-z]{80,}'
+    BACKTRACK_CATASTROPHY_COMPANY_PATTERN = r"[0-9A-Za-z]{80,}"
 
     BACKTRACK_CATASTROPHY_COMPANY_RE = re.compile(BACKTRACK_CATASTROPHY_COMPANY_PATTERN)
 
-    def __init__(
-        self,
-        company_types: dict[str, CompanyDescriptor],
-        company_descriptions: list[str]
-    ) -> None:
-        """
-        """
+    def __init__(self, company_types: dict[str, CompanyDescriptor], company_descriptions: list[str]) -> None:
+        """ """
         self.company_types = {}
         self.np_extractor = CompanyNPExtractor()
         self.init_company_types(company_types)
-        self.np_extractor.token_pos_tag_adjustments = \
-            self.create_token_pos_tag_adjustments()
+        self.np_extractor.token_pos_tag_adjustments = self.create_token_pos_tag_adjustments()
         self.company_descriptions = company_descriptions
         self.default_company_banlist: list[EntityBanListItem] | None = None
         self.default_company_banlist = None
@@ -70,16 +61,12 @@ class CompanyDetector:
 
     def init_company_types(self, company_types: dict[str, CompanyDescriptor]):
         self.company_types = {}
-        alias_transformers = [
-            lambda a: a.strip(' ').lower(),
-            lambda a: a.strip(' ').strip('.').lower()
-        ]
+        alias_transformers = [lambda a: a.strip(" ").lower(), lambda a: a.strip(" ").strip(".").lower()]
         for trans in alias_transformers:
             for _alias, cmp in company_types.items():
                 lc_alias = trans(cmp.alias)
                 if lc_alias not in self.company_types:
-                    self.company_types[lc_alias] = CompanyDescriptor(
-                        lc_alias, cmp.abbreviation, cmp.label)
+                    self.company_types[lc_alias] = CompanyDescriptor(lc_alias, cmp.abbreviation, cmp.label)
 
     def create_token_pos_tag_adjustments(self) -> list[TokenPosTagAdjustment]:
         """
@@ -87,30 +74,28 @@ class CompanyDetector:
         NLTK in `get_np()`. This function inserts adjustments based on
         the detector's company_types.
         """
+
         def _create_adjustment(key) -> TokenPosTagAdjustment:
             return TokenPosTagAdjustment(
-                from_token=lambda token: token == key,
-                from_pos=lambda pos: pos == 'NN',
-                to_pos=lambda pos: 'NNP'
+                from_token=lambda token: token == key, from_pos=lambda pos: pos == "NN", to_pos=lambda pos: "NNP"
             )
+
         token_pos_tag_adjustments: list[TokenPosTagAdjustment] = [
             _create_adjustment(key)
-            for key in [
-                *self.company_types,
-                *(f'{k}.' for k in self.company_types if not k.endswith('.'))
-            ]
+            for key in [*self.company_types, *(f"{k}." for k in self.company_types if not k.endswith("."))]
         ]
         return token_pos_tag_adjustments
 
     @classmethod
     def compile_company_type_reg(cls, company_types: list[str]):
         company_types = sorted(company_types + nltk_re.COMPANY_DESCRIPTIONS, key=len)
-        company_types_re = re.compile(r' %s(?:\W|$)' % '|'.join(
-            [re.escape(i.strip('.')) for i in company_types]), re.IGNORECASE)
+        company_types_re = re.compile(
+            r" %s(?:\W|$)" % "|".join([re.escape(i.strip(".")) for i in company_types]), re.IGNORECASE
+        )
         return company_types_re
 
     def compile_company_pattern(self):
-        self.company_name_pattern = rf'''
+        self.company_name_pattern = rf"""
             (?:
                 (?:(?-i:[A-Z0-9][A-Z0-9a-z\'\`\-&]+)
                    |of
@@ -118,29 +103,33 @@ class CompanyDetector:
                 )[,\.& ]*
             ){{1,5}}
             (?:\([a-z0-9][a-z0-9 \,\.\-\&]+?\))?
-        '''
+        """
 
         # Create patterns from parameters
         self.company_pattern = self.create_company_pattern()
         self.company_article_pattern = self.create_company_pattern(article_pattern=nltk_re.ARTICLE_PATTERN)
         self.re_company = re.compile(
-            self.company_pattern, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
+            self.company_pattern, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE
+        )
         self.re_article_company = re.compile(
-            self.company_article_pattern, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
+            self.company_article_pattern, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE
+        )
         self.default_company_desc_re = re.compile(
-            r'(?:^|\W)(?:{})(?:$|\W)'.format('|'.join(self.company_descriptions)), re.I)
+            r"(?:^|\W)(?:{})(?:$|\W)".format("|".join(self.company_descriptions)), re.I
+        )
 
-    def create_company_pattern(self, article_pattern: str = ''):
+    def create_company_pattern(self, article_pattern: str = ""):
         """
         Create a company pattern for regular expression.
         """
         company_type_pattern = nltk_re.get_company_type_pipe(self.company_types)
         company_description_pattern = nltk_re.get_company_description_pipe(self.company_descriptions)
-        return nltk_re.COMPANY_PATTERN_TEMPLATE \
-            .format(company_name_pattern=self.company_name_pattern,
-                    article_pattern=article_pattern,
-                    company_type_pattern=company_type_pattern,
-                    company_description_pattern=company_description_pattern)
+        return nltk_re.COMPANY_PATTERN_TEMPLATE.format(
+            company_name_pattern=self.company_name_pattern,
+            article_pattern=article_pattern,
+            company_type_pattern=company_type_pattern,
+            company_description_pattern=company_description_pattern,
+        )
 
     def get_company_annotations(
         self,
@@ -149,7 +138,7 @@ class CompanyDetector:
         use_gnp: bool = False,
         count_unique: bool = False,
         name_upper: bool = False,
-        banlist_usage: BanListUsage | None = None
+        banlist_usage: BanListUsage | None = None,
     ) -> Generator[CompanyAnnotation]:
         """
         Find company names in text, optionally using the stricter article/prefix expression.
@@ -165,7 +154,7 @@ class CompanyDetector:
         if text == text.upper():
             return
         # replace new lines with spaces
-        text = text.replace('\n', ' ')
+        text = text.replace("\n", " ")
         banlist = self.get_company_banlist(banlist_usage)
         valid_punctuation = VALID_PUNCTUATION + ["(", ")"]
         unique_companies: dict[tuple[str, str], CompanyAnnotation] = {}
@@ -193,8 +182,7 @@ class CompanyDetector:
                         if banlist:
                             if EntityBanListItem.check_list(ant.name, banlist):
                                 continue
-                        ant.coords = (ant.coords[0] + s_start + p_start,
-                                      ant.coords[1] + s_start + p_start)
+                        ant.coords = (ant.coords[0] + s_start + p_start, ant.coords[1] + s_start + p_start)
 
                         if name_upper:
                             ant.name = ant.name.upper()
@@ -215,16 +203,18 @@ class CompanyDetector:
         # search for acronyms in text ("[A-Z]" or (A-Z))
         # try to merge annotations (in one sentence!) in acronyms
 
-    def get_companies(self,
-                      text: str,
-                      strict: bool = False,
-                      use_gnp: bool = False,
-                      detail_type: bool = False,
-                      count_unique: bool = False,
-                      name_upper: bool = False,
-                      parse_name_abbr: bool = False,
-                      return_source: bool = False,
-                      banlist_usage: BanListUsage = default_banlist_usage):
+    def get_companies(
+        self,
+        text: str,
+        strict: bool = False,
+        use_gnp: bool = False,
+        detail_type: bool = False,
+        count_unique: bool = False,
+        name_upper: bool = False,
+        parse_name_abbr: bool = False,
+        return_source: bool = False,
+        banlist_usage: BanListUsage = default_banlist_usage,
+    ):
         """
         Find company names in text, optionally using the stricter article/prefix expression.
         :param text:
@@ -240,13 +230,7 @@ class CompanyDetector:
         """
         # skip if all text is in uppercase
         # noinspection PyTypeChecker
-        for ant in self.get_company_annotations(
-                text,
-                strict,
-                use_gnp,
-                count_unique,
-                name_upper,
-                banlist_usage):  # type:CompanyAnnotation
+        for ant in self.get_company_annotations(text, strict, use_gnp, count_unique, name_upper, banlist_usage):  # type:CompanyAnnotation
             result = (ant.name, ant.company_type)
             if detail_type:
                 result += (ant.company_type_abbr, ant.company_type_label, ant.description)
@@ -265,8 +249,7 @@ class CompanyDetector:
         if not banlist_usage.append_to_default and not banlist_usage.use_default_banlist:
             return None
         if self.default_company_banlist is None:
-            path = os.path.join(os.path.dirname(__file__),
-                                '../data/en_company_banlist.csv')
+            path = os.path.join(os.path.dirname(__file__), "../data/en_company_banlist.csv")
             self.default_company_banlist = EntityBanListItem.read_from_csv(path)
 
         if banlist_usage.append_to_default and banlist_usage.banlist:
@@ -293,14 +276,14 @@ class CompanyDetector:
             for i, chunk in enumerate(nltk.ne_chunk(sentence_pos)):
                 if isinstance(chunk, nltk.tree.Tree):
                     # Check label
-                    if chunk.label() == 'PERSON':
+                    if chunk.label() == "PERSON":
                         if not strict and last_person_pos is not None and (i - last_person_pos) < window:
                             persons[-1] += " " + " ".join([c[0] for c in chunk])
                         else:
                             persons.append(" ".join([c[0] for c in chunk]))
                         last_person_pos = i
                 elif not strict and last_person_pos is not None and (i - last_person_pos) < window:
-                    if chunk[1] in ['NNP', 'NNPS']:
+                    if chunk[1] in ["NNP", "NNPS"]:
                         persons[-1] += " " + chunk[0]
                         last_person_pos = i
                     elif chunk[1] in ["CC"] or chunk[0] in VALID_PUNCTUATION:
@@ -312,13 +295,12 @@ class CompanyDetector:
                         last_person_pos = None
 
             # convert persons to persons from original sentence and remove UPPER persons as 1 word
-            persons = [person.upper() 
-                       if person.upper() in original_sentence \
-                          and person.upper() not in persons
-                       else person 
-                       for person in persons 
-                       if not (person.upper() in original_sentence and len(re.findall(r'\w+', person)) < 2)]
-            
+            persons = [
+                person.upper() if person.upper() in original_sentence and person.upper() not in persons else person
+                for person in persons
+                if not (person.upper() in original_sentence and len(re.findall(r"\w+", person)) < 2)
+            ]
+
             # Cleanup and yield
             for person in persons:
                 # Cleanup
@@ -344,10 +326,9 @@ class CompanyDetector:
                 else:
                     yield person
 
-    def get_companies_re(self,
-                         text: str,
-                         use_article: bool = False,
-                         use_sentence_splitter: bool = True) -> Generator[CompanyAnnotation]:
+    def get_companies_re(
+        self, text: str, use_article: bool = False, use_sentence_splitter: bool = True
+    ) -> Generator[CompanyAnnotation]:
         """
         Find company names in text, optionally using the stricter article/prefix expression.
         """
@@ -362,50 +343,52 @@ class CompanyDetector:
 
             for match in re_c.finditer(sentence):
                 captures = match.capturesdict()
-                company_type = captures['company_type_of'] or \
-                    captures['company_type'] or \
-                    captures['company_type_single']
-                company_type = "".join(company_type).strip(
-                    string.punctuation.replace(".", "") + string.whitespace)
+                company_type = (
+                    captures["company_type_of"] or captures["company_type"] or captures["company_type_single"]
+                )
+                company_type = "".join(company_type).strip(string.punctuation.replace(".", "") + string.whitespace)
                 company_type = company_type or None
 
-                company_name = "".join(captures['full_name'])
+                company_name = "".join(captures["full_name"])
                 if company_type:
-                    company_name = re.sub(r'%s$' % company_type, '', company_name)
-                company_name = nltk_re.FALSE_POS_SUB_RE.sub('', company_name)
+                    company_name = re.sub(r"%s$" % company_type, "", company_name)
+                company_name = nltk_re.FALSE_POS_SUB_RE.sub("", company_name)
                 company_name = company_name.strip(
-                    string.punctuation.replace('&', '').replace(')', '') + string.whitespace)
-                company_name = COMPANY_NAME_TRIM_RE.sub('', company_name)
+                    string.punctuation.replace("&", "").replace(")", "") + string.whitespace
+                )
+                company_name = COMPANY_NAME_TRIM_RE.sub("", company_name)
                 # remove company name "prefix": numbers, dates etc
-                company_name = COMPANY_NAME_PREFIX_RE.sub('', company_name)
+                company_name = COMPANY_NAME_PREFIX_RE.sub("", company_name)
                 if not company_name:
                     continue
 
                 # catch a Delaware company
-                if company_name.lower().startswith('a ') or captures.get('article') == ['a']:
+                if company_name.lower().startswith("a ") or captures.get("article") == ["a"]:
                     continue
 
-                company_description = captures.get('company_description', '')
+                company_description = captures.get("company_description", "")
                 if not company_description:
                     company_description_match = self.default_company_desc_re.findall(company_name)
                     if company_description_match:
                         company_description = company_description_match[0]
 
-                company_description = "".join(company_description).strip(
-                    string.punctuation + string.whitespace)
+                company_description = "".join(company_description).strip(string.punctuation + string.whitespace)
 
                 # catch ABC & Company LLC case
-                if company_description.lower() == 'company' and \
-                        ('& company' in company_name.lower() or 'and company' in company_name.lower()):
+                if company_description.lower() == "company" and (
+                    "& company" in company_name.lower() or "and company" in company_name.lower()
+                ):
                     company_description = None
                 company_description = company_description or None
 
                 # catch "The Company"
                 if company_description:
-                    _company_name = re.sub(r'[\s,]%s$' % company_description, '', company_name)
-                    if not _company_name or \
-                            nltk_re.ARTICLE_RE.fullmatch(_company_name) or \
-                            re.match(r'.+?\s(?:of|in)$', _company_name.lower()):
+                    _company_name = re.sub(r"[\s,]%s$" % company_description, "", company_name)
+                    if (
+                        not _company_name
+                        or nltk_re.ARTICLE_RE.fullmatch(_company_name)
+                        or re.match(r".+?\s(?:of|in)$", _company_name.lower())
+                    ):
                         continue
                 if company_name in self.company_descriptions:
                     continue
@@ -413,8 +396,8 @@ class CompanyDetector:
                 abbr_name = "".join(captures["abbr_name"]) or None
 
                 ret = CompanyAnnotation(
-                    (match.start() + start, match.end() + start),
-                    name=company_name, company_type_full=company_type)
+                    (match.start() + start, match.end() + start), name=company_name, company_type_full=company_type
+                )
                 ret.company_type_abbr = self.company_types[company_type.lower()].abbreviation if company_type else None
                 ret.company_type_label = self.company_types[company_type.lower()].label if company_type else None
                 ret.description = company_description
@@ -464,7 +447,7 @@ def get_noun_phrases(text, strict=False, return_source=False, window=3, valid_pu
         for i, chunk in enumerate(sentence_pos):
             do_join = not strict and last_nnp_pos is not None and (i - last_nnp_pos) < window
             # Check label
-            if chunk[1] in ['NNP', 'NNPS']:
+            if chunk[1] in ["NNP", "NNPS"]:
                 if do_join:
                     sep = "" if "(" in valid_punctuation and nnps[-1][-1] == "(" else " "
                     nnps[-1] += sep + chunk[0]
@@ -472,10 +455,10 @@ def get_noun_phrases(text, strict=False, return_source=False, window=3, valid_pu
                     nnps.append(chunk[0])
                 last_nnp_pos = i
             elif do_join:
-                if chunk[1] in ['CC'] or chunk[0] in valid_punctuation:
+                if chunk[1] in ["CC"] or chunk[0] in valid_punctuation:
                     if chunk[0].lower() in ["or"]:
                         continue
-                    nnps[-1] += (' ' if chunk[0].lower() in ['&', 'and', '('] else '') + chunk[0]
+                    nnps[-1] += (" " if chunk[0].lower() in ["&", "and", "("] else "") + chunk[0]
                     last_nnp_pos = i
                 else:
                     last_nnp_pos = None
@@ -487,9 +470,9 @@ def get_noun_phrases(text, strict=False, return_source=False, window=3, valid_pu
             if len(nnp) <= 2:
                 continue
 
-            if nnp.lower().endswith(' and'):
+            if nnp.lower().endswith(" and"):
                 nnp = nnp[0:-4].strip()
-            elif nnp.endswith(' &'):
+            elif nnp.endswith(" &"):
                 nnp = nnp[0:-2].strip()
 
             nnp = strip_unicode_punctuation(nnp).strip(string.punctuation).strip(string.whitespace)

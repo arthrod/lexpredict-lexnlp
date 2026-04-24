@@ -21,10 +21,10 @@ from lexnlp.ml.catalog.download import GitHubReleaseDownloader
 def _fake_response(payload: bytes) -> MagicMock:
     """
     Create a mocked HTTP response that simulates streaming `payload` as a download.
-    
+
     Parameters:
         payload (bytes): The byte content to be yielded by the response's stream.
-    
+
     Returns:
         MagicMock: A mock response with:
             - `raise_for_status()` as a no-op,

@@ -108,9 +108,7 @@ def main(argv: Sequence[str]) -> int:
             else:
                 path = get_path_from_catalog(tag)
         except Exception as exc:
-            failures.append(
-                f"{tag}: missing/unreadable ({exc.__class__.__name__}: {exc})"
-            )
+            failures.append(f"{tag}: missing/unreadable ({exc.__class__.__name__}: {exc})")
             continue
 
         if path.name != expected_name:

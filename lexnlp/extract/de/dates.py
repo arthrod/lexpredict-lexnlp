@@ -21,16 +21,16 @@ MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 MODEL_DATE = load_model(os.path.join(MODULE_PATH, "./date_model.pickle"))
 
 
-parser = DeDateParser(DATE_MODEL_CHARS,
-                      enable_classifier_check=True,
-                      locale=Locale('de-DE'),
-                      dateparser_settings={'PREFER_DAY_OF_MONTH': 'first',
-                                           'STRICT_PARSING': False,
-                                           'DATE_ORDER': 'DMY'},
-                      classifier_model=MODEL_DATE,
-                      alphabet_character_set=DE_ALPHA_CHAR_SET,
-                      count_words=True,
-                      feature_window=0)
+parser = DeDateParser(
+    DATE_MODEL_CHARS,
+    enable_classifier_check=True,
+    locale=Locale("de-DE"),
+    dateparser_settings={"PREFER_DAY_OF_MONTH": "first", "STRICT_PARSING": False, "DATE_ORDER": "DMY"},
+    classifier_model=MODEL_DATE,
+    alphabet_character_set=DE_ALPHA_CHAR_SET,
+    count_words=True,
+    feature_window=0,
+)
 
 
 get_dates = parser.get_dates

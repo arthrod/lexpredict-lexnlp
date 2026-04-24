@@ -19,31 +19,26 @@ from lexnlp.nlp.en.segments.sections import DocumentSection, find_section_titles
 
 class TestHeadingHeuristics(TestCase):
     def test_too_short(self):
-        self.assertEqual(True,
-                         HeadingHeuristics.is_new_title_better('B', 'Title B'))
-        self.assertEqual(False,
-                         HeadingHeuristics.is_new_title_better('A', 'B2'))
+        self.assertEqual(True, HeadingHeuristics.is_new_title_better("B", "Title B"))
+        self.assertEqual(False, HeadingHeuristics.is_new_title_better("A", "B2"))
 
     def test_too_long(self):
-        long_text = 'Hea' + 'd' * 200 + 'ing'
-        self.assertEqual(True,
-                         HeadingHeuristics.is_new_title_better(long_text, 'Title B'))
+        long_text = "Hea" + "d" * 200 + "ing"
+        self.assertEqual(True, HeadingHeuristics.is_new_title_better(long_text, "Title B"))
 
     def test_new_better(self):
-        self.assertEqual(True,
-                         HeadingHeuristics.is_new_title_better('Some title', 'II.IV Some other title'))
+        self.assertEqual(True, HeadingHeuristics.is_new_title_better("Some title", "II.IV Some other title"))
 
     def test_old_better(self):
-        self.assertEqual(False,
-                         HeadingHeuristics.is_new_title_better('II.IV Some title', 'II.IV Some other title'))
+        self.assertEqual(False, HeadingHeuristics.is_new_title_better("II.IV Some title", "II.IV Some other title"))
 
     def test_find_better_titles(self):
-        full_text = self.load_resource_document('heading_document.txt')
-        sections_txt = self.load_resource_document('heading_doc_sections.txt')
+        full_text = self.load_resource_document("heading_document.txt")
+        sections_txt = self.load_resource_document("heading_doc_sections.txt")
         sections = self.parse_section(json.loads(sections_txt))
         section_titles = [s.title for s in sections]
 
-        sentences_txt = self.load_resource_document('heading_doc_sentences.txt')
+        sentences_txt = self.load_resource_document("heading_doc_sentences.txt")
         sentence_coords = json.loads(sentences_txt)
 
         find_section_titles(sections, sentence_coords, full_text)
@@ -52,8 +47,8 @@ class TestHeadingHeuristics(TestCase):
 
     @classmethod
     def load_resource_document(cls, doc_name: str) -> str:
-        file_path = os.path.join(lexnlp_test_path, f'lexnlp/nlp/en/heading/{doc_name}')
-        with codecs.open(file_path, 'r', encoding='utf-8') as fr:
+        file_path = os.path.join(lexnlp_test_path, f"lexnlp/nlp/en/heading/{doc_name}")
+        with codecs.open(file_path, "r", encoding="utf-8") as fr:
             text = fr.read()
         return text
 

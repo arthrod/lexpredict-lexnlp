@@ -361,11 +361,11 @@ get_date_annotation_list = parser.get_date_annotation_list
 __all__ = [
     "DATE_MODEL_CHARS",
     "PT_MONTHS",
+    "DateAnnotation",
     "PtDateParser",
     "get_date_annotation_list",
     "get_date_annotations",
     "get_date_list",
     "get_dates",
     "parser",
-    "DateAnnotation",
 ]

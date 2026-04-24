@@ -39,7 +39,7 @@ from lexnlp.extract.batch.async_extract import (
 def _upper_extractor(text: str) -> list[str]:
     """
     Extract whitespace-separated tokens from the input text and return them in uppercase.
-    
+
     Returns:
         list[str]: Uppercase tokens obtained by splitting the input text on whitespace.
     """
@@ -49,10 +49,10 @@ def _upper_extractor(text: str) -> list[str]:
 def _exploding_extractor(text: str) -> list[str]:
     """
     Split the input text into whitespace-separated tokens; raise a RuntimeError if the substring "BOOM" appears.
-    
+
     Returns:
         list[str]: Tokens produced by calling `text.split()`.
-    
+
     Raises:
         RuntimeError: If "BOOM" is present in `text`, with message "boom: <text>".
     """
@@ -130,6 +130,7 @@ class TestExtractBatchAsync:
         """
         Verify that extract_batch_async returns results in the same order as the input texts and that each result's annotations match the extractor's output.
         """
+
         async def _run() -> list[BatchExtractionResult[str]]:
             return await extract_batch_async(_upper_extractor, ["a b", "c d"])
 
@@ -145,9 +146,9 @@ class TestExtractBatchAsync:
         def tracking_extractor(_text: str) -> list[str]:
             """
             Increment concurrency trackers while simulating brief work and return a single "ok" annotation.
-            
+
             This extractor increments the shared `in_flight` counter on entry, updates the shared `peak` with the maximum concurrent value observed, sleeps for ~0.01 seconds to simulate work, then decrements `in_flight` before returning.
-            
+
             Returns:
                 list[str]: A single-element list containing the string "ok".
             """
@@ -161,7 +162,7 @@ class TestExtractBatchAsync:
         async def _run() -> None:
             """
             Run the batch extractor with `tracking_extractor` on 16 identical inputs using a concurrency limit of 3.
-            
+
             Used by tests to exercise and observe concurrency behaviour (peak in-flight workers) of the batch extractor.
             """
             await extract_batch_async(
@@ -179,7 +180,7 @@ class TestExtractBatchAsync:
         async def _run() -> list[BatchExtractionResult[str]]:
             """
             Run the exploding extractor on a fixed set of test inputs and collect their batch results.
-            
+
             Returns:
                 A list of BatchExtractionResult[str] corresponding to the inputs ["BOOM a", "BOOM b", "ok", "BOOM c"] in the same order; each result contains `annotations` for successful extractions or `error` for failed extractions.
             """
@@ -233,10 +234,10 @@ class TestMiscEdgeCases:
         def gen_extractor(text: str):
             """
             Yield tokens from `text` split on commas in their original order.
-            
+
             Parameters:
                 text (str): Input string to split on commas.
-            
+
             Yields:
                 str: Each token resulting from splitting `text` by ',' (empty tokens are yielded if present).
             """
@@ -261,10 +262,10 @@ class TestMiscEdgeCases:
         def raiser(_: str) -> list[Any]:
             """
             Always raises a KeyError indicating a missing value.
-            
+
             Parameters:
                 _ (str): Input text (unused).
-            
+
             Raises:
                 KeyError: Always raised with message "missing".
             """

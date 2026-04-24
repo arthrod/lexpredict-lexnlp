@@ -45,15 +45,17 @@ class SectionSegmenterModel:
 
 
 class DocumentSection:
-    def __init__(self,
-                 start: int = 0,
-                 end: int = 0,
-                 title: str = '',
-                 title_start: int = 0,
-                 title_end: int = 0,
-                 level: int = 0,
-                 abs_level: int = 0,
-                 text: str = ''):
+    def __init__(
+        self,
+        start: int = 0,
+        end: int = 0,
+        title: str = "",
+        title_start: int = 0,
+        title_end: int = 0,
+        level: int = 0,
+        abs_level: int = 0,
+        text: str = "",
+    ):
         self.start = start
         self.end = end
         self.title = title
@@ -64,25 +66,27 @@ class DocumentSection:
         self.text = text
 
     def __str__(self):
-        return f'{self.title} [{self.start}: {self.end}]'
+        return f"{self.title} [{self.start}: {self.end}]"
 
     def __eq__(self, other):
         if not isinstance(other, DocumentSection):
             return NotImplemented
 
-        return self.start == other.start and self.end == other.end \
-            and self.title == other.title and self.title_start == other.title_start \
-            and self.title_end == other.title_end and self.level == other.level \
-            and self.abs_level == other.abs_level and self.text == other.text
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.title == other.title
+            and self.title_start == other.title_start
+            and self.title_end == other.title_end
+            and self.level == other.level
+            and self.abs_level == other.abs_level
+            and self.text == other.text
+        )
 
 
 def build_section_break_features(
-        lines,
-        line_id,
-        line_window_pre,
-        line_window_post,
-        characters=string.printable,
-        include_doc=None):
+    lines, line_id, line_window_pre, line_window_post, characters=string.printable, include_doc=None
+):
     """
     Build a feature vector for a given line ID with given parameters.
     """
@@ -105,35 +109,33 @@ def build_section_break_features(
             continue
 
         # Count length
-        feature_vector[f'line_len_{i}'] = len(line)
-        feature_vector[f'line_lenstrip_{i}'] = len(line.strip())
-        feature_vector[f'line_title_case_{i}'] = line == line.title()
-        feature_vector[f'line_upper_case_{i}'] = line == line.upper()
+        feature_vector[f"line_len_{i}"] = len(line)
+        feature_vector[f"line_lenstrip_{i}"] = len(line.strip())
+        feature_vector[f"line_title_case_{i}"] = line == line.title()
+        feature_vector[f"line_upper_case_{i}"] = line == line.upper()
 
         # Count characters
-        feature_vector[f'line_n_alpha_{i}'] = sum([1 for c in line if unicodedata.category(c).startswith('L')])
-        feature_vector[f'line_n_number_{i}'] = sum(
-            [1 for c in line if unicodedata.category(c).startswith('N')])
-        feature_vector[f'line_n_punct_{i}'] = sum([1 for c in line if unicodedata.category(c).startswith('P')])
-        feature_vector[f'line_n_whitespace_{i}'] = sum(
-            [1 for c in line if unicodedata.category(c).startswith('Z')])
+        feature_vector[f"line_n_alpha_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("L")])
+        feature_vector[f"line_n_number_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("N")])
+        feature_vector[f"line_n_punct_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("P")])
+        feature_vector[f"line_n_whitespace_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("Z")])
 
     # Simple checks
     line = lines[line_id]
     line_stripped = line.strip()
     len_line_stripped = len(line_stripped)
-    feature_vector['section'] = 1 if 'section' in line else 0
-    feature_vector['SECTION'] = 1 if 'SECTION' in line else 0
-    feature_vector['Section'] = 1 if 'Section' in line else 0
-    feature_vector['article'] = 1 if 'article' in line else 0
-    feature_vector['ARTICLE'] = 1 if 'ARTICLE' in line else 0
-    feature_vector['Article'] = 1 if 'Article' in line else 0
-    feature_vector['sw_section'] = 1 if line_stripped.lower().startswith('section') else 0
-    feature_vector['sw_article'] = 1 if line_stripped.lower().startswith('article') else 0
-    feature_vector['first_char_punct'] = (line_stripped[0] in string.punctuation) if len_line_stripped > 0 else False
-    feature_vector['last_char_punct'] = (line_stripped[-1] in string.punctuation) if len_line_stripped > 0 else False
-    feature_vector['first_char_number'] = (line_stripped[0] in string.digits) if len_line_stripped > 0 else False
-    feature_vector['last_char_number'] = (line_stripped[-1] in string.digits) if len_line_stripped > 0 else False
+    feature_vector["section"] = 1 if "section" in line else 0
+    feature_vector["SECTION"] = 1 if "SECTION" in line else 0
+    feature_vector["Section"] = 1 if "Section" in line else 0
+    feature_vector["article"] = 1 if "article" in line else 0
+    feature_vector["ARTICLE"] = 1 if "ARTICLE" in line else 0
+    feature_vector["Article"] = 1 if "Article" in line else 0
+    feature_vector["sw_section"] = 1 if line_stripped.lower().startswith("section") else 0
+    feature_vector["sw_article"] = 1 if line_stripped.lower().startswith("article") else 0
+    feature_vector["first_char_punct"] = (line_stripped[0] in string.punctuation) if len_line_stripped > 0 else False
+    feature_vector["last_char_punct"] = (line_stripped[-1] in string.punctuation) if len_line_stripped > 0 else False
+    feature_vector["first_char_number"] = (line_stripped[0] in string.digits) if len_line_stripped > 0 else False
+    feature_vector["last_char_number"] = (line_stripped[-1] in string.digits) if len_line_stripped > 0 else False
 
     # Build character vector
     for character in characters:
@@ -147,25 +149,23 @@ def build_section_break_features(
 
 
 def get_section_feature_names(
-        lines_count,
-        line_window_pre,
-        line_window_post,
-        characters=string.printable,
-        include_doc=None):
+    lines_count, line_window_pre, line_window_post, characters=string.printable, include_doc=None
+):
     # Feature vector titles
     feature_vector = {
-        'section',
-        'SECTION',
-        'Section',
-        'article',
-        'ARTICLE',
-        'Article',
-        'sw_section',
-        'sw_article',
-        'first_char_punct',
-        'last_char_punct',
-        'first_char_number',
-        'last_char_number'}
+        "section",
+        "SECTION",
+        "Section",
+        "article",
+        "ARTICLE",
+        "Article",
+        "sw_section",
+        "sw_article",
+        "first_char_punct",
+        "last_char_punct",
+        "first_char_number",
+        "last_char_number",
+    }
 
     # Check start offset
     if lines_count - 1 < line_window_pre:
@@ -178,20 +178,20 @@ def get_section_feature_names(
     # Iterate through window
     for i in range(-line_window_pre, line_window_post + 1):
         # Count length
-        feature_vector.add(f'line_len_{i}')
-        feature_vector.add(f'line_lenstrip_{i}')
-        feature_vector.add(f'line_title_case_{i}')
-        feature_vector.add(f'line_upper_case_{i}')
+        feature_vector.add(f"line_len_{i}")
+        feature_vector.add(f"line_lenstrip_{i}")
+        feature_vector.add(f"line_title_case_{i}")
+        feature_vector.add(f"line_upper_case_{i}")
 
         # Count characters
-        feature_vector.add(f'line_n_alpha_{i}')
-        feature_vector.add(f'line_n_number_{i}')
-        feature_vector.add(f'line_n_punct_{i}')
-        feature_vector.add(f'line_n_whitespace_{i}')
+        feature_vector.add(f"line_n_alpha_{i}")
+        feature_vector.add(f"line_n_number_{i}")
+        feature_vector.add(f"line_n_punct_{i}")
+        feature_vector.add(f"line_n_whitespace_{i}")
 
     # Build character vector
     for character in characters:
-        feature_vector.add(f'char_{character}')
+        feature_vector.add(f"char_{character}")
 
     # Add doc if requested
     if include_doc:
@@ -219,14 +219,17 @@ def get_sections(text, window_pre=3, window_post=3, score_threshold=0.5) -> Gene
     test_feature_data = []
     for line_id in range(len(lines)):
         test_feature_data.append(
-            build_section_break_features(lines, line_id, window_pre, window_post, include_doc=doc_distribution))
+            build_section_break_features(lines, line_id, window_pre, window_post, include_doc=doc_distribution)
+        )
 
     # Predict page breaks
     columns = list(get_section_feature_names(len(lines), window_pre, window_post, include_doc=doc_distribution))
     columns.sort()
     test_feature_df = pandas.DataFrame(test_feature_data, columns=columns).fillna(-1)
     # Avoid pandas dtype deprecation noise in sklearn validation by passing a numpy array.
-    test_predicted_lines = SectionSegmenterModel.SECTION_SEGMENTER_MODEL.predict_proba(test_feature_df.to_numpy(dtype=float))
+    test_predicted_lines = SectionSegmenterModel.SECTION_SEGMENTER_MODEL.predict_proba(
+        test_feature_df.to_numpy(dtype=float)
+    )
     predicted_df = pandas.DataFrame(test_predicted_lines, columns=["prob_false", "prob_true"])
     section_breaks = predicted_df.loc[predicted_df["prob_true"] >= score_threshold, :].index.tolist()
 
@@ -249,7 +252,7 @@ def get_sections(text, window_pre=3, window_post=3, score_threshold=0.5) -> Gene
                 yield section
 
         # Yield final section
-        section = "\n".join(lines[section_breaks[-1]:])
+        section = "\n".join(lines[section_breaks[-1] :])
         if len(section.strip()) > 0:
             yield section
 
@@ -269,8 +272,8 @@ SECTION_TITLE_PTN = r"""
 )
 (?:\.|\s|$)
 """
-SECTION_TITLE_RE1 = re.compile(r'(?<=[,\.:>;\d\n\s]\n)' + SECTION_TITLE_PTN, re.M | re.X)
-SECTION_TITLE_RE2 = re.compile(r'\A' + SECTION_TITLE_PTN, re.M | re.X)
+SECTION_TITLE_RE1 = re.compile(r"(?<=[,\.:>;\d\n\s]\n)" + SECTION_TITLE_PTN, re.M | re.X)
+SECTION_TITLE_RE2 = re.compile(r"\A" + SECTION_TITLE_PTN, re.M | re.X)
 
 
 @safe_failure
@@ -294,12 +297,9 @@ def get_sections_re(text) -> Generator:
 
 
 @safe_failure
-def get_section_spans(text: str,
-                      use_ml=True,
-                      return_text=True,
-                      skip_empty_headers=False,
-                      sections_hierarchy: list[Any] | None = None) -> \
-        Generator[DocumentSection]:
+def get_section_spans(
+    text: str, use_ml=True, return_text=True, skip_empty_headers=False, sections_hierarchy: list[Any] | None = None
+) -> Generator[DocumentSection]:
     """
     Get sections from text.
     Use NLP-based detection OR regex-bases detection of sections - see use_ml param.
@@ -347,30 +347,28 @@ def get_section_spans(text: str,
 
 
 class SectionLevelParser:
-
     DEFAULT_SECTION_HIERARCHY: ClassVar[list[str]] = [
-        r'(?i:(appendix|exhibit|schedule|part|title)\s+\S+)',
-        r'(?i:subtitle\s+\S+)',
-        r'(?i:section\s+\S+)',
-        r'(?i:subsection\s+\S+)',
-        r'(?i:article\s+\S+)',
-        r'\p{Lu}+(?:-\d+(?:\.\d+)?)?',
-        r'[\d\.]+',
-        r'\p{L}+(?:-\d+(?:\.\d+)?)?',
-        r'\([\p{L}\d]+\)'
+        r"(?i:(appendix|exhibit|schedule|part|title)\s+\S+)",
+        r"(?i:subtitle\s+\S+)",
+        r"(?i:section\s+\S+)",
+        r"(?i:subsection\s+\S+)",
+        r"(?i:article\s+\S+)",
+        r"\p{Lu}+(?:-\d+(?:\.\d+)?)?",
+        r"[\d\.]+",
+        r"\p{L}+(?:-\d+(?:\.\d+)?)?",
+        r"\([\p{L}\d]+\)",
     ]
 
     def __init__(self, sections_hierarchy: list[str] | None = None):
         if not sections_hierarchy:
             sections_hierarchy = self.DEFAULT_SECTION_HIERARCHY
-        self.default_sections_hierarchy = [Map(regex=re.compile(i),
-                                               abs_level=n,
-                                               rel_level=None)
-                                           for n, i in enumerate(sections_hierarchy, start=1)]
-        self.level = 1        # represents previous->current relative level (new custom hierarchy)
-        self.abs_level = 1    # represents previous->current absolute level from sections_hierarchy
+        self.default_sections_hierarchy = [
+            Map(regex=re.compile(i), abs_level=n, rel_level=None) for n, i in enumerate(sections_hierarchy, start=1)
+        ]
+        self.level = 1  # represents previous->current relative level (new custom hierarchy)
+        self.abs_level = 1  # represents previous->current absolute level from sections_hierarchy
         self.prev_level_re = None
-        self.title = ''
+        self.title = ""
 
     @property
     def current_sections_hierarchy(self):
@@ -412,9 +410,8 @@ class SectionLevelParser:
 
 
 def get_document_sections_with_titles(
-        full_text: str,
-        sentence_list: list[tuple[int, int] | tuple[int, int, str]],
-        use_ml=False) -> list[DocumentSection]:
+    full_text: str, sentence_list: list[tuple[int, int] | tuple[int, int, str]], use_ml=False
+) -> list[DocumentSection]:
     """
     The method takes large text and a list of sentence bounds ([start, end]).
     The method searches for sections and fills 'title' value for each section.
@@ -425,15 +422,14 @@ def get_document_sections_with_titles(
     :param use_ml:
     :return:
     """
-    sections = list(get_section_spans(
-        full_text, use_ml=use_ml, return_text=False, skip_empty_headers=True))
+    sections = list(get_section_spans(full_text, use_ml=use_ml, return_text=False, skip_empty_headers=True))
     find_section_titles(sections, sentence_list, full_text)
     return sections
 
 
-def find_section_titles(sections: list[DocumentSection],
-                        sentences: list[tuple[int, int] | tuple[int, int, str]],
-                        full_text: str) -> None:
+def find_section_titles(
+    sections: list[DocumentSection], sentences: list[tuple[int, int] | tuple[int, int, str]], full_text: str
+) -> None:
     """
     Methods tries to pick section titles as first sentences of
     referenced paragraphs (sections). The method fills section['title'] values.
@@ -447,16 +443,15 @@ def find_section_titles(sections: list[DocumentSection],
     sentences.sort(key=lambda t: t[0])
     sent_index = 0
     for section in sections:
-        possible_title = ''
+        possible_title = ""
         title_start = 0
         for i in range(sent_index, len(sentences)):
             sent_index = i
             if section.start > sentences[i][1]:
                 continue
-            if section.start < sentences[i][0] and \
-                    section.end < sentences[i][0]:
+            if section.start < sentences[i][0] and section.end < sentences[i][0]:
                 break
-            possible_title = full_text[sentences[i][0]: sentences[i][1]]
+            possible_title = full_text[sentences[i][0] : sentences[i][1]]
             title_start = sentences[i][0]
             break
         if not possible_title:

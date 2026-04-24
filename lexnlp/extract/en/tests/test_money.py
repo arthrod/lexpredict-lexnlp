@@ -33,7 +33,7 @@ class MoneyTest(TestCase):
         This test is ensures the order is straight.
         :return:
         """
-        text = """ $96,844.00 per month ($31.00 per square foot per year), beginning on the date which is 90 days after 
+        text = """ $96,844.00 per month ($31.00 per square foot per year), beginning on the date which is 90 days after
         the Commencement Date and ending on the Expiration Date."""
         actual = list(get_money(text, return_sources=False, float_digits=6))
         self.assertEqual(actual[0][0], 96844.0)
@@ -51,7 +51,7 @@ class MoneyTest(TestCase):
 def test_get_money():
     """
     Run the standard extraction test harness against the English money test dataset without source information.
-    
+
     The test invokes the shared extraction tester using `get_money` and supplies an `expected_data_converter` that transforms each expected (amount, currency) pair into (Decimal(amount) if amount else None, currency).
     """
     lexnlp_tests.test_extraction_func_on_test_data(
@@ -66,7 +66,7 @@ def test_get_money():
 def test_get_money_source():
     """
     Run the standard extraction test harness against English money test data including extraction sources.
-    
+
     Converts each expected (amount, currency, source) into (Decimal(amount) if amount else None, currency, source) and filters out entries where amount, currency, and source are all falsy before comparison.
     """
     lexnlp_tests.test_extraction_func_on_test_data(

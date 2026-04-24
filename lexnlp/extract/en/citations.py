@@ -33,7 +33,7 @@ CITATION_PTN = r"""
 (?:\s+\((.+?)?(\d{{4}})\))?
 )
 (?:\W|$)
-""".format(reporters='|'.join([re.escape(i) for i in EDITIONS]))
+""".format(reporters="|".join([re.escape(i) for i in EDITIONS]))
 CITATION_PTN_RE = re.compile(CITATION_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
 
@@ -62,13 +62,7 @@ def get_citations(
         if as_dict:
             yield ant.to_dictionary_legacy()
         else:
-            item = (ant.volume,
-                    ant.reporter,
-                    ant.reporter_full_name,
-                    ant.page,
-                    ant.page_range,
-                    ant.court,
-                    ant.year)
+            item = (ant.volume, ant.reporter, ant.reporter_full_name, ant.page, ant.page_range, ant.court, ant.year)
             if return_source:
                 item += (ant.source,)
             yield item
@@ -115,31 +109,32 @@ def get_citation_annotations(text: str) -> Generator[CitationAnnotation]:
         CitationAnnotations
     """
     for match in CITATION_PTN_RE.finditer(text):
-        source_text, volume, reporter, \
-            page, page2, court, year = match.groups()
+        source_text, volume, reporter, page, page2, court, year = match.groups()
         try:
             reporter_data = REPORTERS[EDITIONS[reporter]]
-            reporter_full_name = ''
+            reporter_full_name = ""
             if len(reporter_data) == 1:
-                reporter_full_name = reporter_data[0]['name']
+                reporter_full_name = reporter_data[0]["name"]
             elif year:
                 for period_data in reporter_data:
-                    if reporter in period_data['editions']:
-                        start = period_data['editions'][reporter]['start'].year
-                        end = period_data['editions'][reporter]['end']
+                    if reporter in period_data["editions"]:
+                        start = period_data["editions"][reporter]["start"].year
+                        end = period_data["editions"][reporter]["end"]
                         if (end and start <= int(year) <= end.year) or start <= int(year):
-                            reporter_full_name = period_data['name']
+                            reporter_full_name = period_data["name"]
 
-            ant = CitationAnnotation(coords=match.span(),
-                                     volume=int(volume) if volume else None,
-                                     year=int(year) if year and year.isdigit() else None,
-                                     reporter=reporter,
-                                     reporter_full_name=reporter_full_name,
-                                     page=int(page) if page else None,
-                                     page_range=page2,
-                                     source=source_text.strip(),
-                                     court=court.strip(', ') if court else None,
-                                     locale='en')
+            ant = CitationAnnotation(
+                coords=match.span(),
+                volume=int(volume) if volume else None,
+                year=int(year) if year and year.isdigit() else None,
+                reporter=reporter,
+                reporter_full_name=reporter_full_name,
+                page=int(page) if page else None,
+                page_range=page2,
+                source=source_text.strip(),
+                court=court.strip(", ") if court else None,
+                locale="en",
+            )
 
             yield ant
         except KeyError:

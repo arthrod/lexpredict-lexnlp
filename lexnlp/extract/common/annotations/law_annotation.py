@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 
 
@@ -15,27 +14,15 @@ class LawAnnotation(TextAnnotation):
     create an object of LawAnnotation like
     cp = LawAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'law'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = '',
-                 name: str = '',
-                 text: str = ''):
-        super().__init__(
-            coords=coords,
-            locale=locale,
-            name=name,
-            text=text)
+    record_type = "law"
+
+    def __init__(self, coords: tuple[int, int], locale: str = "", name: str = "", text: str = ""):
+        super().__init__(coords=coords, locale=locale, name=name, text=text)
 
     def get_cite_value_parts(self) -> list[str]:
         return [self.name]
 
     def get_dictionary_values(self) -> dict:
-        ant = {
-                'tags': {
-                    'Extracted Entity Name': self.name,
-                    'Extracted Entity Text': self.text or self.name
-                }
-            }
+        ant = {"tags": {"Extracted Entity Name": self.name, "Extracted Entity Text": self.text or self.name}}
         return ant

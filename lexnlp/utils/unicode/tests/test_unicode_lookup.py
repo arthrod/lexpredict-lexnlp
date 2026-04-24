@@ -32,13 +32,14 @@ def check_all_chars_have_correct_category():
         unicode_data_category = unicodedata.category(ch)
         lookup_category = UNICODE_CHAR_TOP_CATEGORY_MAPPING.get(ch)
 
-        if unicode_data_category == 'Cn' and lookup_category is None:
+        if unicode_data_category == "Cn" and lookup_category is None:
             continue
 
         if unicode_data_category and unicode_data_category[0] != lookup_category:
-            print(f'For char: {i} / {hex(i)} '
-                  f'lookup table from ftp.unicode.org gives {lookup_category} but unicodedata module gives {unicode_data_category}.'
-                  )
+            print(
+                f"For char: {i} / {hex(i)} "
+                f"lookup table from ftp.unicode.org gives {lookup_category} but unicodedata module gives {unicode_data_category}."
+            )
 
             # As we found unicodedata module returns different categories for many characters.
             #  if lookup_category \
@@ -58,7 +59,7 @@ def test_performance():
     :return:
     """
     repeat_count = 100000
-    line = 'qwertyuiop[]asdfghjkl;zxcvbnm,./'
+    line = "qwertyuiop[]asdfghjkl;zxcvbnm,./"
 
     start = datetime.now()
 
@@ -68,7 +69,7 @@ def test_performance():
             found.add(unicodedata.category(ch)[0])
     duration1 = datetime.now() - start
 
-    print(f'Duration when using unicodedata.category(): {duration1}')
+    print(f"Duration when using unicodedata.category(): {duration1}")
 
     start = datetime.now()
 
@@ -78,7 +79,7 @@ def test_performance():
             found.add(UNICODE_CHAR_TOP_CATEGORY_MAPPING[ch])
     duration2 = datetime.now() - start
 
-    print(f'Duration when using custom lookup tables: {duration2}')
+    print(f"Duration when using custom lookup tables: {duration2}")
     # this test is unstable
     # assert duration2 < duration1
 
@@ -93,12 +94,12 @@ def safe_remove_temp_file(handler, name):
     try:
         os.close(handler)
     except Exception as e1:
-        logger.error(f'Unable to close OS temp file handler for file {name}', e1)
+        logger.error(f"Unable to close OS temp file handler for file {name}", e1)
     finally:
         try:
             os.remove(name)
         except Exception as e:
-            logger.error(f'Unable to remove temp file {name}', e)
+            logger.error(f"Unable to remove temp file {name}", e)
 
 
 def test_preparing_tables():
@@ -111,31 +112,28 @@ def test_preparing_tables():
     h3, fn_char_top_category_mapping = mkstemp()
 
     try:
-        path = os.path.join(lexnlp_test_path, 'lexnlp/utils/unicode_data.txt')
-        build_lookup_tables(fn_categories,
-                            fn_char_category_mapping,
-                            fn_char_top_category_mapping,
-                            table_source=path)
+        path = os.path.join(lexnlp_test_path, "lexnlp/utils/unicode_data.txt")
+        build_lookup_tables(fn_categories, fn_char_category_mapping, fn_char_top_category_mapping, table_source=path)
 
         tbl_categories = _load_table(fn_categories, False)
 
         # Simple basic testing that the contents are not empty and make sense.
 
-        assert ',' in tbl_categories['punctuation']
-        assert '[' in tbl_categories['punctuation_start']
-        assert ']' in tbl_categories['punctuation_end']
-        assert '^' in tbl_categories['symbol']
-        assert '$' in tbl_categories['symbol_currency']
-        assert '+' in tbl_categories['symbol_math']
-        assert ' ' in tbl_categories['whitespace']
-        assert ' ' in tbl_categories['space']
-        assert '\u2028' in tbl_categories['line']
+        assert "," in tbl_categories["punctuation"]
+        assert "[" in tbl_categories["punctuation_start"]
+        assert "]" in tbl_categories["punctuation_end"]
+        assert "^" in tbl_categories["symbol"]
+        assert "$" in tbl_categories["symbol_currency"]
+        assert "+" in tbl_categories["symbol_math"]
+        assert " " in tbl_categories["whitespace"]
+        assert " " in tbl_categories["space"]
+        assert "\u2028" in tbl_categories["line"]
 
         tbl_char_category_mapping = _load_table(fn_char_category_mapping, False)
-        assert tbl_char_category_mapping['a'] == 'Ll'
+        assert tbl_char_category_mapping["a"] == "Ll"
 
         tbl_char_top_category_mapping = _load_table(fn_char_top_category_mapping, False)
-        assert tbl_char_top_category_mapping['a'] == 'L'
+        assert tbl_char_top_category_mapping["a"] == "L"
 
     finally:
         safe_remove_temp_file(h1, fn_categories)

@@ -16,12 +16,13 @@ class DurationAnnotation(TextAnnotation):
     create an object of DurationAnnotation like
     cp = DurationAnnotation(coords=(0, 100), value='101 ms')
     """
-    record_type = 'duration'
+
+    record_type = "duration"
 
     def __init__(
         self,
         coords: tuple[int, int],
-        locale: str = 'en',
+        locale: str = "en",
         text: str | None = None,
         amount: Decimal | None = None,
         prefix: str | None = None,
@@ -29,11 +30,11 @@ class DurationAnnotation(TextAnnotation):
         duration_type: str | None = None,
         duration_type_en: str | None = None,
         is_complex: bool = False,
-        value_dict: dict | None = None
+        value_dict: dict | None = None,
     ) -> None:
         """
         Initialize a DurationAnnotation representing a detected duration entity.
-        
+
         Parameters:
             coords (tuple[int, int]): Start and end character offsets of the annotation in the source text.
             locale (str): Locale code used for parsing/normalization (default 'en').
@@ -46,12 +47,7 @@ class DurationAnnotation(TextAnnotation):
             is_complex (bool): True when the duration expression is compound or composed of multiple parts.
             value_dict (dict | None): Optional additional metadata or parsed values to attach to the annotation.
         """
-        super().__init__(
-            name='',
-            locale=locale,
-            coords=coords,
-            text=text
-        )
+        super().__init__(name="", locale=locale, coords=coords, text=text)
         self.amount: Decimal = amount
         self.prefix: str = prefix
         self.duration_days: Decimal = duration_days if amount is not None else None
@@ -61,15 +57,9 @@ class DurationAnnotation(TextAnnotation):
         self.value_dict: dict = value_dict
 
     def get_cite_value_parts(self) -> list[str]:
-        parts = [str(self.amount or ''),
-                 self.duration_type or '']
+        parts = [str(self.amount or ""), self.duration_type or ""]
         return parts
 
     def get_dictionary_values(self) -> dict:
-        df = {
-            'tags': {
-                'Extracted Entity Value': str(self.amount or ''),
-                'Extracted Entity Text': self.text
-            }
-        }
+        df = {"tags": {"Extracted Entity Value": str(self.amount or ""), "Extracted Entity Text": self.text}}
         return df

@@ -16,31 +16,18 @@ class AmountAnnotation(TextAnnotation):
     create an object of AmountAnnotation like
     cp = AmountAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'amount'
+
+    record_type = "amount"
 
     def __init__(
-        self,
-        coords: tuple[int, int],
-        locale: str = 'en',
-        value: Decimal = Decimal('0.0'),
-        text: str = ''
+        self, coords: tuple[int, int], locale: str = "en", value: Decimal = Decimal("0.0"), text: str = ""
     ) -> None:
-        super().__init__(
-            name='',
-            locale=locale,
-            coords=coords,
-            text=text
-        )
+        super().__init__(name="", locale=locale, coords=coords, text=text)
         self.value: Decimal = value
 
     def get_cite_value_parts(self) -> list[str]:
         return [str(self.value)] if self.value else []
 
     def get_dictionary_values(self) -> dict:
-        df = {
-            "tags": {
-                'Extracted Entity Value': str(self.value or ''),
-                'Extracted Entity Text': self.text
-            }
-        }
+        df = {"tags": {"Extracted Entity Value": str(self.value or ""), "Extracted Entity Text": self.text}}
         return df

@@ -32,9 +32,7 @@ DEFAULT_NEGATIVE_TAGS: tuple[str, ...] = (
     "corpus/eurlex-sample-10000/0.1",
 )
 DEFAULT_BASELINE_METRICS = Path("test_data/model_quality/is_contract_baseline_metrics.json")
-DEFAULT_FIXTURE = Path(
-    "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv"
-)
+DEFAULT_FIXTURE = Path("test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv")
 
 
 class TrainingError(Exception):
@@ -129,10 +127,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         "--baseline-metrics-json",
         type=Path,
         default=DEFAULT_BASELINE_METRICS,
-        help=(
-            "Committed baseline metrics JSON consumed by quality gate "
-            f"(default: {DEFAULT_BASELINE_METRICS})."
-        ),
+        help=(f"Committed baseline metrics JSON consumed by quality gate (default: {DEFAULT_BASELINE_METRICS})."),
     )
     parser.add_argument(
         "--fixture",
@@ -336,9 +331,7 @@ def write_candidate_to_catalog(
     destination_path = destination_dir / baseline_model_path.name
 
     if destination_path.exists() and not force:
-        raise FileExistsError(
-            f"Candidate path already exists: {destination_path}. Pass --force to overwrite."
-        )
+        raise FileExistsError(f"Candidate path already exists: {destination_path}. Pass --force to overwrite.")
 
     with destination_path.open("wb") as candidate_file:
         pickle.dump(pipeline, candidate_file)

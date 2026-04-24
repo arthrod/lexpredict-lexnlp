@@ -27,7 +27,7 @@ class TestSsnPlain(TestCase):
     def test_file_samples(self):
         """
         Validate SSN typed annotation samples against the SSN annotation extractor.
-        
+
         Runs TypedAnnotationsTester.test_and_raise_errors using the SSN sample file and SsnAnnotation; raises an exception if any sample does not produce the expected annotation.
         """
         tester = TypedAnnotationsTester()

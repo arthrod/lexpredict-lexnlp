@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -104,8 +103,7 @@ def _build_github_headers(headers: dict[str, str]) -> dict[str, str]:
 
 
 class GitHubReleaseDownloader:
-    """
-    """
+    """ """
 
     @classmethod
     def download_release(cls, tag: str):
@@ -118,10 +116,12 @@ class GitHubReleaseDownloader:
     def get_tag(tag: str) -> Response:
         models_repo = get_models_repo()
         response: Response = _session().get(
-            url=f'{models_repo}{tag}',
-            headers=_build_github_headers({
-                'Accept': 'application/vnd.github.v3+json',
-            }),
+            url=f"{models_repo}{tag}",
+            headers=_build_github_headers(
+                {
+                    "Accept": "application/vnd.github.v3+json",
+                }
+            ),
             timeout=_get_github_timeout_seconds(),
         )
         response.raise_for_status()
@@ -130,9 +130,9 @@ class GitHubReleaseDownloader:
     @staticmethod
     def get_asset(response: Response, index: int = 0) -> dict[str, Any]:
         try:
-            asset: dict[str, Any] = response.json()['assets'][index]
+            asset: dict[str, Any] = response.json()["assets"][index]
         except KeyError as key_error:
-            raise KeyError(f'Available keys: {response.json().keys()}') from key_error
+            raise KeyError(f"Available keys: {response.json().keys()}") from key_error
         return asset
 
     @staticmethod
@@ -155,11 +155,11 @@ class GitHubReleaseDownloader:
                 Raised if `content_length == 0`.
         """
         if content_length == 0:
-            raise ValueError('content_length == 0; nothing to download.')
+            raise ValueError("content_length == 0; nothing to download.")
 
         with tqdm(
             total=content_length,
-            unit='iB',
+            unit="iB",
             unit_scale=True,
         ) as progress_bar:
             for chunk in content_iterator:
@@ -177,42 +177,44 @@ class GitHubReleaseDownloader:
     ) -> None:
         """
         Download a GitHub release asset to the specified destination directory and verify its MD5 if provided by the server.
-        
+
         Parameters:
             asset (dict): Asset metadata from the GitHub Releases API containing at least the keys 'url' and 'name' and optionally 'size'.
             destination_directory (Path | str): Directory where the asset file will be written; the directory will be created if it does not exist.
             chunk_size (int): Number of bytes to read per network chunk when streaming the download.
-        
+
         Raises:
             ChecksumError: If the server provided a Content-MD5 header and the computed file checksum does not match.
         """
         response: Response = _session().get(
-            url=asset['url'],
+            url=asset["url"],
             stream=True,
-            headers=_build_github_headers({
-                'Accept': 'application/octet-stream',
-            }),
+            headers=_build_github_headers(
+                {
+                    "Accept": "application/octet-stream",
+                }
+            ),
             timeout=_get_github_timeout_seconds(),
         )
         response.raise_for_status()
         headers: CaseInsensitiveDict[str, Any] = response.headers
-        name: str = asset.get('name')
-        content_length: int = int(headers.get('Content-Length', asset.get('size', 0)))
+        name: str = asset.get("name")
+        content_length: int = int(headers.get("Content-Length", asset.get("size", 0)))
         content_iterator: Iterator = response.iter_content(chunk_size=chunk_size)
 
-        LOGGER.info(f'Downloading {name}...')
+        LOGGER.info(f"Downloading {name}...")
         destination_directory = Path(destination_directory)
         destination_directory.mkdir(exist_ok=True, parents=True)
         path_file: Path = destination_directory / name
-        with open(path_file, 'wb') as f:
+        with open(path_file, "wb") as f:
             for chunk in cls.yield_asset(content_iterator, content_length, chunk_size):
                 f.write(chunk)
-        LOGGER.info(f'...downloaded {name} to {destination_directory}')
-        content_md5: str = headers.get('Content-MD5')
+        LOGGER.info(f"...downloaded {name} to {destination_directory}")
+        content_md5: str = headers.get("Content-MD5")
         if content_md5:
-            LOGGER.info(f'Detected MD5; verifying ({content_md5})...')
+            LOGGER.info(f"Detected MD5; verifying ({content_md5})...")
             cls.verify_md5(path_file, content_md5)
-            LOGGER.info('...verified.')
+            LOGGER.info("...verified.")
 
     @staticmethod
     def verify_md5(
@@ -230,16 +232,12 @@ class GitHubReleaseDownloader:
             ChecksumError:
                  Raised if MD5 hashes do not match.
         """
-        with open(filepath, 'rb') as f:
+        with open(filepath, "rb") as f:
             h = md5(f.read())
 
         h_b64: str = b64encode(h.digest()).decode()
         if h_b64 != checksum:
-            raise ChecksumError(
-                'MD5 checksum verification failed! '
-                f'Received: {h_b64} '
-                f'Expected: {checksum}'
-            )
+            raise ChecksumError(f"MD5 checksum verification failed! Received: {h_b64} Expected: {checksum}")
 
 
 def download_github_release(tag: str, prompt_user: bool = True) -> None:
@@ -270,9 +268,9 @@ def download_github_release(tag: str, prompt_user: bool = True) -> None:
 
     def _input_yes_no(prompt: str):
         answer: str = input(prompt).lower()
-        if answer == 'y':
+        if answer == "y":
             return True
-        elif answer == 'n':
+        elif answer == "n":
             return False
         else:
             raise ValueError("User input must be 'Y' or 'n'.")
@@ -289,29 +287,27 @@ def download_github_release(tag: str, prompt_user: bool = True) -> None:
         magnitude: int = int(floor(log(number_of_bytes, 1024)))
         value: float = number_of_bytes / pow(1024, magnitude)
         if magnitude > 3:
-            return f'{value:.1f} TiB'
-        return '{:3.2f} {}B'.format(value, ('', 'Ki', 'Mi', 'Gi')[magnitude])
+            return f"{value:.1f} TiB"
+        return "{:3.2f} {}B".format(value, ("", "Ki", "Mi", "Gi")[magnitude])
 
     if prompt_user:
         models_repo = get_models_repo()
-        answer_download = _input_yes_no(f'Download `{tag}` from {models_repo}? [Y/n]')
+        answer_download = _input_yes_no(f"Download `{tag}` from {models_repo}? [Y/n]")
         if answer_download:
             asset: dict[str, Any] = _get_asset()
             try:
-                content_length: int = asset['size']
+                content_length: int = asset["size"]
             except KeyError as key_error:
-                raise Exception('Could not determine download size') from key_error
+                raise Exception("Could not determine download size") from key_error
         else:
-            print(f'Not downloading `{tag}`. Exiting.')
+            print(f"Not downloading `{tag}`. Exiting.")
             return
 
-        answer_download_size = _input_yes_no(
-            f'Download ~{bytes_to_human_readable(content_length)}? [Y/n]'
-        )
+        answer_download_size = _input_yes_no(f"Download ~{bytes_to_human_readable(content_length)}? [Y/n]")
         if answer_download_size:
             _download_asset()
         else:
-            print(f'Not downloading `{tag}`. Exiting.')
+            print(f"Not downloading `{tag}`. Exiting.")
 
     else:
         asset: dict[str, Any] = _get_asset()

@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -22,10 +21,6 @@ ROUTINE_BY_LOCALE = {
 }
 
 
-def get_definition_annotations(
-        locale: str,
-        text: str,
-        **kwargs) \
-        -> Generator[DefinitionAnnotation]:
+def get_definition_annotations(locale: str, text: str, **kwargs) -> Generator[DefinitionAnnotation]:
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
     yield from routine(text, **kwargs)

@@ -23,7 +23,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-import contract_type_quality_gate  # noqa: E402  # required: import follows sys.path insertion for test-only script module resolution
+import contract_type_quality_gate  # required: import follows sys.path insertion for test-only script module resolution
 
 # ---------------------------------------------------------------------------
 # parse_args – argument mapping
@@ -34,16 +34,12 @@ class TestParseArgs:
     """Verify that both CLI argument names map to max_accuracy_topn_regression."""
 
     def test_max_accuracy_topn_regression_flag(self) -> None:
-        args = contract_type_quality_gate.parse_args(
-            ["--candidate-tag", "t", "--max-accuracy-topn-regression", "0.05"]
-        )
+        args = contract_type_quality_gate.parse_args(["--candidate-tag", "t", "--max-accuracy-topn-regression", "0.05"])
         assert args.max_accuracy_topn_regression == pytest.approx(0.05)
 
     def test_max_accuracy_top3_regression_deprecated_alias(self) -> None:
         """--max-accuracy-top3-regression is a deprecated alias that sets the same dest."""
-        args = contract_type_quality_gate.parse_args(
-            ["--candidate-tag", "t", "--max-accuracy-top3-regression", "0.07"]
-        )
+        args = contract_type_quality_gate.parse_args(["--candidate-tag", "t", "--max-accuracy-top3-regression", "0.07"])
         assert args.max_accuracy_topn_regression == pytest.approx(0.07)
 
     def test_both_flags_last_one_wins(self) -> None:
@@ -99,9 +95,7 @@ class _DummyPipeline:
 
 
 class TestScorePipeline:
-    def _make_pipeline(
-        self, n: int = 4, n_classes: int = 3
-    ) -> tuple[_DummyPipeline, list[str], list[str]]:
+    def _make_pipeline(self, n: int = 4, n_classes: int = 3) -> tuple[_DummyPipeline, list[str], list[str]]:
         rng = np.random.default_rng(42)
         classes = [f"class_{i}" for i in range(n_classes)]
         labels = [classes[i % n_classes] for i in range(n)]
@@ -179,9 +173,7 @@ class TestScorePipeline:
                 return texts
 
         with pytest.raises(ValueError, match="predict_proba"):
-            contract_type_quality_gate.score_pipeline(
-                NoProbaPipeline(), ["t1"], ["A"], top_n=1
-            )
+            contract_type_quality_gate.score_pipeline(NoProbaPipeline(), ["t1"], ["A"], top_n=1)
 
     def test_pipeline_without_classes_raises(self) -> None:
         """Pipeline missing classes_ raises ValueError."""

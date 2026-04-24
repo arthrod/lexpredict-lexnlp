@@ -35,17 +35,15 @@ DISTANCE_PTN = r"""
 (({num_ptn})\s*
 ({distance_tokens}|{distance_symbols}))(?:\W|$)
 """.format(
-    num_ptn=NUM_PTN.replace('(?:\\W|$)', '').replace('(?<=\\W|^)', ''),
-    distance_symbols='|'.join(DISTANCE_SYMBOL_MAP),
-    distance_tokens='|'.join(DISTANCE_TOKEN_MAP)
+    num_ptn=NUM_PTN.replace("(?:\\W|$)", "").replace("(?<=\\W|^)", ""),
+    distance_symbols="|".join(DISTANCE_SYMBOL_MAP),
+    distance_tokens="|".join(DISTANCE_TOKEN_MAP),
 )
 DISTANCE_PTN_RE = re.compile(DISTANCE_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
 
 def get_distances(
-    text: str,
-    return_sources: bool = False,
-    float_digits: int = 4
+    text: str, return_sources: bool = False, float_digits: int = 4
 ) -> Generator[tuple[Decimal, str] | tuple[Decimal, str, str]]:
     for ant in get_distance_annotations(text, float_digits):
         if return_sources:
@@ -59,27 +57,19 @@ def get_distance_list(
     return_sources: bool = False,
     float_digits: int = 4,
 ) -> list[tuple[Decimal, str] | tuple[Decimal, str, str]]:
-    """
-    """
+    """ """
     return list(get_distances(text, return_sources, float_digits))
 
 
-def get_distance_annotations(
-    text: str,
-    float_digits: int = 4
-) -> Generator[DistanceAnnotation]:
+def get_distance_annotations(text: str, float_digits: int = 4) -> Generator[DistanceAnnotation]:
     for match in DISTANCE_PTN_RE.finditer(text.lower()):
         source_text, number_text, distance_item = match.groups()
         amount = list(get_amounts(number_text, float_digits=float_digits))
         if len(amount) != 1:
             continue
-        distance_type = DISTANCE_SYMBOL_MAP.get(distance_item) \
-                        or DISTANCE_TOKEN_MAP.get(distance_item)
+        distance_type = DISTANCE_SYMBOL_MAP.get(distance_item) or DISTANCE_TOKEN_MAP.get(distance_item)
         yield DistanceAnnotation(
-            coords=match.span(),
-            amount=amount[0],
-            distance_type=distance_type,
-            text=source_text.strip()
+            coords=match.span(), amount=amount[0], distance_type=distance_type, text=source_text.strip()
         )
 
 
@@ -87,6 +77,5 @@ def get_distance_annotation_list(
     text: str,
     float_digits: int = 4,
 ) -> list[DistanceAnnotation]:
-    """
-    """
+    """ """
     return list(get_distance_annotations(text, float_digits))

@@ -20,24 +20,23 @@ from lexnlp.utils.lines_processing.line_processor import LineProcessor, LineSpli
 
 class CopyrightDeParser(CopyrightEnStyleParser):
     line_processor = None  # LineProcessor
-    copyright_words = ['Copyright', 'Urheberrechte', 'Urheberschutz', 'Eigentumsrecht']
-    copyright_words_ptrn = r'\W\s*|'.join(copyright_words)
+    copyright_words = ["Copyright", "Urheberrechte", "Urheberschutz", "Eigentumsrecht"]
+    copyright_words_ptrn = r"\W\s*|".join(copyright_words)
 
-    copyright_ptn = fr"(({copyright_words_ptrn}|\(\s*[Cc]\s*\)\s*|©)+\s*{CopyrightEnStyleParser.year_ptn}?\s*(.+))"
+    copyright_ptn = rf"(({copyright_words_ptrn}|\(\s*[Cc]\s*\)\s*|©)+\s*{CopyrightEnStyleParser.year_ptn}?\s*(.+))"
     copyright_ptn_re = re.compile(copyright_ptn)
 
     @staticmethod
     def init_parser():
         split_params = LineSplitParams()
-        split_params.line_breaks = {'\n', '.', ';', '!', '?'}
+        split_params.line_breaks = {"\n", ".", ";", "!", "?"}
         split_params.abbreviations = DeLanguageTokens.abbreviations
         split_params.abbr_ignore_case = True
         CopyrightDeParser.line_processor = LineProcessor(line_split_params=split_params)
 
     @classmethod
     def extract_phrases_with_coords(cls, sentence: str) -> list[tuple[str, int, int]]:
-        return [(t.text, t.start, t.get_end()) for t in
-                cls.line_processor.split_text_on_line_with_endings(sentence)]
+        return [(t.text, t.start, t.get_end()) for t in cls.line_processor.split_text_on_line_with_endings(sentence)]
 
 
 CopyrightDeParser.init_parser()
@@ -58,7 +57,7 @@ def get_copyright_annotations(text: str, return_sources=False) -> Generator[Copy
         CopyrightAnnotation
     """
     for ant in CopyrightDeParser.get_copyright_annotations(text, return_sources):
-        ant.locale = 'de'
+        ant.locale = "de"
         yield ant
 
 

@@ -119,7 +119,7 @@ class TestTextBeautifier(TestCase):
     def test_find_transformed_word(self):
         """
         Verifies that find_transformed_word does not match a transformed quoted word when none is present.
-        
+
         Asserts that searching for the transformed form of `"Obligation"` in the given text returns `None`, indicating no matching transformed word was found.
         """
         text = "(each an “Obligation” and collectively, the “Obligations”)"

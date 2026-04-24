@@ -26,7 +26,7 @@ from unittest.mock import MagicMock, patch
 # Import async_extract via the normal package path. It's already PEP 695
 # compatible on Python 3.13 (the project floor), so the previous
 # importlib-based bypass is no longer necessary.
-from lexnlp.extract.batch.async_extract import adaptive_max_workers  # noqa: E402
+from lexnlp.extract.batch.async_extract import adaptive_max_workers
 
 # ---------------------------------------------------------------------------
 # Basic contract
@@ -109,7 +109,7 @@ class TestAdaptiveMaxWorkersWithMockedPsutil:
         mock_psutil = MagicMock()
         mock_psutil.cpu_count.return_value = None  # simulate unavailable
         mem_mock = MagicMock()
-        mem_mock.available = int(32 * 1024**3)  # 32 GiB
+        mem_mock.available = 32 * 1024**3  # 32 GiB
         mock_psutil.virtual_memory.return_value = mem_mock
 
         with patch.dict(sys.modules, {"psutil": mock_psutil}):

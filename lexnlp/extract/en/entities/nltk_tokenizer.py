@@ -17,9 +17,8 @@ class NltkTokenizer(TreebankWordTokenizer):
     NltkTokenizer allows changing punctuation and starting_quotes
     settings
     """
-    def __init__(self,
-                 punctuation: list[Any] | None = None,
-                 starting_quotes: Any | None = None):
+
+    def __init__(self, punctuation: list[Any] | None = None, starting_quotes: Any | None = None):
         super().__init__()
         self.punctuation = punctuation or self.PUNCTUATION
         self.starting_quotes = starting_quotes or self.STARTING_QUOTES
@@ -50,9 +49,9 @@ class NltkTokenizer(TreebankWordTokenizer):
             text = regexp.sub(substitution, text)
 
         for regexp in self.CONTRACTIONS2:
-            text = regexp.sub(r' \1 \2 ', text)
+            text = regexp.sub(r" \1 \2 ", text)
         for regexp in self.CONTRACTIONS3:
-            text = regexp.sub(r' \1 \2 ', text)
+            text = regexp.sub(r" \1 \2 ", text)
 
         # We are not using CONTRACTIONS4 since
         # they are also commented out in the SED scripts

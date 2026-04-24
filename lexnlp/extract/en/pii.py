@@ -57,8 +57,7 @@ def get_ssn_list(
     text: str,
     return_sources: bool = False,
 ) -> list[str | None | tuple[str | None, str]]:
-    """
-    """
+    """ """
     return list(get_ssns(text, return_sources))
 
 
@@ -66,20 +65,17 @@ def get_ssn_annotations(text: str) -> Generator[SsnAnnotation]:
     for match in RE_SSN.finditer(text):  # type: re.Match
         # Get individual group matches
         captures = match.capturesdict()
-        blocks = [int(captures[f'block{i + 1}'].pop()) for i in range(3)]
+        blocks = [int(captures[f"block{i + 1}"].pop()) for i in range(3)]
         if not all(blocks):
             continue
 
-        ssn = f'{blocks[0]:03d}-{blocks[1]:02d}-{blocks[2]:04d}'
-        ant = SsnAnnotation(coords=match.span(),
-                            number=ssn,
-                            text=match.group())
+        ssn = f"{blocks[0]:03d}-{blocks[1]:02d}-{blocks[2]:04d}"
+        ant = SsnAnnotation(coords=match.span(), number=ssn, text=match.group())
         yield ant
 
 
 def get_ssn_annotation_list(text: str) -> list[SsnAnnotation]:
-    """
-    """
+    """ """
     return list(get_ssn_annotations(text))
 
 
@@ -101,8 +97,7 @@ def get_us_phone_list(
     text: str,
     return_sources: bool = False,
 ) -> list[str | None | tuple[str | None, str]]:
-    """
-    """
+    """ """
     return list(get_us_phones(text, return_sources))
 
 
@@ -115,13 +110,12 @@ def get_us_phone_annotations(text: str) -> Generator[PhoneAnnotation]:
     for match in RE_US_PHONE.finditer(text):
         # Get individual group matches
         captures = match.capturesdict()
-        phone = "({area_code}) {exchange}-{last4}".format(area_code=captures["area_code"].pop(),
-                                                          exchange=captures["exchange"].pop(),
-                                                          last4=captures["last4"].pop(),
-                                                          )
-        ant = PhoneAnnotation(coords=match.span(),
-                              phone=phone,
-                              text=match.group(0))
+        phone = "({area_code}) {exchange}-{last4}".format(
+            area_code=captures["area_code"].pop(),
+            exchange=captures["exchange"].pop(),
+            last4=captures["last4"].pop(),
+        )
+        ant = PhoneAnnotation(coords=match.span(), phone=phone, text=match.group(0))
         yield ant
 
 
@@ -143,21 +137,21 @@ def get_pii(text: str, return_sources: bool = False) -> Generator[tuple]:
 
     for ssn in get_ssns(text, return_sources):
         if isinstance(ssn, (tuple, list)):
-            row = ['ssn']
+            row = ["ssn"]
             for v in ssn:
                 row.append(v)
             yield tuple(row)
         else:
-            yield 'ssn', ssn
+            yield "ssn", ssn
 
     for phone in get_us_phones(text, return_sources):
         if isinstance(phone, (tuple, list)):
-            row = ['us_phone']
+            row = ["us_phone"]
             for v in phone:
                 row.append(v)
             yield tuple(row)
         else:
-            yield 'us_phone', phone
+            yield "us_phone", phone
 
 
 def get_pii_list(text: str, return_sources: bool = False) -> list[tuple]:

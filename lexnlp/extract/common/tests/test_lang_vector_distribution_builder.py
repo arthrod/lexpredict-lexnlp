@@ -44,9 +44,9 @@ class TestLangVectorDistributionBuilder(TestCase):
     def collect_paths(self, root: str, paths: list[str]):
         """
         Recursively collect full paths of all ".txt" files under a directory and append them to a provided list.
-        
+
         Scans the directory tree rooted at `root`, appending the full filesystem path of each file whose name ends with ".txt" to `paths`. Subdirectories are traversed recursively; `paths` is modified in place.
-        
+
         Parameters:
             root (str): Path to the directory to search.
             paths (list[str]): Mutable list that will be extended with discovered file paths.

@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 from lexnlp.extract.common.special_characters import SpecialCharacters
 
 
@@ -14,24 +13,23 @@ class IntroductoryWordsDetector:
     # introductory words, detected by dictionary and POS
     # e.g. (so called "champerty' => "champerty')
     # should be removed
-    INTRO_ADVERBS = {'so', 'also'}
-    INTRO_VERBS = {'called', 'known', 'named'}
+    INTRO_ADVERBS = {"so", "also"}
+    INTRO_VERBS = {"called", "known", "named"}
 
     INTRODUCTORY_POS = [
-        [('RB', INTRO_ADVERBS), ('VBN', INTRO_VERBS)],    # so called
-        [('RB', INTRO_ADVERBS), ('JJ', INTRO_VERBS)],    # so called, but "called" is adjective
-        [('VBN', INTRO_VERBS)]    # called
+        [("RB", INTRO_ADVERBS), ("VBN", INTRO_VERBS)],  # so called
+        [("RB", INTRO_ADVERBS), ("JJ", INTRO_VERBS)],  # so called, but "called" is adjective
+        [("VBN", INTRO_VERBS)],  # called
     ]
 
     # pylint:disable=unnecessary-lambda
     MAX_INTRO_LEN = len(max(INTRODUCTORY_POS, key=lambda i: len(i)))
 
     # punctuation POS that we have to skip while, e.g., removing introductory words
-    PUNCTUATION_POS = {'``', '\t'}.union(SpecialCharacters.punctuation)
+    PUNCTUATION_POS = {"``", "\t"}.union(SpecialCharacters.punctuation)
 
     @staticmethod
-    def remove_term_introduction(
-            term: str, term_pos: list[tuple[str, str, int, int]]) -> str:
+    def remove_term_introduction(term: str, term_pos: list[tuple[str, str, int, int]]) -> str:
         """
         so called "champerty' => "champerty'
         :param term: source phrase

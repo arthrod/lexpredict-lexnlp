@@ -18,7 +18,7 @@ class TestAmountsPlain(TestCase):
     def test_amounts(self):
         """
         Unit test verifying numeric amount extraction from a sample contract-like text.
-        
+
         Asserts that get_amounts yields the expected sequence of numeric values (as stringified decimals) for the provided multi-line contract fragment.
         """
         text = """
@@ -36,7 +36,7 @@ class TestAmountsPlain(TestCase):
     def test_fraction_symbol(self):
         """
         Verify that Unicode fraction characters are converted into correct Decimal amount annotations.
-        
+
         Checks two cases: the contiguous fraction glyph "1½" is parsed as Decimal("1.5"), and the spaced fraction "2 ⅗" is parsed as Decimal("2.6"); each case must yield exactly one AmountAnnotation.
         """
         text = "1½ of apple"
@@ -52,7 +52,7 @@ class TestAmountsPlain(TestCase):
     def test_file_samples(self):
         """
         Run the sample-based annotation tests for amount extraction.
-        
+
         This executes the typed-annotation tester against the sample file "lexnlp/typed_annotations/en/amount/amounts.txt" using get_amount_annotations and expects annotations of type AmountAnnotation; the tester raises an error if any sample fails.
         """
         tester = TypedAnnotationsTester()

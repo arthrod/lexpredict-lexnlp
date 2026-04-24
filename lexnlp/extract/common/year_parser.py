@@ -15,6 +15,7 @@ class YearParser:
     """
     finds years in the string passed
     """
+
     def __init__(self):
         self.max_year = datetime.datetime.now().year + 1
         self.reg_year = re.compile(r"\d{4}")
@@ -23,9 +24,9 @@ class YearParser:
         max_year = max_year if max_year > 0 else self.max_year
         return min_year <= year <= max_year
 
-    def get_years_with_coords_from_string(self,
-                                          text: str, min_year: int = 1800,
-                                          max_year=0) -> list[tuple[int, int, int]]:
+    def get_years_with_coords_from_string(
+        self, text: str, min_year: int = 1800, max_year=0
+    ) -> list[tuple[int, int, int]]:
         years = []  # List[Tuple[int, int, int]]
         for m in self.reg_year.finditer(text):
             year = int(m.group())

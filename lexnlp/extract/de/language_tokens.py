@@ -12,19 +12,16 @@ from lexnlp.extract.common.language_dictionary_reader import LanguageDictionaryR
 
 
 class DeLanguageTokens:
-    abbreviations = {'nr.', 'abs.', 'no.', 'act.', 'inc.', 'p.', 'Inc.'}
-    articles = ['der', 'die', 'das', 'des', 'dem', 'den',
-                'ein', 'eine', 'eines', 'einer', 'einem', 'einen']
-    conjunctions = ['und', 'oder']
+    abbreviations = {"nr.", "abs.", "no.", "act.", "inc.", "p.", "Inc."}
+    articles = ["der", "die", "das", "des", "dem", "den", "ein", "eine", "eines", "einer", "einem", "einen"]
+    conjunctions = ["und", "oder"]
 
     @staticmethod
     def init():
-        abr_file_path = os.path.join(os.path.dirname(__file__),
-                                     'data/abbreviations.txt')
+        abr_file_path = os.path.join(os.path.dirname(__file__), "data/abbreviations.txt")
         if os.path.isfile(abr_file_path):
             file_set = LanguageDictionaryReader.read_str_set(abr_file_path)
-            DeLanguageTokens.abbreviations = \
-                DeLanguageTokens.abbreviations.union(file_set)
+            DeLanguageTokens.abbreviations = DeLanguageTokens.abbreviations.union(file_set)
 
 
 DeLanguageTokens.init()

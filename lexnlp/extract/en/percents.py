@@ -24,14 +24,14 @@ from .amounts import NUM_PTN, get_amounts, quantize_by_float_digit
 from .money import CURRENCY_PREFIX_MAP, CURRENCY_SYMBOL_MAP
 
 PERCENT_UNIT_MAP: dict[str, Decimal] = {
-    "%": Decimal('0.01'),
-    "percent": Decimal('0.01'),
-    "percents": Decimal('0.01'),
-    "percentage point": Decimal('0.01'),
-    "percentage points": Decimal('0.01'),
-    "bps": Decimal('0.0001'),
-    "basis point": Decimal('0.0001'),
-    "basis points": Decimal('0.0001')
+    "%": Decimal("0.01"),
+    "percent": Decimal("0.01"),
+    "percents": Decimal("0.01"),
+    "percentage point": Decimal("0.01"),
+    "percentage points": Decimal("0.01"),
+    "bps": Decimal("0.0001"),
+    "basis point": Decimal("0.0001"),
+    "basis points": Decimal("0.0001"),
 }
 
 PERCENT_UNIT_LIST: list[str] = list(PERCENT_UNIT_MAP.keys())
@@ -39,11 +39,16 @@ PERCENT_UNIT_LIST.sort(key=len, reverse=True)
 
 PERCENT_PTN = r"""
 (({num_ptn})[\s\)]*({percent_units}))(?:\W|$)
-""".format(num_ptn=NUM_PTN.replace("(?:\\W|$)", '')
-           .replace("[\\.\\d][\\d\\.,]", "((?:{currency_prefixes}|[{currency_symbols}])\\s*)?[\\.\\d][\\d\\.,]"
-                    .format(currency_prefixes='|'.join(CURRENCY_PREFIX_MAP),
-                            currency_symbols=''.join([re.escape(i) for i in CURRENCY_SYMBOL_MAP]))),
-           percent_units='|'.join([re.escape(i) for i in PERCENT_UNIT_LIST]))
+""".format(
+    num_ptn=NUM_PTN.replace("(?:\\W|$)", "").replace(
+        "[\\.\\d][\\d\\.,]",
+        "((?:{currency_prefixes}|[{currency_symbols}])\\s*)?[\\.\\d][\\d\\.,]".format(
+            currency_prefixes="|".join(CURRENCY_PREFIX_MAP),
+            currency_symbols="".join([re.escape(i) for i in CURRENCY_SYMBOL_MAP]),
+        ),
+    ),
+    percent_units="|".join([re.escape(i) for i in PERCENT_UNIT_LIST]),
+)
 PERCENT_PTN_RE = re.compile(PERCENT_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
 
@@ -72,8 +77,7 @@ def get_percent_list(
     return_sources: bool = False,
     float_digits: int = 4,
 ) -> list[tuple[str, Decimal, Decimal] | tuple[str, Decimal, Decimal, str]]:
-    """
-    """
+    """ """
     return list(get_percents(text, return_sources, float_digits))
 
 
@@ -89,13 +93,11 @@ def get_percent_annotations(
         if currency_prefix:
             continue
 
-        numbers: list[Decimal] = \
-            list(get_amounts(number_text, float_digits=float_digits))
+        numbers: list[Decimal] = list(get_amounts(number_text, float_digits=float_digits))
         if len(numbers) == 1:
             val: Decimal = Decimal(str(numbers[0]))
         else:
-            ratios: list[RatioAnnotation] = \
-                list(get_ratio_annotations(number_text, float_digits=float_digits))
+            ratios: list[RatioAnnotation] = list(get_ratio_annotations(number_text, float_digits=float_digits))
             if len(ratios) == 1:
                 val: Decimal = Decimal(ratios[0].ratio)
             else:
@@ -104,17 +106,10 @@ def get_percent_annotations(
         fraction: Decimal = PERCENT_UNIT_MAP[percent_item] * val
 
         if float_digits:
-            fraction: Decimal = quantize_by_float_digit(
-                amount=fraction,
-                float_digits=float_digits
-            )
+            fraction: Decimal = quantize_by_float_digit(amount=fraction, float_digits=float_digits)
 
         yield PercentAnnotation(
-            coords=match.span(),
-            text=source_text.strip(),
-            amount=val,
-            fraction=fraction,
-            sign=percent_item
+            coords=match.span(), text=source_text.strip(), amount=val, fraction=fraction, sign=percent_item
         )
 
 
@@ -122,6 +117,5 @@ def get_percent_annotation_list(
     text: str,
     float_digits: int = 4,
 ) -> list[PercentAnnotation]:
-    """
-    """
+    """ """
     return list(get_percent_annotations(text, float_digits))

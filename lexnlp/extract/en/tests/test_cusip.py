@@ -16,7 +16,7 @@ class TestGetCUSIP(AssertionMixin):
     def test_correct_cases(self):
         """
         Verify that get_cusip_list correctly extracts CUSIP-like tokens and returns the expected annotation dictionaries.
-        
+
         Asserts correct extraction for: a standard numeric CUSIP, a CUSIP with letters in the issue identifier, detection of `internal` CUSIPs, detection of `ppn` when `#` is present, and a TBA-formatted CUSIP that yields a populated `tba` dictionary with product, mortgage type, coupon, maturity, settlement month, checksum, and settlement month name.
         """
         text = "This is 837649128"

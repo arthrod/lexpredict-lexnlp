@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -7,17 +6,12 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 import pandas as pd
 import regex as re
 
 
 class EntityBanListItem:
-    def __init__(self,
-                 pattern: str,
-                 ignore_case: bool = True,
-                 is_regex: bool = False,
-                 trim_phrase: bool = True):
+    def __init__(self, pattern: str, ignore_case: bool = True, is_regex: bool = False, trim_phrase: bool = True):
         """
         :param pattern: string or reg. expression to check on a phrase
         :param ignore_case: ignore case while checking if True
@@ -37,17 +31,16 @@ class EntityBanListItem:
     def __repr__(self):
         flags = []
         if self.ignore_case:
-            flags.append('I')
+            flags.append("I")
         if self.is_regex:
-            flags.append('Re')
+            flags.append("Re")
         if self.trim_phrase:
-            flags.append('T')
-        flags_s = ' ' + ','.join(flags) if flags else ''
+            flags.append("T")
+        flags_s = " " + ",".join(flags) if flags else ""
         return f'"{self.pattern}"{flags_s}'
 
     def compile_regex(self):
-        self.reg_exp = re.compile(self.pattern, re.IGNORECASE) \
-            if self.ignore_case else re.compile(self.pattern)
+        self.reg_exp = re.compile(self.pattern, re.IGNORECASE) if self.ignore_case else re.compile(self.pattern)
 
     @classmethod
     def check_list(cls, text: str, banlist) -> bool:
@@ -67,15 +60,11 @@ class EntityBanListItem:
         if self.reg_exp:
             return self.reg_exp.match(text) is not None
         if self.ignore_case:
-            text = (text or '').lower()
+            text = (text or "").lower()
         return self.pattern == text
 
     @classmethod
-    def read_from_csv(cls,
-                      file_path: str,
-                      encoding: str = 'utf-8',
-                      strip_patterns: bool = True,
-                      separator: str = ';'):
+    def read_from_csv(cls, file_path: str, encoding: str = "utf-8", strip_patterns: bool = True, separator: str = ";"):
         """
         File columns: PATTERN (str), IGNORE_CASE (int), IS_REGEX (int), TRIM_PHRASE (int)
         "Company;1;0;1" means: pattern="Company", ignore_case=True, is_regex=False, trim_phrase=True
@@ -104,18 +93,19 @@ class EntityBanListItem:
 
 
 class BanListUsage:
-    def __init__(self,
-                 banlist: list[EntityBanListItem] | None = None,
-                 use_default_banlist: bool = True,
-                 append_to_default: bool = False):
+    def __init__(
+        self,
+        banlist: list[EntityBanListItem] | None = None,
+        use_default_banlist: bool = True,
+        append_to_default: bool = False,
+    ):
         self.banlist = banlist
         self.use_default_banlist = use_default_banlist
         self.append_to_default = append_to_default
 
     def __repr__(self):
         provided = len(self.banlist) if self.banlist else 0
-        return f'{provided} items provided, default={self.use_default_banlist}' + \
-               f'append={self.append_to_default}'
+        return f"{provided} items provided, default={self.use_default_banlist}" + f"append={self.append_to_default}"
 
 
 default_banlist_usage = BanListUsage()

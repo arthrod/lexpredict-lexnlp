@@ -194,9 +194,7 @@ class TestConditionAnnotationCtor:
         assert ann.post == "then penalties apply"
 
     def test_get_cite_value_parts(self) -> None:
-        ann = ConditionAnnotation(
-            coords=(0, 10), condition="unless", pre="prior", post="remedy"
-        )
+        ann = ConditionAnnotation(coords=(0, 10), condition="unless", pre="prior", post="remedy")
         parts = ann.get_cite_value_parts()
         assert "unless" in parts
         assert "prior" in parts
@@ -276,9 +274,7 @@ class TestCourtCitationAnnotationCtor:
         assert ann.locale == "de"
 
     def test_get_cite_value_parts(self) -> None:
-        ann = CourtCitationAnnotation(
-            coords=(0, 10), name="Supreme Court", short_name="SC"
-        )
+        ann = CourtCitationAnnotation(coords=(0, 10), name="Supreme Court", short_name="SC")
         parts = ann.get_cite_value_parts()
         assert "Supreme Court" in parts
         assert "SC" in parts
@@ -297,9 +293,7 @@ class TestCusipAnnotationCtorExtended:
         assert ann.coords == (5, 14)
 
     def test_issuer_and_issue_id(self) -> None:
-        ann = CusipAnnotation(
-            coords=(0, 9), issuer_id="037833", issue_id="10", code="037833100"
-        )
+        ann = CusipAnnotation(coords=(0, 9), issuer_id="037833", issue_id="10", code="037833100")
         assert ann.issuer_id == "037833"
         assert ann.issue_id == "10"
         assert ann.code == "037833100"
@@ -522,18 +516,14 @@ class TestRegulationAnnotationCtor:
         assert ann.text == "17 CFR § 240.10b-5"
 
     def test_to_dictionary_legacy(self) -> None:
-        ann = RegulationAnnotation(
-            coords=(0, 10), name="§ 5", source="BaFin", text="§ 5"
-        )
+        ann = RegulationAnnotation(coords=(0, 10), name="§ 5", source="BaFin", text="§ 5")
         d = ann.to_dictionary_legacy()
         assert d["regulation_type"] == "BaFin"
         assert d["regulation_code"] == "§ 5"
         assert d["regulation_text"] == "§ 5"
 
     def test_get_cite_value_parts(self) -> None:
-        ann = RegulationAnnotation(
-            coords=(0, 10), name="§ 12", source="BaFin", country="DE"
-        )
+        ann = RegulationAnnotation(coords=(0, 10), name="§ 12", source="BaFin", country="DE")
         parts = ann.get_cite_value_parts()
         assert "DE" in parts
         assert "BaFin" in parts

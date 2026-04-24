@@ -32,10 +32,10 @@ from lexnlp.tests import lexnlp_tests
 
 class TestGetTokens(TestCase):
     def test_get_tokens_by_regex(self):
-        text = '''During the Term, Tenant shall pay to Landlord, as rent for the
+        text = """During the Term, Tenant shall pay to Landlord, as rent for the
 Premises and the Tangible Assets and the Intangible Assets, the sum of Forty
 Thousand ($40,000.00) Dollars for each calendar month, payable on the first
-(1st) day of each calendar month ("Base Rent") for the current calendar month.'''
+(1st) day of each calendar month ("Base Rent") for the current calendar month."""
         tokens_regex = list(get_tokens_by_regex(text, lowercase=False, preserve_line=True))
         self.assertGreater(len(tokens_regex), 50)
 
@@ -52,8 +52,9 @@ def run_sentence_token_gen_test(text, result, lowercase=False, stopword=False):
 
     # Check each sentence matches
     for i, sentence in enumerate(sentence_list):
-        tokens = list(lexnlp_tests.benchmark_extraction_func(get_tokens,
-                                                             sentence, lowercase=lowercase, stopword=stopword))
+        tokens = list(
+            lexnlp_tests.benchmark_extraction_func(get_tokens, sentence, lowercase=lowercase, stopword=stopword)
+        )
         assert tokens == result[i]
 
 
@@ -69,8 +70,9 @@ def run_sentence_token_test(text, result, lowercase=False, stopword=False):
 
     # Check each sentence matches
     for i, sentence in enumerate(sentence_list):
-        tokens = lexnlp_tests.benchmark_extraction_func(get_token_list,
-                                                        sentence, lowercase=lowercase, stopword=stopword)
+        tokens = lexnlp_tests.benchmark_extraction_func(
+            get_token_list, sentence, lowercase=lowercase, stopword=stopword
+        )
         assert tokens == result[i]
 
 
@@ -95,9 +97,9 @@ def test_token_example_1_lc():
 
 
 def test_stems():
-    lexnlp_tests.test_extraction_func_on_test_data(get_stem_list,
-                                                   expected_data_converter=lambda stems:
-                                                         list(stem.lower() for stem in stems) if stems else None)
+    lexnlp_tests.test_extraction_func_on_test_data(
+        get_stem_list, expected_data_converter=lambda stems: list(stem.lower() for stem in stems) if stems else None
+    )
 
 
 def test_stems_lowercase():
@@ -110,18 +112,19 @@ def test_stems_lowercase_no_stopwords():
 
 def test_wordnet_pos():
     # Import and setup map
-    treebank_pos_map = {"JJ": wordnet.ADJ,
-                        "JJR": wordnet.ADJ,
-                        "JJS": wordnet.ADJ,
-                        "VB": wordnet.VERB,
-                        "VBD": wordnet.VERB,
-                        "VBN": wordnet.VERB,
-                        "NN": wordnet.NOUN,
-                        "NNP": wordnet.NOUN,
-                        "NNPS": wordnet.NOUN,
-                        "RB": wordnet.ADV,
-                        "RBR": wordnet.ADV
-                        }
+    treebank_pos_map = {
+        "JJ": wordnet.ADJ,
+        "JJR": wordnet.ADJ,
+        "JJS": wordnet.ADJ,
+        "VB": wordnet.VERB,
+        "VBD": wordnet.VERB,
+        "VBN": wordnet.VERB,
+        "NN": wordnet.NOUN,
+        "NNP": wordnet.NOUN,
+        "NNPS": wordnet.NOUN,
+        "RB": wordnet.ADV,
+        "RBR": wordnet.ADV,
+    }
 
     # Check function output against map
     for k in treebank_pos_map:

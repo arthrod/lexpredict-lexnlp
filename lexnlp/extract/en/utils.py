@@ -1,5 +1,4 @@
-"""Extraction utilities for English.
-"""
+"""Extraction utilities for English."""
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -44,16 +43,13 @@ def replace_upper_words_with_titled(text: str):
     :param text: text to process
     :return: text with no upper words
     """
-    titled_upper_words = sorted(
-        [i.title() for i in re.findall(r'[a-zA-Z]+', text) if i.upper() == i],
-        key=len
-    )[::-1]
-    words = re.findall(r'[a-zA-Z]+', text)
+    titled_upper_words = sorted([i.title() for i in re.findall(r"[a-zA-Z]+", text) if i.upper() == i], key=len)[::-1]
+    words = re.findall(r"[a-zA-Z]+", text)
 
     for i in titled_upper_words:
         text = text.replace(i.upper(), i)
     return text
-    
+
 
 default_grammar = r"""
     NBAR:
@@ -66,14 +62,11 @@ default_grammar = r"""
 
 
 class NPExtractor:
-
-    exception_sym = ['&', 'and', 'of']
-    exception_pos = ['IN', 'CC']
-    sym_with_space = ['(', '&']
-    sym_without_space = [i for i in string.punctuation if i not in '(&/'] + ["'s"]
-    replacements = [
-        [(r'(\w)&(\w)', r'\1-=AND=-\2'), ('-=AND=-', '&')]
-    ]
+    exception_sym = ["&", "and", "of"]
+    exception_pos = ["IN", "CC"]
+    sym_with_space = ["(", "&"]
+    sym_without_space = [i for i in string.punctuation if i not in "(&/"] + ["'s"]
+    replacements = [[(r"(\w)&(\w)", r"\1-=AND=-\2"), ("-=AND=-", "&")]]
     token_pos_tag_adjustments: list[TokenPosTagAdjustment] = []
 
     def __init__(self, grammar=None):
@@ -82,14 +75,20 @@ class NPExtractor:
 
     def get_tokenizer(self):
         tokenizer = nltk.tokenize.TreebankWordTokenizer
-        tokenizer.PUNCTUATION[4] = (re.compile(r'[;@#$%]', re.UNICODE), ' \\g<0> ')
+        tokenizer.PUNCTUATION[4] = (re.compile(r"[;@#$%]", re.UNICODE), " \\g<0> ")
         return tokenizer().tokenize
 
     def cleanup_leaves(self, leaves):
-        leaves = [l for l in
-                  [list(group) for key, group in groupby(
-                      leaves, key=lambda k: k[0] not in self.exception_sym and k[1] in self.exception_pos)]
-                  if l[0][1] not in self.exception_pos or l[0][0] in self.exception_sym]
+        leaves = [
+            l
+            for l in [
+                list(group)
+                for key, group in groupby(
+                    leaves, key=lambda k: k[0] not in self.exception_sym and k[1] in self.exception_pos
+                )
+            ]
+            if l[0][1] not in self.exception_pos or l[0][0] in self.exception_sym
+        ]
         return leaves
 
     def get_np(self, text: str) -> Generator[str]:
@@ -100,7 +99,7 @@ class NPExtractor:
         for adjustment in self.token_pos_tag_adjustments:
             pos_tokens = [*map(adjustment, pos_tokens)]
         chunks = self.chunker.parse(pos_tokens)
-        for tree in chunks.subtrees(filter=lambda t: t.label() == 'NP'):
+        for tree in chunks.subtrees(filter=lambda t: t.label() == "NP"):
             leaves = self.cleanup_leaves(tree.leaves())
             for np_items in leaves:
                 yield self.replace(self.join(np_items), back=True)
@@ -113,12 +112,11 @@ class NPExtractor:
 
     def get_np_with_coords(self, text: str) -> list[tuple[str, int, int]]:
         phrases = list(self.get_np(text))
-        tagged_phrases = PhrasePositionFinder.find_phrase_in_source_text(
-            text, phrases)
+        tagged_phrases = PhrasePositionFinder.find_phrase_in_source_text(text, phrases)
         return tagged_phrases
 
     def join(self, np_items):
-        np = ''
+        np = ""
         last_pos = None
         for n, current_pos in enumerate(np_items):
             item, _ = current_pos
@@ -128,9 +126,8 @@ class NPExtractor:
         return self.strip_np(np)
 
     def sep(self, n, current_pos, last_pos):
-        return ' ' if n and current_pos[0] not in self.sym_without_space\
-                      and last_pos[0] not in "(" else ""
+        return " " if n and current_pos[0] not in self.sym_without_space and last_pos[0] not in "(" else ""
 
     @staticmethod
     def strip_np(np):
-        return np.strip(string.punctuation.replace(')', '') + string.whitespace)
+        return np.strip(string.punctuation.replace(")", "") + string.whitespace)

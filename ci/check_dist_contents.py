@@ -63,9 +63,7 @@ def main(argv: list[str]) -> int:
         print(f"dist-check: missing dist directory: {dist_dir}", file=sys.stderr)
         return 1
 
-    artifacts = sorted(
-        [*dist_dir.glob("*.whl"), *dist_dir.glob("*.tar.gz")]
-    )
+    artifacts = sorted([*dist_dir.glob("*.whl"), *dist_dir.glob("*.tar.gz")])
     if not artifacts:
         print(f"dist-check: no build artifacts found under {dist_dir}", file=sys.stderr)
         return 1

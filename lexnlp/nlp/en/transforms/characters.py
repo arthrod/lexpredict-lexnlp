@@ -1,5 +1,4 @@
-"""Transforms related to characters for English
-"""
+"""Transforms related to characters for English"""
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"

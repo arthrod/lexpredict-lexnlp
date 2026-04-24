@@ -16,11 +16,7 @@ class PhraseConstructorMethod(Enum):
 
 
 class PhraseTokenClasses:
-    def __init__(self,
-                 outer_class: int = 0,
-                 start_class: int = 1,
-                 inner_class: int = 2,
-                 end_class: int = 3):
+    def __init__(self, outer_class: int = 0, start_class: int = 1, inner_class: int = 2, end_class: int = 3):
         self.outer_class = outer_class
         self.start_class = start_class
         self.inner_class = inner_class
@@ -28,11 +24,13 @@ class PhraseTokenClasses:
 
 
 class PhraseConstructorSettings:
-    def __init__(self,
-                 method: PhraseConstructorMethod = PhraseConstructorMethod.by_class,
-                 strict: bool = False,
-                 max_zeros: int = 2,
-                 min_token_score: int = 2):
+    def __init__(
+        self,
+        method: PhraseConstructorMethod = PhraseConstructorMethod.by_class,
+        strict: bool = False,
+        max_zeros: int = 2,
+        min_token_score: int = 2,
+    ):
         self.method = method
         self.strict = strict
         self.max_zeros = max_zeros
@@ -40,8 +38,8 @@ class PhraseConstructorSettings:
 
     def __repr__(self):
         if self.method == PhraseConstructorMethod.by_class:
-            return f'by class, strict={self.strict}'
-        return f'by score, min_score={self.min_token_score}, max_zeros={self.max_zeros}'
+            return f"by class, strict={self.strict}"
+        return f"by score, min_score={self.min_token_score}, max_zeros={self.max_zeros}"
 
 
 class PhraseConstructor:
@@ -55,28 +53,31 @@ class PhraseConstructor:
     DEFAULT_CONSTRUCTOR_SETTINGS = PhraseConstructorSettings()
 
     @staticmethod
-    def join_tokens(tokens,
-                    predicted_class,
-                    feature_mask: list[int] | None = None,
-                    settings: PhraseConstructorSettings = None,
-                    token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:
+    def join_tokens(
+        tokens,
+        predicted_class,
+        feature_mask: list[int] | None = None,
+        settings: PhraseConstructorSettings = None,
+        token_classes: PhraseTokenClasses = None,
+    ) -> Generator[tuple[int, int]]:
         """
-                    Dispatch token joining to the configured construction method and yield phrase spans as (start_char, end_char).
-                    
-                    Parameters:
-                        tokens (Sequence[tuple[int, int]]): Sequence of (left_char, right_char) token boundary pairs.
-                        predicted_class (Sequence[int] | numpy.ndarray): Per-token class IDs used to form candidate phrases.
-                        feature_mask (list[int] | None): Optional per-character mask that can boost a candidate's score; pass None to disable mask scoring.
-                        settings (PhraseConstructorSettings | None): Construction configuration; defaults to PhraseConstructor.DEFAULT_CONSTRUCTOR_SETTINGS when None.
-                        token_classes (PhraseTokenClasses | None): Optional class ID mapping to override default token class identifiers.
-                    
-                    Returns:
-                        Generator[tuple[int, int]]: Yields (start_char, end_char) spans for each detected phrase.
-                    """
+        Dispatch token joining to the configured construction method and yield phrase spans as (start_char, end_char).
+
+        Parameters:
+            tokens (Sequence[tuple[int, int]]): Sequence of (left_char, right_char) token boundary pairs.
+            predicted_class (Sequence[int] | numpy.ndarray): Per-token class IDs used to form candidate phrases.
+            feature_mask (list[int] | None): Optional per-character mask that can boost a candidate's score; pass None to disable mask scoring.
+            settings (PhraseConstructorSettings | None): Construction configuration; defaults to PhraseConstructor.DEFAULT_CONSTRUCTOR_SETTINGS when None.
+            token_classes (PhraseTokenClasses | None): Optional class ID mapping to override default token class identifiers.
+
+        Returns:
+            Generator[tuple[int, int]]: Yields (start_char, end_char) spans for each detected phrase.
+        """
         settings = settings or PhraseConstructor.DEFAULT_CONSTRUCTOR_SETTINGS
         if settings.method == PhraseConstructorMethod.by_class:
             yield from PhraseConstructor.join_tokens_by_class(
-                tokens, predicted_class, strict=settings.strict, token_classes=token_classes)
+                tokens, predicted_class, strict=settings.strict, token_classes=token_classes
+            )
             return
 
         yield from PhraseConstructor.join_tokens_by_score(
@@ -85,21 +86,23 @@ class PhraseConstructor:
             feature_mask=feature_mask,
             min_token_score=settings.min_token_score,
             max_zeros=settings.max_zeros,
-            token_classes=token_classes)
+            token_classes=token_classes,
+        )
 
     @staticmethod
     def join_tokens_by_class(
-            tokens,
-            predicted_class,
-            strict: bool = False,
-            token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:
+        tokens, predicted_class, strict: bool = False, token_classes: PhraseTokenClasses = None
+    ) -> Generator[tuple[int, int]]:
         """
         Run model on text
         """
         token_classes = token_classes or PhraseConstructor.DEFAULT_TOKEN_CLASSES
         outer_class, start_class, inner_class, end_class = (
-            token_classes.outer_class, token_classes.start_class,
-            token_classes.inner_class, token_classes.end_class)
+            token_classes.outer_class,
+            token_classes.start_class,
+            token_classes.inner_class,
+            token_classes.end_class,
+        )
         start_pos = -1
 
         for i in range(predicted_class.shape[0]):
@@ -122,30 +125,34 @@ class PhraseConstructor:
 
     @staticmethod
     def join_tokens_by_score(
-            tokens,
-            predicted_class,
-            feature_mask: list[int] | None = None,
-            max_zeros: int = 2,
-            min_token_score: int = 2,
-            token_classes: PhraseTokenClasses = None) -> Generator[tuple[int, int]]:
+        tokens,
+        predicted_class,
+        feature_mask: list[int] | None = None,
+        max_zeros: int = 2,
+        min_token_score: int = 2,
+        token_classes: PhraseTokenClasses = None,
+    ) -> Generator[tuple[int, int]]:
         """
-            Identify contiguous phrase spans by scanning predicted token classes and scoring candidate spans.
-            
-            Parameters:
-                tokens (Sequence[tuple[int, int]]): Token boundary pairs (start_index, end_index) used to map token positions to character offsets.
-                predicted_class (Sequence[int] | numpy.ndarray): Class id per token used to detect phrase starts, inners, outers, and ends.
-                feature_mask (list[int] | None): Optional sequence indexed by character offset; if any truthy value exists within a candidate span, the candidate's score is incremented.
-                max_zeros (int): Maximum number of consecutive `outer_class` tokens allowed within a candidate before the candidate is abandoned.
-                min_token_score (int): Minimum score required for a candidate span to be yielded.
-                token_classes (PhraseTokenClasses | None): Container providing integer ids for `outer_class`, `start_class`, `inner_class`, and `end_class`. Defaults to the constructor's default token classes.
-            
-            Returns:
-                Generator[tuple[int, int]]: Yields (start_offset, end_offset) character-index spans for phrases whose computed score is greater than or equal to `min_token_score`.
-            """
+        Identify contiguous phrase spans by scanning predicted token classes and scoring candidate spans.
+
+        Parameters:
+            tokens (Sequence[tuple[int, int]]): Token boundary pairs (start_index, end_index) used to map token positions to character offsets.
+            predicted_class (Sequence[int] | numpy.ndarray): Class id per token used to detect phrase starts, inners, outers, and ends.
+            feature_mask (list[int] | None): Optional sequence indexed by character offset; if any truthy value exists within a candidate span, the candidate's score is incremented.
+            max_zeros (int): Maximum number of consecutive `outer_class` tokens allowed within a candidate before the candidate is abandoned.
+            min_token_score (int): Minimum score required for a candidate span to be yielded.
+            token_classes (PhraseTokenClasses | None): Container providing integer ids for `outer_class`, `start_class`, `inner_class`, and `end_class`. Defaults to the constructor's default token classes.
+
+        Returns:
+            Generator[tuple[int, int]]: Yields (start_offset, end_offset) character-index spans for phrases whose computed score is greater than or equal to `min_token_score`.
+        """
         token_classes = token_classes or PhraseConstructor.DEFAULT_TOKEN_CLASSES
         outer_class, start_class, inner_class, end_class = (
-            token_classes.outer_class, token_classes.start_class,
-            token_classes.inner_class, token_classes.end_class)
+            token_classes.outer_class,
+            token_classes.start_class,
+            token_classes.inner_class,
+            token_classes.end_class,
+        )
 
         i = -1
         while i < predicted_class.shape[0] - 1:
@@ -180,7 +187,7 @@ class PhraseConstructor:
                 word_start = tokens[token_start][0]
                 word_end = tokens[token_end][1]
                 if feature_mask:
-                    for f in feature_mask[word_start: word_end]:
+                    for f in feature_mask[word_start:word_end]:
                         if f:
                             token_score += 1
                             break

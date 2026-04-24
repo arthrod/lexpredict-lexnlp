@@ -29,11 +29,11 @@ def _reset_pandas_options():
     yield
     try:
         pd.options.mode.copy_on_write = previous_cow
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
     try:
         pd.options.future.infer_string = previous_infer
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
 
 

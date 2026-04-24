@@ -14,47 +14,44 @@ class ConditionAnnotation(TextAnnotation):
     create an object of ConditionAnnotation like
     cp = ConditionAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'condition'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = 'en',
-                 text: str | None = None,
-                 condition: str | None = None,
-                 pre: str | None = None,
-                 post: str | None = None):
+    record_type = "condition"
+
+    def __init__(
+        self,
+        coords: tuple[int, int],
+        locale: str = "en",
+        text: str | None = None,
+        condition: str | None = None,
+        pre: str | None = None,
+        post: str | None = None,
+    ):
         """
-                 Initialize a ConditionAnnotation for a text span with an associated condition and optional surrounding text.
-                 
-                 Parameters:
-                     coords (tuple[int, int]): Start and end character indices of the annotated span.
-                     locale (str): Locale identifier for the annotation (default 'en').
-                     text (str | None): Text covered by the annotation, if available.
-                     condition (str | None): Extracted condition associated with the span.
-                     pre (str | None): Text immediately preceding the condition, if any.
-                     post (str | None): Text immediately following the condition, if any.
-                 """
-        super().__init__(
-            name='',
-            locale=locale,
-            coords=coords,
-            text=text)
+        Initialize a ConditionAnnotation for a text span with an associated condition and optional surrounding text.
+
+        Parameters:
+            coords (tuple[int, int]): Start and end character indices of the annotated span.
+            locale (str): Locale identifier for the annotation (default 'en').
+            text (str | None): Text covered by the annotation, if available.
+            condition (str | None): Extracted condition associated with the span.
+            pre (str | None): Text immediately preceding the condition, if any.
+            post (str | None): Text immediately following the condition, if any.
+        """
+        super().__init__(name="", locale=locale, coords=coords, text=text)
         self.condition = condition
         self.pre = pre
         self.post = post
 
     def get_cite_value_parts(self) -> list[str]:
-        parts = [self.condition or '',
-                 self.pre or '',
-                 self.post or '']
+        parts = [self.condition or "", self.pre or "", self.post or ""]
         return parts
 
     def get_dictionary_values(self) -> dict:
         df = {
             "tags": {
-                'Extracted Entity Condition': self.condition,
-                'Extracted Entity Pre': self.pre,
-                'Extracted Entity Post': self.post
+                "Extracted Entity Condition": self.condition,
+                "Extracted Entity Pre": self.pre,
+                "Extracted Entity Post": self.post,
             }
         }
         return df

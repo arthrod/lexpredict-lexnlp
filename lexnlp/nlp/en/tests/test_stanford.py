@@ -32,49 +32,73 @@ def teardown_module():
     # disable_stanford()
 
 
-@pytest.mark.skipif(not is_stanford_enabled(), reason="Stanford is disabled.")  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
+@pytest.mark.skipif(
+    not is_stanford_enabled(), reason="Stanford is disabled."
+)  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
 def test_stanford_tokens():
     from lexnlp.nlp.en.stanford import get_tokens_list
+
     lexnlp_tests.test_extraction_func_on_test_data(get_tokens_list)
 
 
-@pytest.mark.skipif(not is_stanford_enabled(), reason="Stanford is disabled.")  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
+@pytest.mark.skipif(
+    not is_stanford_enabled(), reason="Stanford is disabled."
+)  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
 def test_stanford_tokens_lc():
     from lexnlp.nlp.en.stanford import get_tokens_list
+
     lexnlp_tests.test_extraction_func_on_test_data(get_tokens_list, lowercase=True)
 
 
-@pytest.mark.skipif(not is_stanford_enabled(), reason="Stanford is disabled.")  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
+@pytest.mark.skipif(
+    not is_stanford_enabled(), reason="Stanford is disabled."
+)  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
 def test_stanford_tokens_sw():
     from lexnlp.nlp.en.stanford import get_tokens_list
+
     lexnlp_tests.test_extraction_func_on_test_data(get_tokens_list, stopword=True)
 
 
-@pytest.mark.skipif(not is_stanford_enabled(), reason="Stanford is disabled.")  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
+@pytest.mark.skipif(
+    not is_stanford_enabled(), reason="Stanford is disabled."
+)  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
 def test_stanford_tokens_lc_sw():
     from lexnlp.nlp.en.stanford import get_tokens_list
+
     lexnlp_tests.test_extraction_func_on_test_data(get_tokens_list, lowercase=True, stopword=True)
 
 
-@pytest.mark.skipif(not is_stanford_enabled(), reason="Stanford is disabled.")  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
+@pytest.mark.skipif(
+    not is_stanford_enabled(), reason="Stanford is disabled."
+)  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
 def test_stanford_verbs():
     from lexnlp.nlp.en.stanford import get_verbs
+
     lexnlp_tests.test_extraction_func_on_test_data(get_verbs)
 
 
-@pytest.mark.skipif(not is_stanford_enabled(), reason="Stanford is disabled.")  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
+@pytest.mark.skipif(
+    not is_stanford_enabled(), reason="Stanford is disabled."
+)  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
 def test_stanford_verb_lemmas():
     from lexnlp.nlp.en.stanford import get_verbs
+
     lexnlp_tests.test_extraction_func_on_test_data(get_verbs, lemmatize=True)
 
 
-@pytest.mark.skipif(not is_stanford_enabled(), reason="Stanford is disabled.")  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
+@pytest.mark.skipif(
+    not is_stanford_enabled(), reason="Stanford is disabled."
+)  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
 def test_stanford_noun_lemmas():
     from lexnlp.nlp.en.stanford import get_nouns
+
     lexnlp_tests.test_extraction_func_on_test_data(get_nouns, lemmatize=True)
 
 
-@pytest.mark.skipif(not is_stanford_enabled(), reason="Stanford is disabled.")  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
+@pytest.mark.skipif(
+    not is_stanford_enabled(), reason="Stanford is disabled."
+)  # skip-audit: issue=https://github.com/LexPredict/lexpredict-lexnlp/pull/80 expires=2030-01-01
 def test_stanford_nouns():
     from lexnlp.nlp.en.stanford import get_nouns
+
     lexnlp_tests.test_extraction_func_on_test_data(get_nouns)

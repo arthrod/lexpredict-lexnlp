@@ -31,9 +31,9 @@ class LayeredDefinitionDetector:
         self.model_term = DefinitionTermDetector()
 
         self.definition_join_sets = PhraseConstructorSettings(
-            method=PhraseConstructorMethod.by_score, min_token_score=2, max_zeros=0)
-        self.term_join_sets = PhraseConstructorSettings(
-            method=PhraseConstructorMethod.by_class, strict=False)
+            method=PhraseConstructorMethod.by_score, min_token_score=2, max_zeros=0
+        )
+        self.term_join_sets = PhraseConstructorSettings(method=PhraseConstructorMethod.by_class, strict=False)
         self.initialized = False
 
     def load_compressed(self, file_path: str):
@@ -42,7 +42,7 @@ class LayeredDefinitionDetector:
         model_term)
         """
         file_folder = os.path.dirname(file_path)
-        temp_folder = os.path.join(file_folder, 'unpack_def_model_temp')
+        temp_folder = os.path.join(file_folder, "unpack_def_model_temp")
         try:
             shutil.rmtree(temp_folder)
         # pylint: disable=bare-except
@@ -53,11 +53,11 @@ class LayeredDefinitionDetector:
         with ZipFile(file_path) as z:
             z.extractall(temp_folder)
 
-        model_files = [i for i in os.listdir(temp_folder) if i.endswith('.pickle')]
+        model_files = [i for i in os.listdir(temp_folder) if i.endswith(".pickle")]
         for file_name in model_files:
-            if file_name == 'definition.pickle':
+            if file_name == "definition.pickle":
                 self.model_definition.load(os.path.join(temp_folder, file_name))
-            elif file_name == 'term.pickle':
+            elif file_name == "term.pickle":
                 self.model_term.load(os.path.join(temp_folder, file_name))
             else:
                 raise RuntimeError(f'Found unknown file "{file_name.filename}" in packed model')
@@ -67,8 +67,7 @@ class LayeredDefinitionDetector:
     def get_annotations(self, sentence: str) -> list[DefinitionAnnotation]:
         annotations = []  # type: List[DefinitionAnnotation]
         # we go from term to definition because term is a simplier object to locate
-        terms = list(self.model_term.predict_text(
-                sentence, join_settings=self.term_join_sets))
+        terms = list(self.model_term.predict_text(sentence, join_settings=self.term_join_sets))
         if not terms:
             return annotations
 
@@ -79,9 +78,11 @@ class LayeredDefinitionDetector:
             for i in range(term[0], term[1]):
                 feature_mask[i] = 1
 
-        definitions = list(self.model_definition.predict_text(
-                    sentence, feature_mask=feature_mask,
-                    join_settings=self.definition_join_sets))
+        definitions = list(
+            self.model_definition.predict_text(
+                sentence, feature_mask=feature_mask, join_settings=self.definition_join_sets
+            )
+        )
 
         # combine terms with surrounding definitions
         # measure distance between each tearm and each definition
@@ -100,7 +101,7 @@ class LayeredDefinitionDetector:
                     elif df_e < t_e:
                         distance = -(df_e - t_s + 1)
                     else:
-                        distance = - (t_e - t_s + 1)
+                        distance = -(t_e - t_s + 1)
                 distances.append((i, distance))
             distances.sort(key=lambda d: d[1])  # closest definitions go first
             definition_distances[(t_s, t_e)] = distances
@@ -112,27 +113,27 @@ class LayeredDefinitionDetector:
             def_start = min(df[0], term[0])
             def_end = max(df[1], term[1])
 
-            term_phrase = sentence[term[0]: term[1]]
+            term_phrase = sentence[term[0] : term[1]]
             ant = DefinitionAnnotation(
-                coords=(def_start, def_end),
-                name=term_phrase,
-                text=sentence[def_start: def_end],
-                locale='en')
+                coords=(def_start, def_end), name=term_phrase, text=sentence[def_start:def_end], locale="en"
+            )
             annotations.append(ant)
 
         # TODO: check if annotations overlap and cut overlapping parts
         return annotations
 
-    def train_on_doccano_jsonl(self,
-                               save_file_path: str,
-                               exported_doc_path: str,
-                               text_column_name: str = 'text',
-                               labels_column_name: str = 'labels',
-                               label_term: str = 'term',
-                               label_definition: str = 'definition'):
-        with codecs.open(exported_doc_path, 'rb', encoding='utf-8') as fr:
+    def train_on_doccano_jsonl(
+        self,
+        save_file_path: str,
+        exported_doc_path: str,
+        text_column_name: str = "text",
+        labels_column_name: str = "labels",
+        label_term: str = "term",
+        label_definition: str = "definition",
+    ):
+        with codecs.open(exported_doc_path, "rb", encoding="utf-8") as fr:
             df = pandas.read_json(fr, lines=True)
-        df = df.drop(columns=['annotation_approver', 'id', 'meta'])
+        df = df.drop(columns=["annotation_approver", "id", "meta"])
 
         definition_rows = []  # type: List[Tuple[str, List[Tuple[int, int]], List[int]]]
         term_rows = []  # type: List[Tuple[str, List[Tuple[int, int]]]]
@@ -154,26 +155,26 @@ class LayeredDefinitionDetector:
             #     Member (a "[/d][t]Merger Transaction[/t][d]")[/d] unless:
 
             definition_feature_mask, merged_def_labels = self.join_adjacent_definitions_labels(
-                labels_definitions, labels_terms, row_text)
+                labels_definitions, labels_terms, row_text
+            )
 
             definition_rows.append([row_text, merged_def_labels, definition_feature_mask])
             term_rows.append([row_text, labels_terms])
 
-        df_terms = pandas.DataFrame(term_rows, columns=['sentence', 'labels'])
-        df_definitions = pandas.DataFrame(definition_rows, columns=['sentence', 'labels', 'feature_mask'])
+        df_terms = pandas.DataFrame(term_rows, columns=["sentence", "labels"])
+        df_definitions = pandas.DataFrame(definition_rows, columns=["sentence", "labels", "feature_mask"])
         self.train_on_formatted_data(df_definitions, df_terms, save_file_path)
 
-    def train_on_formatted_data(self,
-                                definition_frame: pandas.DataFrame,
-                                term_frame: pandas.DataFrame,
-                                save_file_path: str):
+    def train_on_formatted_data(
+        self, definition_frame: pandas.DataFrame, term_frame: pandas.DataFrame, save_file_path: str
+    ):
         """
         :param definition_frame: dataframe, [ (row_text, [(start, end), (start, end)...], feature_mask]
         :param term_frame: dataframe, [ (row_text, [(start, end), (start, end)...]]
         :param save_file_path: path to store zipped model files (as one file)
         """
         file_folder = os.path.dirname(save_file_path)
-        temp_folder = os.path.join(file_folder, 'def_model_temp')
+        temp_folder = os.path.join(file_folder, "def_model_temp")
         try:
             shutil.rmtree(temp_folder)
         # pylint: disable=bare-except
@@ -185,20 +186,16 @@ class LayeredDefinitionDetector:
         file_definitions = os.path.join(temp_folder, "definitions")
 
         self.model_term.train_and_save_on_dataframe(
-            DetectingSettings(pre_window=1, post_window=1, use_spacy=False),
-            term_frame,
-            file_terms,
-            compress=False)
+            DetectingSettings(pre_window=1, post_window=1, use_spacy=False), term_frame, file_terms, compress=False
+        )
 
         self.model_definition.train_and_save_on_dataframe(
-            DetectingSettings(use_spacy=False),
-            definition_frame,
-            file_definitions,
-            compress=False)
+            DetectingSettings(use_spacy=False), definition_frame, file_definitions, compress=False
+        )
 
-        with ZipFile(save_file_path, 'w') as zipObj2:
-            zipObj2.write(file_terms, 'term.pickle')
-            zipObj2.write(file_definitions, 'definition.pickle')
+        with ZipFile(save_file_path, "w") as zipObj2:
+            zipObj2.write(file_terms, "term.pickle")
+            zipObj2.write(file_definitions, "definition.pickle")
         try:
             shutil.rmtree(temp_folder)
         # pylint: disable=bare-except

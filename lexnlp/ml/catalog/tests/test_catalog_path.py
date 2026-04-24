@@ -134,7 +134,7 @@ def test_invalidate_catalog_cache_is_thread_safe(tmp_path, monkeypatch):
     def do_read() -> None:
         """
         Access the catalog tag-dictionary cache to trigger its build or retrieval.
-        
+
         Used as a concurrent reader in tests to exercise thread-safe cache access.
         """
         catalog._get_tag_dict_cached()

@@ -19,7 +19,7 @@ class TestDateFinder(TestCase):
     def test_parse_str(self):
         """
         Checks that DateFinder extracts at least one date-like string from a numeric, table-formatted multiline text.
-        
+
         Uses a base date of January 1 of the current year and calls DateFinder.extract_date_strings(..., strict=False); the test asserts that the extractor returns at least one candidate.
         """
         text = """
@@ -37,7 +37,7 @@ class TestDateFinder(TestCase):
     def test_parse_time(self):
         """
         Measure that DateFinder.extract_date_strings parses a large test file within 15 seconds.
-        
+
         Reads test_data/long_parsed_text.txt, creates a DateFinder with base_date set to January 1 of the current year at 00:00:00, runs extract_date_strings on the file content with strict=False, and asserts the operation completes in under 15 seconds.
         """
         dir_path = os.path.dirname(os.path.realpath(__file__))

@@ -11,11 +11,10 @@ from collections.abc import Sequence
 
 
 class LocaleContextManager:
-
     def __init__(self, category: int, _locale: str) -> None:
         """
         Initialize the LocaleContextManager by recording the current locale and the target category and locale.
-        
+
         Parameters:
             category (int): The LC_* category to modify (e.g., locale.LC_TIME).
             _locale (str | tuple[str, str] | None): The desired locale (a locale string, a two-item (language, encoding) tuple, or None).
@@ -27,9 +26,9 @@ class LocaleContextManager:
     def __enter__(self) -> str | None:
         """
         Temporarily set the process locale for the instance's category.
-        
+
         Attempts to set the locale to the instance's configured value and returns the effective locale string when successful; if setting the locale fails due to a locale.Error, returns `None`.
-        
+
         Returns:
             `str` effective locale string on success, `None` if the requested locale could not be set.
         """
@@ -41,9 +40,9 @@ class LocaleContextManager:
     def __exit__(self, type, value, traceback) -> None:
         """
         Restore the process locale for the context's category.
-        
+
         Always sets the locale for the stored category back to the original locale saved when the context was entered. This restoration is performed regardless of whether the with-block raised an exception and the method does not suppress exceptions (it returns None).
-        
+
         Parameters:
             type: The exception type if an exception was raised in the with-block, otherwise None. Ignored.
             value: The exception instance if raised, otherwise None. Ignored.
@@ -53,10 +52,12 @@ class LocaleContextManager:
 
 
 class Language:
-    def __init__(self,
-                 code: str,  # ISO 639-1 2-symbol code
-                 code_3: str,  # ISO 639-2 3-symbol code
-                 title: str):
+    def __init__(
+        self,
+        code: str,  # ISO 639-1 2-symbol code
+        code_3: str,  # ISO 639-2 3-symbol code
+        title: str,
+    ):
         self.code = code
         self.code_3 = code_3
         self.title = title
@@ -66,8 +67,7 @@ class Language:
 
 
 class Locale:
-    def __init__(self,
-                 locale: str = ''):
+    def __init__(self, locale: str = ""):
         self.language = locale[:2].lower()
         self.locale_code = locale[3:].upper()
         if self.language and not self.locale_code:
@@ -77,16 +77,11 @@ class Locale:
         return f"{self.language}-{self.locale_code}"
 
 
-LANG_EN = Language('en', 'eng', 'English')
-LANG_DE = Language('de', 'ger', 'German')
-LANG_ES = Language('es', 'spa', 'Spanish')
-LANG_PT = Language('pt', 'por', 'Portuguese')
+LANG_EN = Language("en", "eng", "English")
+LANG_DE = Language("de", "ger", "German")
+LANG_ES = Language("es", "spa", "Spanish")
+LANG_PT = Language("pt", "por", "Portuguese")
 
-LANGUAGES = [
-    LANG_EN,
-    LANG_DE,
-    LANG_ES,
-    LANG_PT
-]
+LANGUAGES = [LANG_EN, LANG_DE, LANG_ES, LANG_PT]
 
 DEFAULT_LANGUAGE = LANG_EN

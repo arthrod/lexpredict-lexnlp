@@ -31,8 +31,10 @@ if str(_SCRIPTS_DIR) not in sys.path:
 def _make_argv(tmp_path: Path, *, force: bool = False, extra: list | None = None) -> list[str]:
     output_json = tmp_path / "report.json"
     argv = [
-        "--target-tag", "pipeline/test/0.1",
-        "--output-json", str(output_json),
+        "--target-tag",
+        "pipeline/test/0.1",
+        "--output-json",
+        str(output_json),
     ]
     if force:
         argv.append("--force")
@@ -80,9 +82,7 @@ def _patch_runtime_model(
 class TestWroteArtifactInReport:
     """The JSON report must include a 'wrote_artifact' key."""
 
-    def test_report_includes_wrote_artifact_true(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_report_includes_wrote_artifact_true(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         import train_contract_type_model as script_mod
 
         corpus = tmp_path / "corpus.tar.xz"
@@ -108,8 +108,10 @@ class TestWroteArtifactInReport:
         output_json = tmp_path / "report.json"
         rc = script_mod.main(
             [
-                "--target-tag", "pipeline/test/0.1",
-                "--output-json", str(output_json),
+                "--target-tag",
+                "pipeline/test/0.1",
+                "--output-json",
+                str(output_json),
                 "--force",
             ]
         )
@@ -119,9 +121,7 @@ class TestWroteArtifactInReport:
         assert "wrote_artifact" in report
         assert report["wrote_artifact"] is True
 
-    def test_report_includes_wrote_artifact_false(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_report_includes_wrote_artifact_false(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         import train_contract_type_model as script_mod
 
         corpus = tmp_path / "corpus.tar.xz"
@@ -147,8 +147,10 @@ class TestWroteArtifactInReport:
         output_json = tmp_path / "report.json"
         rc = script_mod.main(
             [
-                "--target-tag", "pipeline/test/0.1",
-                "--output-json", str(output_json),
+                "--target-tag",
+                "pipeline/test/0.1",
+                "--output-json",
+                str(output_json),
             ]
         )
 
@@ -165,9 +167,7 @@ class TestWroteArtifactInReport:
 
 
 class TestExitCodeWhenNotWrote:
-    def test_exit_code_1_when_wrote_false(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_exit_code_1_when_wrote_false(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         import train_contract_type_model as script_mod
 
         corpus = tmp_path / "corpus.tar.xz"
@@ -191,14 +191,10 @@ class TestExitCodeWhenNotWrote:
         )
 
         output_json = tmp_path / "report.json"
-        rc = script_mod.main(
-            ["--target-tag", "pipeline/test/0.1", "--output-json", str(output_json)]
-        )
+        rc = script_mod.main(["--target-tag", "pipeline/test/0.1", "--output-json", str(output_json)])
         assert rc == 1
 
-    def test_exit_code_0_when_wrote_true(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_exit_code_0_when_wrote_true(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         import train_contract_type_model as script_mod
 
         corpus = tmp_path / "corpus.tar.xz"
@@ -222,9 +218,7 @@ class TestExitCodeWhenNotWrote:
         )
 
         output_json = tmp_path / "report.json"
-        rc = script_mod.main(
-            ["--target-tag", "pipeline/test/0.1", "--output-json", str(output_json), "--force"]
-        )
+        rc = script_mod.main(["--target-tag", "pipeline/test/0.1", "--output-json", str(output_json), "--force"])
         assert rc == 0
 
 
@@ -239,9 +233,7 @@ class TestStratificationFallback:
     the script must retry without stratification rather than propagating the error.
     """
 
-    def test_stratification_fallback_succeeds(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_stratification_fallback_succeeds(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """
         Simulate a corpus where one label has only one sample so stratification
         fails; the retry without stratification must succeed.
@@ -281,24 +273,18 @@ class TestStratificationFallback:
             call_count[0] += 1
             if call_count[0] == 1 and stratify is not None:
                 raise ValueError("stratify error: not enough members")
-            return real_split(
-                X, y, test_size=test_size, random_state=random_state, shuffle=shuffle
-            )
+            return real_split(X, y, test_size=test_size, random_state=random_state, shuffle=shuffle)
 
         monkeypatch.setattr(script_mod, "train_test_split", mock_split)
 
         output_json = tmp_path / "report.json"
-        rc = script_mod.main(
-            ["--target-tag", "pipeline/test/0.1", "--output-json", str(output_json), "--force"]
-        )
+        rc = script_mod.main(["--target-tag", "pipeline/test/0.1", "--output-json", str(output_json), "--force"])
 
         assert rc == 0
         # Ensure train_test_split was called twice (once with stratify, once without).
         assert call_count[0] == 2
 
-    def test_stratification_used_when_possible(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_stratification_used_when_possible(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """
         When min samples per label >= 2, stratification must be attempted first.
         """
@@ -330,17 +316,12 @@ class TestStratificationFallback:
 
         def mock_split(X, y, *, test_size, random_state, stratify, shuffle):
             stratify_calls.append(stratify)
-            return real_split(
-                X, y, test_size=test_size, random_state=random_state,
-                stratify=stratify, shuffle=shuffle
-            )
+            return real_split(X, y, test_size=test_size, random_state=random_state, stratify=stratify, shuffle=shuffle)
 
         monkeypatch.setattr(script_mod, "train_test_split", mock_split)
 
         output_json = tmp_path / "report.json"
-        script_mod.main(
-            ["--target-tag", "pipeline/test/0.1", "--output-json", str(output_json), "--force"]
-        )
+        script_mod.main(["--target-tag", "pipeline/test/0.1", "--output-json", str(output_json), "--force"])
 
         # The first call must use stratify (not None).
         assert stratify_calls[0] is not None

@@ -242,9 +242,7 @@ class TestLoadModel:
         with pytest.raises(ValueError, match="Unsupported model suffix"):
             load_model(path)
 
-    def test_unknown_suffix_raises_value_error(
-        self, tmp_path: Path
-    ) -> None:
+    def test_unknown_suffix_raises_value_error(self, tmp_path: Path) -> None:
         """An unrecognised suffix must be rejected to avoid widening
         unsafe deserialization surface."""
         path = tmp_path / "model.bin"

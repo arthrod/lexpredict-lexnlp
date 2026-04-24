@@ -24,7 +24,7 @@ class TestLocaleContextManager:
     def test_context_manager_protocol(self) -> None:
         """
         Verify that LocaleContextManager binds None to the context variable when given an invalid locale.
-        
+
         Uses a `with` statement to exercise the context manager protocol and asserts the value bound by `as` is `None`.
         """
         with LocaleContextManager(locale.LC_ALL, "zz_ZZ.INVALID") as value:

@@ -32,8 +32,8 @@ from lexnlp.extract.en.dates import get_date_features, get_dates_list, get_raw_d
 from lexnlp.tests import lexnlp_tests
 
 EXAMPLE_TEXT_1 = """Dear Jerry:
-This amended and restated letter agreement sets forth the terms of your employment with Polytech Inc., a California 
-corporation (the “Company”), as well as our understanding with respect to any termination of that employment 
+This amended and restated letter agreement sets forth the terms of your employment with Polytech Inc., a California
+corporation (the “Company”), as well as our understanding with respect to any termination of that employment
 relationship. Effective on the date set forth above, this letter agreement supersedes your offer letter dated January
 28, 2008, in its entirety."""
 
@@ -49,13 +49,13 @@ DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 def expected_data_converter(expected):
     """
     Convert an iterable of date strings into a list of Python date/datetime objects.
-    
+
     Parameters:
         expected (iterable[str]): Strings representing dates in one of the following formats:
             - "YYYY-MM-DD HH:MM:SS" (length 19) — parsed to `datetime.datetime`.
             - "YYYY-MM-DD" (length 10) — parsed to `datetime.date`.
             - "MM-DD" (length 5) — treated as the given month and day in the current year and parsed to `datetime.date`.
-    
+
     Returns:
         list[datetime.date | datetime.datetime]: Parsed dates where full datetimes (length 19 inputs) are `datetime.datetime`
         objects and other inputs produce `datetime.date` objects.
@@ -88,7 +88,7 @@ class TestDates(TestCase):
     def test_fixed_dates(self):
         """
         Validate date extraction against the module's fixed test dataset.
-        
+
         Runs the fixed test cases and asserts that parsed dates match the expected values after normalization by `expected_data_converter`.
         """
         lexnlp_tests.test_extraction_func_on_test_data(get_dates_list, expected_data_converter=expected_data_converter)
@@ -164,7 +164,7 @@ class TestDates(TestCase):
     def test_date_feature_1(self):
         """
         Verify character-frequency features produced for the date string "2000-02-02".
-        
+
         Asserts that get_date_features("2000-02-02", 0, 10, include_bigrams=False, characters=string.printable)
         returns the expected dictionary of "char_" feature frequencies for the given input.
         """
@@ -392,7 +392,7 @@ class TestDates(TestCase):
     def debug_build_model(self):
         """
         Run the default date-extraction training pipeline without saving the model to validate it executes end-to-end.
-        
+
         This test is intended as a debug/integration check and does not perform assertions.
         """
         train_default_model(save=False)

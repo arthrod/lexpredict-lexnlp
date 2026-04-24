@@ -41,8 +41,7 @@ def get_trademarks(text: str) -> Generator[str]:
 
 
 def get_trademark_list(text: str) -> list[str]:
-    """
-    """
+    """ """
     return list(get_trademarks(text))
 
 
@@ -60,8 +59,7 @@ def get_trademark_annotations(text: str) -> Generator[TrademarkAnnotation]:
     for phrase in tagged_phrases:
         for tm in TRADEMARK_PTN_RE.finditer(phrase[0]):
             coords = tm.span()
-            coords = (coords[0] + phrase[1],
-                      coords[1] + phrase[1])
+            coords = (coords[0] + phrase[1], coords[1] + phrase[1])
             if coords[1] >= len(text):
                 coords = (coords[0], len(text) - 1)
             ant = TrademarkAnnotation(coords=coords, trademark=tm.group())
@@ -69,6 +67,5 @@ def get_trademark_annotations(text: str) -> Generator[TrademarkAnnotation]:
 
 
 def get_trademark_annotation_list(text: str) -> list[TrademarkAnnotation]:
-    """
-    """
+    """ """
     return list(get_trademark_annotations(text))

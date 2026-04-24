@@ -23,11 +23,23 @@ from dateparser.data.date_translation_data.es import info
 from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.common.dates import DateParser
 
-months = ('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december')
-ES_MONTHS = sorted([y.lower() for k, v in info.items() if k in months for y in v],
-                   key=lambda i: (-len(i), i))
+months = (
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+)
+ES_MONTHS = sorted([y.lower() for k, v in info.items() if k in months for y in v], key=lambda i: (-len(i), i))
 
-ES_ALPHABET = ''
+ES_ALPHABET = ""
 DATE_MODEL_CHARS = []
 DATE_MODEL_CHARS.extend(ES_ALPHABET + string.ascii_letters)
 DATE_MODEL_CHARS.extend(string.digits)
@@ -35,25 +47,40 @@ DATE_MODEL_CHARS.extend(["-", "/", " ", "%", "#", "$"])
 
 
 class ESDateParser(DateParser):
-    DEFAULT_DATEPARSER_SETTINGS = {'PREFER_DAY_OF_MONTH': 'first', 'STRICT_PARSING': False, 'DATE_ORDER': 'DMY'}
+    DEFAULT_DATEPARSER_SETTINGS = {"PREFER_DAY_OF_MONTH": "first", "STRICT_PARSING": False, "DATE_ORDER": "DMY"}
     SEQUENTIAL_DATES_RE = re.compile(
-        r'(?P<text>(?P<day>\d{{1,2}}) de (?P<month>{es_months})(?:, | y | de (?P<year>\d{{4}})))'.format(
-            es_months='|'.join(ES_MONTHS)), re.I | re.M)
+        r"(?P<text>(?P<day>\d{{1,2}}) de (?P<month>{es_months})(?:, | y | de (?P<year>\d{{4}})))".format(
+            es_months="|".join(ES_MONTHS)
+        ),
+        re.I | re.M,
+    )
     WEIRD_DATES_NORM = [
-        (re.compile(r'(\d+º\s?de (?:{es_months})(?: de \d{{4}})?)'.format(
-            es_months='|'.join(ES_MONTHS)), re.I | re.M),
-         lambda i: re.sub(r'\s*º\s*', ' ', i))
+        (
+            re.compile(
+                r"(\d+º\s?de (?:{es_months})(?: de \d{{4}})?)".format(es_months="|".join(ES_MONTHS)), re.I | re.M
+            ),
+            lambda i: re.sub(r"\s*º\s*", " ", i),
+        )
     ]
 
-    def __init__(self,
-                 text: str | None = None,
-                 locale: Locale = Locale('en-US'),
-                 dateparser_settings: dict[str, Any] | None = None,
-                 enable_classifier_check: bool = False,
-                 classifier_model: Any | None = None,
-                 classifier_threshold: float = 0.5):
-        super().__init__(DATE_MODEL_CHARS, text, locale, dateparser_settings,
-                         enable_classifier_check, classifier_model, classifier_threshold)
+    def __init__(
+        self,
+        text: str | None = None,
+        locale: Locale = Locale("en-US"),
+        dateparser_settings: dict[str, Any] | None = None,
+        enable_classifier_check: bool = False,
+        classifier_model: Any | None = None,
+        classifier_threshold: float = 0.5,
+    ):
+        super().__init__(
+            DATE_MODEL_CHARS,
+            text,
+            locale,
+            dateparser_settings,
+            enable_classifier_check,
+            classifier_model,
+            classifier_threshold,
+        )
 
     def get_extra_dates(self, strict: bool):
         dateparser_dates_dict = {i[0]: i for i in self.dates}
@@ -61,10 +88,10 @@ class ESDateParser(DateParser):
         dates_rev = reversed(list(self.SEQUENTIAL_DATES_RE.finditer(self.text)))
         for match in dates_rev:
             capture = match.capturesdict()
-            capture_text = ''.join(capture['text']).strip(',y ')
+            capture_text = "".join(capture["text"]).strip(",y ")
             match_start, match_end = match.span()
-            if capture['year']:
-                last_match_year = int(''.join(capture['year']))
+            if capture["year"]:
+                last_match_year = int("".join(capture["year"]))
                 if capture_text not in dateparser_dates_dict:
                     a_date = self.get_dateparser_dates(capture_text, strict)
                     if a_date:
@@ -98,10 +125,9 @@ class ESDateParser(DateParser):
 
 parser = ESDateParser(
     enable_classifier_check=False,
-    locale=Locale('es-ES'),
-    dateparser_settings={'PREFER_DAY_OF_MONTH': 'first',
-                         'STRICT_PARSING': False,
-                         'DATE_ORDER': 'DMY'})
+    locale=Locale("es-ES"),
+    dateparser_settings={"PREFER_DAY_OF_MONTH": "first", "STRICT_PARSING": False, "DATE_ORDER": "DMY"},
+)
 
 
 get_dates = parser.get_dates

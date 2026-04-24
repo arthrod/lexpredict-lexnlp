@@ -154,7 +154,12 @@ def _patched_sklearn_tree_loader():
         def compat(node_ndarray, expected_dtype):
             names = getattr(getattr(node_ndarray, "dtype", None), "names", None)
             expected_names = getattr(expected_dtype, "names", None)
-            if names and expected_names and "missing_go_to_left" in expected_names and "missing_go_to_left" not in names:
+            if (
+                names
+                and expected_names
+                and "missing_go_to_left" in expected_names
+                and "missing_go_to_left" not in names
+            ):
                 patched = numpy.empty(node_ndarray.shape, dtype=expected_dtype)
                 for name in names:
                     patched[name] = node_ndarray[name]
@@ -197,8 +202,7 @@ def load_model(path: Path, *, trusted: bool = False) -> Any:
         return _load_skops(path, trusted=trusted)
     except Exception as exc:
         raise ValueError(
-            f"Unsupported model suffix '{path.suffix}'. "
-            f"Use '{CANONICAL_SUFFIX}' or one of {sorted(_LEGACY_SUFFIXES)}."
+            f"Unsupported model suffix '{path.suffix}'. Use '{CANONICAL_SUFFIX}' or one of {sorted(_LEGACY_SUFFIXES)}."
         ) from exc
 
 

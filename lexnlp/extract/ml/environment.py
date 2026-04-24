@@ -9,4 +9,4 @@ __email__ = "support@contraxsuite.com"
 import os
 
 ENV_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-ENV_EN_DATA_DIRECTORY = os.path.join(ENV_DIRECTORY, 'en/data')
+ENV_EN_DATA_DIRECTORY = os.path.join(ENV_DIRECTORY, "en/data")

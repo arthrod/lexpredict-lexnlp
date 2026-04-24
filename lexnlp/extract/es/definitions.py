@@ -23,7 +23,8 @@ class SpanishParsingMethods:
         def method_name(phrase: str) -> List[DefinitionMatch]:
     the methods are used for finding definition "candidates"
     """
-    reg_hereafter = re.compile("(?<=(en adelante[,\\s]))[\\w\\s*\\\"*]+", re.UNICODE)
+
+    reg_hereafter = re.compile('(?<=(en adelante[,\\s]))[\\w\\s*\\"*]+', re.UNICODE)
     reg_reffered = re.compile("^.+(?=se refiere)", re.UNICODE)
     reg_first_word_is = re.compile(r"^.+?(?=es\s+\w+\W+\w+|está\s+\w+\W+\w+)", re.UNICODE)
 
@@ -35,12 +36,15 @@ class SpanishParsingMethods:
         :return: {name: 'Documentación', probability: 100, ...}
         """
         reg = SpanishParsingMethods.reg_hereafter
-        dfs = CommonDefinitionPatterns. \
-            collect_regex_matches_with_quoted_chunks(phrase, reg, 100,
-                                                     lambda p, m, e: 0,
-                                                     lambda p, m, e: m.start() + e.end(),
-                                                     lambda p, m: 0,
-                                                     lambda p, m: m.end())
+        dfs = CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
+            phrase,
+            reg,
+            100,
+            lambda p, m, e: 0,
+            lambda p, m, e: m.start() + e.end(),
+            lambda p, m: 0,
+            lambda p, m: m.end(),
+        )
         return dfs
 
     @staticmethod
@@ -51,12 +55,15 @@ class SpanishParsingMethods:
         :return: definitions (objects)
         """
         reg = SpanishParsingMethods.reg_reffered
-        dfs = CommonDefinitionPatterns. \
-            collect_regex_matches_with_quoted_chunks(phrase, reg, 100,
-                                                     lambda p, m, e: m.start() + e.start(),
-                                                     lambda p, m, e: len(phrase),
-                                                     lambda p, m: m.start(),
-                                                     lambda p, m: len(p))
+        dfs = CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
+            phrase,
+            reg,
+            100,
+            lambda p, m, e: m.start() + e.start(),
+            lambda p, m, e: len(phrase),
+            lambda p, m: m.start(),
+            lambda p, m: len(p),
+        )
         return dfs
 
     @staticmethod
@@ -66,26 +73,31 @@ class SpanishParsingMethods:
         :return: definitions (objects)
         """
         reg = SpanishParsingMethods.reg_first_word_is
-        dfs = CommonDefinitionPatterns.\
-            collect_regex_matches_with_quoted_chunks(phrase, reg, 65,
-                                                     lambda p, m, e: m.start() + e.start(),
-                                                     lambda p, m, e: len(phrase),
-                                                     lambda p, m: m.start(),
-                                                     lambda p, m: len(p))
+        dfs = CommonDefinitionPatterns.collect_regex_matches_with_quoted_chunks(
+            phrase,
+            reg,
+            65,
+            lambda p, m, e: m.start() + e.start(),
+            lambda p, m, e: len(phrase),
+            lambda p, m: m.start(),
+            lambda p, m: len(p),
+        )
         return dfs
 
 
 def make_es_definitions_parser():
     split_params = LineSplitParams()
-    split_params.line_breaks = {'\n', '.', ';', '!', '?'}
+    split_params.line_breaks = {"\n", ".", ";", "!", "?"}
     split_params.abbreviations = EsLanguageTokens.abbreviations
     split_params.abbr_ignore_case = True
 
-    functions = [CommonDefinitionPatterns.match_es_def_by_semicolon,
-                 CommonDefinitionPatterns.match_acronyms,
-                 SpanishParsingMethods.match_es_def_by_hereafter,
-                 SpanishParsingMethods.match_es_def_by_reffered,
-                 SpanishParsingMethods.match_first_word_is]
+    functions = [
+        CommonDefinitionPatterns.match_es_def_by_semicolon,
+        CommonDefinitionPatterns.match_acronyms,
+        SpanishParsingMethods.match_es_def_by_hereafter,
+        SpanishParsingMethods.match_es_def_by_reffered,
+        SpanishParsingMethods.match_first_word_is,
+    ]
 
     return UniversalDefinitionsParser(functions, split_params)
 
@@ -93,18 +105,18 @@ def make_es_definitions_parser():
 parser = make_es_definitions_parser()
 
 
-def get_definition_annotations(text: str, language: str = 'es') -> Generator[DefinitionAnnotation]:
+def get_definition_annotations(text: str, language: str = "es") -> Generator[DefinitionAnnotation]:
     yield from parser.parse(text, language)
 
 
-def get_definition_annotation_list(text: str, language: str = 'es') -> list[DefinitionAnnotation]:
+def get_definition_annotation_list(text: str, language: str = "es") -> list[DefinitionAnnotation]:
     return list(get_definition_annotations(text, language))
 
 
-def get_definitions(text: str, language: str = 'es') -> Generator[dict]:
+def get_definitions(text: str, language: str = "es") -> Generator[dict]:
     for annotation in parser.parse(text, language):
         yield annotation.to_dictionary()
 
 
-def get_definition_list(text: str, language: str = 'es') -> list[dict]:
+def get_definition_list(text: str, language: str = "es") -> list[dict]:
     return list(get_definitions(text, language))

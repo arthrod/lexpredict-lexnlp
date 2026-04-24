@@ -39,7 +39,7 @@ INTERNAL_ISSUER_ID_PTN = r"""
 """
 INTERNAL_ISSUER_ID_PTN_RE = re.compile(INTERNAL_ISSUER_ID_PTN, re.VERBOSE)
 
-PPN_PTN_RE = re.compile(r'[\@\#\*]')
+PPN_PTN_RE = re.compile(r"[\@\#\*]")
 
 TBA_PTN = r"""
 (?P<product_code>\d{2})
@@ -50,10 +50,10 @@ TBA_PTN = r"""
 (?P<checksum>\d{1})
 """
 TBA_PTN_RE = re.compile(TBA_PTN, re.VERBOSE)
-TBA_MONTHS = {i: calendar.month_name[n + 1] for n, i in enumerate('123456789ABC')}
+TBA_MONTHS = {i: calendar.month_name[n + 1] for n, i in enumerate("123456789ABC")}
 
-CHECKSUM_BASE = {i: 10+n for n, i in enumerate(string.ascii_uppercase)}
-CHECKSUM_BASE.update({'*': 36, '@': 37, '#': 38})
+CHECKSUM_BASE = {i: 10 + n for n, i in enumerate(string.ascii_uppercase)}
+CHECKSUM_BASE.update({"*": 36, "@": 37, "#": 38})
 
 
 def is_cusip_valid(code, return_checksum=False):
@@ -90,10 +90,10 @@ def get_cusip_annotations(text: str) -> Generator[CusipAnnotation]:
     """
     for match in CUSIP_PTN_RE.finditer(text):
         capture = match.capturesdict()
-        code = ''.join(capture['code'])
-        issuer_id = ''.join(capture['issuer_id'])
-        issue_id = ''.join(capture['issue_id'])
-        checksum = int(capture['checksum'][0])
+        code = "".join(capture["code"])
+        issuer_id = "".join(capture["issuer_id"])
+        issue_id = "".join(capture["issue_id"])
+        checksum = int(capture["checksum"][0])
         ppn = False
 
         # validate CUSIP
@@ -103,26 +103,27 @@ def get_cusip_annotations(text: str) -> Generator[CusipAnnotation]:
         tba = TBA_PTN_RE.fullmatch(code)
         if tba:
             tba = tba.groupdict()
-            settlement_month_name = TBA_MONTHS.get(tba['settlement_month'])
+            settlement_month_name = TBA_MONTHS.get(tba["settlement_month"])
             # if not settlement_month_name:
             #     continue
-            tba['settlement_month_name'] = settlement_month_name
+            tba["settlement_month_name"] = settlement_month_name
         elif PPN_PTN_RE.search(code):
             ppn = True
 
         internal = bool(INTERNAL_ISSUER_ID_PTN_RE.match(issuer_id))
-        ant = CusipAnnotation(coords=(match.start(1), match.end(1)),
-                              code=code,
-                              issuer_id=issuer_id,
-                              issue_id=issue_id,
-                              checksum=checksum,
-                              internal=internal,
-                              tba=tba,
-                              ppn=ppn)
+        ant = CusipAnnotation(
+            coords=(match.start(1), match.end(1)),
+            code=code,
+            issuer_id=issuer_id,
+            issue_id=issue_id,
+            checksum=checksum,
+            internal=internal,
+            tba=tba,
+            ppn=ppn,
+        )
         yield ant
 
 
 def get_cusip_annotation_list(text: str) -> list[CusipAnnotation]:
-    """
-    """
+    """ """
     return list(get_cusip_annotations(text))

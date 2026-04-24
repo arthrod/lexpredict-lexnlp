@@ -29,7 +29,7 @@ import pytest
 
 # pandas is an optional runtime dependency.
 pytest.importorskip("pandas")
-import pandas as pd  # noqa: E402
+import pandas as pd
 
 # Import pandas_output directly to bypass the PEP-695 __init__.py.
 _spec = importlib.util.spec_from_file_location(
@@ -71,6 +71,7 @@ class _FullAnn:
 
 class _NoAttrs:
     """Annotation-like with none of the expected attributes."""
+
     pass
 
 
@@ -126,9 +127,7 @@ class TestAnnotationsToDataframeEmpty:
         assert df.empty
 
     def test_empty_with_extra_columns_has_those_columns(self) -> None:
-        df = annotations_to_dataframe(
-            [], prefer_arrow=False, extra_columns=("category",)
-        )
+        df = annotations_to_dataframe([], prefer_arrow=False, extra_columns=("category",))
         assert "category" in df.columns
 
 
@@ -166,9 +165,7 @@ class TestAnnotationsToDataframeExtraColumns:
 
     def test_multiple_extra_columns(self) -> None:
         ann = _FullAnn(category="date", score=0.9)
-        df = annotations_to_dataframe(
-            [ann], prefer_arrow=False, extra_columns=("category", "score")
-        )
+        df = annotations_to_dataframe([ann], prefer_arrow=False, extra_columns=("category", "score"))
         assert "category" in df.columns
         assert "score" in df.columns
         assert df.iloc[0]["score"] == 0.9
@@ -176,26 +173,20 @@ class TestAnnotationsToDataframeExtraColumns:
     def test_missing_extra_attr_becomes_none_or_na(self) -> None:
         """Annotation missing the requested extra attribute should yield None/NaN."""
         ann = _FullAnn()  # has no 'missing_field' attribute
-        df = annotations_to_dataframe(
-            [ann], prefer_arrow=False, extra_columns=("missing_field",)
-        )
+        df = annotations_to_dataframe([ann], prefer_arrow=False, extra_columns=("missing_field",))
         val = df.iloc[0]["missing_field"]
         assert val is None or pd.isna(val)
 
     def test_extra_columns_appear_after_core_columns(self) -> None:
         ann = _FullAnn(category="act")
-        df = annotations_to_dataframe(
-            [ann], prefer_arrow=False, extra_columns=("category",)
-        )
+        df = annotations_to_dataframe([ann], prefer_arrow=False, extra_columns=("category",))
         cols = list(df.columns)
         # Core columns must come before extra columns.
         assert cols.index("end") < cols.index("category")
 
     def test_extra_column_with_none_value(self) -> None:
         ann = _FullAnn(category=None)
-        df = annotations_to_dataframe(
-            [ann], prefer_arrow=False, extra_columns=("category",)
-        )
+        df = annotations_to_dataframe([ann], prefer_arrow=False, extra_columns=("category",))
         val = df.iloc[0]["category"]
         assert val is None or pd.isna(val)
 
@@ -274,6 +265,7 @@ class TestMaybeConvertToArrow:
 class TestRowFromAnnotationAdditional:
     def test_bytearray_coords_gives_none(self) -> None:
         """bytearray is not a tuple or list."""
+
         class _ByteCoords:
             coords = bytearray(b"\x00\x01")
             text = "t"
@@ -286,6 +278,7 @@ class TestRowFromAnnotationAdditional:
 
     def test_set_coords_gives_none(self) -> None:
         """Sets are not tuples or lists."""
+
         class _SetCoords:
             coords = {0, 10}
             text = "t"
@@ -298,6 +291,7 @@ class TestRowFromAnnotationAdditional:
 
     def test_negative_coords_are_valid(self) -> None:
         """Negative offsets are unusual but technically valid for the isinstance check."""
+
         class _NegCoords:
             coords = (-5, -1)
             text = "t"

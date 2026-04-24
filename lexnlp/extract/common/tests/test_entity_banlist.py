@@ -15,7 +15,7 @@ from lexnlp.extract.common.entities.entity_banlist import EntityBanListItem
 def test_simple_pattern():
     """
     Verify EntityBanListItem matches simple literal patterns and respects trim_phrase and ignore_case options.
-    
+
     Asserts that a literal pattern ("Company") with default settings matches different casing and leading whitespace, but does not match when additional words are present. Also verifies that setting trim_phrase=False prevents matching leading-whitespace variants, and setting ignore_case=False makes matching case-sensitive.
     """
     ptrn = EntityBanListItem("Company")

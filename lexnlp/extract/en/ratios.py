@@ -27,8 +27,8 @@ RATIO_PTN = r"""
 (?:to|\:|/)\s*
 ({num_ptn_2}))(?!\s*[ap].?m(?:\W|$))
 """.format(
-    num_ptn_1=NUM_PTN.replace('(?:(?:no|\\d{1,2})/100)?', '').replace('(?:\\W|$)', ''),
-    num_ptn_2=NUM_PTN.replace('(?:(?:no|\\d{1,2})/100)?', '')
+    num_ptn_1=NUM_PTN.replace("(?:(?:no|\\d{1,2})/100)?", "").replace("(?:\\W|$)", ""),
+    num_ptn_2=NUM_PTN.replace("(?:(?:no|\\d{1,2})/100)?", ""),
 )
 RATIO_PTN_RE = re.compile(RATIO_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
@@ -50,8 +50,7 @@ def get_ratio_list(
     return_sources: bool = False,
     float_digits: int = 4,
 ) -> list[tuple[Decimal, Decimal, Decimal] | tuple[Decimal, Decimal, Decimal, str]]:
-    """
-    """
+    """ """
     return list(get_ratios(text, return_sources, float_digits))
 
 
@@ -61,10 +60,8 @@ def get_ratio_annotations(
 ) -> Generator[RatioAnnotation]:
     for match in RATIO_PTN_RE.finditer(text.lower()):
         source_text, ratio_1_text, ratio_2_text = match.groups()
-        amount_1: list[Decimal] = \
-            list(get_amounts(ratio_1_text, float_digits=float_digits))
-        amount_2: list[Decimal] = \
-            list(get_amounts(ratio_2_text, float_digits=float_digits))
+        amount_1: list[Decimal] = list(get_amounts(ratio_1_text, float_digits=float_digits))
+        amount_2: list[Decimal] = list(get_amounts(ratio_2_text, float_digits=float_digits))
         if len(amount_1) != 1 or len(amount_2) != 1:
             continue
         amount_1: Decimal = amount_1[0]
@@ -72,13 +69,7 @@ def get_ratio_annotations(
         if amount_1 == 0 or amount_2 == 0:
             continue
         total = amount_1 / amount_2
-        ant = RatioAnnotation(
-            coords=match.span(),
-            text=source_text.strip(),
-            left=amount_1,
-            right=amount_2,
-            ratio=total
-        )
+        ant = RatioAnnotation(coords=match.span(), text=source_text.strip(), left=amount_1, right=amount_2, ratio=total)
         yield ant
 
 

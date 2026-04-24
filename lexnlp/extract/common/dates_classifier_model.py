@@ -17,17 +17,19 @@ import sklearn.ensemble
 import sklearn.neural_network
 from sklearn.model_selection import cross_val_score
 
-REG_WORD_SEPARATOR = re.compile(r'[\s\-\.\[\]\{\}\(\),;:\+\\/]+')
-REG_NUMBER = re.compile(r'^\d+')
+REG_WORD_SEPARATOR = re.compile(r"[\s\-\.\[\]\{\}\(\),;:\+\\/]+")
+REG_NUMBER = re.compile(r"^\d+")
 
 
-def build_date_model(input_examples: list[tuple[str, list[datetime.date]]],
-                     output_file: str,
-                     parse_dates: Callable[[str], list[tuple[int, int] | dict[str, list[str]]]],
-                     characters: list[str],
-                     verbose=False,
-                     alphabet_char_set: set[str] | None = False,
-                     count_words=False):
+def build_date_model(
+    input_examples: list[tuple[str, list[datetime.date]]],
+    output_file: str,
+    parse_dates: Callable[[str], list[tuple[int, int] | dict[str, list[str]]]],
+    characters: list[str],
+    verbose=False,
+    alphabet_char_set: set[str] | None = False,
+    count_words=False,
+):
     """
     Build a sklearn model for classifying date strings as potential false positives.
     :param input_examples: [(date_string, date), ...]
@@ -69,55 +71,94 @@ def build_date_model(input_examples: list[tuple[str, list[datetime.date]]],
             if verbose:
                 print(date_str)
                 print((l_diff, r_diff, dates))
-                print('=' * 16)
+                print("=" * 16)
         else:
             correct += 1
         total += 1
 
         for d_date, d_pos in date_results:
-            feature_row = get_date_features(date_str, d_pos[0], d_pos[1], characters,
-                                            alphabet_char_set=alphabet_char_set,
-                                            count_words=count_words)
+            feature_row = get_date_features(
+                date_str, d_pos[0], d_pos[1], characters, alphabet_char_set=alphabet_char_set, count_words=count_words
+            )
             if not col_names:
                 col_names = [col for col in feature_row]
-            example_data.append(date_str[d_pos[0]:d_pos[1]])
+            example_data.append(date_str[d_pos[0] : d_pos[1]])
             feature_list.append([feature_row[col] for col in col_names])
             target_data.append(int(d_date in expected_dates))
 
     if verbose:
         print("In-Sample Assessment:")
         print("Raw Dates:")
-        print(f"Accuracy: {100. * float(correct) / total}% on {total} samples")
-        print(f'Feature data: {len(feature_list)} x {len(feature_list[0])}')
+        print(f"Accuracy: {100.0 * float(correct) / total}% on {total} samples")
+        print(f"Feature data: {len(feature_list)} x {len(feature_list[0])}")
 
     pipelines = [
-        sklearn.pipeline.Pipeline([
-            ('select', sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=100)),
-            ('classify', sklearn.ensemble.RandomForestClassifier())]),
-        sklearn.pipeline.Pipeline([
-            ('select', sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=200)),
-            ('classify', sklearn.ensemble.RandomForestClassifier())]),
-        sklearn.pipeline.Pipeline([
-            ('select', sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=300)),
-            ('classify', sklearn.ensemble.RandomForestClassifier())]),
-        sklearn.pipeline.Pipeline([
-            ('select', sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=400)),
-            ('classify', sklearn.ensemble.RandomForestClassifier())]),
-        sklearn.pipeline.Pipeline([
-            ('select', sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.chi2, k=200)),
-            ('classify', sklearn.ensemble.RandomForestClassifier())]),
-        sklearn.pipeline.Pipeline([
-            ('select', sklearn.feature_selection.VarianceThreshold()),
-            ('classify', sklearn.ensemble.RandomForestClassifier())]),
-        sklearn.pipeline.Pipeline([
-            ('select', sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=200)),
-            ('classify', sklearn.linear_model.LogisticRegressionCV())]),
-        sklearn.pipeline.Pipeline([
-            ('select', sklearn.feature_selection.VarianceThreshold()),
-            ('classify', sklearn.linear_model.LogisticRegressionCV())]),
-            # sklearn.pipeline.Pipeline([
-            # ('select', sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=300)),
-            # ('classify', sklearn.neural_network.MLPClassifier(activation='tanh', solver='sgd', max_iter=1000))]),
+        sklearn.pipeline.Pipeline(
+            [
+                (
+                    "select",
+                    sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=100),
+                ),
+                ("classify", sklearn.ensemble.RandomForestClassifier()),
+            ]
+        ),
+        sklearn.pipeline.Pipeline(
+            [
+                (
+                    "select",
+                    sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=200),
+                ),
+                ("classify", sklearn.ensemble.RandomForestClassifier()),
+            ]
+        ),
+        sklearn.pipeline.Pipeline(
+            [
+                (
+                    "select",
+                    sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=300),
+                ),
+                ("classify", sklearn.ensemble.RandomForestClassifier()),
+            ]
+        ),
+        sklearn.pipeline.Pipeline(
+            [
+                (
+                    "select",
+                    sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=400),
+                ),
+                ("classify", sklearn.ensemble.RandomForestClassifier()),
+            ]
+        ),
+        sklearn.pipeline.Pipeline(
+            [
+                ("select", sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.chi2, k=200)),
+                ("classify", sklearn.ensemble.RandomForestClassifier()),
+            ]
+        ),
+        sklearn.pipeline.Pipeline(
+            [
+                ("select", sklearn.feature_selection.VarianceThreshold()),
+                ("classify", sklearn.ensemble.RandomForestClassifier()),
+            ]
+        ),
+        sklearn.pipeline.Pipeline(
+            [
+                (
+                    "select",
+                    sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=200),
+                ),
+                ("classify", sklearn.linear_model.LogisticRegressionCV()),
+            ]
+        ),
+        sklearn.pipeline.Pipeline(
+            [
+                ("select", sklearn.feature_selection.VarianceThreshold()),
+                ("classify", sklearn.linear_model.LogisticRegressionCV()),
+            ]
+        ),
+        # sklearn.pipeline.Pipeline([
+        # ('select', sklearn.feature_selection.SelectKBest(score_func=sklearn.feature_selection.f_classif, k=300)),
+        # ('classify', sklearn.neural_network.MLPClassifier(activation='tanh', solver='sgd', max_iter=1000))]),
     ]
 
     best_score, best_model = 0.0, None
@@ -125,14 +166,14 @@ def build_date_model(input_examples: list[tuple[str, list[datetime.date]]],
     for i, model in enumerate(pipelines):
         start = datetime.datetime.now()
         model.fit(feature_list, target_data)
-        print(f'{i}) Fitting the model took {(datetime.datetime.now() - start).total_seconds()}s')
+        print(f"{i}) Fitting the model took {(datetime.datetime.now() - start).total_seconds()}s")
         model.columns = col_names
 
         start = datetime.datetime.now()
-        scores = cross_val_score(model, feature_list, target_data, cv=5, scoring='f1_macro')
-        print(f'{i}) Cross-validating took {(datetime.datetime.now() - start).total_seconds()}s')
+        scores = cross_val_score(model, feature_list, target_data, cv=5, scoring="f1_macro")
+        print(f"{i}) Cross-validating took {(datetime.datetime.now() - start).total_seconds()}s")
         avg_score = (sum(scores) or 0) / len(scores)
-        print(f'{i + 1}) Avg. score is {avg_score}, scores are: {scores}]')
+        print(f"{i + 1}) Avg. score is {avg_score}, scores are: {scores}]")
         if avg_score > best_score:
             best_model = model
             best_score = avg_score
@@ -145,15 +186,17 @@ def build_date_model(input_examples: list[tuple[str, list[datetime.date]]],
     joblib.dump(best_model, output_file)
 
 
-def get_date_features(text,
-                      start_index: int,
-                      end_index: int,
-                      characters: list[str],
-                      alphabet_char_set: set[str] | None = False,
-                      include_bigrams=True,
-                      window=5,
-                      norm=True,
-                      count_words=False):
+def get_date_features(
+    text,
+    start_index: int,
+    end_index: int,
+    characters: list[str],
+    alphabet_char_set: set[str] | None = False,
+    include_bigrams=True,
+    window=5,
+    norm=True,
+    count_words=False,
+):
     """
     Get features to use for classification of date as false positive.
     :param text: raw text around potential date
@@ -178,16 +221,16 @@ def get_date_features(text,
     char_keys = []
     bigram_keys = {}
     for character in characters:
-        key = f'char_{character}'
+        key = f"char_{character}"
         char_vec[key] = feature_text.count(character)
         char_keys.append(key)
 
     # Build character bigram vector
     if include_bigrams:
-        bigram_set = [''.join(s) for s in itertools.permutations(characters, 2)]
+        bigram_set = ["".join(s) for s in itertools.permutations(characters, 2)]
         bigram_keys = []
         for character in bigram_set:
-            key = f'bigram_{character}'
+            key = f"bigram_{character}"
             char_vec[key] = feature_text.count(character)
             bigram_keys.append(key)
 
@@ -228,12 +271,16 @@ def get_date_features(text,
         if norm:
             sum_words = numbers_above_31 + numbers_below_31 + words + cap_words
             if sum_words:
-                numbers_above_31, numbers_below_31, words, cap_words = \
-                    numbers_above_31 / sum_words, numbers_below_31 / sum_words, words / sum_words, cap_words / sum_words
-        char_vec['nb31'] = numbers_below_31
-        char_vec['na31'] = numbers_above_31
-        char_vec['wr_l'] = words
-        char_vec['wr_u'] = cap_words
+                numbers_above_31, numbers_below_31, words, cap_words = (
+                    numbers_above_31 / sum_words,
+                    numbers_below_31 / sum_words,
+                    words / sum_words,
+                    cap_words / sum_words,
+                )
+        char_vec["nb31"] = numbers_below_31
+        char_vec["na31"] = numbers_above_31
+        char_vec["wr_l"] = words
+        char_vec["wr_u"] = cap_words
 
     return char_vec
 

@@ -15,53 +15,50 @@ class RegulationAnnotation(TextAnnotation):
     create an object of RegulationAnnotation like
     cp = RegulationAnnotation(name='name', coords=(0, 100), text='text text')
     """
-    record_type = 'regulation'
 
-    def __init__(self,
-                 coords: tuple[int, int],
-                 locale: str = 'en',
-                 name: str = '',
-                 text: str | None = None,
-                 source: str = '',
-                 country: str = ''):
+    record_type = "regulation"
+
+    def __init__(
+        self,
+        coords: tuple[int, int],
+        locale: str = "en",
+        name: str = "",
+        text: str | None = None,
+        source: str = "",
+        country: str = "",
+    ):
         """
-                 Initialize a RegulationAnnotation with span coordinates and associated metadata.
-                 
-                 Parameters:
-                     coords (tuple[int, int]): Character span (start, end) of the annotation in the source text.
-                     locale (str): Locale code for the annotation (default 'en').
-                     name (str): Regulation identifier or code (for example, section number).
-                     text (str | None): Extracted annotation text; if None, the `name` may be used as display text.
-                     source (str): Issuing source or authority for the regulation.
-                     country (str): Issuing country for the external reference.
-                 """
-        super().__init__(
-            name=name,
-            locale=locale,
-            coords=coords,
-            text=text)
+        Initialize a RegulationAnnotation with span coordinates and associated metadata.
+
+        Parameters:
+            coords (tuple[int, int]): Character span (start, end) of the annotation in the source text.
+            locale (str): Locale code for the annotation (default 'en').
+            name (str): Regulation identifier or code (for example, section number).
+            text (str | None): Extracted annotation text; if None, the `name` may be used as display text.
+            source (str): Issuing source or authority for the regulation.
+            country (str): Issuing country for the external reference.
+        """
+        super().__init__(name=name, locale=locale, coords=coords, text=text)
         self.country = country
         self.source = source
 
     def get_cite_value_parts(self) -> list[str]:
-        parts = [self.country or '',
-                 self.source or '',
-                 self.name or '']
+        parts = [self.country or "", self.source or "", self.name or ""]
         return parts
 
     def get_dictionary_values(self) -> dict:
-        dic = Map({
-            'tags': {
-                'External Reference Issuing Country': self.country,
-                'External Reference Text': self.name,
-                'Extracted Entity Text': self.text or self.name
+        dic = Map(
+            {
+                "tags": {
+                    "External Reference Issuing Country": self.country,
+                    "External Reference Text": self.name,
+                    "Extracted Entity Text": self.text or self.name,
+                }
             }
-        })
+        )
         if self.source:
-            dic.tags['External Reference Source'] = self.source
+            dic.tags["External Reference Source"] = self.source
         return dic
 
     def to_dictionary_legacy(self) -> dict:
-        return {"regulation_type": self.source,
-                "regulation_code": self.name,
-                "regulation_text": self.text}
+        return {"regulation_type": self.source, "regulation_code": self.name, "regulation_text": self.text}

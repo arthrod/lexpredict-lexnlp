@@ -49,7 +49,7 @@ class TestPII:
     def test_ssn_list(self):
         """
         Run the SSN extraction tests defined in test_ssn_list.csv.
-        
+
         Executes the shared test harness to validate get_ssns against the CSV test data at the test path, verifying extracted values only (no source information).
         """
         lexnlp_tests.test_extraction_func_on_test_data(
@@ -59,7 +59,7 @@ class TestPII:
     def test_ssn_list_source(self):
         """
         Run SSN extraction test that verifies extracted SSNs along with their source information.
-        
+
         This test reads test_ssn_list_source.csv from the test data path on the test class and invokes the SSN extractor with source information requested.
         """
         lexnlp_tests.test_extraction_func_on_test_data(
@@ -86,7 +86,7 @@ class TestPII:
     def test_pii_list(self):
         """
         Run a test that verifies PII extraction produces the expected values for inputs in test_pii_list.csv.
-        
+
         Uses the test data file located at test_pii_list.csv under the test path to compare get_pii's extracted values against expected results.
         """
         lexnlp_tests.test_extraction_func_on_test_data(

@@ -29,10 +29,10 @@ import pytest
 def _find_config_dir() -> pathlib.Path:
     """
     Locate the repository's config/pt directory relative to this test file.
-    
+
     Returns:
         pathlib.Path: Path to the `config/pt` directory.
-    
+
     Raises:
         FileNotFoundError: If `config/pt` cannot be found relative to this file.
     """
@@ -53,10 +53,10 @@ _REGULATIONS_CSV = _CONFIG_PT / "pt_regulations.csv"
 def _read_csv(path: pathlib.Path) -> tuple[list[str], list[dict[str, Any]]]:
     """
     Read a UTF-8 CSV file and return its header field names and parsed rows.
-    
+
     Parameters:
         path (pathlib.Path): Path to the CSV file to read.
-    
+
     Returns:
         tuple[list[str], list[dict[str, Any]]]: A pair where the first element is the list of header field names (an empty list if the CSV has no header) and the second element is the list of rows as dictionaries mapping column names to values.
     """
@@ -77,7 +77,7 @@ class TestPtCourtsCSV:
     def courts_data(self):
         """
         Provide parsed field names and rows from the Portuguese courts CSV used by the tests.
-        
+
         Returns:
             tuple[list[str], list[dict[str, str]]]: `fieldnames` is a list of column headers (or an empty list if none),
             `rows` is a list of dictionaries mapping column names to string values for each data row.
@@ -88,7 +88,7 @@ class TestPtCourtsCSV:
     def test_file_exists(self) -> None:
         """
         Assert that the Portuguese courts CSV file exists at the expected config path.
-        
+
         If the file is missing, the test fails with an AssertionError that includes the resolved path.
         """
         assert _COURTS_CSV.exists(), f"File not found: {_COURTS_CSV}"
@@ -96,7 +96,7 @@ class TestPtCourtsCSV:
     def test_has_98_data_rows(self, courts_data) -> None:
         """
         Assert the Portuguese courts CSV contains exactly 98 data rows.
-        
+
         Raises:
             AssertionError: if the parsed CSV row count is not 98.
         """
@@ -105,16 +105,22 @@ class TestPtCourtsCSV:
 
     def test_required_columns_present(self, courts_data) -> None:
         fieldnames, _ = courts_data
-        required = {"Term Locale", "Term Category", "Court ID", "Level",
-                    "Jurisdiction", "Court Type", "Court Name", "Alias"}
+        required = {
+            "Term Locale",
+            "Term Category",
+            "Court ID",
+            "Level",
+            "Jurisdiction",
+            "Court Type",
+            "Court Name",
+            "Alias",
+        }
         assert required.issubset(set(fieldnames))
 
     def test_all_rows_have_term_locale_pt_br(self, courts_data) -> None:
         _, rows = courts_data
         for row in rows:
-            assert row["Term Locale"] == "pt-BR", (
-                f"Row {row['Court ID']} has unexpected locale: {row['Term Locale']!r}"
-            )
+            assert row["Term Locale"] == "pt-BR", f"Row {row['Court ID']} has unexpected locale: {row['Term Locale']!r}"
 
     def test_all_rows_have_term_category_brazilian_courts(self, courts_data) -> None:
         _, rows = courts_data
@@ -126,7 +132,7 @@ class TestPtCourtsCSV:
     def test_court_ids_are_sequential_1_to_98(self, courts_data) -> None:
         """
         Asserts that the Court ID values in the courts CSV form the consecutive sequence from 1 through 98.
-        
+
         Parameters:
             courts_data (tuple[list[str], list[dict[str, Any]]]): Parsed CSV data as (fieldnames, rows) where each row is a dict containing a "Court ID" key.
         """
@@ -137,32 +143,28 @@ class TestPtCourtsCSV:
     def test_all_rows_have_non_empty_court_name(self, courts_data) -> None:
         """
         Assert every parsed court row has a non-empty 'Court Name' field.
-        
+
         Parameters:
             courts_data (tuple[list[str], list[dict]]): (fieldnames, rows) returned by the CSV reader; `rows` is a list of row dicts from pt_courts.csv. On failure the assertion message includes the offending row's `Court ID`.
         """
         _, rows = courts_data
         for row in rows:
-            assert row["Court Name"].strip(), (
-                f"Row {row['Court ID']} has empty Court Name"
-            )
+            assert row["Court Name"].strip(), f"Row {row['Court ID']} has empty Court Name"
 
     def test_all_rows_have_non_empty_alias(self, courts_data) -> None:
         """
         Assert every row in the courts CSV has a non-empty Alias.
-        
+
         Raises an assertion failure that includes the Court ID when a row's `Alias` is empty or only whitespace.
         """
         _, rows = courts_data
         for row in rows:
-            assert row["Alias"].strip(), (
-                f"Row {row['Court ID']} has empty Alias"
-            )
+            assert row["Alias"].strip(), f"Row {row['Court ID']} has empty Alias"
 
     def test_stf_is_row_1(self, courts_data) -> None:
         """
         Assert that the court with Court ID "1" has alias "STF" and its Court Name contains "Supremo Tribunal Federal".
-        
+
         Verifies a row with "Court ID" == "1" exists, that its "Alias" equals "STF", and that "Supremo Tribunal Federal" appears in its "Court Name".
         """
         _, rows = courts_data
@@ -194,7 +196,7 @@ class TestPtCourtsCSV:
     def test_all_trf_aliases_present(self, courts_data) -> None:
         """
         Assert that the PT courts CSV contains the aliases "TRF1" through "TRF6".
-        
+
         Each of the aliases TRF1, TRF2, TRF3, TRF4, TRF5, and TRF6 must appear in the file's Alias column.
         """
         _, rows = courts_data
@@ -220,7 +222,7 @@ class TestPtCourtsCSV:
     def test_cnj_present(self, courts_data) -> None:
         """
         Asserts that the courts CSV contains the alias "CNJ".
-        
+
         Parameters:
             courts_data (tuple[list[str], list[dict[str, Any]]]): Fixture returning `(fieldnames, rows)` parsed from the courts CSV, where `rows` is a list of row dictionaries.
         """
@@ -239,7 +241,7 @@ class TestPtCourtsCSV:
     def test_federal_jurisdiction_rows_present(self, courts_data) -> None:
         """
         Asserts that at least one row in the courts CSV has the "Jurisdiction" field equal to "Federal".
-        
+
         If no row contains "Federal" in its "Jurisdiction" column, the test will fail.
         """
         _, rows = courts_data
@@ -254,7 +256,7 @@ class TestPtCourtsCSV:
     def test_regional_level_rows_present(self, courts_data) -> None:
         """
         Verify the courts CSV contains at least one row with Level "Regional".
-        
+
         Checks the parsed court rows' Level values and asserts that "Regional" is present.
         """
         _, rows = courts_data
@@ -272,7 +274,7 @@ class TestPtRegulationsCSV:
     def regs_data(self):
         """
         Load and return the parsed CSV fieldnames and rows from the Portuguese regulations config.
-        
+
         Returns:
             (fieldnames, rows) (tuple[list[str], list[dict[str, Any]]]): `fieldnames` is the list of column names from pt_regulations.csv; `rows` is a list of dictionaries representing each CSV row.
         """
@@ -289,7 +291,7 @@ class TestPtRegulationsCSV:
     def test_required_columns_present(self, regs_data) -> None:
         """
         Asserts the regulations CSV includes the required columns "trigger" and "position".
-        
+
         Parameters:
             regs_data (tuple[list[str], list[dict]]): Parsed CSV contents as (fieldnames, rows).
         """
@@ -305,14 +307,12 @@ class TestPtRegulationsCSV:
     def test_all_positions_are_start(self, regs_data) -> None:
         """
         Verify that every regulation row has its `position` set to "start".
-        
+
         This test fails if any row's `position` value is not exactly "start".
         """
         _, rows = regs_data
         for row in rows:
-            assert row["position"] == "start", (
-                f"Unexpected position {row['position']!r} for trigger {row['trigger']!r}"
-            )
+            assert row["position"] == "start", f"Unexpected position {row['position']!r} for trigger {row['trigger']!r}"
 
     def test_triggers_are_unique(self, regs_data) -> None:
         """
@@ -348,7 +348,7 @@ class TestPtRegulationsCSV:
     def test_instrucao_normativa_trigger_present(self, regs_data) -> None:
         """
         Ensure the regulations CSV contains the trigger "instrução normativa".
-        
+
         Checks that one of the `trigger` values in the provided regulations data is exactly "instrução normativa".
         """
         _, rows = regs_data
@@ -358,21 +358,19 @@ class TestPtRegulationsCSV:
     def test_all_triggers_are_lowercase(self, regs_data) -> None:
         """
         Ensure every regulation trigger string is lowercase.
-        
+
         Asserts that for each row in the provided regulations data, the value of `trigger` equals its lowercase form; if not, the assertion fails showing the offending trigger.
         """
         _, rows = regs_data
         for row in rows:
             trigger = row["trigger"]
             # Triggers should be lowercase (may include accented chars and spaces)
-            assert trigger == trigger.lower(), (
-                f"Trigger not lowercase: {trigger!r}"
-            )
+            assert trigger == trigger.lower(), f"Trigger not lowercase: {trigger!r}"
 
     def test_senado_federal_trigger_present(self, regs_data) -> None:
         """
         Verify the regulations CSV contains the trigger "senado federal".
-        
+
         Raises:
             AssertionError: if "senado federal" is not present among the `trigger` values.
         """
@@ -396,7 +394,7 @@ class TestPtRegulationsCSV:
     def test_exact_column_count(self, regs_data) -> None:
         """
         Asserts the regulations CSV has exactly two columns.
-        
+
         This test verifies that the parsed `fieldnames` list for `pt_regulations.csv` contains exactly 2 entries.
         """
         fieldnames, _ = regs_data

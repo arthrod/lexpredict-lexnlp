@@ -32,8 +32,10 @@ from lexnlp.nlp.en.stanford import get_tokens_list
 
 
 STANFORD_NER_FILE = os.path.join(STANFORD_NER_PATH, "stanford-ner.jar")
-STANFORD_NER_MODEL_MAP = {"english": "english.all.3class.distsim.crf.ser.gz",
-                          "english7": "english.muc.7class.distsim.crf.ser.gz"}
+STANFORD_NER_MODEL_MAP = {
+    "english": "english.all.3class.distsim.crf.ser.gz",
+    "english7": "english.muc.7class.distsim.crf.ser.gz",
+}
 
 
 def get_model_file(language):
@@ -46,7 +48,7 @@ def get_model_file(language):
 
 
 try:
-    STANFORD_NER_TAGGER = StanfordNERTagger(get_model_file("english"), STANFORD_NER_FILE, encoding='utf-8')
+    STANFORD_NER_TAGGER = StanfordNERTagger(get_model_file("english"), STANFORD_NER_FILE, encoding="utf-8")
 except LookupError:
     STANFORD_NER_TAGGER = None
 
@@ -70,7 +72,7 @@ def get_persons(text, strict=False, return_source=False, window=2) -> Generator:
         last_person_pos = None
         for i, token in enumerate(sentence_pos):
             # Check label
-            if token[1] == 'PERSON':
+            if token[1] == "PERSON":
                 if not strict and last_person_pos is not None and (i - last_person_pos) < window:
                     names[-1] += " " + token[0]
                 else:
@@ -110,7 +112,7 @@ def get_organizations(text, strict=False, return_source=False, window=2) -> Gene
         last_org_pos = None
         for i, token in enumerate(sentence_pos):
             # Check label
-            if token[1] == 'ORGANIZATION':
+            if token[1] == "ORGANIZATION":
                 if not strict and last_org_pos is not None and (i - last_org_pos) < window:
                     orgs[-1] += " " + token[0]
                 else:
@@ -150,7 +152,7 @@ def get_locations(text, strict=False, return_source=False, window=2) -> Generato
         last_loc_pos = None
         for i, token in enumerate(sentence_pos):
             # Check label
-            if token[1] == 'LOCATION':
+            if token[1] == "LOCATION":
                 if not strict and last_loc_pos is not None and (i - last_loc_pos) < window:
                     locations[-1] += (" " if not token[0].startswith("'") else "") + token[0]
                 else:
@@ -159,8 +161,9 @@ def get_locations(text, strict=False, return_source=False, window=2) -> Generato
             else:
                 if token[0] in [".", ","]:
                     if not strict and last_loc_pos is not None and (i - last_loc_pos) < window:
-                        locations[-1] += (" " if token[0] not in string.punctuation and not token[0].startswith(
-                            "'") else "") + token[0]
+                        locations[-1] += (
+                            " " if token[0] not in string.punctuation and not token[0].startswith("'") else ""
+                        ) + token[0]
                         last_loc_pos = i
 
         # Cleanup and yield

@@ -19,6 +19,7 @@ class ParsedTextCorrector:
 
     For now the only possible "violation" is a number of "unnecessary" line breaks (\n\n)
     """
+
     def __init__(self):
         pass
 
@@ -54,13 +55,12 @@ class ParsedTextCorrector:
         return text
 
     # remove all double (triple ...) line breaks
-    def correct_line_breaks(self, text: str,
-                            estimator: ParsedTextQualityEstimator = None) -> str:
+    def correct_line_breaks(self, text: str, estimator: ParsedTextQualityEstimator = None) -> str:
         if estimator is None:
             estimator = ParsedTextQualityEstimator()
             estimator.split_text_on_lines(text)
 
-        resulted = ''
+        resulted = ""
         lines = estimator.lines
 
         for index, line in enumerate(lines):
@@ -71,4 +71,4 @@ class ParsedTextCorrector:
         return resulted
 
     def normalize_line_ending(self, line: LineOrPhrase):
-        line.ending = ''.join(ch for ch, _ in itertools.groupby(line.ending))
+        line.ending = "".join(ch for ch, _ in itertools.groupby(line.ending))

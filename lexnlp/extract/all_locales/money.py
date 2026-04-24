@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -14,10 +13,7 @@ from lexnlp.extract.common.annotations.money_annotation import MoneyAnnotation
 from lexnlp.extract.de.money import get_money_annotations as get_money_annotations_de
 from lexnlp.extract.en.money import get_money_annotations as get_money_annotations_en
 
-ROUTINE_BY_LOCALE = {
-    LANG_EN.code: get_money_annotations_en,
-    LANG_DE.code: get_money_annotations_de
-}
+ROUTINE_BY_LOCALE = {LANG_EN.code: get_money_annotations_en, LANG_DE.code: get_money_annotations_de}
 
 
 def get_money_annotations(

@@ -6,7 +6,6 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-
 from lexnlp.extract.common.annotations.copyright_annotation import CopyrightAnnotation
 from lexnlp.extract.common.annotations.text_annotation import TextAnnotation
 from lexnlp.extract.common.pattern_found import PatternFound
@@ -21,9 +20,9 @@ class CopyrightParser(TextPatternCollector):
         ptrn: PatternFound,
         phrase: LineOrPhrase,
     ) -> TextAnnotation:
-        ant = CopyrightAnnotation(name=ptrn.name, coords=(ptrn.start, ptrn.end),
-                                  text=phrase.text[ptrn.start: ptrn.end],
-                                  locale=locale)
+        ant = CopyrightAnnotation(
+            name=ptrn.name, coords=(ptrn.start, ptrn.end), text=phrase.text[ptrn.start : ptrn.end], locale=locale
+        )
         ant.company = ptrn.company  # pattern in fact CopyrightPatternFound
         ant.year_start = ptrn.start_year
         ant.year_end = ptrn.end_year

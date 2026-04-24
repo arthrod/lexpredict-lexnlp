@@ -20,20 +20,41 @@ class TokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
     TODO: Implement sum and normalize.
     """
 
-    def __init__(self, letter_set=None, digit_set=None, punc_set=None, symbol_set=None, match_tokens=None,
-                 pre_window=0, post_window=0, calculate_sum=False, normalize=False, string_checks=False):
-        super().__init__(letter_set=letter_set, digit_set=digit_set, punc_set=punc_set,
-                         symbol_set=symbol_set, match_tokens=match_tokens, pre_window=pre_window,
-                         post_window=post_window, calculate_sum=calculate_sum,
-                         normalize=normalize, string_checks=string_checks)
+    def __init__(
+        self,
+        letter_set=None,
+        digit_set=None,
+        punc_set=None,
+        symbol_set=None,
+        match_tokens=None,
+        pre_window=0,
+        post_window=0,
+        calculate_sum=False,
+        normalize=False,
+        string_checks=False,
+    ):
+        super().__init__(
+            letter_set=letter_set,
+            digit_set=digit_set,
+            punc_set=punc_set,
+            symbol_set=symbol_set,
+            match_tokens=match_tokens,
+            pre_window=pre_window,
+            post_window=post_window,
+            calculate_sum=calculate_sum,
+            normalize=normalize,
+            string_checks=string_checks,
+        )
 
-    def get_feature_list(self,
-                         letter_set=None,
-                         digit_set=None,
-                         punc_set=None,
-                         symbol_set=None,
-                         pre_window: Optional = None,
-                         post_window: Optional = None):
+    def get_feature_list(
+        self,
+        letter_set=None,
+        digit_set=None,
+        punc_set=None,
+        symbol_set=None,
+        pre_window: Optional = None,
+        post_window: Optional = None,
+    ):
         """
         Return set of features for a character tokenizer.
         """
@@ -57,9 +78,7 @@ class TokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
             post_window = self.post_window
 
         # initialize
-        token_feature_list = ['position',
-                              'length',
-                              'mask']
+        token_feature_list = ["position", "length", "mask"]
 
         # iterate across window positions
         # pylint: disable=invalid-unary-operand-type
@@ -129,40 +148,42 @@ class TokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
         return token_feature_list
 
     # TODO: add "hints" alongside with the text? areas with special
-    def get_feature_data(self,
-                         text: str,
-                         feature_mask: list[int] | None = None):
+    def get_feature_data(self, text: str, feature_mask: list[int] | None = None):
         """
-                         Extract per-token feature vectors and token offset pairs from the input text.
-                         
-                         Builds a dense int8 feature matrix where each row corresponds to a token found in the input and each column to a feature name from the model's feature list, and returns the token (start, end) offsets (end is exclusive).
-                         
-                         Parameters:
-                             text (str): Input text to tokenize and extract character/unicode-based features from.
-                             feature_mask (list[int] | None): Optional per-character mask with the same length as `text`; when provided, the token-level `mask` feature is set to the maximum mask value of the token's characters.
-                         
-                         Returns:
-                             feature_data (numpy.ndarray): Array of shape (num_tokens, len(self.feature_list)), dtype `numpy.int8`, containing per-token feature counts/flags.
-                             tokens (list[tuple[int,int]]): List of (start_offset, end_offset) pairs for each token in `text`, where `end_offset` is exclusive.
-                         """
+        Extract per-token feature vectors and token offset pairs from the input text.
+
+        Builds a dense int8 feature matrix where each row corresponds to a token found in the input and each column to a feature name from the model's feature list, and returns the token (start, end) offsets (end is exclusive).
+
+        Parameters:
+            text (str): Input text to tokenize and extract character/unicode-based features from.
+            feature_mask (list[int] | None): Optional per-character mask with the same length as `text`; when provided, the token-level `mask` feature is set to the maximum mask value of the token's characters.
+
+        Returns:
+            feature_data (numpy.ndarray): Array of shape (num_tokens, len(self.feature_list)), dtype `numpy.int8`, containing per-token feature counts/flags.
+            tokens (list[tuple[int,int]]): List of (start_offset, end_offset) pairs for each token in `text`, where `end_offset` is exclusive.
+        """
         # setup return data
         text_len = len(text)
         text_lower = [c.lower() for c in text]
-        text_data = [(self.unicode_character_top_category_mapping[
-                          c] if c in self.unicode_character_top_category_mapping else "C",
-                      self.unicode_character_category_mapping[
-                          c] if c in self.unicode_character_category_mapping else "Cc",
-                      ord(c)
-                      ) for c in text]
+        text_data = [
+            (
+                self.unicode_character_top_category_mapping[c]
+                if c in self.unicode_character_top_category_mapping
+                else "C",
+                self.unicode_character_category_mapping[c] if c in self.unicode_character_category_mapping else "Cc",
+                ord(c),
+            )
+            for c in text
+        ]
 
         tokens = []
         token_start = 0
         # calculate token offsets
         for i in range(text_len - 1):
-            if text_data[i][0] not in ['Z', 'C'] and text_data[i + 1][0] in ['Z', 'C']:
+            if text_data[i][0] not in ["Z", "C"] and text_data[i + 1][0] in ["Z", "C"]:
                 tokens.append((token_start, i + 1))
                 token_start = min(i + 2, text_len)
-            elif text_data[i][0] in ['Z', 'C'] and text_data[i + 1][0] in ['Z', 'C']:
+            elif text_data[i][0] in ["Z", "C"] and text_data[i + 1][0] in ["Z", "C"]:
                 token_start += 1
         tokens.append((token_start, text_len))
         num_tokens = len(tokens)
@@ -172,11 +193,11 @@ class TokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
 
         for i in range(num_tokens):
             o = str(0)
-            token_text = text[tokens[i][0]:tokens[i][1]]
+            token_text = text[tokens[i][0] : tokens[i][1]]
 
-            feature_data[i, self._feature_index_map['position']] = i
-            feature_data[i, self._feature_index_map['length']] = tokens[i][1] - tokens[i][0]
-            feature_data[i, self._feature_index_map['mask']] = 0
+            feature_data[i, self._feature_index_map["position"]] = i
+            feature_data[i, self._feature_index_map["length"]] = tokens[i][1] - tokens[i][0]
+            feature_data[i, self._feature_index_map["mask"]] = 0
 
             feature_data[i, self._feature_index_map[o + "_is_start"]] = int(i == 0)
             feature_data[i, self._feature_index_map[o + "_is_end"]] = int(i == num_tokens - 1)
@@ -192,8 +213,9 @@ class TokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
                 c = text[j]
                 cl = text_lower[j]
                 if feature_mask:
-                    feature_data[i, self._feature_index_map['mask']] = max(
-                        feature_data[i, self._feature_index_map['mask']], feature_mask[j])
+                    feature_data[i, self._feature_index_map["mask"]] = max(
+                        feature_data[i, self._feature_index_map["mask"]], feature_mask[j]
+                    )
 
                 if c in self.letter_set:
                     feature_data[i, self._feature_index_map[o + "_char_" + c]] += 1
@@ -249,7 +271,8 @@ class TokenSequenceClassifierModel(BaseTokenSequenceClassifierModel):
                         continue
                     o = str(j - i)
                     for f in self._base_feature_list:
-                        feature_data[i, self._feature_index_map[o + '_' + f]] = \
-                            feature_data[j, self._feature_index_map['0_' + f]]
+                        feature_data[i, self._feature_index_map[o + "_" + f]] = feature_data[
+                            j, self._feature_index_map["0_" + f]
+                        ]
 
         return feature_data, tokens

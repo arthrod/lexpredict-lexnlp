@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -22,10 +21,6 @@ ROUTINE_BY_LOCALE = {
 }
 
 
-def get_copyright_annotations(
-        locale: str,
-        text: str,
-        return_sources: bool = False) -> \
-        Generator[CopyrightAnnotation]:
+def get_copyright_annotations(locale: str, text: str, return_sources: bool = False) -> Generator[CopyrightAnnotation]:
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
     yield from routine(text, return_sources)

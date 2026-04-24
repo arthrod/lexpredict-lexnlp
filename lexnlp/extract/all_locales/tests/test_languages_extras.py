@@ -206,15 +206,16 @@ class TestLocaleClass:
         # locale_code from position 3+ should be "GB" (upper)
         assert loc.locale_code == "GB"
 
-    @pytest.mark.parametrize("raw,expected_lang,expected_locale", [
-        ("de-DE", "de", "DE"),
-        ("es-ES", "es", "ES"),
-        ("en-AU", "en", "AU"),
-        ("fr-CA", "fr", "CA"),
-    ])
-    def test_parametrized_locale_parsing(
-        self, raw: str, expected_lang: str, expected_locale: str
-    ) -> None:
+    @pytest.mark.parametrize(
+        "raw,expected_lang,expected_locale",
+        [
+            ("de-DE", "de", "DE"),
+            ("es-ES", "es", "ES"),
+            ("en-AU", "en", "AU"),
+            ("fr-CA", "fr", "CA"),
+        ],
+    )
+    def test_parametrized_locale_parsing(self, raw: str, expected_lang: str, expected_locale: str) -> None:
         loc = Locale(raw)
         assert loc.language == expected_lang
         assert loc.locale_code == expected_locale

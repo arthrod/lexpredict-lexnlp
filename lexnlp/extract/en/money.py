@@ -20,33 +20,28 @@ from lexnlp.extract.common.annotations.money_annotation import MoneyAnnotation
 from lexnlp.extract.common.money_detector import MoneyDetector
 from lexnlp.extract.en.amounts import CURRENCY_PREFIX_MAP, CURRENCY_SYMBOL_MAP, NUM_PTN, get_amounts
 
-CURRENCY_TOKEN_MAP = OrderedDict([
-    ('chinese yuans', 'CNY'),
-    ('chinese yuan', 'CNY'),
-    ('dollars', 'USD'),
-    ('dollar', 'USD'),
-    ('euros', 'EUR'),
-    ('euro', 'EUR'),
-    ('pounds', 'GBP'),
-    ('pound', 'GBP'),
-    ('renminbi', 'CNY'),
-    ('yens', 'JPY'),
-    ('yen', 'JPY'),
-    ('yuans', 'CNY'),
-    ('yuan', 'CNY')
-])
+CURRENCY_TOKEN_MAP = OrderedDict(
+    [
+        ("chinese yuans", "CNY"),
+        ("chinese yuan", "CNY"),
+        ("dollars", "USD"),
+        ("dollar", "USD"),
+        ("euros", "EUR"),
+        ("euro", "EUR"),
+        ("pounds", "GBP"),
+        ("pound", "GBP"),
+        ("renminbi", "CNY"),
+        ("yens", "JPY"),
+        ("yen", "JPY"),
+        ("yuans", "CNY"),
+        ("yuan", "CNY"),
+    ]
+)
 
-TRIGGER_WORDS = ['price', 'cost']
+TRIGGER_WORDS = ["price", "cost"]
 
 money_detector = MoneyDetector(
-    'en',
-    'USD',
-    CURRENCY_TOKEN_MAP,
-    CURRENCY_SYMBOL_MAP,
-    CURRENCY_PREFIX_MAP,
-    NUM_PTN,
-    TRIGGER_WORDS,
-    get_amounts
+    "en", "USD", CURRENCY_TOKEN_MAP, CURRENCY_SYMBOL_MAP, CURRENCY_PREFIX_MAP, NUM_PTN, TRIGGER_WORDS, get_amounts
 )
 
 

@@ -41,13 +41,17 @@ def check_stanford():
     if not is_stanford_enabled():
         raise RuntimeError("USE_STANFORD is set to False. No Stanford functionality available.")
     if not STANFORD_TOKENIZER:
-        raise RuntimeError("USE_STANFORD is set to True."
-                           " But default POS tagger jar file is not found."
-                           " No Stanford functionality available.")
+        raise RuntimeError(
+            "USE_STANFORD is set to True."
+            " But default POS tagger jar file is not found."
+            " No Stanford functionality available."
+        )
     if not STANFORD_TAGGER:
-        raise RuntimeError("USE_STANFORD is set to True."
-                           " But default tagger model file is not found."
-                           " No Stanford functionality available.")
+        raise RuntimeError(
+            "USE_STANFORD is set to True."
+            " But default tagger model file is not found."
+            " No Stanford functionality available."
+        )
 
 
 def get_tokens_list(text, lowercase=False, stopword=False) -> list:

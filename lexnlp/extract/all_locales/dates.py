@@ -1,4 +1,3 @@
-
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
 __license__ = "https://github.com/LexPredict/lexpredict-lexnlp/blob/2.3.0/LICENSE"
@@ -23,10 +22,8 @@ ROUTINE_BY_LOCALE = {
 }
 
 
-def get_date_annotations(locale: str,
-                         text: str,
-                         strict: bool | None = None,
-                         base_date: datetime | None = None,
-                         threshold: float = 0.50) -> Generator[DateAnnotation]:
+def get_date_annotations(
+    locale: str, text: str, strict: bool | None = None, base_date: datetime | None = None, threshold: float = 0.50
+) -> Generator[DateAnnotation]:
     routine = ROUTINE_BY_LOCALE.get(Locale(locale).language, ROUTINE_BY_LOCALE[DEFAULT_LANGUAGE.code])
     yield from routine(text, strict, locale, base_date, threshold)

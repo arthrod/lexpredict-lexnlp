@@ -24,7 +24,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-import reexport_bundled_sklearn_models as script_mod  # noqa: E402  # required: import follows sys.path insertion for test-only script module resolution
+import reexport_bundled_sklearn_models as script_mod  # required: import follows sys.path insertion for test-only script module resolution
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -36,9 +36,7 @@ def _make_layered_zip(term_obj: object, definition_obj: object) -> bytes:
     buf = io.BytesIO()
     with ZipFile(buf, "w", compression=ZIP_STORED) as zf:
         zf.writestr("term.pickle", pickle.dumps(term_obj, protocol=pickle.HIGHEST_PROTOCOL))
-        zf.writestr(
-            "definition.pickle", pickle.dumps(definition_obj, protocol=pickle.HIGHEST_PROTOCOL)
-        )
+        zf.writestr("definition.pickle", pickle.dumps(definition_obj, protocol=pickle.HIGHEST_PROTOCOL))
     return buf.getvalue()
 
 
@@ -53,64 +51,62 @@ class TestLoadModelExceptionNarrowing:
     addresses_clf.pickle.  Other exceptions must propagate.
     """
 
-    def test_unpickling_error_falls_back_to_joblib(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_unpickling_error_falls_back_to_joblib(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """pickle.UnpicklingError triggers the joblib fallback."""
         fake_model = {"model": "data"}
         addr_clf = tmp_path / "addresses_clf.pickle"
         # Write a joblib-style dump so joblib.load succeeds.
         import joblib
+
         joblib.dump(fake_model, addr_clf)
 
         def failing_renamed_load(_f):
             raise pickle.UnpicklingError("bad pickle")
 
         import lexnlp.utils.unpickler as unpickler_mod
+
         monkeypatch.setattr(unpickler_mod, "renamed_load", failing_renamed_load)
 
         result = script_mod.load_model(addr_clf)
         assert result == fake_model
 
-    def test_value_error_falls_back_to_joblib(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_value_error_falls_back_to_joblib(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """ValueError triggers the joblib fallback."""
         fake_model = {"v": 42}
         addr_clf = tmp_path / "addresses_clf.pickle"
         import joblib
+
         joblib.dump(fake_model, addr_clf)
 
         def failing_renamed_load(_f):
             raise ValueError("version mismatch")
 
         import lexnlp.utils.unpickler as unpickler_mod
+
         monkeypatch.setattr(unpickler_mod, "renamed_load", failing_renamed_load)
 
         result = script_mod.load_model(addr_clf)
         assert result == fake_model
 
-    def test_key_error_falls_back_to_joblib(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_key_error_falls_back_to_joblib(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """KeyError triggers the joblib fallback."""
         fake_model = {"k": "v"}
         addr_clf = tmp_path / "addresses_clf.pickle"
         import joblib
+
         joblib.dump(fake_model, addr_clf)
 
         def failing_renamed_load(_f):
             raise KeyError("missing_module")
 
         import lexnlp.utils.unpickler as unpickler_mod
+
         monkeypatch.setattr(unpickler_mod, "renamed_load", failing_renamed_load)
 
         result = script_mod.load_model(addr_clf)
         assert result == fake_model
 
-    def test_other_exception_propagates(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_other_exception_propagates(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """
         Exceptions OTHER than (UnpicklingError, ValueError, KeyError) must NOT
         be swallowed — they should propagate to the caller.
@@ -122,18 +118,18 @@ class TestLoadModelExceptionNarrowing:
             raise RuntimeError("unexpected infrastructure error")
 
         import lexnlp.utils.unpickler as unpickler_mod
+
         monkeypatch.setattr(unpickler_mod, "renamed_load", exploding_renamed_load)
 
         with pytest.raises(RuntimeError, match="unexpected infrastructure error"):
             script_mod.load_model(addr_clf)
 
-    def test_non_addresses_model_uses_joblib_directly(
-        self, tmp_path: Path
-    ) -> None:
+    def test_non_addresses_model_uses_joblib_directly(self, tmp_path: Path) -> None:
         """For non-addresses_clf.pickle files, joblib.load is called directly."""
         fake_model = {"type": "segmenter"}
         model_path = tmp_path / "section_segmenter.pickle"
         import joblib
+
         joblib.dump(fake_model, model_path)
 
         result = script_mod.load_model(model_path)
@@ -151,9 +147,7 @@ class TestReexportLayeredDefinitionModelsTmpCleanup:
     if an exception occurs during the ZipFile write phase.
     """
 
-    def test_tmp_file_cleaned_up_on_exception(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_tmp_file_cleaned_up_on_exception(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """
         When ZipFile.writestr raises, the .part file must not be left behind.
         """
@@ -170,9 +164,7 @@ class TestReexportLayeredDefinitionModelsTmpCleanup:
             "term.pickle": {"term": "data"},
             "definition.pickle": {"def": "data"},
         }
-        monkeypatch.setattr(
-            script_mod, "load_layered_definition_models", lambda _p: fake_payload
-        )
+        monkeypatch.setattr(script_mod, "load_layered_definition_models", lambda _p: fake_payload)
 
         # Patch pickle.dumps to raise during the write loop.
         original_dumps = pickle.dumps
@@ -193,9 +185,7 @@ class TestReexportLayeredDefinitionModelsTmpCleanup:
         tmp_part = model_path.with_name(model_path.name + ".part")
         assert not tmp_part.exists(), ".part file must be cleaned up on exception"
 
-    def test_original_file_not_corrupted_on_exception(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_original_file_not_corrupted_on_exception(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """
         The original model file must not be replaced when an exception occurs.
         """
@@ -208,9 +198,7 @@ class TestReexportLayeredDefinitionModelsTmpCleanup:
             "term.pickle": {"term": "original"},
             "definition.pickle": {"def": "original"},
         }
-        monkeypatch.setattr(
-            script_mod, "load_layered_definition_models", lambda _p: fake_payload
-        )
+        monkeypatch.setattr(script_mod, "load_layered_definition_models", lambda _p: fake_payload)
 
         original_dumps = pickle.dumps
         call_count = [0]
@@ -229,9 +217,7 @@ class TestReexportLayeredDefinitionModelsTmpCleanup:
         # The original file must be intact.
         assert model_path.read_bytes() == original_content
 
-    def test_successful_reexport_replaces_file(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_successful_reexport_replaces_file(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """
         On success, the model file is replaced and the .part file is gone.
         """
@@ -243,9 +229,7 @@ class TestReexportLayeredDefinitionModelsTmpCleanup:
             "term.pickle": {"term": "v2"},
             "definition.pickle": {"def": "v2"},
         }
-        monkeypatch.setattr(
-            script_mod, "load_layered_definition_models", lambda _p: fake_payload
-        )
+        monkeypatch.setattr(script_mod, "load_layered_definition_models", lambda _p: fake_payload)
 
         script_mod.reexport_layered_definition_models(model_path)
 
@@ -279,9 +263,7 @@ class TestReexportLayeredDefinitionModelsTmpCleanup:
             "term.pickle": {"t": 2},
             "definition.pickle": {"d": 2},
         }
-        monkeypatch.setattr(
-            script_mod, "load_layered_definition_models", lambda _p: fake_payload
-        )
+        monkeypatch.setattr(script_mod, "load_layered_definition_models", lambda _p: fake_payload)
 
         # Should succeed even with the stale .part file.
         script_mod.reexport_layered_definition_models(model_path)

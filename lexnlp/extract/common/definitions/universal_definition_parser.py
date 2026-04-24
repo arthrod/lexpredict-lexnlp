@@ -25,8 +25,5 @@ class UniversalDefinitionsParser(TextPatternCollector):
         phrase: LineOrPhrase,
     ) -> DefinitionAnnotation:
         return DefinitionAnnotation(
-            name=ptrn.name,
-            coords=(ptrn.start, ptrn.end),
-            text=phrase.text[ptrn.start: ptrn.end],
-            locale=locale
+            name=ptrn.name, coords=(ptrn.start, ptrn.end), text=phrase.text[ptrn.start : ptrn.end], locale=locale
         )

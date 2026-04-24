@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -33,6 +32,7 @@ class ScikitLearnHasPredictProba(Protocol):
 
     TODO: investigate if we can also imply inheritance from sklearn.base.BaseEstimator
     """
+
     classes_: list
 
     # noinspection PyPep8Naming
@@ -44,6 +44,7 @@ class PipelinePredictProba(Protocol):
     """
     Currently unused.
     """
+
     _final_estimator: ScikitLearnHasPredictProba
 
 
@@ -62,7 +63,7 @@ class ProbabilityPredictor(ABC):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if cls._DEFAULT_PIPELINE is NotImplemented:
-            raise NotImplementedError('Class attribute `_DEFAULT_PIPELINE` not implemented.')
+            raise NotImplementedError("Class attribute `_DEFAULT_PIPELINE` not implemented.")
 
     # noinspection PyProtectedMember
     def __init__(self, pipeline: Pipeline | None = None) -> None:
@@ -77,20 +78,20 @@ class ProbabilityPredictor(ABC):
             check_is_fitted(self.pipeline._final_estimator)
         except NotFittedError as not_fitted_error:
             raise ValueError(
-                f'self.pipeline._final_estimator={self.pipeline._final_estimator} is not fitted.'
+                f"self.pipeline._final_estimator={self.pipeline._final_estimator} is not fitted."
             ) from not_fitted_error
 
         if not isinstance(self.pipeline._final_estimator, ScikitLearnHasPredictProba):
             raise ValueError(
-                f'self.pipeline._final_estimator of type `{type(self.pipeline._final_estimator)}`'
-                f'does not follow the `ScikitLearnHasPredictProba` protocol.'
+                f"self.pipeline._final_estimator of type `{type(self.pipeline._final_estimator)}`"
+                f"does not follow the `ScikitLearnHasPredictProba` protocol."
             )
 
         self._patch_legacy_estimator_attributes()
 
         # Fix AttributeError: 'MinMaxScaler' object has no attribute 'clip'
         for _, _name, transform in self.pipeline._iter(with_final=False):
-            transform.clip = hasattr(transform, 'clip') and transform.clip
+            transform.clip = hasattr(transform, "clip") and transform.clip
 
         self._sanity_check()
 
@@ -143,5 +144,5 @@ class ProbabilityPredictor(ABC):
             A default Scikit-Learn Pipeline for usage with this ProbabilityPredictor.
         """
         path: Path = get_path_from_catalog(cls.get_default_pipeline_tag())
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             return load(f)

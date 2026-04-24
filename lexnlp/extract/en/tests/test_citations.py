@@ -26,7 +26,7 @@ from lexnlp.tests.dictionary_comparer import DictionaryComparer
 def test_get_citations():
     """
     Validate get_citations against the test dataset with and without source text.
-    
+
     Iterates test cases from the test harness, normalizes numeric citation fields (volume, page, year) to ints or None, builds expected citation tuples both excluding and including the source text, and asserts that get_citations produces the expected results when called with return_source=False and return_source=True.
     """
     for _i, text, _input_args, expected in lexnlp_tests.iter_test_data_text_and_tuple():
@@ -54,7 +54,7 @@ def test_get_citations():
 def test_get_citations_as_dict():
     """
     Verify that get_citations extracts a single citation as the expected dictionary from a sample text.
-    
+
     Asserts that the extracted citation dictionaries match expected fields (`citation_str`, `court`, `page`, `page2`, `reporter`, `reporter_full_name`, `volume`, and `year`). Raises an Exception containing a newline-separated list of comparison errors if any differences are found.
     """
     text = "bob lissner v. test 1 F.2d 1, 2-5 (2d Cir., 1982)"

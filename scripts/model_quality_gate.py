@@ -12,9 +12,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-DEFAULT_FIXTURE = Path(
-    "test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv"
-)
+DEFAULT_FIXTURE = Path("test_data/lexnlp/extract/en/contracts/tests/test_contracts/test_is_contract.csv")
 REQUIRED_METRIC_KEYS = ("accuracy", "f1", "precision", "recall")
 
 
@@ -94,8 +92,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         "--write-baseline-metrics-json",
         type=Path,
         help=(
-            "Optional path to write canonical baseline metrics JSON "
-            "(baseline_tag, fixture, min_probability, metrics)."
+            "Optional path to write canonical baseline metrics JSON (baseline_tag, fixture, min_probability, metrics)."
         ),
     )
     return parser.parse_args(argv)
@@ -145,13 +142,13 @@ def load_pipeline_for_tag(tag: str):
 def score_pipeline(pipeline, texts: list[str], labels: list[bool], min_probability: float) -> dict[str, float]:
     """
     Compute standard binary classification metrics for an "is contract" predictor applied to a set of texts.
-    
+
     Parameters:
         pipeline: A deserialized model pipeline compatible with ProbabilityPredictorIsContract.
         texts (list[str]): Input texts to score.
         labels (list[bool]): Ground-truth boolean labels corresponding to `texts`.
         min_probability (float): Probability threshold passed to the predictor to decide a positive prediction.
-    
+
     Returns:
         dict[str, float]: Mapping with keys `"accuracy"`, `"f1"`, `"precision"`, and `"recall"`, each cast to float.
     """
@@ -160,10 +157,7 @@ def score_pipeline(pipeline, texts: list[str], labels: list[bool], min_probabili
     from lexnlp.extract.en.contracts.predictors import ProbabilityPredictorIsContract
 
     predictor = ProbabilityPredictorIsContract(pipeline=pipeline)
-    predictions = [
-        bool(predictor.is_contract(text=text, min_probability=min_probability))
-        for text in texts
-    ]
+    predictions = [bool(predictor.is_contract(text=text, min_probability=min_probability)) for text in texts]
     return {
         "accuracy": float(accuracy_score(labels, predictions)),
         "f1": float(f1_score(labels, predictions)),
@@ -177,10 +171,7 @@ def parse_metrics(raw: dict[str, Any], source: str) -> dict[str, float]:
     if missing:
         raise ValueError(f"Missing metric keys in {source}: {', '.join(missing)}")
 
-    return {
-        key: float(raw[key])
-        for key in REQUIRED_METRIC_KEYS
-    }
+    return {key: float(raw[key]) for key in REQUIRED_METRIC_KEYS}
 
 
 def load_baseline_metrics(path: Path) -> dict[str, Any]:
@@ -197,9 +188,7 @@ def load_baseline_metrics(path: Path) -> dict[str, Any]:
     elif "baseline" in payload:
         metrics = parse_metrics(payload["baseline"], f"{path}::baseline")
     else:
-        raise ValueError(
-            f"Baseline metrics JSON must contain either 'metrics' or 'baseline': {path}"
-        )
+        raise ValueError(f"Baseline metrics JSON must contain either 'metrics' or 'baseline': {path}")
 
     return {
         "metrics": metrics,
@@ -281,13 +270,10 @@ def main(argv: Sequence[str]) -> int:
 
     if accuracy_drop > args.max_accuracy_regression:
         violations.append(
-            "accuracy regression exceeds threshold "
-            f"({accuracy_drop:.6f} > {args.max_accuracy_regression:.6f})"
+            f"accuracy regression exceeds threshold ({accuracy_drop:.6f} > {args.max_accuracy_regression:.6f})"
         )
     if f1_drop > args.max_f1_regression:
-        violations.append(
-            f"f1 regression exceeds threshold ({f1_drop:.6f} > {args.max_f1_regression:.6f})"
-        )
+        violations.append(f"f1 regression exceeds threshold ({f1_drop:.6f} > {args.max_f1_regression:.6f})")
     if candidate_metrics["accuracy"] < args.min_candidate_accuracy:
         violations.append(
             "candidate accuracy below minimum "

@@ -18,11 +18,7 @@ from lexnlp.utils.decorators import handle_invalid_text
 
 
 @handle_invalid_text(return_value={})
-def build_document_distribution(
-    text: str,
-    characters=string.printable,
-    norm=True
-) -> dict[str, int | float]:
+def build_document_distribution(text: str, characters=string.printable, norm=True) -> dict[str, int | float]:
     """
     Build document character distribution based on fixed character, optionally norming.
     :param text:
@@ -45,11 +41,7 @@ def build_document_distribution(
 
 
 @handle_invalid_text(return_value={})
-def build_document_line_distribution(
-    text: str,
-    characters=string.printable,
-    norm=True
-) -> dict[str, int | float]:
+def build_document_line_distribution(text: str, characters=string.printable, norm=True) -> dict[str, int | float]:
     """
     Build document and line character distribution for section segmenting based
     on fixed character, optionally normalizing vector.
@@ -82,6 +74,8 @@ def build_document_line_distribution(
             if character.startswith("doc_char"):
                 feature_vector[character] = feature_vector[character] / total_char
             elif character.startswith("doc_startchar"):
-                feature_vector[character] = feature_vector[character] / total_startchar if total_startchar != 0.0 else 0.0
+                feature_vector[character] = (
+                    feature_vector[character] / total_startchar if total_startchar != 0.0 else 0.0
+                )
 
     return feature_vector

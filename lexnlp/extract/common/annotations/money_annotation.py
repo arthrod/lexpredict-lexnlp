@@ -16,19 +16,20 @@ class MoneyAnnotation(TextAnnotation):
     create an object of MoneyAnnotation like
     cp = MoneyAnnotation(coords=(0, 100), value='10 000 USD')
     """
-    record_type = 'money'
+
+    record_type = "money"
 
     def __init__(
         self,
         coords: tuple[int, int],
-        locale: str = 'en',
+        locale: str = "en",
         text: str | None = None,
         amount: Decimal | None = None,
-        currency: str | None = None
+        currency: str | None = None,
     ) -> None:
         """
         Initialize a MoneyAnnotation representing a monetary value extracted from text.
-        
+
         Parameters:
             coords (tuple[int, int]): Start and end character indices of the annotation within the source text.
             locale (str): Locale code used for parsing/formatting (default 'en').
@@ -36,25 +37,14 @@ class MoneyAnnotation(TextAnnotation):
             amount (Decimal | None): Numeric monetary amount as a Decimal, if available.
             currency (str | None): Currency code or symbol associated with the amount, if available.
         """
-        super().__init__(
-            name='',
-            locale=locale,
-            coords=coords,
-            text=text
-        )
+        super().__init__(name="", locale=locale, coords=coords, text=text)
         self.amount: Decimal = amount
         self.currency: str = currency
 
     def get_cite_value_parts(self) -> list[str]:
-        parts = [str(self.amount or ''),
-                 self.currency or '']
+        parts = [str(self.amount or ""), self.currency or ""]
         return parts
 
     def get_dictionary_values(self) -> dict:
-        df = {
-            'tags': {
-                'Extracted Entity Value': str(self.amount or ''),
-                'Extracted Entity Text': self.text
-            }
-        }
+        df = {"tags": {"Extracted Entity Value": str(self.amount or ""), "Extracted Entity Text": self.text}}
         return df

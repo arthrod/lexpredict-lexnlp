@@ -62,17 +62,17 @@ def get_np(text) -> Generator:
     tokens = nltk.word_tokenize(text)
     pos_tokens = nltk.tag.pos_tag(tokens)
     chunks = chunker.parse(pos_tokens)
-    for subtree in chunks.subtrees(filter=lambda t: t.label() == 'NP'):
-        np = ' '.join([i[0] for i in subtree.leaves()])
+    for subtree in chunks.subtrees(filter=lambda t: t.label() == "NP"):
+        np = " ".join([i[0] for i in subtree.leaves()])
         yield np
 
 
 class AmountParserDE:
-    QUARTER = 'viertel'
+    QUARTER = "viertel"
 
     def __init__(self):
 
-        self.language = 'de'
+        self.language = "de"
 
         N2W_CONFIG = CONVERTER_CLASSES[self.language]
 
@@ -85,47 +85,57 @@ class AmountParserDE:
 
         UNIQUE_NUMBERS_MAP: dict = {}
         # ordinal
+        UNIQUE_NUMBERS_MAP.update({num2words(n, ordinal=True, lang=self.language): n for n in UNIQUE_NUMBERS})
         UNIQUE_NUMBERS_MAP.update(
-            {num2words(n, ordinal=True, lang=self.language): n for n in UNIQUE_NUMBERS})
-        UNIQUE_NUMBERS_MAP.update(
-            {num2words(n, ordinal=True, lang=self.language).replace('eine ', '').replace('ein', '').lower(): n
-             for n in BIG_UNIQUE_NUMBERS})
+            {
+                num2words(n, ordinal=True, lang=self.language).replace("eine ", "").replace("ein", "").lower(): n
+                for n in BIG_UNIQUE_NUMBERS
+            }
+        )
         # non-ordinal
+        UNIQUE_NUMBERS_MAP.update({num2words(n, lang=self.language): n for n in UNIQUE_NUMBERS})
         UNIQUE_NUMBERS_MAP.update(
-            {num2words(n, lang=self.language): n for n in UNIQUE_NUMBERS})
-        UNIQUE_NUMBERS_MAP.update(
-            {num2words(n, lang=self.language).replace('eine ', '').replace('ein', '').lower(): n
-             for n in BIG_UNIQUE_NUMBERS})
+            {
+                num2words(n, lang=self.language).replace("eine ", "").replace("ein", "").lower(): n
+                for n in BIG_UNIQUE_NUMBERS
+            }
+        )
         # addon
-        UNIQUE_NUMBERS_MAP.update({
-            'ein': 1,
-            'eine': 1,
-            'einen': 1,
-            'einhalb': Decimal(0.5),
-            'millionen': 1000000,
-            'millionenste': 1000000,
-            'milliarden': 1000000000,
-            'milliardenste': 1000000000
-        })
+        UNIQUE_NUMBERS_MAP.update(
+            {
+                "ein": 1,
+                "eine": 1,
+                "einen": 1,
+                "einhalb": Decimal(0.5),
+                "millionen": 1000000,
+                "millionenste": 1000000,
+                "milliarden": 1000000000,
+                "milliardenste": 1000000000,
+            }
+        )
 
         self.UNIQUE_NUMBERS_MAP: dict[str, int | Decimal] = UNIQUE_NUMBERS_MAP
 
-        self.MAGNITUDE_MAP = {num2words(10 ** n, lang=self.language).replace('eine ', '').replace('ein', '').lower(): 10 ** n
-                              for n in self.BIG_NUMBERS_EXPONENT}
-        self.MAGNITUDE_MAP.update({
-            'millionen': 1000000,
-            'millionenste': 1000000,
-            'milliarden': 1000000000,
-            'milliardenste': 1000000000,
-            'halbe': Decimal(0.5),
-            'k': 1000,
-            'm': 1000000,
-            'b': 1000000000,
-        })
+        self.MAGNITUDE_MAP = {
+            num2words(10**n, lang=self.language).replace("eine ", "").replace("ein", "").lower(): 10**n
+            for n in self.BIG_NUMBERS_EXPONENT
+        }
+        self.MAGNITUDE_MAP.update(
+            {
+                "millionen": 1000000,
+                "millionenste": 1000000,
+                "milliarden": 1000000000,
+                "milliardenste": 1000000000,
+                "halbe": Decimal(0.5),
+                "k": 1000,
+                "m": 1000000,
+                "b": 1000000000,
+            }
+        )
 
         unique_number_list: list[str] = list(self.UNIQUE_NUMBERS_MAP.keys())
         unique_number_list.sort(key=len, reverse=True)
-        self.UNIQUE_NUMBER_SPLIT_RE = re.compile(r'({}|\s+)'.format('|'.join(unique_number_list)))
+        self.UNIQUE_NUMBER_SPLIT_RE = re.compile(r"({}|\s+)".format("|".join(unique_number_list)))
 
         self.NUM_PTN = r"""
         (?:
@@ -134,49 +144,42 @@ class AmountParserDE:
         |
             (?:[\.\d][\d\.,'\s]*)
         )
-        """.format(written_unique_numbers='|'.join(unique_number_list))
+        """.format(written_unique_numbers="|".join(unique_number_list))
         self.NUM_PTN_RE = re.compile(self.NUM_PTN, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
-        self.NON_WRIT_RE = re.compile(r'[\d\.,\s]+')
+        self.NON_WRIT_RE = re.compile(r"[\d\.,\s]+")
 
-        self.MIXED_WRIT_RE = re.compile(r'(^[\d\.,]*)(.+)', re.DOTALL)
+        self.MIXED_WRIT_RE = re.compile(r"(^[\d\.,]*)(.+)", re.DOTALL)
 
-        self.QUARTER_RE = re.compile(r'(?:\s*und\s+)?(ein|eine|zwei|drei)\s*viertel')
+        self.QUARTER_RE = re.compile(r"(?:\s*und\s+)?(ein|eine|zwei|drei)\s*viertel")
 
-        self.WRONG_FULLMATCH_RE = re.compile(r'\W*und\W*|\W+', re.IGNORECASE | re.MULTILINE | re.DOTALL)
+        self.WRONG_FULLMATCH_RE = re.compile(r"\W*und\W*|\W+", re.IGNORECASE | re.MULTILINE | re.DOTALL)
 
     @staticmethod
     def cleanup(text) -> str:
 
-        punctuation_and_whitespace: str = \
-            string.punctuation + string.whitespace
+        punctuation_and_whitespace: str = string.punctuation + string.whitespace
 
-        text = text \
-            .lower() \
-            .strip(string.whitespace) \
-            .rstrip(punctuation_and_whitespace)
+        text = text.lower().strip(string.whitespace).rstrip(punctuation_and_whitespace)
 
-        if not (
-            text.startswith('.')
-            and text[1].isdigit()
-        ):
+        if not (text.startswith(".") and text[1].isdigit()):
             text = text.lstrip(punctuation_and_whitespace)
 
         # TODO: do not hardcode 'de_DE'! This should come from a locale string
-        delimiters: dict | None = infer_delimiters(text, 'de_DE')
+        delimiters: dict | None = infer_delimiters(text, "de_DE")
         if delimiters is None:
             return text
 
-        group_delimiter = delimiters.get('group_delimiter', False)
-        decimal_delimiter = delimiters.get('decimal_delimiter', False)
+        group_delimiter = delimiters.get("group_delimiter", False)
+        decimal_delimiter = delimiters.get("decimal_delimiter", False)
         if group_delimiter:
-            text = text.replace(group_delimiter, '')
+            text = text.replace(group_delimiter, "")
         if decimal_delimiter:
-            text = text.replace(decimal_delimiter, '.')
+            text = text.replace(decimal_delimiter, ".")
         return text
 
     def split(self, text):
-        return [i for i in self.UNIQUE_NUMBER_SPLIT_RE.split(text) if i not in ['', ' ']]
+        return [i for i in self.UNIQUE_NUMBER_SPLIT_RE.split(text) if i not in ["", " "]]
 
     def text2num(self, s: str):
         """
@@ -191,14 +194,12 @@ class AmountParserDE:
 
         # if only number or float in string
         if self.NON_WRIT_RE.fullmatch(s):
-            return Decimal(s.replace(' ', ''))
+            return Decimal(s.replace(" ", ""))
 
         # if written number has integer/float prefix: "25 million", "2.035 thousand tons"
         if self.MIXED_WRIT_RE.search(s):
             p, s = self.MIXED_WRIT_RE.search(s).groups()
-            g: Decimal = \
-                Decimal(p.rstrip(string.punctuation + string.whitespace))\
-                if p else Decimal(0)
+            g: Decimal = Decimal(p.rstrip(string.punctuation + string.whitespace)) if p else Decimal(0)
 
         d: Decimal = Decimal(0)
         # TODO: extract fractions, half, quarter
@@ -207,13 +208,13 @@ class AmountParserDE:
         if self.QUARTER_RE and self.QUARTER_RE.search(s):
             nu = self.QUARTER_RE.search(s).groups()[0]
             d = self.text2num(nu) / 4
-            s = self.QUARTER_RE.sub('', s)
+            s = self.QUARTER_RE.sub("", s)
 
         # process
         a: list = self.split(s)
 
         for w in a:
-            if w == 'und':
+            if w == "und":
                 continue
 
             x = self.UNIQUE_NUMBERS_MAP.get(w, None)
@@ -222,14 +223,14 @@ class AmountParserDE:
 
             elif w in self.MAGNITUDE_MAP:
                 x = self.MAGNITUDE_MAP.get(w, None)
-                if w == 'halbe':
+                if w == "halbe":
                     g = Decimal(0.5)
                     continue
                 n += Decimal(g or 1) * x
                 g = Decimal(0)
 
             elif x is None:
-                raise RuntimeError('Unknown number: ' + w)
+                raise RuntimeError("Unknown number: " + w)
 
             else:
                 g += x
@@ -237,11 +238,7 @@ class AmountParserDE:
         return n + g + d
 
     def parse(
-        self,
-        text: str,
-        return_sources: bool = False,
-        extended_sources: bool = True,
-        float_digits: int = 4
+        self, text: str, return_sources: bool = False, extended_sources: bool = True, float_digits: int = 4
     ) -> Generator:
         """
         Find possible amount references in the text.
@@ -261,10 +258,7 @@ class AmountParserDE:
                     yield ant.value, ant.text
 
     def parse_annotations(
-        self,
-        text: str,
-        float_digits: int = 4,
-        return_sources: bool = True
+        self, text: str, float_digits: int = 4, return_sources: bool = True
     ) -> Generator[AmountAnnotation]:
         """
         Find possible amount references in the text.
@@ -286,29 +280,24 @@ class AmountParserDE:
             if amount is None:
                 continue
             if float_digits:
-                amount: Decimal = quantize_by_float_digit(
-                    amount=amount,
-                    float_digits=float_digits
-                )
+                amount: Decimal = quantize_by_float_digit(amount=amount, float_digits=float_digits)
 
-            ant = AmountAnnotation(coords=match.span(),
-                                   value=amount,
-                                   locale=self.language)
+            ant = AmountAnnotation(coords=match.span(), value=amount, locale=self.language)
 
             if return_sources:
-                unit = ''
-                next_text = text[match.span()[1]:]
+                unit = ""
+                next_text = text[match.span()[1] :]
                 if next_text:
                     for np in get_np(next_text):
                         if next_text.startswith(np):
                             unit = np
                     if unit:
-                        found_item = ' '.join([found_item.strip(), unit])
+                        found_item = " ".join([found_item.strip(), unit])
                 if not unit:
-                    prev_text = text[:match.span()[0]]
+                    prev_text = text[: match.span()[0]]
                     prev_text_tags = nltk.word_tokenize(prev_text)
                     if prev_text_tags and prev_text_tags[-1].lower() in allowed_prev_units:
-                        sep = ' ' if text[match.span()[0] - 1] == ' ' else ''
+                        sep = " " if text[match.span()[0] - 1] == " " else ""
                         found_item = sep.join([prev_text_tags[-1], found_item.rstrip()])
 
                 ant.text = found_item.strip()
@@ -324,18 +313,9 @@ get_amounts = amount_parser.parse
 get_amount_annotations = amount_parser.parse_annotations
 
 
-def get_amount_list(
-    text: str,
-    return_sources: bool = False,
-    extended_sources: bool = True,
-    float_digits: int = 4
-):
+def get_amount_list(text: str, return_sources: bool = False, extended_sources: bool = True, float_digits: int = 4):
     return list(get_amounts(text, return_sources, extended_sources, float_digits))
 
 
-def get_amount_annotation_list(
-    text: str,
-    float_digits: int = 4,
-    return_sources: bool = True
-) -> list[AmountAnnotation]:
+def get_amount_annotation_list(text: str, float_digits: int = 4, return_sources: bool = True) -> list[AmountAnnotation]:
     return list(get_amount_annotations(text, float_digits, return_sources))

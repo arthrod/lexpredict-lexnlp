@@ -75,7 +75,7 @@ class TestParseEsDates(TestCase):
     def test_file_samples(self):
         """
         Validate Spanish date extraction against the typed-annotation sample file.
-        
+
         Runs TypedAnnotationsTester.test_and_raise_errors using get_date_annotations (strict=False) with the sample
         file "lexnlp/typed_annotations/es/date/dates.txt" and expects DateAnnotation; the tester will raise on any mismatches.
         """

@@ -163,9 +163,7 @@ class TestGroupSuccessfulEdgeCases:
         assert len(failed) == 0
 
     def test_all_failed(self) -> None:
-        results = [
-            BatchExtractionResult[str](index=i, error=RuntimeError()) for i in range(3)
-        ]
+        results = [BatchExtractionResult[str](index=i, error=RuntimeError()) for i in range(3)]
         ok, failed = group_successful(results)
         assert len(ok) == 0
         assert len(failed) == 3
@@ -193,9 +191,7 @@ class TestGroupSuccessfulEdgeCases:
 
 class TestFlattenEdgeCases:
     def test_all_failed_returns_empty(self) -> None:
-        results = [
-            BatchExtractionResult[str](index=i, error=RuntimeError()) for i in range(3)
-        ]
+        results = [BatchExtractionResult[str](index=i, error=RuntimeError()) for i in range(3)]
         assert flatten(results) == []
 
     def test_all_ok_concatenates_all(self) -> None:

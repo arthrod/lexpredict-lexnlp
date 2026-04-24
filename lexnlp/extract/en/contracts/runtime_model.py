@@ -106,10 +106,7 @@ def collect_contract_type_samples(
     if not texts:
         raise RuntimeError(f"No samples collected from {archive_path}")
     if len(set(labels)) < 2:
-        raise RuntimeError(
-            "Contract-type training requires at least two labels; "
-            f"found {len(set(labels))}"
-        )
+        raise RuntimeError(f"Contract-type training requires at least two labels; found {len(set(labels))}")
 
     return texts, labels, dict(counts)
 

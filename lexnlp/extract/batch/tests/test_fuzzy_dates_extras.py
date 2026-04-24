@@ -24,9 +24,7 @@ from datetime import date
 # with Python 3.11+.
 _spec = importlib.util.spec_from_file_location(
     "lexnlp.extract.batch.fuzzy_dates",
-    str(
-        __import__("pathlib").Path(__file__).parent.parent / "fuzzy_dates.py"
-    ),
+    str(__import__("pathlib").Path(__file__).parent.parent / "fuzzy_dates.py"),
 )
 _mod = importlib.util.module_from_spec(_spec)  # type: ignore[arg-type]
 _spec.loader.exec_module(_mod)  # type: ignore[union-attr]

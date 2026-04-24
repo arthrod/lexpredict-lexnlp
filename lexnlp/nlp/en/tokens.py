@@ -31,9 +31,11 @@ STOPWORDS = pickle.load(open(os.path.join(MODULE_PATH, "stopwords.pickle"), "rb"
 # Collocations
 COLLOCATION_SIZE = 10000
 BIGRAM_COLLOCATIONS = pickle.load(
-    open(os.path.join(MODULE_PATH, f"collocation_bigrams_{COLLOCATION_SIZE}.pickle"), "rb"))
+    open(os.path.join(MODULE_PATH, f"collocation_bigrams_{COLLOCATION_SIZE}.pickle"), "rb")
+)
 TRIGRAM_COLLOCATIONS = pickle.load(
-    open(os.path.join(MODULE_PATH, f"collocation_trigrams_{COLLOCATION_SIZE}.pickle"), "rb"))
+    open(os.path.join(MODULE_PATH, f"collocation_trigrams_{COLLOCATION_SIZE}.pickle"), "rb")
+)
 
 # Setup default stemmer for English
 DEFAULT_STEMMER = nltk.stem.snowball.EnglishStemmer()
@@ -42,7 +44,7 @@ DEFAULT_STEMMER = nltk.stem.snowball.EnglishStemmer()
 DEFAULT_LEMMATIZER = nltk.stem.wordnet.WordNetLemmatizer()
 
 # REG_WORD_TOKENIZER = re.compile(r'\s+|(\()|(\))|(\[)|(\])|(\{)|(\})')
-REG_WORD_TOKENIZER = re.compile(r'(\W)')
+REG_WORD_TOKENIZER = re.compile(r"(\W)")
 
 
 def get_wordnet_pos(treebank_tag):
@@ -51,19 +53,17 @@ def get_wordnet_pos(treebank_tag):
     :param treebank_tag:
     :return:
     """
-    if treebank_tag.startswith('J'):
+    if treebank_tag.startswith("J"):
         return wordnet.ADJ
-    if treebank_tag.startswith('V'):
+    if treebank_tag.startswith("V"):
         return wordnet.VERB
-    if treebank_tag.startswith('N'):
+    if treebank_tag.startswith("N"):
         return wordnet.NOUN
-    if treebank_tag.startswith('R'):
+    if treebank_tag.startswith("R"):
         return wordnet.ADV
 
 
-def get_tokens_by_regex(text: str,
-                        lowercase=False,
-                        preserve_line=True) -> Generator[str, Any, Any]:
+def get_tokens_by_regex(text: str, lowercase=False, preserve_line=True) -> Generator[str, Any, Any]:
     if lowercase:
         text = text.lower()
     tokens = REG_WORD_TOKENIZER.split(text)
@@ -72,7 +72,7 @@ def get_tokens_by_regex(text: str,
         if not wrd:
             continue
         if not preserve_line:
-            wrd = wrd.strip('.')
+            wrd = wrd.strip(".")
             if not wrd:
                 continue
         yield wrd
@@ -103,8 +103,7 @@ def get_tokens(text: str, lowercase=False, stopword=False, preserve_line=True) -
                 yield token
 
 
-def get_token_list(text: str, lowercase: bool = False, stopword: bool = False,
-                   preserve_line: bool = True) -> list:
+def get_token_list(text: str, lowercase: bool = False, stopword: bool = False, preserve_line: bool = True) -> list:
     """
     Get token list from text.
     :param text:
@@ -113,8 +112,7 @@ def get_token_list(text: str, lowercase: bool = False, stopword: bool = False,
     :param preserve_line: keep the preserve the sentence and not sentence tokenize it.
     :return:
     """
-    return list(get_tokens(text, lowercase=lowercase, stopword=stopword,
-                           preserve_line=preserve_line))
+    return list(get_tokens(text, lowercase=lowercase, stopword=stopword, preserve_line=preserve_line))
 
 
 def get_stems(text, lowercase=False, stopword=False, stemmer=DEFAULT_STEMMER) -> Generator:

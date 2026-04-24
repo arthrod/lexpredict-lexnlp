@@ -27,7 +27,7 @@ from lexnlp.tests import lexnlp_tests
 def test_get_distance():
     """
     Verify that get_distances extracts distance values and units from the test dataset.
-    
+
     Uses lexnlp_tests.test_extraction_func_on_test_data with return_sources=False and an expected_data_converter that casts expected distance strings to Decimal while preserving units.
     """
     # TODO: Do we need this separate method? test_get_distance_source()
@@ -42,7 +42,7 @@ def test_get_distance():
 def test_get_distance_source():
     """
     Run tests that verify distance extraction returns distance, units, and source.
-    
+
     Converts expected distance strings to Decimal and asserts that get_distances yields
     tuples of (distance, units, source) matching the test data.
     """

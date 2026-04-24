@@ -1,5 +1,4 @@
-"""Transforms related to tokens for English
-"""
+"""Transforms related to tokens for English"""
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"
 __copyright__ = "Copyright 2015-2021, ContraxSuite, LLC"
@@ -43,8 +42,7 @@ def get_stem_distribution(text: str, lowercase=False, stopword=False) -> dict[st
     return token_distribution
 
 
-def get_ngram_distribution(text: str, n: int,
-                           lowercase=False, stopword=False) -> dict[str, int]:
+def get_ngram_distribution(text: str, n: int, lowercase=False, stopword=False) -> dict[str, int]:
     """
     Get n-gram distribution of text, potentially lowercasing and stopwording first.
     """
@@ -83,8 +81,7 @@ def get_trigram_distribution(text: str, lowercase=False, stopword=False) -> dict
     return get_ngram_distribution(text, 3, lowercase=lowercase, stopword=stopword)
 
 
-def get_skipgram_distribution(text: str, n: int, k: int,
-                              lowercase=False, stopword=False) -> dict[str, int]:
+def get_skipgram_distribution(text: str, n: int, k: int, lowercase=False, stopword=False) -> dict[str, int]:
     """
     Get skipgram distribution from text.
 

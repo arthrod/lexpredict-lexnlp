@@ -44,7 +44,7 @@ class TestParseSpanishDefinitions(TestCase):
     def test_grab_just_quoted_words(self):
         """
         Verify extraction of quoted definition terms and locale inference from a parenthesized Spanish fragment.
-        
+
         Asserts that:
         - Two definition annotations are returned for the input '(en adelante, "ESET" o "el Proveedor") y usted'.
         - When a locale ('ru') is provided, the second annotation has locale 'ru' and coordinates (0, 37).

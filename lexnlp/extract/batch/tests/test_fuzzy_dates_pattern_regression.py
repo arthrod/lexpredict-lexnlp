@@ -167,7 +167,7 @@ class TestEditDistanceReporting:
     def test_exact_match_is_zero_distance(self) -> None:
         """
         Asserts that a perfectly formatted ISO date yields an edit distance of 0 when fuzzy matching is enabled.
-        
+
         Calls find_fuzzy_dates with "2024-01-15" and max_edits=1 and verifies the first returned match reports `edit_distance == 0`.
         """
         matches = list(find_fuzzy_dates("2024-01-15", max_edits=1))
@@ -244,7 +244,7 @@ class TestMultipleDatesAfterChange:
     def test_two_exact_dates_order_preserved(self) -> None:
         """
         Verify two exact ISO-format dates in a sentence are extracted as two ordered matches.
-        
+
         Asserts that exactly two matches are returned, the first match starts before the second, and each match parses to the expected calendar date.
         """
         text = "From 2023-01-01 to 2023-12-31."

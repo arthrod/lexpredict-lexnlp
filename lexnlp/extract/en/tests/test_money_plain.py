@@ -35,10 +35,10 @@ class TestMoneyPlain(TestCase):
 def get_money_annotations_sorted(text):
     """
     Extract money annotations from text and sort them by their starting coordinate.
-    
+
     Parameters:
         text (str): Text to extract money annotations from.
-    
+
     Returns:
         list: Money annotations sorted in ascending order by their start coordinate.
     """

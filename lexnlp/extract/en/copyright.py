@@ -32,13 +32,12 @@ grammar = r"""
 
 
 class CopyrightNPExtractor(NPExtractor):
-
-    allowed_sym = ['&', 'and', 'of', '©']
-    allowed_pos = ['IN', 'CC', 'NN']
+    allowed_sym = ["&", "and", "of", "©"]
+    allowed_pos = ["IN", "CC", "NN"]
 
     @staticmethod
     def strip_np(np):
-        return np.strip(string.punctuation.replace('(', '') + string.whitespace)
+        return np.strip(string.punctuation.replace("(", "") + string.whitespace)
 
 
 np_extractor = CopyrightNPExtractor(grammar=grammar)
@@ -51,8 +50,7 @@ class CopyrightEnParser(CopyrightEnStyleParser):
 
 
 def get_copyrights(
-    text: str,
-    return_sources: bool = False
+    text: str, return_sources: bool = False
 ) -> Generator[tuple[str, str, str] | tuple[str, str, str, str]]:
     """
     Gets copyrights.
@@ -75,8 +73,7 @@ def get_copyrights(
 
 
 def get_copyright_list(
-    text: str,
-    return_sources: bool = False
+    text: str, return_sources: bool = False
 ) -> list[tuple[str, str, str] | tuple[str, str, str, str]]:
     """
     Gets copyrights.
@@ -112,7 +109,7 @@ def get_copyright_annotations(
         CopyrightAnnotation
     """
     for ant in CopyrightEnParser.get_copyright_annotations(text, return_sources):
-        ant.locale = 'en'
+        ant.locale = "en"
         yield ant
 
 

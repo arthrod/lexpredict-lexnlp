@@ -11,6 +11,7 @@ class Map(dict):
     Example:
     m = Map(some_dict)
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for arg in args:

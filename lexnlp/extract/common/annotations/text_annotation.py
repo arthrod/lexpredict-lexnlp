@@ -25,22 +25,19 @@ class TextAnnotation:
         cp.locale = 'en'
         s2 = cp.get_cite()  # '/en/copyright/Siemens/1996/2019'
     """
-    record_type = ''
 
-    def __init__(self,
-                 name: str,
-                 locale: str,
-                 coords: tuple[int, int],
-                 text: str = ''):
+    record_type = ""
+
+    def __init__(self, name: str, locale: str, coords: tuple[int, int], text: str = ""):
         self.coords = coords
         self.name = name
         self.text = text
         self.locale = locale
 
     def __repr__(self):
-        s = f'{self.name} [{self.record_type}] at ({self.coords[0]}..{self.coords[1]})'
+        s = f"{self.name} [{self.record_type}] at ({self.coords[0]}..{self.coords[1]})"
         if self.locale:
-            s += f', loc: {self.locale}'
+            s += f", loc: {self.locale}"
         return s
 
     def get_cite(self) -> str:
@@ -56,18 +53,15 @@ class TextAnnotation:
 
     def get_extracted_text(self, full_text: str) -> str:
         # could be overriden
-        return full_text[self.coords[0]: self.coords[1]]
+        return full_text[self.coords[0] : self.coords[1]]
 
     def to_dictionary(self) -> dict:
-        df = Map({
-            "attrs": {
-                "start": self.coords[0],
-                "end": self.coords[1]
-            },
-            "tags": {
-                'Extracted Entity Type': self.record_type
+        df = Map(
+            {
+                "attrs": {"start": self.coords[0], "end": self.coords[1]},
+                "tags": {"Extracted Entity Type": self.record_type},
             }
-        })
+        )
         extras = self.get_dictionary_values()
         for key in extras:
             if key not in df:

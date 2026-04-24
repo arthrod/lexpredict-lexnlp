@@ -40,7 +40,7 @@ MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 PARAGRAPH_SEGMENTER_MODEL: Final = load_model(os.path.join(MODULE_PATH, "./paragraph_segmenter.pickle"))
 
 # regular expression for newlines
-RE_NEW_LINE: Final[Pattern] = re_compile(r'(?P<line>[^\r\n]*)((\r\n)|(\n\r)|\n|\r)')
+RE_NEW_LINE: Final[Pattern] = re_compile(r"(?P<line>[^\r\n]*)((\r\n)|(\n\r)|\n|\r)")
 
 
 def build_paragraph_break_features(
@@ -80,11 +80,9 @@ def build_paragraph_break_features(
 
         # Count characters
         feature_vector[f"line_n_alpha_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("L")])
-        feature_vector[f"line_n_number_{i}"] = sum(
-            [1 for c in line if unicodedata.category(c).startswith("N")])
+        feature_vector[f"line_n_number_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("N")])
         feature_vector[f"line_n_punct_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("P")])
-        feature_vector[f"line_n_whitespace_{i}"] = sum(
-            [1 for c in line if unicodedata.category(c).startswith("Z")])
+        feature_vector[f"line_n_whitespace_{i}"] = sum([1 for c in line if unicodedata.category(c).startswith("Z")])
 
     # Simple checks
     line = lines[line_id]
@@ -107,21 +105,17 @@ def build_paragraph_break_features(
 
 
 def get_paragraph_break_feature_names(
-    lines_count: int,
-    line_window_pre: int,
-    line_window_post: int,
-    characters=string.printable,
-    include_doc=None
+    lines_count: int, line_window_pre: int, line_window_post: int, characters=string.printable, include_doc=None
 ) -> set[str]:
     """
     Build a feature vector for a given line ID with given parameters.
     """
     # Feature vector
     feature_vector: set[str] = {
-        'first_char_punct',
-        'last_char_punct',
-        'first_char_number',
-        'last_char_number',
+        "first_char_punct",
+        "last_char_punct",
+        "first_char_number",
+        "last_char_number",
     }
 
     # Check start offset
@@ -134,17 +128,16 @@ def get_paragraph_break_feature_names(
 
     # Iterate through window
     for i in range(-line_window_pre, line_window_post + 1):
-
         # Count length
-        feature_vector.add(f'line_len_{i}')
-        feature_vector.add(f'line_lenstrip_{i}')
-        feature_vector.add(f'line_title_case_{i}')
-        feature_vector.add(f'line_upper_case_{i}')
+        feature_vector.add(f"line_len_{i}")
+        feature_vector.add(f"line_lenstrip_{i}")
+        feature_vector.add(f"line_title_case_{i}")
+        feature_vector.add(f"line_upper_case_{i}")
         # Count characters
-        feature_vector.add(f'line_n_alpha_{i}')
-        feature_vector.add(f'line_n_number_{i}')
-        feature_vector.add(f'line_n_punct_{i}')
-        feature_vector.add(f'line_n_whitespace_{i}')
+        feature_vector.add(f"line_n_alpha_{i}")
+        feature_vector.add(f"line_n_number_{i}")
+        feature_vector.add(f"line_n_punct_{i}")
+        feature_vector.add(f"line_n_whitespace_{i}")
 
     # Build character vector
     for character in characters:
@@ -165,13 +158,13 @@ def splitlines_with_spans(text: str) -> tuple[list[str], list[tuple[int, int]]]:
     # Start from offset 0 so single-line inputs without newlines keep full text.
     last_line_end = 0
     for m in RE_NEW_LINE.finditer(text):
-        line = m.group('line')
+        line = m.group("line")
         span = m.span()
         lines.append(line)
         spans.append(span)
         last_line_end = span[1]
     if last_line_end < len(text):
-        lines.append(text[last_line_end:len(text)])
+        lines.append(text[last_line_end : len(text)])
         spans.append((last_line_end, len(text)))
     return lines, spans
 
@@ -182,13 +175,9 @@ def _form_potential_paragraph(
     text: str,
     line_spans: list[tuple[int, int]],
 ) -> tuple[int, int, str] | None:
-    """
-    """
-    span: tuple[int, int] = (
-        line_spans[pos0][0],
-        line_spans[pos1][0] if pos1 is not None else len(text)
-    )
-    paragraph = text[span[0]:span[1]]
+    """ """
+    span: tuple[int, int] = (line_spans[pos0][0], line_spans[pos1][0] if pos1 is not None else len(text))
+    paragraph = text[span[0] : span[1]]
     if len(paragraph.strip()) > 0:
         return span[0], span[1], paragraph
 
@@ -236,7 +225,8 @@ def get_paragraph_spans(
             lines_count=len(lines),
             line_window_pre=window_pre,
             line_window_post=window_post,
-            include_doc=doc_distribution)
+            include_doc=doc_distribution,
+        )
     )
     column_names.sort()
     feature_df: DataFrame = DataFrame(feature_data, columns=column_names).fillna(-1).astype(int)
@@ -275,7 +265,7 @@ def get_paragraph_spans(
         else:
             yield 0, len(text), text
     except ValueError as e:
-        if 'Number of features of the model must match the input' in str(e):
+        if "Number of features of the model must match the input" in str(e):
             yield 0, len(text), text
         else:
             raise e

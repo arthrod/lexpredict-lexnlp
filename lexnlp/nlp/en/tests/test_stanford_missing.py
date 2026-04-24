@@ -39,6 +39,7 @@ class TestStanfordMissing(TestCase):
         try:
             disable_stanford()
             from lexnlp.nlp.en.stanford import get_tokens_list
+
             with pytest.raises(RuntimeError):
                 _ = get_tokens_list("This should throw an exception.")
         finally:
