@@ -344,7 +344,14 @@ Sheeman Properties, LLC.."""
         self.assertEqual(4, len(comps))
         self.assertEqual("Rawdermet", comps[0].name)
         self.assertEqual("Resocoat", comps[1].name)
-        self.assertEqual((94, 108), comps[0].coords)
-        self.assertEqual((134, 147), comps[1].coords)
+        # NLTK 3.9's punkt_tab retokenisation trims the leading whitespace
+        # that older punkt leaked into the match span, so the coordinates
+        # shift down by one character. Verifying the extracted substring
+        # side-by-side keeps the assertion meaningful regardless of how
+        # punkt's treebank tokenizer labels the preceding whitespace.
+        self.assertEqual((93, 107), comps[0].coords)
+        self.assertEqual((133, 146), comps[1].coords)
+        self.assertEqual("Rawdermet, inc", text[comps[0].coords[0] : comps[0].coords[1]])
+        self.assertEqual("Resocoat, inc", text[comps[1].coords[0] : comps[1].coords[1]])
         self.assertEqual("Corporation", comps[0].company_type_label)
         self.assertEqual("Corporation", comps[1].company_type_label)
