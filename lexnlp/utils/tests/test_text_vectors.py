@@ -130,14 +130,18 @@ class TestAsStringArrayInternalBehavior(TestCase):
         out = _as_string_array(inp)
         self.assertIsInstance(out, np.ndarray)
         # StringDType should compare equal to an instance of StringDType
-        self.assertIsInstance(out.dtype, np.dtypes.StringDType)
+        dtype = out.dtype
+        self.assertEqual(dtype.__class__.__name__, "StringDType")
+        self.assertTrue("numpy" in dtype.__class__.__module__)
 
     def test_list_input_uses_string_dtype(self):
         """Plain list input must also yield a StringDType array."""
         from lexnlp.utils.text_vectors import _as_string_array
 
         out = _as_string_array(["a", "b", "c"])
-        self.assertIsInstance(out.dtype, np.dtypes.StringDType)
+        dtype = out.dtype
+        self.assertEqual(dtype.__class__.__name__, "StringDType")
+        self.assertTrue("numpy" in dtype.__class__.__module__)
 
     def test_object_with_array_protocol_is_accepted(self):
         """Objects that implement __array__ (e.g. pandas Series) must not

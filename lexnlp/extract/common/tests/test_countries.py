@@ -163,8 +163,9 @@ class TestLookupCountryAdditional:
         """Leading/trailing whitespace around the key is normalised."""
         info_plain = lookup_country("US")
         info_padded = lookup_country("  US  ")
+        assert info_plain is not None
         assert info_padded is not None
-        assert info_padded.alpha_2 == info_plain.alpha_2  # type: ignore[union-attr]
+        assert info_padded.alpha_2 == info_plain.alpha_2
 
     def test_official_name_field_exists(self) -> None:
         """CountryInfo dataclass must expose official_name (str | None)."""

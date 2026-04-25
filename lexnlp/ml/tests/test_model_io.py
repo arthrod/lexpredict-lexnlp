@@ -358,7 +358,7 @@ class TestTrustedAllowlist:
         # actually flows into the skops gate we (a) stub ``get_untrusted_types``
         # to return the allow-listed name and (b) intercept ``_skops_load`` to
         # capture the trusted list it was invoked with.
-        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]
+        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]  # test stub: simple dict return, typing not needed
             captured["trusted"] = list(trusted)
             return {"x": 1}
 
@@ -504,7 +504,7 @@ class TestLoadSkopsAdditional:
         custom_type = "my.domain.SpecialEncoder"
         assert custom_type not in DEFAULT_TRUSTED_ALLOWLIST
 
-        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]
+        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]  # test stub: simple dict return, typing not needed
             return {"ok": 1}
 
         with (
@@ -523,7 +523,7 @@ class TestLoadSkopsAdditional:
         known_safe = "numpy.ndarray"
         assert known_safe in DEFAULT_TRUSTED_ALLOWLIST
 
-        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]
+        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]  # test stub: simple dict return, typing not needed
             return {"ok": 1}
 
         with (
