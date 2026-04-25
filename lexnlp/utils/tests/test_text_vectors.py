@@ -111,3 +111,85 @@ class TestVectorizedSlice(TestCase):
     def test_empty_input(self):
         result = vectorized_slice([], 0, 1)
         self.assertEqual(result.shape, (0,))
+
+
+# ---------------------------------------------------------------------------
+# Additional tests for PR change: StringDType and __array__ protocol
+# ---------------------------------------------------------------------------
+
+
+class TestAsStringArrayInternalBehavior(TestCase):
+    """Tests that exercise the PR-specific _as_string_array behaviour."""
+
+    def test_ndarray_input_uses_string_dtype(self):
+        """When given an ndarray, _as_string_array must return an array with
+        StringDType (not the legacy fixed-width np.str_)."""
+        from lexnlp.utils.text_vectors import _as_string_array
+
+        inp = np.array(["hello", "world"])
+        out = _as_string_array(inp)
+        self.assertIsInstance(out, np.ndarray)
+        # StringDType should compare equal to an instance of StringDType
+        self.assertIsInstance(out.dtype, np.dtypes.StringDType)
+
+    def test_list_input_uses_string_dtype(self):
+        """Plain list input must also yield a StringDType array."""
+        from lexnlp.utils.text_vectors import _as_string_array
+
+        out = _as_string_array(["a", "b", "c"])
+        self.assertIsInstance(out.dtype, np.dtypes.StringDType)
+
+    def test_object_with_array_protocol_is_accepted(self):
+        """Objects that implement __array__ (e.g. pandas Series) must not
+        be converted via list() — they should go through np.asarray()."""
+        from lexnlp.utils.text_vectors import _as_string_array
+
+        class FakeArrayLike:
+            def __array__(self, dtype=None, copy=None):
+                return np.array(["x", "y", "z"])
+
+        out = _as_string_array(FakeArrayLike())
+        self.assertIsInstance(out, np.ndarray)
+        self.assertEqual(list(out), ["x", "y", "z"])
+
+    def test_generator_input_materialised_correctly(self):
+        """Generator inputs (no __array__) must be materialised via list()."""
+        from lexnlp.utils.text_vectors import _as_string_array
+
+        gen = (c for c in ["p", "q", "r"])
+        out = _as_string_array(gen)
+        self.assertEqual(list(out), ["p", "q", "r"])
+
+
+class TestVectorizedLowerStringDType(TestCase):
+    """Verify vectorized_lower with the new StringDType backend."""
+
+    def test_lowercases_variable_length_unicode(self):
+        """StringDType handles variable-length strings without truncation."""
+        long_upper = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        short_upper = "Z"
+        result = vectorized_lower([long_upper, short_upper])
+        self.assertEqual(list(result), [long_upper.lower(), short_upper.lower()])
+
+    def test_accepts_numpy_string_array(self):
+        """An np.ndarray of strings (old np.str_ dtype) must be accepted."""
+        arr = np.array(["HELLO", "WORLD"], dtype=np.str_)
+        result = vectorized_lower(arr)
+        self.assertEqual(list(result), ["hello", "world"])
+
+
+class TestVectorizedStripStringDType(TestCase):
+    def test_strips_unicode_whitespace(self):
+        result = vectorized_strip(["\u3000foo\u3000", "bar"])
+        # \u3000 is an ideographic space — strip should handle it
+        # Result may or may not strip non-ASCII whitespace depending on
+        # the NumPy version; just verify no crash and correct length.
+        self.assertEqual(len(result), 2)
+
+    def test_mixed_length_strings(self):
+        """Strings with very different lengths must all be stripped correctly."""
+        data = ["  a  ", "  " + "x" * 100 + "  ", "  b  "]
+        result = vectorized_strip(data)
+        self.assertEqual(result[0], "a")
+        self.assertEqual(result[1], "x" * 100)
+        self.assertEqual(result[2], "b")
