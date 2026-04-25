@@ -36,6 +36,46 @@ CANONICAL_SUFFIX = ".skops"
 _LEGACY_SUFFIXES = frozenset({".pickle", ".pkl", ".cloudpickle", ".joblib"})
 _sklearn_patch_lock = threading.Lock()
 
+#: Explicit allow-list of custom-type names accepted when loading a skops
+#: artifact with ``trusted=True``. Anything outside this set causes a load
+#: failure even with ``trusted=True``, which prevents an attacker-controlled
+#: artifact from smuggling unknown types past the skops gate. Callers that
+#: legitimately need to load a broader set of types can extend it via the
+#: ``extra_trusted`` argument on :func:`load_model` / :func:`_load_skops`.
+DEFAULT_TRUSTED_ALLOWLIST: frozenset[str] = frozenset(
+    {
+        # NumPy ------------------------------------------------------------
+        "numpy.ndarray",
+        "numpy.dtype",
+        "numpy.int8",
+        "numpy.int16",
+        "numpy.int32",
+        "numpy.int64",
+        "numpy.float32",
+        "numpy.float64",
+        "numpy.bool_",
+        # scikit-learn core ----------------------------------------------
+        "sklearn.pipeline.Pipeline",
+        "sklearn.pipeline.FeatureUnion",
+        "sklearn.compose._column_transformer.ColumnTransformer",
+        "sklearn.preprocessing._data.StandardScaler",
+        "sklearn.preprocessing._data.MinMaxScaler",
+        "sklearn.preprocessing._data.RobustScaler",
+        "sklearn.preprocessing._label.LabelEncoder",
+        "sklearn.preprocessing._encoders.OneHotEncoder",
+        "sklearn.feature_extraction.text.TfidfVectorizer",
+        "sklearn.feature_extraction.text.CountVectorizer",
+        "sklearn.feature_extraction.text.TfidfTransformer",
+        # sklearn estimators LexNLP actually ships ------------------------
+        "sklearn.linear_model._logistic.LogisticRegression",
+        "sklearn.linear_model._logistic.LogisticRegressionCV",
+        "sklearn.ensemble._forest.RandomForestClassifier",
+        "sklearn.ensemble._hist_gradient_boosting.gradient_boosting.HistGradientBoostingClassifier",
+        "sklearn.tree._classes.DecisionTreeClassifier",
+        "sklearn.svm._classes.LinearSVC",
+    }
+)
+
 
 def is_skops_path(path: Path) -> bool:
     """Return ``True`` when ``path`` is a skops artifact (by suffix)."""
@@ -211,19 +251,26 @@ def _patched_sklearn_tree_loader():
         _sklearn_patch_lock.release()
 
 
-def load_model(path: Path, *, trusted: bool = False) -> Any:
+def load_model(
+    path: Path,
+    *,
+    trusted: bool = False,
+    extra_trusted: tuple[str, ...] = (),
+) -> Any:
     """Load a model written by :func:`dump_model` or by a legacy dumper.
 
-    ``trusted`` is forwarded to :func:`skops.io.load`. When ``True`` the
-    caller asserts that any custom types present in the artifact are
-    safe to reconstruct. The default (``False``) scans the artifact with
-    :func:`skops.io.get_untrusted_types` and passes the scanned list
-    explicitly so load fails closed when unexpected types appear.
+    ``trusted=True`` intersects the artifact's declared custom types with
+    :data:`DEFAULT_TRUSTED_ALLOWLIST` (plus ``extra_trusted`` if
+    supplied) before handing them to :func:`skops.io.load`. Anything
+    outside the allow-list triggers a load failure, so an
+    attacker-controlled artifact cannot smuggle unknown types past the
+    skops gate even with ``trusted=True``. The default (``trusted=False``)
+    keeps the original fail-closed path.
     """
 
     path = Path(path)
     if is_skops_path(path):
-        return _load_skops(path, trusted=trusted)
+        return _load_skops(path, trusted=trusted, extra_trusted=extra_trusted)
 
     if path.suffix.lower() in _LEGACY_SUFFIXES:
         LOGGER.debug("Loading legacy model via pickle-family loader: %s", path)
@@ -234,20 +281,41 @@ def load_model(path: Path, *, trusted: bool = False) -> Any:
     # (some skops artifacts may not use the canonical suffix); otherwise
     # surface a ValueError listing the supported suffixes.
     try:
-        return _load_skops(path, trusted=trusted)
+        return _load_skops(path, trusted=trusted, extra_trusted=extra_trusted)
     except Exception as exc:
         raise ValueError(
             f"Unsupported model suffix '{path.suffix}'. Use '{CANONICAL_SUFFIX}' or one of {sorted(_LEGACY_SUFFIXES)}."
         ) from exc
 
 
-def _load_skops(path: Path, *, trusted: bool) -> Any:
+def _load_skops(
+    path: Path,
+    *,
+    trusted: bool,
+    extra_trusted: tuple[str, ...] = (),
+) -> Any:
     """Invoke :func:`skops.io.load` with a ``trusted`` argument that
-    matches the current skops API (list of allowed custom type names)."""
+    matches the current skops API (list of allowed custom type names).
 
-    # When the caller passes ``trusted=True`` we explicitly accept every
-    # custom type referenced by the artifact. Otherwise pass an empty
-    # list so skops enforces its own default trusted set and raises
-    # UntrustedTypesFoundException if unknown types appear.
-    untrusted = list(get_untrusted_types(file=path) or [])
-    return _skops_load(path, trusted=untrusted if trusted else [])
+    When ``trusted=True`` we intersect the artifact's declared custom
+    types with :data:`DEFAULT_TRUSTED_ALLOWLIST` (plus ``extra_trusted``)
+    so an attacker-controlled artifact cannot smuggle unknown types
+    past the skops gate even with ``trusted=True``.
+    """
+
+    declared = list(get_untrusted_types(file=path) or [])
+    if not trusted:
+        # Fail-closed path: hand an empty list so skops enforces its own
+        # default trusted set and raises UntrustedTypesFoundException.
+        return _skops_load(path, trusted=[])
+
+    allowed = DEFAULT_TRUSTED_ALLOWLIST | frozenset(extra_trusted)
+    rejected = [name for name in declared if name not in allowed]
+    if rejected:
+        raise ValueError(
+            f"Refusing to load skops artifact {path}: contains types outside "
+            f"the trusted allow-list: {sorted(rejected)}. Extend the "
+            "allow-list via the ``extra_trusted`` argument if these are "
+            "known-safe for your deployment."
+        )
+    return _skops_load(path, trusted=declared)

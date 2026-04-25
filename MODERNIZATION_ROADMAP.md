@@ -37,7 +37,7 @@ freely pick up security / feature releases.
 | --- | --- | --- | --- | --- |
 | Python | `3.10.*` | **3.13.12** | `>=3.13,<3.15` | PEP 604 `X \| Y`, PEP 585 builtin generics, PEP 695 `type` alias, PEP 698 `@override`, PEP 701 multiline f-strings, PEP 709 inlined comprehensions, PEP 667 frame semantics, free-threaded build (`--disable-gil`), `tomllib` stdlib, `asyncio.TaskGroup`, `Self` type, JIT (experimental), better error messages and tracebacks, faster interpreter startup, improved `typing.override` |
 | scikit-learn | `0.24.0` | **1.8.0** | `>=1.5` | `set_config(transform_output="pandas")`, full metadata routing (SLEP006), `TunedThresholdClassifierCV`, `HistGradientBoosting` native categorical handling, `feature_names_out` standardised across all transformers, `__sklearn_tags__` API (1.6+), `ColumnTransformer.set_output`, `FrozenEstimator`, Array API support (GPU arrays), `roc_auc_score(multi_class="ovr", average="macro")` defaults, `PartialDependenceDisplay` categorical support, constrained linear models |
-| numpy | `1.23.4` | **2.4.4** | `>=2.1,<3` | **NumPy 2.0 (Jun 2024)**: NEP 50 default scalar promotion (cleaner int/float rules), removal of deprecated aliases (`np.int`, `np.float`, `np.NaN`, `np.product`, `np.trapz`, `np.in1d`, `np.round_`, `np.sometrue`, …), new `numpy.exceptions` namespace, strict type promotion, stable `numpy.typing.NDArray`, revamped C/Python ABI, `numpy.strings` unicode vectorised ops. **NumPy 2.1 (Aug 2024)**: default `np.dtype` repr, `matvec`/`vecmat`/`vecdot` generalised ufuncs, improved `__array_namespace__` for Array API, `numpy.dtypes.StringDType`, windows Py3.13 wheels. **NumPy 2.2 (Dec 2024)**: `numpy.lib.array_utils.normalize_axis_index`, nanquantile fast path, faster f-contiguous reductions, `out=` kwarg on `np.unique*`, `numpy.strings.slice()`. **NumPy 2.3 (Jun 2025)**: `np.random.Generator.spawn`, SIMD-accelerated string functions, free-threaded CPython support, extended Array API compliance. **NumPy 2.4 (Oct 2025)**: SVE/SME kernels on ARM, `out=` support in more ufuncs, faster `setdiff1d`, BLAS vendored wheels. Features the codebase specifically benefits from: stable `numpy.typing`, Array API passthrough for sklearn 1.8 GPU path, strict scalar promotion (eliminates silent float→int coercion), new `exceptions` namespace for precise error handling. |
+| numpy | `1.23.4` | **2.4.4** | `>=2.3,<3` | **NumPy 2.0 (Jun 2024)**: NEP 50 default scalar promotion (cleaner int/float rules), removal of deprecated aliases (`np.int`, `np.float`, `np.NaN`, `np.product`, `np.trapz`, `np.in1d`, `np.round_`, `np.sometrue`, …), new `numpy.exceptions` namespace, strict type promotion, stable `numpy.typing.NDArray`, revamped C/Python ABI, `numpy.strings` unicode vectorised ops. **NumPy 2.1 (Aug 2024)**: default `np.dtype` repr, `matvec`/`vecmat`/`vecdot` generalised ufuncs, improved `__array_namespace__` for Array API, `numpy.dtypes.StringDType`, windows Py3.13 wheels. **NumPy 2.2 (Dec 2024)**: `numpy.lib.array_utils.normalize_axis_index`, nanquantile fast path, faster f-contiguous reductions, `out=` kwarg on `np.unique*`, `numpy.strings.slice()`. **NumPy 2.3 (Jun 2025)**: `np.random.Generator.spawn`, SIMD-accelerated string functions, free-threaded CPython support, extended Array API compliance. **NumPy 2.4 (Oct 2025)**: SVE/SME kernels on ARM, `out=` support in more ufuncs, faster `setdiff1d`, BLAS vendored wheels. Features the codebase specifically benefits from: stable `numpy.typing`, Array API passthrough for sklearn 1.8 GPU path, strict scalar promotion (eliminates silent float→int coercion), new `exceptions` namespace for precise error handling. |
 | pandas | `1.5.1` | **2.3.3** | `>=2.2.0,<3` | Copy-on-Write default, PyArrow-backed dtypes, `read_csv(dtype_backend="pyarrow")`, nullable dtypes stable, `DataFrame.map`, `Series.case_when`, deprecated `inplace=True` path removed, `.from_records` on Arrow types, `.agg` preserves dtype |
 | regex | `2022.3.2` | **2025.11.3** | `>=2024.0` | Possessive quantifiers, improved unicode property matching, fuzzy matching (`{e<=n}`), grapheme-cluster `\X`, named-group recursion, multi-threaded compile cache |
 | nltk | `3.7` | **3.9.4** | `>=3.9` | `punkt_tab` replaces `punkt` (faster, deterministic), security fixes (CVE-2024-39705 pickle), updated averaged-perceptron tagger, POS tagging on OOV tokens, stopwords refresh |
@@ -69,7 +69,26 @@ Upper caps retained:
 ### 2.1 NumPy 2.x migration notes (April 2026)
 
 The floor moved from **1.26 → 2.1** on branch
-`claude/mirror-spanish-module-architecture-cUI6Z`. Relevant findings:
+`claude/mirror-spanish-module-architecture-cUI6Z`, and was bumped again
+to **2.3** on branch `claude/numpy-upgrade-features-qVF34` so that the
+library can unconditionally rely on a handful of newer primitives:
+
+- `numpy.random.Generator.spawn` (2.3) — deterministic child streams for
+  parallel batch extraction without the legacy `RandomState` global.
+- `numpy.strings.slice()` (2.2) — vectorised substring slicing for bulk
+  text windowing.
+- `numpy.lib.array_utils.normalize_axis_index` (2.2) — formerly private
+  axis-bounds helper now promoted to the public API.
+- SIMD-accelerated `numpy.strings` string ufuncs (2.3) — `lower`,
+  `upper`, `strip`, `startswith`, `count`, `slice` run orders of
+  magnitude faster than the equivalent Python-level listcomp.
+- `numpy.vecdot` ufunc (2.1) — single-call cosine-similarity numerator
+  (used by `lexnlp.utils.cosine`).
+
+The upper cap remains at `<3` because NumPy 3.0 is not yet released
+and the ABI break is known-upcoming.
+
+Relevant findings from the earlier 1.26 → 2.1 migration:
 
 - **Codebase surface**: `ruff`-grep across `lexnlp/` + `scripts/` found
   **zero** uses of the removed aliases (`np.int`, `np.float`, `np.bool`,
@@ -167,9 +186,10 @@ These remain open and are **not** blockers for shipping the PT module:
    `str | None`). ~107 files use `typing.X`; a scripted rewrite via
    `ruff check --select UP006,UP007,UP035,UP045 --fix` handles it in
    one pass. Follow up with `ruff --select UP` repo-wide.
-3. **Pre-commit hooks**: add `.pre-commit-config.yaml` with
-   `ruff`, `ruff-format`, `ty check` (pre-release), `uv lock --check`,
-   `pyproject-fmt`.
+3. **Pre-commit hooks**: ✅ *Done on
+   `claude/numpy-upgrade-features-qVF34` — `.pre-commit-config.yaml`
+   wires `ruff`, `ruff-format`, `uv lock`, `ty check` and the standard
+   whitespace / YAML / TOML hygiene hooks.*
 4. **PEP 735 dependency groups**: migrate `[project.optional-dependencies]
    dev/test` to `[dependency-groups]` so `uv sync --group test` works.
 5. **Replace `cloudpickle` usage on model persistence** with
@@ -189,36 +209,46 @@ These remain open and are **not** blockers for shipping the PT module:
 
 ### Tier B — structural improvements (days to weeks)
 
-8. **Structured sklearn outputs**: adopt
-   `set_config(transform_output="pandas")` for the tfidf/logreg
-   pipelines so downstream users can reason about feature columns by
-   name, and so interpretability stack (e.g., `shap`, `ELI5`) plugs in
-   natively.
-9. **Sklearn metadata routing** (`enable_metadata_routing=True`):
-   lets training pipelines propagate `sample_weight` / `groups`
-   cleanly — replaces the current private `pipeline._final_estimator`
-   / `pipeline._iter()` patterns.
-10. **Emit skops model cards** for every release artifact. `skops.card`
-    automates: model description, input/output specs, metric tables,
-    license. The publish workflows already output
-    `contract_type_quality_gate.json`; wire that into card generation.
-11. **Trusted skops allow-list**: restrict `get_untrusted_types(...)`
-    in `lexnlp/ml/model_io.py` to an explicit allow-list of sklearn
-    estimator class names so an attacker-controlled artifact can't
-    smuggle unknown types even with `trusted=True`.
+8. **Structured sklearn outputs**: ✅ *Done —
+   `lexnlp.ml.sklearn_config.enable_pandas_output()` /
+   `configure_pipeline_for_dataframes()` set
+   `set_config(transform_output="pandas")` so tfidf/logreg pipelines
+   emit DataFrames.*
+9. **Sklearn metadata routing**: ✅ *Done on
+   `claude/numpy-upgrade-features-qVF34` —
+   `lexnlp.ml.sklearn_config.enable_metadata_routing()` flips
+   `enable_metadata_routing=True` and returns the previous value so
+   tests / scripts can restore it.*
+10. **Emit skops model cards**: ✅ *Done on
+    `claude/numpy-upgrade-features-qVF34` — new
+    `lexnlp.ml.model_card` module with `ModelCardMetadata`,
+    `write_model_card` and `dump_model_with_card` so every release
+    artifact ships a sibling ``.md`` card describing description,
+    license, authors, tags, metrics and hyper-parameters.*
+11. **Trusted skops allow-list**: ✅ *Done on
+    `claude/numpy-upgrade-features-qVF34` —
+    `lexnlp.ml.model_io.DEFAULT_TRUSTED_ALLOWLIST` intersects the
+    artifact's declared untrusted types with an explicit sklearn /
+    numpy estimator-class allow-list. `trusted=True` now rejects any
+    type outside that set even if the caller asserted trust; callers
+    with legitimate custom estimators extend via ``extra_trusted``.*
 12. **Re-export bundled sklearn pickles** via
     `scripts/reexport_bundled_sklearn_models.py` and replace the
     11 `test_data/**/*.pickle` files so tests stop ERRORing on
     collection under sklearn >=1.3. Skops format preferred.
 13. **Re-train `pipeline/contract-type/0.2-runtime`** on sklearn 1.8
     and publish as `.skops`.
-14. **Adopt `pyarrow`-backed pandas for catalog CSVs**: faster
-    parse, lower memory. Entry points are `read_csv(...,
-    dtype_backend="pyarrow")` in geoentities/regulations/dates
-    configuration loaders.
-15. **Replace `datetime.utcnow()`** (`lexnlp/tests/lexnlp_tests.py:344`)
-    with `datetime.now(datetime.UTC)` — removes a warning that spams
-    every test run and will be an error in a future Python.
+14. **Adopt `pyarrow`-backed pandas for catalog CSVs**: ✅ *Done on
+    `claude/numpy-upgrade-features-qVF34` —
+    `lexnlp.utils.pandas_config.read_csv_arrow(path, **kwargs)`
+    forwards `dtype_backend="pyarrow"` when PyArrow is importable and
+    falls back to the default NumPy backend otherwise. The ``[arrow]``
+    extra declares the dependency without making it a hard runtime
+    requirement.*
+15. **Replace `datetime.utcnow()`**: ✅ *Done earlier —
+    `lexnlp/tests/lexnlp_tests.py` and
+    `lexnlp/tests/upload_benchmarks.py` now call
+    `datetime.now(UTC).isoformat()` / `.date()`.*
 16. **Kill dead compatibility shims** under `lexnlp/extract/common/`
     that were added for sklearn 1.2; trim once pickles are re-exported.
 
@@ -234,10 +264,14 @@ These remain open and are **not** blockers for shipping the PT module:
     (parties, agreement types). spaCy can feed
     `lexnlp.extract.ml`'s CRF features, improving recall without
     rewriting the pipeline.
-19. **HF Hub publishing**: `skops.hub_utils.push` alongside the
-    existing GitHub release workflow so consumers can `from
-    huggingface_hub import snapshot_download` the model catalog.
-    `lexnlp.ml.catalog.download` already has a pluggable repo slug.
+19. **HF Hub publishing / mirror**: ✅ *Done on
+    `claude/numpy-upgrade-features-qVF34` — new
+    `lexnlp.ml.catalog.hub` module with `get_path_from_hub(tag, *,
+    repo_id=DEFAULT_HUB_REPO, revision=None)` for pulling artifacts
+    from the Hub when the GitHub release path is unavailable, plus
+    `hub_is_available()` / `HubUnavailableError` / `HubMirrorError`
+    for graceful handling of missing `huggingface_hub`. The dependency
+    is shipped under the ``[hub]`` optional extra.*
 20. **`rapidfuzz`-based matcher** for fuzzy legal-term lookups
     (currently done with regex alternation). Faster and
     unicode-aware.
@@ -268,8 +302,12 @@ These remain open and are **not** blockers for shipping the PT module:
       promotion — explicit casts or dtype arguments.
     - `deprecated` (18): drop `datetime.utcnow`, `multi_class` arg
       on `LogisticRegression`, etc.
-27. **Bump CI Python matrix**: add 3.14-nightly to catch forward
-    regressions (Python 3.14 is already in RC stages).
+27. **Bump CI Python matrix**: ✅ *Done on
+    `claude/numpy-upgrade-features-qVF34` —
+    `.github/workflows/ci.yml` gained a non-blocking
+    `base-tests-py314` job that runs the base suite on Python 3.14
+    (`continue-on-error: true`) so forward regressions surface without
+    blocking merges.*
 28. **Delete `Pipfile*`** once CI / docs reference `uv` only. ✅ *Done
     on branch `claude/mirror-spanish-module-architecture-cUI6Z` — see
     §3 Tier-A.6 for context.*
@@ -434,6 +472,105 @@ def get_path_from_hub(tag: str, *, revision: str | None = None) -> Path:
 
 `get_path_from_catalog` falls back to the Hub if
 `download_github_release` 404s.
+
+### 4.4 NumPy 2.3+ feature uplift *(shipped on `claude/numpy-upgrade-features-qVF34`)*
+
+Three focused helpers convert the existing Python-loop idioms into
+vectorised calls that the NumPy ≥ 2.3 floor unlocks:
+
+* **`lexnlp.utils.text_vectors`** — a thin, typed wrapper around
+  `numpy.strings` so bulk text preprocessing (normalising whitespace,
+  lower-casing, prefix filtering, substring-counting, fixed-width
+  slicing) runs as a single SIMD-accelerated C call instead of a Python
+  listcomp. Signature is deliberately small and NumPy-native:
+
+  ```python
+  from lexnlp.utils.text_vectors import (
+      vectorized_lower, vectorized_strip, vectorized_startswith,
+      vectorized_substring_count, vectorized_slice,
+  )
+  ```
+
+  Inputs accept any iterable of strings; outputs are `numpy.ndarray`
+  with the `StringDType()` (NumPy 2.1+) or the matching boolean/integer
+  result dtype. Used by downstream extractors that currently run
+  `[t.lower().strip() for t in texts]` over tens of thousands of
+  snippets.
+
+* **`lexnlp.extract.batch.parallel_rng`** — deterministic child
+  `numpy.random.Generator` streams for parallel batch extraction. Built
+  on `Generator.spawn` (NumPy 2.3), which guarantees statistically
+  independent sub-streams from a single parent seed — the legacy
+  `RandomState(seed + worker_id)` idiom is known to collide. Returns
+  `n` fully-seeded `Generator` instances for use inside
+  `extract_batch_async`'s thread pool.
+
+* **`lexnlp.utils.cosine`** — single-line cosine-similarity helper built
+  on `numpy.vecdot` (NumPy 2.1+ generalised ufunc). Replaces the
+  three-term `dot / linalg.norm / linalg.norm` expression inside
+  `lexnlp.extract.common.ocr_rating.ocr_rating_calculator`; the OCR
+  rating path now calls the shared helper so the same numerics back
+  every cosine comparison in the library.
+
+All three helpers are **`slots=True`** / **`frozen=True`** where
+applicable and carry full `numpy.typing.NDArray` hints, so ty can
+verify shapes across the batch-extraction stack. Coverage: dedicated
+red-first / green tests under
+`lexnlp/utils/tests/` and
+`lexnlp/extract/batch/tests/`.
+
+### 4.5 Roadmap backlog shipped on `claude/numpy-upgrade-features-qVF34`
+
+The second pass of this branch closes several Tier-A / Tier-B / Tier-C
+roadmap items. Every item below was built red-first with a dedicated
+unittest module that reproduces the intended contract:
+
+* **Tier A.3 — Pre-commit hooks** — `.pre-commit-config.yaml` wires
+  `ruff` (with `--fix` + format), `uv-lock`, the standard
+  end-of-file / YAML / TOML / trailing-whitespace hooks, and a local
+  `ty check` step. Contributors can install it with
+  ``uv run --group lint pre-commit install``.
+
+* **Tier B.9 — `enable_metadata_routing(enabled=True)`** in
+  `lexnlp.ml.sklearn_config`. Flips
+  ``set_config(enable_metadata_routing=...)`` globally and returns the
+  previous value so tests / scripts can restore it (tested in
+  `lexnlp/ml/tests/test_sklearn_config.py::TestEnableMetadataRouting`).
+
+* **Tier B.10 — `lexnlp.ml.model_card`** — new module exposing
+  `ModelCardMetadata` (frozen, slotted dataclass), `write_model_card`,
+  and `dump_model_with_card` which writes the ``.skops`` plus a
+  sibling ``.md`` card in one call. Built on ``skops.card`` (already a
+  runtime dep). Coverage:
+  `lexnlp/ml/tests/test_model_card.py` (7 tests).
+
+* **Tier B.11 — `DEFAULT_TRUSTED_ALLOWLIST`** in
+  `lexnlp.ml.model_io`. An explicit frozenset of sklearn / numpy type
+  names is intersected against the artifact's declared untrusted
+  types before skops is asked to load — so ``trusted=True`` is no
+  longer "accept anything the artifact declares", it is "accept only
+  types known to this codebase". Callers with legitimate custom
+  estimators extend via the new ``extra_trusted`` argument on
+  `load_model` / `_load_skops`. Coverage:
+  `lexnlp/ml/tests/test_model_io.py::TestTrustedAllowlist` (5 tests).
+
+* **Tier B.14 — `read_csv_arrow(path, **kwargs)`** in
+  `lexnlp.utils.pandas_config`. Passes ``dtype_backend="pyarrow"``
+  when PyArrow is importable, otherwise falls back to the default
+  NumPy backend. The dependency ships under the new ``[arrow]``
+  optional extra in ``pyproject.toml``. Coverage:
+  `lexnlp/utils/tests/test_pandas_config_read_csv.py` (6 tests).
+
+* **Tier C.19 — `lexnlp.ml.catalog.hub`** — new module with
+  `get_path_from_hub(tag, *, repo_id=DEFAULT_HUB_REPO, revision=None)`,
+  `hub_is_available()`, and typed `HubUnavailableError` /
+  `HubMirrorError`. Lazy import of `huggingface_hub` keeps it truly
+  optional (declared under the ``[hub]`` extra). Coverage:
+  `lexnlp/ml/catalog/tests/test_hub.py` (9 tests).
+
+* **Tier D.27 — CI matrix** — `.github/workflows/ci.yml` adds a
+  non-blocking `base-tests-py314` job so forward regressions on
+  Python 3.14 surface without gating merges.
 
 ## 5. Verification plan
 

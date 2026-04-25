@@ -91,6 +91,49 @@ jobs:
       - name: Run base suite
         run: .venv/bin/pytest lexnlp
 
+  base-tests-py314:
+    # Advisory forward-regression job. Runs the base suite on Python
+    # 3.14 so we catch typing / deprecation regressions before 3.14
+    # becomes the default floor. Non-blocking.
+    name: Base Tests (Python 3.14)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    continue-on-error: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          allow-prereleases: true
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Cache NLTK data
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/nltk_data
+          key: nltk-data-${{ runner.os }}-py3.14-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            nltk-data-${{ runner.os }}-py3.14-
+
+      - name: Install dependencies
+        run: |
+          uv venv .venv --python 3.14
+          uv sync --python .venv/bin/python --group dev
+
+      - name: Bootstrap required assets
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: .venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
+
+      - name: Run base suite (advisory, 3.14)
+        run: .venv/bin/pytest lexnlp
+
   stanford-tests:
     name: Stanford Tests
     runs-on: ubuntu-latest

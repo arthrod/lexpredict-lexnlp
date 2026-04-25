@@ -19,6 +19,7 @@ import pytest
 from lexnlp.ml.model_io import (
     _LEGACY_SUFFIXES,
     CANONICAL_SUFFIX,
+    DEFAULT_TRUSTED_ALLOWLIST,
     _load_legacy,
     _load_skops,
     dump_model,
@@ -306,6 +307,41 @@ class TestLoadSkops:
 # ---------------------------------------------------------------------------
 # CANONICAL_SUFFIX / _LEGACY_SUFFIXES constants
 # ---------------------------------------------------------------------------
+
+
+class TestTrustedAllowlist:
+    """Tests for the explicit allow-list-based trusted loading path."""
+
+    def test_default_allowlist_is_non_empty(self) -> None:
+        assert len(DEFAULT_TRUSTED_ALLOWLIST) > 0
+
+    def test_default_allowlist_includes_common_sklearn_types(self) -> None:
+        assert "sklearn.pipeline.Pipeline" in DEFAULT_TRUSTED_ALLOWLIST
+        assert "numpy.ndarray" in DEFAULT_TRUSTED_ALLOWLIST
+
+    def test_default_allowlist_is_frozenset(self) -> None:
+        assert isinstance(DEFAULT_TRUSTED_ALLOWLIST, frozenset)
+
+    def test_load_rejects_type_outside_allowlist(self, tmp_path: Path) -> None:
+        """trusted=True without override rejects artifacts containing a
+        type that is not in DEFAULT_TRUSTED_ALLOWLIST."""
+
+        path = dump_model({"x": 1}, tmp_path / "m.skops")
+        # Inject a fake untrusted type by patching get_untrusted_types.
+        with patch(
+            "lexnlp.ml.model_io.get_untrusted_types",
+            return_value=["evil.Module.RemoteCodeExecution"],
+        ):
+            with pytest.raises(Exception):  # noqa: B017 - skops raises its own
+                _load_skops(path, trusted=True)
+
+    def test_load_accepts_additional_allowed_type(self, tmp_path: Path) -> None:
+        """Callers may extend the allow-list with extra type names."""
+
+        path = dump_model({"x": 1}, tmp_path / "m.skops")
+        # No untrusted types are actually present; call should succeed.
+        result = _load_skops(path, trusted=True, extra_trusted=("my.Custom.Class",))
+        assert result == {"x": 1}
 
 
 class TestConstants:

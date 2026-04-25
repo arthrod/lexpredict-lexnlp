@@ -1,0 +1,41 @@
+# Pre-commit hooks for LexNLP.
+#
+# Install locally with::
+#
+#     uv run --group lint pre-commit install
+#
+# Hooks intentionally mirror what CI runs so a local ``git commit``
+# catches the same issues. Every tool is pinned to a recent release to
+# keep contributor environments consistent.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.0
+    hooks:
+      - id: ruff
+        args: ["--fix", "--exit-non-zero-on-fix"]
+      - id: ruff-format
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.9.0
+    hooks:
+      - id: uv-lock
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-toml
+      - id: check-yaml
+        args: ["--unsafe"]
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        exclude: ^test_data/|^documentation/
+
+  - repo: local
+    hooks:
+      - id: ty-check
+        name: ty check (astral type checker)
+        language: system
+        entry: uv run --group lint ty check .
+        pass_filenames: false
+        types: [python]
