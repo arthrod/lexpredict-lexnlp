@@ -31,7 +31,11 @@ class SsnAnnotation(TextAnnotation):
         self.number = number
 
     def get_cite_value_parts(self) -> list[str]:
-        return [self.number]
+        # ``self.number`` is typed as ``str | None`` to allow tests / partial
+        # captures that haven't resolved the value yet; the cite parts list
+        # is contractually ``list[str]``, so coerce a missing number to an
+        # empty string rather than smuggling ``None`` past the type system.
+        return [self.number or ""]
 
     def get_dictionary_values(self) -> dict:
         df = {"tags": {"Extracted Entity SSN": self.number or "", "Extracted Entity Text": self.text}}

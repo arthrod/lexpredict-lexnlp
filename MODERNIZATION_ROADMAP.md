@@ -20,7 +20,7 @@ LexNLP is a legal-domain NLP toolkit. The public surface is:
 - **`lexnlp.ml`** — asset catalog, gensim helpers, sklearn transformers,
   and now `model_io` (skops + legacy pickle fallback).
 - **`lexnlp.utils`** — locale-aware amount delimiting, decorators,
-  unicode lookup, CSV/DataFrame helpers.
+  Unicode lookup, CSV/DataFrame helpers.
 - **`scripts/`** — training / evaluation / quality-gate / bootstrap /
   drift-check utilities, plus release publishing workflows.
 
@@ -37,7 +37,7 @@ freely pick up security / feature releases.
 | --- | --- | --- | --- | --- |
 | Python | `3.10.*` | **3.13.12** | `>=3.13,<3.15` | PEP 604 `X \| Y`, PEP 585 builtin generics, PEP 695 `type` alias, PEP 698 `@override`, PEP 701 multiline f-strings, PEP 709 inlined comprehensions, PEP 667 frame semantics, free-threaded build (`--disable-gil`), `tomllib` stdlib, `asyncio.TaskGroup`, `Self` type, JIT (experimental), better error messages and tracebacks, faster interpreter startup, improved `typing.override` |
 | scikit-learn | `0.24.0` | **1.8.0** | `>=1.5` | `set_config(transform_output="pandas")`, full metadata routing (SLEP006), `TunedThresholdClassifierCV`, `HistGradientBoosting` native categorical handling, `feature_names_out` standardised across all transformers, `__sklearn_tags__` API (1.6+), `ColumnTransformer.set_output`, `FrozenEstimator`, Array API support (GPU arrays), `roc_auc_score(multi_class="ovr", average="macro")` defaults, `PartialDependenceDisplay` categorical support, constrained linear models |
-| numpy | `1.23.4` | **2.4.4** | `>=2.3,<3` | **NumPy 2.0 (Jun 2024)**: NEP 50 default scalar promotion (cleaner int/float rules), removal of deprecated aliases (`np.int`, `np.float`, `np.NaN`, `np.product`, `np.trapz`, `np.in1d`, `np.round_`, `np.sometrue`, …), new `numpy.exceptions` namespace, strict type promotion, stable `numpy.typing.NDArray`, revamped C/Python ABI, `numpy.strings` unicode vectorised ops. **NumPy 2.1 (Aug 2024)**: default `np.dtype` repr, `matvec`/`vecmat`/`vecdot` generalised ufuncs, improved `__array_namespace__` for Array API, `numpy.dtypes.StringDType`, windows Py3.13 wheels. **NumPy 2.2 (Dec 2024)**: `numpy.lib.array_utils.normalize_axis_index`, nanquantile fast path, faster f-contiguous reductions, `out=` kwarg on `np.unique*`, `numpy.strings.slice()`. **NumPy 2.3 (Jun 2025)**: `np.random.Generator.spawn`, SIMD-accelerated string functions, free-threaded CPython support, extended Array API compliance. **NumPy 2.4 (Oct 2025)**: SVE/SME kernels on ARM, `out=` support in more ufuncs, faster `setdiff1d`, BLAS vendored wheels. Features the codebase specifically benefits from: stable `numpy.typing`, Array API passthrough for sklearn 1.8 GPU path, strict scalar promotion (eliminates silent float→int coercion), new `exceptions` namespace for precise error handling. |
+| numpy | `1.23.4` | **2.4.4** | `>=2.3,<3` | **NumPy 2.0 (Jun 2024)**: NEP 50 default scalar promotion (cleaner int/float rules), removal of deprecated aliases (`np.int`, `np.float`, `np.NaN`, `np.product`, `np.trapz`, `np.in1d`, `np.round_`, `np.sometrue`, …), new `numpy.exceptions` namespace, strict type promotion, stable `numpy.typing.NDArray`, revamped C/Python ABI, `numpy.strings` Unicode vectorised ops. **NumPy 2.1 (Aug 2024)**: default `np.dtype` repr, `matvec`/`vecmat`/`vecdot` generalised ufuncs, improved `__array_namespace__` for Array API, `numpy.dtypes.StringDType`, Windows Py3.13 wheels. **NumPy 2.2 (Dec 2024)**: `numpy.lib.array_utils.normalize_axis_index`, nanquantile fast path, faster f-contiguous reductions, `out=` kwarg on `np.unique*`, `numpy.strings.slice()`. **NumPy 2.3 (Jun 2025)**: `np.random.Generator.spawn`, SIMD-accelerated string functions, free-threaded CPython support, extended Array API compliance. **NumPy 2.4 (Oct 2025)**: SVE/SME kernels on ARM, `out=` support in more ufuncs, faster `setdiff1d`, BLAS vendored wheels. Features the codebase specifically benefits from: stable `numpy.typing`, Array API passthrough for sklearn 1.8 GPU path, strict scalar promotion (eliminates silent float→int coercion), new `exceptions` namespace for precise error handling. |
 | pandas | `1.5.1` | **2.3.3** | `>=2.2.0,<3` | Copy-on-Write default, PyArrow-backed dtypes, `read_csv(dtype_backend="pyarrow")`, nullable dtypes stable, `DataFrame.map`, `Series.case_when`, deprecated `inplace=True` path removed, `.from_records` on Arrow types, `.agg` preserves dtype |
 | regex | `2022.3.2` | **2025.11.3** | `>=2024.0` | Possessive quantifiers, improved unicode property matching, fuzzy matching (`{e<=n}`), grapheme-cluster `\X`, named-group recursion, multi-threaded compile cache |
 | nltk | `3.7` | **3.9.4** | `>=3.9` | `punkt_tab` replaces `punkt` (faster, deterministic), security fixes (CVE-2024-39705 pickle), updated averaged-perceptron tagger, POS tagging on OOV tokens, stopwords refresh |
@@ -223,7 +223,7 @@ These remain open and are **not** blockers for shipping the PT module:
     `claude/numpy-upgrade-features-qVF34` — new
     `lexnlp.ml.model_card` module with `ModelCardMetadata`,
     `write_model_card` and `dump_model_with_card` so every release
-    artifact ships a sibling ``.md`` card describing description,
+    artifact ships a sibling ``.md`` card containing the description,
     license, authors, tags, metrics and hyper-parameters.*
 11. **Trusted skops allow-list**: ✅ *Done on
     `claude/numpy-upgrade-features-qVF34` —
@@ -274,7 +274,7 @@ These remain open and are **not** blockers for shipping the PT module:
     is shipped under the ``[hub]`` optional extra.*
 20. **`rapidfuzz`-based matcher** for fuzzy legal-term lookups
     (currently done with regex alternation). Faster and
-    unicode-aware.
+    Unicode-aware.
 21. **Async / parallel asset download**: `httpx.AsyncClient` with
     `tqdm.asyncio.gather` in
     `scripts/bootstrap_assets.py::download_many` — right now each
@@ -374,7 +374,7 @@ architecture and extended for Brazilian legal prose. The branch
      ``Decreto-Lei nº 4.657/1942``, ``Lei Complementar nº 101/2000``) —
      tolerant of the planalto-mirror glitch where ``nº`` renders as
      ``n o`` across a line break.
-  3. Article / paragraph / incision / alinea references
+  3. Article / paragraph / incision / alínea references
      (``art. 5º, inciso XXXIII``, ``§ 2º do art. 12``).
   4. Constitutional references (``Constituição Federal``,
      ``CRFB/88``, ``CF/88``).
@@ -545,7 +545,7 @@ unittest module that reproduces the intended contract:
   `lexnlp/ml/tests/test_model_card.py` (7 tests).
 
 * **Tier B.11 — `DEFAULT_TRUSTED_ALLOWLIST`** in
-  `lexnlp.ml.model_io`. An explicit frozenset of sklearn / numpy type
+  `lexnlp.ml.model_io`. An explicit frozenset of sklearn / NumPy type
   names is intersected against the artifact's declared untrusted
   types before skops is asked to load — so ``trusted=True`` is no
   longer "accept anything the artifact declares", it is "accept only

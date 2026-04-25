@@ -51,6 +51,21 @@ class TestCosineSimilarity(TestCase):
         with self.assertRaises(ValueError):
             cosine_similarity(np.array([1.0, 2.0]), np.array([1.0, 2.0, 3.0]))
 
+    def test_rejects_2d_inputs(self):
+        """Same-shape 2-D arrays must raise rather than crash inside
+        ``float()`` because ``np.vecdot`` returns an array on rank > 1
+        inputs."""
+        a = np.ones((2, 2), dtype=np.float64)
+        b = np.ones((2, 2), dtype=np.float64)
+        with self.assertRaisesRegex(ValueError, "1-D vectors"):
+            cosine_similarity(a, b)
+
+    def test_rejects_one_2d_input(self):
+        a = np.array([1.0, 2.0, 3.0])
+        b = np.array([[1.0, 2.0, 3.0]])
+        with self.assertRaisesRegex(ValueError, "1-D vectors"):
+            cosine_similarity(a, b)
+
     def test_is_finite(self):
         result = cosine_similarity(np.array([1.0, 2.0, 3.0]), np.array([3.0, 2.0, 1.0]))
         self.assertTrue(math.isfinite(result))

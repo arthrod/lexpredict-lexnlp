@@ -2,7 +2,11 @@
 #
 # Install locally with::
 #
-#     uv run --group lint pre-commit install
+#     uvx pre-commit install
+#
+# ``uvx`` runs ``pre-commit`` outside the project's dependency groups so
+# fresh contributors do not need ``pre-commit`` installed globally and the
+# ``lint`` group does not need to ship it.
 #
 # Hooks intentionally mirror what CI runs so a local ``git commit``
 # catches the same issues. Every tool is pinned to a recent release to

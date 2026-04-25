@@ -51,12 +51,23 @@ class TestFuzzyCountry:
         names = [m.name for m in matches]
         # Some variation of "United" exists in multiple names.
         assert any("United" in n for n in names)
+        # Honour the explicit cap so noisy fuzzy backends don't surface
+        # more candidates than the caller asked for.
+        assert len(matches) <= 3
 
     def test_empty_returns_empty_tuple(self) -> None:
         assert fuzzy_country("") == ()
 
     def test_no_match_returns_empty_tuple(self) -> None:
         assert fuzzy_country("Valyria") == ()
+
+    def test_invalid_max_results_raises(self) -> None:
+        import pytest
+
+        with pytest.raises(ValueError, match="max_results must be a positive integer"):
+            fuzzy_country("United", max_results=0)
+        with pytest.raises(ValueError, match="max_results must be a positive integer"):
+            fuzzy_country("United", max_results=-1)
 
 
 class TestCurrencyCodes:

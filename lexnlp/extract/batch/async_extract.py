@@ -291,6 +291,7 @@ def flatten[T](results: Iterable[BatchExtractionResult[T]]) -> list[T]:
 
 __all__ = [
     "BatchExtractionResult",
+    "adaptive_max_workers",
     "extract_batch",
     "extract_batch_async",
     "flatten",

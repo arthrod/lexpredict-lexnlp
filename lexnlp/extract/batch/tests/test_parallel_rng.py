@@ -5,6 +5,7 @@ __version__ = "2.3.0"
 __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
+import importlib
 from unittest import TestCase
 
 import numpy as np
@@ -13,6 +14,19 @@ from lexnlp.extract.batch.parallel_rng import spawn_child_generators
 
 
 class TestSpawnChildGenerators(TestCase):
+    def test_public_reexport_is_callable(self):
+        """``spawn_child_generators`` is part of the package's public API
+        surface and must remain importable from ``lexnlp.extract.batch``."""
+        module = importlib.import_module("lexnlp.extract.batch")
+        reexport = getattr(module, "spawn_child_generators")
+        self.assertTrue(callable(reexport))
+        # Sanity-check that the re-exported symbol is the same object as
+        # the one importable from the submodule.
+        self.assertIs(reexport, spawn_child_generators)
+        # Smoke-call the public path so we exercise it end-to-end.
+        children = reexport(seed=5, n=1)
+        self.assertEqual(len(children), 1)
+
     def test_returns_n_generators(self):
         children = spawn_child_generators(seed=42, n=4)
         self.assertEqual(len(children), 4)

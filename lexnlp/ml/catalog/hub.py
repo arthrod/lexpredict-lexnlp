@@ -65,16 +65,13 @@ def get_path_from_hub(
         hub = importlib.import_module("huggingface_hub")
     except ImportError as exc:
         raise HubUnavailableError(
-            "huggingface_hub is not installed. Install with "
-            "`uv pip install lexnlp[hub]`."
+            "huggingface_hub is not installed. Install with `uv pip install lexnlp[hub]`."
         ) from exc
 
     try:
         local = hub.hf_hub_download(repo_id=repo_id, filename=tag, revision=revision)
     except Exception as exc:  # noqa: BLE001 — upstream error surface is broad
-        raise HubMirrorError(
-            f"Failed to fetch '{tag}' from Hub repo '{repo_id}': {exc}"
-        ) from exc
+        raise HubMirrorError(f"Failed to fetch '{tag}' from Hub repo '{repo_id}': {exc}") from exc
     return Path(local)
 
 

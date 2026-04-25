@@ -67,6 +67,35 @@ class TestWriteModelCard(TestCase):
         self.assertIn("accuracy", content)
         self.assertIn("0.91", content)
 
+    def test_card_tags_render_each_value(self) -> None:
+        """Every tag in ``ModelCardMetadata.tags`` surfaces in the final
+        rendered card, not just the first one."""
+        clf = self._fitted_estimator()
+        md = ModelCardMetadata(
+            description="x",
+            license="",
+            authors="",
+            tags=("legal", "classifier"),
+        )
+        out = write_model_card(clf, self.tmpdir / "tagged.md", metadata=md)
+        content = out.read_text(encoding="utf-8")
+        self.assertIn("legal", content)
+        self.assertIn("classifier", content)
+
+    def test_card_metrics_keep_numeric_precision(self) -> None:
+        """Numeric metric values must reach ``Card.add_metrics`` unchanged,
+        so the rendered card preserves the caller's precision."""
+        clf = self._fitted_estimator()
+        md = ModelCardMetadata(description="x", license="", authors="")
+        out = write_model_card(
+            clf,
+            self.tmpdir / "metrics.md",
+            metadata=md,
+            metrics={"accuracy": 0.123456},
+        )
+        content = out.read_text(encoding="utf-8")
+        self.assertIn("0.123456", content)
+
     def test_dump_model_with_card_writes_both_artifacts(self) -> None:
         clf = self._fitted_estimator()
         md = ModelCardMetadata(description="x", license="", authors="")
@@ -96,9 +125,17 @@ class TestWriteModelCard(TestCase):
 class TestModelCardMetadataValidation(TestCase):
     def test_required_description(self) -> None:
         with self.assertRaises((TypeError, ValueError)):
+            # type: ignore[call-arg] — intentionally omitting the required
+            # ``description`` field to assert the runtime constructor fails.
             ModelCardMetadata()  # type: ignore[call-arg]
 
     def test_frozen(self) -> None:
         md = ModelCardMetadata(description="x", license="", authors="")
         with self.assertRaises((AttributeError, Exception)):
+            # type: ignore[misc] — intentionally mutating a frozen dataclass
+            # attribute to assert immutability is enforced at runtime.
             md.description = "changed"  # type: ignore[misc]
+
+    def test_tags_default_is_empty_tuple(self) -> None:
+        md = ModelCardMetadata(description="x")
+        self.assertEqual(md.tags, ())

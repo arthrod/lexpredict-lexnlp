@@ -24,7 +24,7 @@ or ship unsafe behaviour first, bulk typing chores last.
       ([de_date_parser.py:46](lexnlp/extract/de/de_date_parser.py)). The
       PT override is already correct; align DE with the base signature so
       `DateParser` subclasses are interchangeable.
-- [ ] **`error[index-out-of-bounds]` (1)** — review the single case ty flags
+- [ ] **`error[index-out-of-bounds]` (1)** — review the single case that ty flags
       and add a bounds guard.
 - [ ] **`error[call-non-callable]` (1)** — investigate; almost always a
       bug (calling a property / None / class-stored dict).
