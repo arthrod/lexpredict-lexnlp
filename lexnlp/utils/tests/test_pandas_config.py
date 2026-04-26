@@ -29,11 +29,11 @@ def _reset_pandas_options():
     yield
     try:
         pd.options.mode.copy_on_write = previous_cow
-    except Exception:
+    except Exception:  # noqa: BLE001 - best-effort option restore across pandas versions
         pass
     try:
         pd.options.future.infer_string = previous_infer
-    except Exception:
+    except Exception:  # noqa: BLE001 - best-effort option restore across pandas versions
         pass
 
 

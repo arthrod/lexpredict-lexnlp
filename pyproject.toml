@@ -87,6 +87,13 @@ stanford = []
 tika = ["tika>=2.6.0"]
 hub = ["huggingface_hub>=0.25"]
 arrow = ["pyarrow>=17"]
+# Optional NER stack — ``spacy>=3.7`` adds Python 3.13 wheels and the new
+# ``Language.replace_listeners`` API. The bundled token-sequence classifier
+# (``lexnlp.extract.ml.classifier.spacy_token_sequence_model``) and the
+# rule-stack hybrid fallback (``lexnlp.extract.ner``) become available once
+# this extra is installed; without it the rule-based extractors continue
+# to work unchanged.
+ner = ["spacy>=3.7"]
 
 # PEP 735 dependency groups (uv/pip install --group) mirror the
 # contributor-facing dev/test extras above.

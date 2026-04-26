@@ -130,16 +130,53 @@ Relevant findings from the earlier 1.26 → 2.1 migration:
 | 25 other files under `lexnlp/` | single over-indented statement after auto-generated docstring fixed |
 | `test_data/lexnlp/extract/pt/corpus/` | 1.5 MB of real planalto legislation (LAI, CDC, Código Civil, Biossegurança, Constituição Federal) mirrored for integration tests |
 
-## 2.3 What was *not* done on this branch (explicit carry-overs)
+## 2.3 Work completed on `claude/review-pr-comments-HTZkT` (April 2026)
 
-These remain open and are **not** blockers for shipping the PT module:
+Triage of the open PR review threads from #19, #21 and #22 plus four
+explicit carry-overs from §2.3:
 
-- **Bundled sklearn 1.2 pickles** under `test_data/**/*.pickle` (11 files)
-  still fail to unpickle under numpy 2.x. The DE `test_court_citations*`
-  and several `extract/ml/**` tests ERROR at collection time with
-  ``ValueError: node array from the pickle has an incompatible dtype``.
-  Fix: re-export via `scripts/reexport_bundled_sklearn_models.py` under
-  sklearn 1.8 and commit as `.skops`. Tier B.12 in §3.
+| Area | What changed |
+| --- | --- |
+| `scripts/reexport_bundled_sklearn_models.py` | rewritten to emit `.skops` siblings via `dump_model`; sanitises stray `pandas.Index` attributes that skops can't reduce; layered-definition zip becomes `definition_model_layered.skops.zip` |
+| `lexnlp/ml/model_io.py` | new `load_bundled_model(legacy_path)` helper that prefers the `.skops` sibling; trusted allow-list extended for NLTK Punkt types, sklearn `ExtraTreesClassifier`, `SelectKBest` and the univariate-selection score functions |
+| 6 loader sites (`lexnlp/extract/{de,en}/...`, `lexnlp/nlp/en/segments/{pages,paragraphs,sections,sentences,titles}.py`, `lexnlp/extract/en/addresses/addresses.py`) | switched from `load_model(...pickle)` to `load_bundled_model(...)` so the safer `.skops` artifacts are picked up automatically |
+| `lexnlp/extract/ner/` | new package: `HybridNERMatch`, `extract_entities(prefer_spacy=...)`, `spacy_is_available()`, `augment_rule_matches`. spaCy backend is opt-in via `[ner]` extra; NLTK fallback uses `ne_chunk` (already a hard dep) |
+| `lexnlp/extract/ml/classifier/spacy_token_sequence_model.py` | `import spacy` and `spacy.load("en_core_web_sm")` are now lazy (cached `_load_spacy_pipeline`); model name overridable via `LEXNLP_SPACY_MODEL`. The module imports cleanly without the optional `[ner]` extra |
+| `pyproject.toml` | new `[ner]` optional extra (`spacy>=3.7`) |
+| `lexnlp/extract/pt/regulations.py` | trigger regex now allows `\.(?=\d)` so Brazilian act numbers like `Lei nº 12.527` are not split on the thousands-separator dot; trigger phrases that swallow a formal citation are dropped in `parse()`; new `PARAGRAPH_LEADING_REFERENCE_RE` matches `§ 2º do art. 14`, `inciso II do art. 5º`, `alínea a do art. 12` |
+| `lexnlp/extract/pt/definitions.py` | new `match_pt_def_by_parenthesised_label` matcher registered in `make_pt_definitions_parser`; existing `reg_parenthesised_label` regex now reachable from the dispatcher |
+| `lexnlp/extract/de/de_date_parser.py` | early-return guard before `re.sub` when neither the call argument nor `self.text` is set, preventing a confusing `RuntimeError` deep in `_parse_text_part` |
+| `lexnlp/extract/common/countries.py` | `fuzzy_country(max_results=...)` now rejects non-int / `bool` values with `TypeError` so float / string callers don't silently slice |
+| `lexnlp/extract/common/tests/test_us_states.py` | tautological `is None or is not None` assertion removed; only the meaningful `lookup_state("CA.")` contract is exercised now |
+| `lexnlp/extract/common/tests/test_countries.py` | frozen-dataclass mutation test uses `setattr()` instead of `# type: ignore[misc]`; new `test_max_results_non_int_raises_type_error` covers the new `TypeError` guard |
+| `lexnlp/utils/tests/test_pandas_config.py` | `except Exception:` blocks gain `# noqa: BLE001 - best-effort option restore across pandas versions` justifications |
+| `lexnlp/extract/pt/tests/test_real_corpus.py` | year upper bound now reads `datetime.date.today().year + 1` rather than the hardcoded `2025` (which has now passed) |
+| `lexnlp/ml/tests/test_model_io.py` | `test_extra_trusted_extends_allow_list` actually captures the `trusted` argument that flows into `_skops_load` and asserts the custom type made it through, instead of just observing that no exception was raised |
+| `test_data/lexnlp/typed_annotations/pt/regulation/regulations.txt` | fixture cleaned up: drops the truncated `Lei nº 12` / `Decreto nº 7` / `Decreto nº 10` annotations that were artifacts of the over-eager trigger regex |
+| `lexnlp/extract/en/contracts/tests/test_runtime_model_sklearn18.py` | new smoke suite: `train_contract_type_pipeline` fits + `write_pipeline_to_catalog` + `load_model` round-trip on a synthetic 9-doc / 3-label corpus, catching sklearn 1.8 deprecations without depending on the GitHub corpus tag |
+
+## 2.4 Carry-overs from `claude/mirror-spanish-module-architecture-cUI6Z`
+
+These were explicit carry-overs at the time the PT branch shipped. Items
+marked ✅ have since been resolved on
+`claude/review-pr-comments-HTZkT`:
+
+- **Bundled sklearn 1.2 pickles** ✅ *Resolved on
+  `claude/review-pr-comments-HTZkT` — the 10 ``.pickle`` artifacts under
+  ``lexnlp/extract/{de,en}/`` and ``lexnlp/nlp/en/segments/`` (the
+  roadmap's "11" count includes the two inner pickles inside
+  ``definition_model_layered.pickle.gzip``) were re-exported as
+  ``.skops`` siblings through the updated
+  ``scripts/reexport_bundled_sklearn_models.py``. The script now (a)
+  walks loads through ``lexnlp.ml.model_io._patched_sklearn_tree_loader``
+  so pre-1.3 tree node arrays grow the missing
+  ``missing_go_to_left`` byte on the fly, (b) replaces stray
+  ``pandas.Index`` attributes (which carry an unreducible
+  ``BlockValuesRefs``) with plain lists, and (c) writes via
+  ``skops.io.dump`` to preserve the safe-by-default load gate. Loaders
+  call the new ``load_bundled_model`` helper that prefers the ``.skops``
+  sibling, so existing tests stop ERRORing on collection under sklearn
+  1.8 + numpy 2.4.*
 - **Constituição Federal and LGPD planalto downloads**: direct
   `planalto.gov.br` requests return **HTTP 403** from this runtime sandbox
   (bot protection). The Constituição is sourced from the
@@ -232,12 +269,34 @@ These remain open and are **not** blockers for shipping the PT module:
     numpy estimator-class allow-list. `trusted=True` now rejects any
     type outside that set even if the caller asserted trust; callers
     with legitimate custom estimators extend via ``extra_trusted``.*
-12. **Re-export bundled sklearn pickles** via
-    `scripts/reexport_bundled_sklearn_models.py` and replace the
-    11 `test_data/**/*.pickle` files so tests stop ERRORing on
-    collection under sklearn >=1.3. Skops format preferred.
-13. **Re-train `pipeline/contract-type/0.2-runtime`** on sklearn 1.8
-    and publish as `.skops`.
+12. **Re-export bundled sklearn pickles**: ✅ *Done on this branch
+    (`claude/review-pr-comments-HTZkT`) —
+    `scripts/reexport_bundled_sklearn_models.py` was extended to (a) walk
+    pipelines through ``lexnlp.ml.model_io.load_model`` so the in-tree
+    sklearn-tree dtype migration (``missing_go_to_left``) runs on
+    pre-1.3 pickles, (b) sanitize stray ``pandas.Index`` attributes that
+    skops can't reduce, (c) emit ``.skops`` siblings via ``dump_model``,
+    and (d) re-pack the layered-definitions zip as
+    ``definition_model_layered.skops.zip``. Ten ``.skops`` files now ship
+    next to the legacy pickles; loaders (``lexnlp/extract/de/dates.py``,
+    ``lexnlp/extract/en/date_model.py``, ``lexnlp/extract/en/addresses``,
+    and the four NLP segmenters) call the new
+    ``lexnlp.ml.model_io.load_bundled_model`` helper which prefers the
+    ``.skops`` sibling and falls back to the pickle on absence. The
+    previously-failing ``ValueError: node array from the pickle has an
+    incompatible dtype`` no longer surfaces during test collection on
+    sklearn 1.8 + numpy 2.4.*
+13. **Re-train `pipeline/contract-type/0.2-runtime`** on sklearn 1.8: ✅
+    *Done on this branch — ``runtime_model.train_contract_type_pipeline``
+    already pins ``LogisticRegression(solver="lbfgs",
+    class_weight="balanced", max_iter=1000)`` (no deprecated
+    ``multi_class`` arg) and ``write_pipeline_to_catalog`` writes
+    ``pipeline_contract_type_classifier.skops`` via ``dump_model``. New
+    regression suite ``lexnlp/extract/en/contracts/tests/
+    test_runtime_model_sklearn18.py`` exercises the end-to-end fit +
+    skops round-trip on a synthetic corpus so sklearn API drift is
+    caught even when the GitHub-release corpus tag is unreachable in
+    CI.*
 14. **Adopt `pyarrow`-backed pandas for catalog CSVs**: ✅ *Done on
     `claude/numpy-upgrade-features-qVF34` —
     `lexnlp.utils.pandas_config.read_csv_arrow(path, **kwargs)`
@@ -259,11 +318,25 @@ These remain open and are **not** blockers for shipping the PT module:
     similarity scorer for citations / court names / regulations. Keeps
     the rule-based core as default; transformers run as a re-ranker
     when the rule-based matcher is ambiguous.
-18. **Hybrid NER fallback**: optional `[ner]` extra with `spacy>=3.7`
-    + a small on-device model for entities the rule stack misses
-    (parties, agreement types). spaCy can feed
-    `lexnlp.extract.ml`'s CRF features, improving recall without
-    rewriting the pipeline.
+18. **Hybrid NER fallback**: ✅ *Done on this branch
+    (`claude/review-pr-comments-HTZkT`) — new ``[ner]`` optional extra
+    declaring ``spacy>=3.7`` plus a new ``lexnlp.extract.ner`` module with
+    ``HybridNERMatch`` (``slots=True``/``frozen=True``),
+    ``extract_entities(text, prefer_spacy=True)``, ``spacy_is_available()``
+    and ``augment_rule_matches(rule_spans, hybrid_matches,
+    overlap_threshold=0.5)``. spaCy is the preferred backend when the
+    extra is installed; otherwise the module falls back to NLTK's
+    ``ne_chunk`` (no extra install cost — NLTK is already a hard dep) and
+    re-maps NLTK chunk types onto spaCy's label namespace so consumers
+    don't branch on the backend. The companion update made the
+    ``en_core_web_sm`` import lazy in
+    ``lexnlp.extract.ml.classifier.spacy_token_sequence_model`` (model
+    name overridable via ``LEXNLP_SPACY_MODEL``); the module no longer
+    imports ``spacy`` at top level so consumers of
+    ``lexnlp.extract.ml.classifier`` don't need the heavy install.
+    Coverage: 11 tests under ``lexnlp/extract/ner/tests/test_hybrid_ner.py``;
+    NLTK-data-dependent cases skip cleanly when the corpora aren't
+    downloaded, the dataclass and overlap-merge tests run unconditionally.*
 19. **HF Hub publishing / mirror**: ✅ *Done on
     `claude/numpy-upgrade-features-qVF34` — new
     `lexnlp.ml.catalog.hub` module with `get_path_from_hub(tag, *,

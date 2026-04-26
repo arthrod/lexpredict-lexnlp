@@ -24,7 +24,7 @@ from collections.abc import Generator
 import pandas
 
 # Project imports
-from lexnlp.ml.model_io import load_model
+from lexnlp.ml.model_io import load_bundled_model
 from lexnlp.nlp.en.segments.utils import build_document_distribution
 
 # Setup module path
@@ -33,7 +33,7 @@ from lexnlp.nlp.en.segments.utils import build_document_distribution
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load segmenters
-PAGE_SEGMENTER_MODEL = load_model(os.path.join(MODULE_PATH, "./page_segmenter.pickle"))
+PAGE_SEGMENTER_MODEL = load_bundled_model(os.path.join(MODULE_PATH, "./page_segmenter.pickle"))
 
 
 def build_page_break_features(

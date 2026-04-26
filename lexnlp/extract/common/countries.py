@@ -97,7 +97,13 @@ def fuzzy_country(text: str, *, max_results: int = 1) -> tuple[CountryInfo, ...]
 
     Raises:
         ValueError: If ``max_results`` is not a positive integer.
+        TypeError: If ``max_results`` is not an ``int`` (booleans rejected).
     """
+    # Reject non-int max_results so floats/strings can't accidentally slice.
+    if not isinstance(max_results, int) or isinstance(max_results, bool):
+        raise TypeError(
+            f"max_results must be an int, got {type(max_results).__name__}"
+        )
     if max_results <= 0:
         raise ValueError(f"max_results must be a positive integer, got {max_results!r}")
     if not text:
