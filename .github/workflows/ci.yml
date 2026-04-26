@@ -124,7 +124,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv venv .venv --python 3.14
-          uv sync --python .venv/bin/python --group dev
+          uv sync --frozen --python .venv/bin/python --group dev
 
       - name: Bootstrap required assets
         env:

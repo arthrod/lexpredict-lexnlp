@@ -71,8 +71,12 @@ class TestEnableMetadataRouting:
             set_config(enable_metadata_routing=previous)
 
     def test_returns_previous_value(self) -> None:
-        from sklearn import set_config
+        from sklearn import get_config, set_config
 
+        # Snapshot the original global state so we restore it verbatim
+        # rather than hard-coding ``False`` (which would leak into any
+        # later test that relies on the prior value).
+        original = get_config().get("enable_metadata_routing", False)
         set_config(enable_metadata_routing=False)
         try:
             previous = enable_metadata_routing()
@@ -81,7 +85,7 @@ class TestEnableMetadataRouting:
             # The call flipped True→True, so the "previous" now reports True
             assert next_prev is True
         finally:
-            set_config(enable_metadata_routing=False)
+            set_config(enable_metadata_routing=original)
 
 
 class TestConfigurePipeline:

@@ -34,6 +34,9 @@ try:
     from reporters_db import VARIATIONS_ONLY as _VARIATIONS_RAW
 except ImportError:  # pragma: no cover
     try:
+        # type: ignore[attr-defined] — older ``reporters_db`` releases expose
+        # the dictionary as ``VARIATIONS`` instead of ``VARIATIONS_ONLY``;
+        # the fallback is intentional and not declared in modern stubs.
         from reporters_db import VARIATIONS as _VARIATIONS_RAW  # type: ignore[attr-defined]
     except ImportError:  # pragma: no cover
         _VARIATIONS_RAW = {}
@@ -58,6 +61,16 @@ def variation_map() -> dict[str, tuple[str, ...]]:
     return result
 
 
+@lru_cache(maxsize=1)
+def _normalized_variation_index() -> dict[str, tuple[str, ...]]:
+    """Pre-built whitespace-stripped index used by :func:`canonical_for`.
+
+    Avoids the O(n) per-call scan of ``variation_map()`` for the common
+    "user typed extra spaces around a period" case.
+    """
+    return {variation.replace(" ", ""): canons for variation, canons in variation_map().items()}
+
+
 def canonical_for(variant: str) -> tuple[str, ...]:
     """Return the canonical citation(s) for a given variant.
 
@@ -72,12 +85,9 @@ def canonical_for(variant: str) -> tuple[str, ...]:
     direct = variation_map().get(variant)
     if direct is not None:
         return direct
-    # Mild normalization: strip whitespace around "." segments.
-    normalized = variant.replace(" ", "")
-    for variation, canons in variation_map().items():
-        if variation.replace(" ", "") == normalized:
-            return canons
-    return ()
+    # Mild normalization: strip whitespace around "." segments. Use the
+    # pre-built index so this stays an O(1) hash lookup.
+    return _normalized_variation_index().get(variant.replace(" ", ""), ())
 
 
 def is_known_reporter(name: str) -> bool:

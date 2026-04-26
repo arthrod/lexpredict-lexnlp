@@ -176,6 +176,16 @@ class TestLoadLegacy:
         joblib.dump({"jl_pickle": True}, path, compress=3)
         assert _load_legacy(path) == {"jl_pickle": True}
 
+    def test_loads_joblib_uncompressed_pickle_file(self, tmp_path: Path) -> None:
+        """Regression: a ``.pickle`` written by ``joblib.dump(..., compress=0)``
+        must still load via the joblib fallback even though it does not
+        start with the zlib framing byte."""
+        import joblib
+
+        path = tmp_path / "model_uncompressed.pickle"
+        joblib.dump({"jl_pickle_raw": True}, path, compress=0)
+        assert _load_legacy(path) == {"jl_pickle_raw": True}
+
     def test_unknown_suffix_raises_value_error(self, tmp_path: Path) -> None:
         """Unknown extensions must be rejected rather than blindly pickle-loaded."""
         path = tmp_path / "model.bin"
@@ -324,7 +334,8 @@ class TestTrustedAllowlist:
 
     def test_load_rejects_type_outside_allowlist(self, tmp_path: Path) -> None:
         """trusted=True without override rejects artifacts containing a
-        type that is not in DEFAULT_TRUSTED_ALLOWLIST."""
+        type that is not in DEFAULT_TRUSTED_ALLOWLIST, raising
+        ``ValueError`` whose message names the rejected type."""
 
         path = dump_model({"x": 1}, tmp_path / "m.skops")
         # Inject a fake untrusted type by patching get_untrusted_types.
@@ -332,16 +343,44 @@ class TestTrustedAllowlist:
             "lexnlp.ml.model_io.get_untrusted_types",
             return_value=["evil.Module.RemoteCodeExecution"],
         ):
-            with pytest.raises(Exception):  # noqa: B017 - skops raises its own
+            with pytest.raises(ValueError, match="trusted allow-list") as excinfo:
                 _load_skops(path, trusted=True)
+        assert "evil.Module.RemoteCodeExecution" in str(excinfo.value)
 
     def test_load_accepts_additional_allowed_type(self, tmp_path: Path) -> None:
-        """Callers may extend the allow-list with extra type names."""
+        """Callers may extend the allow-list with extra type names so a
+        previously rejected custom type is accepted."""
 
         path = dump_model({"x": 1}, tmp_path / "m.skops")
-        # No untrusted types are actually present; call should succeed.
-        result = _load_skops(path, trusted=True, extra_trusted=("my.Custom.Class",))
+        captured: dict[str, list[str]] = {}
+
+        # Real artifact contains no custom types, so to prove ``extra_trusted``
+        # actually flows into the skops gate we (a) stub ``get_untrusted_types``
+        # to return the allow-listed name and (b) intercept ``_skops_load`` to
+        # capture the trusted list it was invoked with.
+        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]  # test stub: simple dict return, typing not needed
+            captured["trusted"] = list(trusted)
+            return {"x": 1}
+
+        with (
+            patch(
+                "lexnlp.ml.model_io.get_untrusted_types",
+                return_value=["my.Custom.Class"],
+            ),
+            patch("lexnlp.ml.model_io._skops_load", side_effect=fake_skops_load),
+        ):
+            result = _load_skops(path, trusted=True, extra_trusted=("my.Custom.Class",))
         assert result == {"x": 1}
+        assert captured["trusted"] == ["my.Custom.Class"]
+
+    def test_load_skips_get_untrusted_types_when_not_trusted(self, tmp_path: Path) -> None:
+        """The fail-closed path must not pay the cost of scanning declared
+        types — ``get_untrusted_types`` is only called when ``trusted=True``."""
+
+        path = dump_model({"x": 1}, tmp_path / "m.skops")
+        with patch("lexnlp.ml.model_io.get_untrusted_types") as mock_gut:
+            _load_skops(path, trusted=False)
+        mock_gut.assert_not_called()
 
 
 class TestConstants:
@@ -362,3 +401,137 @@ class TestConstants:
 
     def test_legacy_suffixes_is_frozenset(self) -> None:
         assert isinstance(_LEGACY_SUFFIXES, frozenset)
+
+
+# ---------------------------------------------------------------------------
+# Additional tests for PR changes to _load_legacy and _load_skops
+# ---------------------------------------------------------------------------
+
+
+class TestLoadLegacyAdditional:
+    """Additional tests for the PR-refactored _load_legacy helper."""
+
+    def test_double_failure_reraises_original_pickle_exception(
+        self, tmp_path: Path
+    ) -> None:
+        """When both the raw pickle path AND the joblib fallback fail, the
+        original pickle exception (not the joblib one) must propagate.
+
+        The PR removed _looks_like_joblib_pickle and always retries via joblib.
+        When joblib also fails, the original pickle exception is re-raised.
+        """
+        path = tmp_path / "corrupt.pickle"
+        path.write_bytes(b"not a pickle and not a joblib file")
+        with pytest.raises(Exception):
+            _load_legacy(path)
+
+    def test_joblib_compress_0_round_trips_via_pickle_extension(
+        self, tmp_path: Path
+    ) -> None:
+        """Regression: joblib.dump(obj, path, compress=0) produces a file that
+        does NOT start with the zlib framing byte.  The old guard (_looks_like_
+        joblib_pickle) would have blocked the fallback; the PR always retries."""
+        import joblib
+
+        path = tmp_path / "raw_joblib.pickle"
+        obj = {"compress_level": 0, "data": list(range(10))}
+        joblib.dump(obj, path, compress=0)
+        result = _load_legacy(path)
+        assert result == obj
+
+    def test_loads_pkl_extension_via_joblib_fallback(self, tmp_path: Path) -> None:
+        """A .pkl file written by joblib must load via the joblib fallback."""
+        import joblib
+
+        path = tmp_path / "model.pkl"
+        joblib.dump({"via": "joblib"}, path, compress=3)
+        result = _load_legacy(path)
+        assert result == {"via": "joblib"}
+
+    def test_looks_like_joblib_pickle_function_removed(self) -> None:
+        """The PR removed _looks_like_joblib_pickle — it must not exist."""
+        import lexnlp.ml.model_io as model_io_module
+
+        assert not hasattr(model_io_module, "_looks_like_joblib_pickle"), (
+            "_looks_like_joblib_pickle was removed by the PR and must not be present"
+        )
+
+
+class TestLoadSkopsAdditional:
+    """Additional tests for the PR-refactored _load_skops helper."""
+
+    def test_trusted_false_does_not_call_get_untrusted_types(
+        self, tmp_path: Path
+    ) -> None:
+        """The fail-closed (trusted=False) path must skip the type scan entirely."""
+        path = dump_model({"ok": True}, tmp_path / "m.skops")
+        with patch("lexnlp.ml.model_io.get_untrusted_types") as mock_gut:
+            result = _load_skops(path, trusted=False)
+        mock_gut.assert_not_called()
+        assert result == {"ok": True}
+
+    def test_trusted_true_calls_get_untrusted_types_exactly_once(
+        self, tmp_path: Path
+    ) -> None:
+        """When trusted=True the artifact is scanned exactly once."""
+        path = dump_model({"ok": True}, tmp_path / "m.skops")
+        with patch(
+            "lexnlp.ml.model_io.get_untrusted_types", return_value=[]
+        ) as mock_gut:
+            _load_skops(path, trusted=True)
+        mock_gut.assert_called_once_with(file=path)
+
+    def test_rejection_message_lists_all_rejected_types(
+        self, tmp_path: Path
+    ) -> None:
+        """When multiple types are outside the allowlist, all must appear
+        in the ValueError message."""
+        path = dump_model({"ok": 1}, tmp_path / "m.skops")
+        bad_types = ["evil.A", "evil.B", "evil.C"]
+        with patch(
+            "lexnlp.ml.model_io.get_untrusted_types",
+            return_value=bad_types,
+        ):
+            with pytest.raises(ValueError) as excinfo:
+                _load_skops(path, trusted=True)
+        msg = str(excinfo.value)
+        for t in bad_types:
+            assert t in msg, f"Type '{t}' missing from rejection message: {msg}"
+
+    def test_extra_trusted_extends_allow_list(self, tmp_path: Path) -> None:
+        """extra_trusted types not in DEFAULT_TRUSTED_ALLOWLIST must be accepted."""
+        path = dump_model({"ok": 1}, tmp_path / "m.skops")
+        custom_type = "my.domain.SpecialEncoder"
+        assert custom_type not in DEFAULT_TRUSTED_ALLOWLIST
+
+        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]  # test stub: simple dict return, typing not needed
+            return {"ok": 1}
+
+        with (
+            patch(
+                "lexnlp.ml.model_io.get_untrusted_types",
+                return_value=[custom_type],
+            ),
+            patch("lexnlp.ml.model_io._skops_load", side_effect=fake_skops_load),
+        ):
+            result = _load_skops(path, trusted=True, extra_trusted=(custom_type,))
+        assert result == {"ok": 1}
+
+    def test_type_in_default_allowlist_not_rejected(self, tmp_path: Path) -> None:
+        """A type already in DEFAULT_TRUSTED_ALLOWLIST must not be rejected."""
+        path = dump_model({"ok": 1}, tmp_path / "m.skops")
+        known_safe = "numpy.ndarray"
+        assert known_safe in DEFAULT_TRUSTED_ALLOWLIST
+
+        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]  # test stub: simple dict return, typing not needed
+            return {"ok": 1}
+
+        with (
+            patch(
+                "lexnlp.ml.model_io.get_untrusted_types",
+                return_value=[known_safe],
+            ),
+            patch("lexnlp.ml.model_io._skops_load", side_effect=fake_skops_load),
+        ):
+            result = _load_skops(path, trusted=True)
+        assert result == {"ok": 1}

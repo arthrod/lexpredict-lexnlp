@@ -116,11 +116,17 @@ def _load_legacy(path: Path) -> Any:
             try:
                 with _patched_sklearn_tree_loader():
                     return _patch_legacy_sklearn_estimator(pickle.load(file))
-            except (pickle.UnpicklingError, ValueError, EOFError, AttributeError):
-                if not _looks_like_joblib_pickle(path):
-                    raise
+            except (pickle.UnpicklingError, ValueError, EOFError, AttributeError) as exc:
+                # Older joblib payloads — including ``compress=0`` ones that do
+                # NOT start with the zlib framing byte — can fail the raw
+                # ``pickle.load`` path because joblib prepends its own header.
+                # Always retry via the joblib loader and only re-raise the
+                # original exception if joblib also rejects the file.
                 LOGGER.debug("Falling back to joblib-compatible legacy loader: %s", path)
-        return _load_legacy_joblib(path)
+                try:
+                    return _load_legacy_joblib(path)
+                except Exception:
+                    raise exc
     if suffix == ".cloudpickle":
         from cloudpickle import load as cloudpickle_load
 
@@ -142,13 +148,6 @@ def _load_legacy_joblib(path: Path) -> Any:
 
     with _patched_sklearn_tree_loader():
         return _patch_legacy_sklearn_estimator(joblib.load(path))
-
-
-def _looks_like_joblib_pickle(path: Path) -> bool:
-    """Return ``True`` when a legacy ``.pickle`` file looks joblib-compressed."""
-
-    with path.open("rb") as file:
-        return file.read(1) == b"\x78"
 
 
 def _patch_legacy_sklearn_estimator(obj: Any, _seen: set[int] | None = None) -> Any:
@@ -303,12 +302,13 @@ def _load_skops(
     past the skops gate even with ``trusted=True``.
     """
 
-    declared = list(get_untrusted_types(file=path) or [])
     if not trusted:
         # Fail-closed path: hand an empty list so skops enforces its own
         # default trusted set and raises UntrustedTypesFoundException.
+        # Avoid scanning the artifact's declared types on this common path.
         return _skops_load(path, trusted=[])
 
+    declared = list(get_untrusted_types(file=path) or [])
     allowed = DEFAULT_TRUSTED_ALLOWLIST | frozenset(extra_trusted)
     rejected = [name for name in declared if name not in allowed]
     if rejected:

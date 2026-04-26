@@ -71,9 +71,15 @@ def write_model_card(
     if metadata.authors:
         c.add(authors=metadata.authors)
     if metadata.tags:
+        # ``Card.add`` accepts string-valued sections only, so render the
+        # tag tuple as a comma-separated list. Each tag remains visible in
+        # the final markdown card.
         c.add(tags=", ".join(metadata.tags))
     if metrics:
-        c.add_metrics(**{k: str(v) for k, v in metrics.items()})
+        # ``Card.add_metrics`` already accepts ``str | int | float``; pass
+        # numbers through unchanged so the rendered table preserves the
+        # caller's original precision.
+        c.add_metrics(**metrics)
     dest.write_text(c.render(), encoding="utf-8")
     return dest
 

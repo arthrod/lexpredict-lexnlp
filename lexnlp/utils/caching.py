@@ -63,6 +63,10 @@ def cache[F: Callable[..., Any]](func: F) -> F:
     can swap between in-memory and on-disk caching by changing one
     decorator.
     """
+    # type: ignore[return-value] — joblib.Memory.cache returns a
+    # ``MemorizedFunc`` wrapper that mimics ``func`` at runtime but is not
+    # statically a subtype of ``F``; the decorator's contract is that the
+    # call signature is preserved, which the wrapper honours.
     return get_memory().cache(func)  # type: ignore[return-value]
 
 

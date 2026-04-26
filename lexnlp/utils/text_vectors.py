@@ -19,23 +19,28 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 from collections.abc import Iterable
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
 
 
-def _as_string_array(texts: Iterable[str]) -> NDArray[np.str_]:
-    if isinstance(texts, np.ndarray):
-        return texts.astype(np.str_, copy=False)
-    return np.asarray(list(texts), dtype=np.str_)
+def _as_string_array(texts: Iterable[str]) -> NDArray[Any]:
+    # ``StringDType`` is variable-length unicode (NumPy 2.0+) and avoids
+    # the truncation/oversizing that fixed-width ``np.str_`` causes when
+    # the inputs vary in length. Materialise non-array inputs once via
+    # ``list(...)`` only when there is no underlying array buffer.
+    if isinstance(texts, np.ndarray) or hasattr(texts, "__array__"):
+        return np.asarray(texts, dtype=np.dtypes.StringDType())
+    return np.asarray(list(texts), dtype=np.dtypes.StringDType())
 
 
-def vectorized_lower(texts: Iterable[str]) -> NDArray[np.str_]:
+def vectorized_lower(texts: Iterable[str]) -> NDArray[Any]:
     """Return ``texts`` lowercased via the NumPy 2.3 SIMD string kernel."""
     return np.strings.lower(_as_string_array(texts))
 
 
-def vectorized_strip(texts: Iterable[str]) -> NDArray[np.str_]:
+def vectorized_strip(texts: Iterable[str]) -> NDArray[Any]:
     """Strip surrounding whitespace from every element of ``texts``."""
     return np.strings.strip(_as_string_array(texts))
 
@@ -50,7 +55,7 @@ def vectorized_substring_count(texts: Iterable[str], substring: str) -> NDArray[
     return np.strings.count(_as_string_array(texts), substring)
 
 
-def vectorized_slice(texts: Iterable[str], start: int, stop: int) -> NDArray[np.str_]:
+def vectorized_slice(texts: Iterable[str], start: int, stop: int) -> NDArray[Any]:
     """Return the ``[start:stop]`` slice of every element of ``texts``.
 
     ``stop`` past the end of any individual element is handled the same

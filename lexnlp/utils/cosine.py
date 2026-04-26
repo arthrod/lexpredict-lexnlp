@@ -25,11 +25,13 @@ def cosine_similarity(a: ArrayLike | Sequence[float], b: ArrayLike | Sequence[fl
     """Return the cosine similarity between two 1-D vectors.
 
     Returns ``0.0`` when either vector has zero magnitude rather than
-    raising or producing ``NaN``. Raises :class:`ValueError` if the two
-    vectors have different lengths.
+    raising or producing ``NaN``. Raises :class:`ValueError` if either
+    input is not 1-D or if the two vectors have different lengths.
     """
     va: NDArray[np.floating] = np.asarray(a, dtype=np.float64)
     vb: NDArray[np.floating] = np.asarray(b, dtype=np.float64)
+    if va.ndim != 1 or vb.ndim != 1:
+        raise ValueError(f"cosine_similarity expects 1-D vectors, got shapes {va.shape} and {vb.shape}")
     if va.shape != vb.shape:
         raise ValueError(f"shape mismatch: {va.shape} vs {vb.shape}")
     na = float(np.linalg.norm(va))

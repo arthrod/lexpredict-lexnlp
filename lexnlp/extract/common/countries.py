@@ -21,7 +21,7 @@ __email__ = "support@contraxsuite.com"
 
 
 from dataclasses import dataclass
-from functools import cache, lru_cache
+from functools import lru_cache
 
 import pycountry
 
@@ -45,7 +45,7 @@ def _country_to_info(country: object) -> CountryInfo:
     )
 
 
-@cache
+@lru_cache(maxsize=4096)
 def lookup_country(text: str) -> CountryInfo | None:
     """Look up a country by name, alpha-2, or alpha-3 code."""
     if not text:
@@ -77,7 +77,7 @@ def lookup_country(text: str) -> CountryInfo | None:
     return _country_to_info(country)
 
 
-@cache
+@lru_cache(maxsize=2048)
 def fuzzy_country(text: str, *, max_results: int = 1) -> tuple[CountryInfo, ...]:
     """Fuzzy-match ``text`` against known country names.
 
@@ -86,14 +86,20 @@ def fuzzy_country(text: str, *, max_results: int = 1) -> tuple[CountryInfo, ...]
 
     Args:
         text: The candidate country string.
-        max_results: Number of candidate matches to return. Defaults to 1
-            to keep callers on the precision side; raise this to surface
-            alternative matches for disambiguation UIs.
+        max_results: Number of candidate matches to return. Must be a
+            positive integer; defaults to 1 to keep callers on the
+            precision side. Raise this to surface alternative matches for
+            disambiguation UIs.
 
     Returns:
         A tuple of :class:`CountryInfo` matches. Empty when ``pycountry``
         reports no candidates.
+
+    Raises:
+        ValueError: If ``max_results`` is not a positive integer.
     """
+    if max_results <= 0:
+        raise ValueError(f"max_results must be a positive integer, got {max_results!r}")
     if not text:
         return ()
     try:
