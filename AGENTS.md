@@ -7,8 +7,8 @@ This document is a quick-start guide for coding agents working in this repositor
 - Project: `lexpredict-lexnlp` (LexNLP)
 - Purpose: legal-text NLP and information extraction library
 - Primary package: `lexnlp/`
-- Packaging: `pyproject.toml` (setuptools backend; version in repo: `2.3.0`)
-- Python requirement in `pyproject.toml`: `>=3.10,<3.13` (default to Python `3.11`)
+- Packaging: `pyproject.toml` (uv_build backend; version in repo: `2.3.0`)
+- Python requirement in `pyproject.toml`: `>=3.13,<3.15` (default to Python `3.13`)
 
 ## Directory Structure
 
@@ -36,9 +36,16 @@ This document is a quick-start guide for coding agents working in this repositor
 |-- python-requirements-dev.txt # Deprecated legacy dev/test snapshot
 |-- .pylintrc                   # Lint configuration
 |-- .travis.yml                 # Historical CI reference
-|-- setup.py                    # Legacy compatibility wrapper
 `-- AGENTS.md
 ```
+
+Optional sub-packages (light up via the matching extras in `pyproject.toml`):
+
+- `lexnlp/extract/ner/` — hybrid NER fallback (NLTK by default; spaCy
+  via `[ner]`)
+- `lexnlp/ml/catalog/hub.py` — HF Hub mirror via `[hub]`
+- `lexnlp/utils/pandas_config.py` — PyArrow-backed `read_csv_arrow`
+  via `[arrow]`
 
 ## Environment Setup (Recommended: uv)
 
@@ -90,6 +97,11 @@ Optional assets:
 
 # Tika
 ./.venv/bin/python scripts/bootstrap_assets.py --tika
+
+# spaCy NER opt-in (default backend is NLTK; install [ner] only if you
+# explicitly pass prefer_spacy=True or use SpacyTokenSequenceClassifierModel):
+uv pip install --python .venv/bin/python -e ".[ner]"
+./.venv/bin/python -m spacy download en_core_web_sm   # optional model package
 ```
 
 ## Stanford-Dependent Tests
@@ -189,7 +201,13 @@ python3 ci/check_dist_contents.py
   --baseline-metrics-json test_data/model_quality/is_contract_baseline_metrics.json
 
 # refresh bundled sklearn artifacts under the current runtime
+# (default ``--format skops`` writes ``.skops`` siblings; ``--remove-legacy``
+# deletes the ``.pickle`` after a successful skops export)
 ./.venv/bin/python scripts/reexport_bundled_sklearn_models.py
+./.venv/bin/python scripts/reexport_bundled_sklearn_models.py --format pickle  # legacy mode
+
+# bootstrap NLTK corpora needed by the default ``lexnlp.extract.ner`` backend
+./.venv/bin/python -c "import nltk; [nltk.download(p) for p in ('punkt_tab', 'averaged_perceptron_tagger_eng', 'maxent_ne_chunker_tab', 'words')]"
 
 # run one file
 ./.venv/bin/pytest lexnlp/extract/en/tests/test_dates.py

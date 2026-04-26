@@ -89,6 +89,61 @@ Quick Setup (uv + pyproject)
    uv pip install --python .venv/bin/python -e ".[dev,test]"
    ./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
 
+Optional dependency extras
+--------------------------
+
+============  =========================  ============================================================================================================
+Extra         Pin                        Powers
+============  =========================  ============================================================================================================
+``[arrow]``   ``pyarrow>=17``            ``read_csv_arrow`` and PyArrow-backed extraction DataFrames
+``[hub]``     ``huggingface_hub>=0.25``  ``lexnlp.ml.catalog.hub`` HF Hub mirror downloads
+``[ner]``     ``spacy>=3.7``             Optional spaCy backend for ``lexnlp.extract.ner`` (default backend is NLTK; see ``MODERNIZATION_ROADMAP.md``)
+``[tika]``    ``tika>=2.6.0``            Apache Tika document-parsing helpers
+``[stanford]`` *(empty)*                 Hooks for callers that ship their own Stanford CoreNLP jars
+============  =========================  ============================================================================================================
+
+Install with e.g. ``uv pip install -e ".[ner,arrow]"``. None of these
+extras are required for the rule-based extractors.
+
+New module: ``lexnlp.extract.ner``
+----------------------------------
+
+A small statistical NER pass for entities the rule stack misses
+(parties, agreement types, OCR-mangled proper nouns):
+
+.. code:: python
+
+   from lexnlp.extract.ner import (
+       HybridNERMatch, augment_rule_matches, extract_entities,
+   )
+
+   # Default backend is NLTK (already a hard dep) — a deliberate
+   # substitution for spaCy's gated ``en_core_web_sm``. spaCy is opt-in:
+   matches = extract_entities("Acme Corp. and John Smith signed an NDA.")
+
+   # Opt into spaCy when ``[ner]`` + ``en_core_web_sm`` are installed:
+   matches = extract_entities(text, prefer_spacy=True)
+
+   # Merge with the rule stack, dropping hybrid matches that overlap >=50%:
+   merged = augment_rule_matches(rule_spans, matches)
+
+The default NLTK backend needs four corpora downloaded once:
+``punkt_tab``, ``averaged_perceptron_tagger_eng``,
+``maxent_ne_chunker_tab`` and ``words``. See
+``MODERNIZATION_ROADMAP.md`` §2.0.2 for why NLTK is the default.
+
+Bundled artifacts: ``.pickle`` → ``.skops``
+-------------------------------------------
+
+The 10 bundled sklearn artifacts that previously shipped as ``.pickle``
+files were re-exported as ``.skops`` siblings via
+``scripts/reexport_bundled_sklearn_models.py --format skops``. The
+legacy pickles were deleted; loaders use
+``lexnlp.ml.model_io.load_bundled_model(legacy_path)`` which prefers
+the ``.skops`` sibling. Tests that previously ERRORed at collection
+under sklearn 1.8 + numpy 2.4 (DE court-citation, ML token-sequence)
+now collect cleanly. See ``MODERNIZATION_ROADMAP.md`` §2.3 / Tier B.12.
+
 Deprecated Setup Variants
 -------------------------
 

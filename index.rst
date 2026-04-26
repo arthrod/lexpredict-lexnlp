@@ -75,8 +75,42 @@ terms or a non-GPL evaluation license by contacting ContraxSuite Licensing at
 Requirements
 ------------
 
--  Python 3.8
--  pipenv
+-  Python 3.13 (minimum; supported range ``>=3.13,<3.15`` is declared in
+   ``pyproject.toml``)
+-  ``uv``
+
+Optional dependency extras
+--------------------------
+
+============  =========================  ============================================================================================================
+Extra         Pin                        Powers
+============  =========================  ============================================================================================================
+``[arrow]``   ``pyarrow>=17``            ``read_csv_arrow`` and PyArrow-backed extraction DataFrames
+``[hub]``     ``huggingface_hub>=0.25``  ``lexnlp.ml.catalog.hub`` HF Hub mirror downloads
+``[ner]``     ``spacy>=3.7``             Optional spaCy backend for ``lexnlp.extract.ner`` (default backend is NLTK; see ``MODERNIZATION_ROADMAP.md``)
+``[tika]``    ``tika>=2.6.0``            Apache Tika document-parsing helpers
+``[stanford]`` *(empty)*                 Hooks for callers that ship their own Stanford CoreNLP jars
+============  =========================  ============================================================================================================
+
+New module: ``lexnlp.extract.ner`` (hybrid NER fallback)
+--------------------------------------------------------
+
+A small statistical NER pass that recovers entities the rule stack
+misses (parties, agreement types, OCR-mangled proper nouns). Default
+backend is **NLTK** — a deliberate substitution for spaCy's gated
+``en_core_web_sm`` model. spaCy is opt-in via the ``[ner]`` extra and
+``prefer_spacy=True``. See ``MODERNIZATION_ROADMAP.md`` §2.0.2 for the
+substitution rationale.
+
+Bundled artifacts: ``.pickle`` → ``.skops``
+-------------------------------------------
+
+The 10 bundled sklearn artifacts that previously shipped as ``.pickle``
+files were re-exported as ``.skops`` siblings via
+``scripts/reexport_bundled_sklearn_models.py --format skops``. Loaders
+use ``lexnlp.ml.model_io.load_bundled_model(legacy_path)`` which prefers
+the ``.skops`` sibling. See ``MODERNIZATION_ROADMAP.md`` §2.3 / Tier
+B.12 for details.
 
 Releases
 --------

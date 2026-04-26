@@ -4,9 +4,10 @@ This runbook is the operational guide for maintaining a modern, reproducible Lex
 
 ## 1) Toolchain Baseline
 
-- Python: `3.11` (default), supported range in `pyproject.toml`: `>=3.10,<3.13`
+- Python: `3.13` (default), supported range in `pyproject.toml`: `>=3.13,<3.15`
 - Packaging/dependencies: `pyproject.toml` + `uv.lock`
 - Installer/runner: `uv`
+- Build backend: `uv_build` (Astral's native backend)
 
 Legacy files are retained for historical reproduction only:
 - `python-requirements.txt`
@@ -16,12 +17,22 @@ Legacy files are retained for historical reproduction only:
 `Pipfile` / `Pipfile.lock` have been removed; `ci/check_dist_contents.py`
 still bans both filenames from built artifacts.
 
+Optional dependency extras (off by default):
+
+| Extra | Pin | Powers |
+| --- | --- | --- |
+| `[arrow]` | `pyarrow>=17` | `read_csv_arrow`; PyArrow-backed extraction DataFrames |
+| `[hub]` | `huggingface_hub>=0.25` | `lexnlp.ml.catalog.hub` HF Hub mirror downloads |
+| `[ner]` | `spacy>=3.7` | Optional spaCy backend for `lexnlp.extract.ner` (default backend is NLTK) |
+| `[tika]` | `tika>=2.6.0` | Apache Tika document-parsing helpers |
+| `[stanford]` | _(empty)_ | Hooks for Stanford CoreNLP (callers ship their own jars) |
+
 ## 2) Fresh Setup
 
 ```bash
 cd /path/to/LexNLP
-uv python install 3.11
-uv venv --python 3.11 .venv
+uv python install 3.13
+uv venv --python 3.13 .venv
 uv sync --frozen --python .venv/bin/python --extra dev --extra test
 ```
 
@@ -45,6 +56,16 @@ uv pip install --python .venv/bin/python -e ".[dev,test]"
 
 # Optional: Tika jars
 ./.venv/bin/python scripts/bootstrap_assets.py --tika
+
+# Default `lexnlp.extract.ner` backend uses NLTK's chunker; ensure the
+# four corpora are installed (idempotent; safe to re-run):
+./.venv/bin/python -c "import nltk; [nltk.download(p) for p in ('punkt_tab', 'averaged_perceptron_tagger_eng', 'maxent_ne_chunker_tab', 'words')]"
+
+# Opt into the spaCy backend for `lexnlp.extract.ner` (only needed when
+# callers pass `prefer_spacy=True` or use SpacyTokenSequenceClassifierModel):
+uv pip install --python .venv/bin/python -e ".[ner]"
+./.venv/bin/python -m spacy download en_core_web_sm
+# (or override the model name via `LEXNLP_SPACY_MODEL=<package>`)
 ```
 
 ## 4) Policy Checks
@@ -223,21 +244,53 @@ the baseline metrics file in the same PR:
 
 ### Refresh bundled sklearn artifacts
 
-If bundled sklearn artifacts emit legacy-version warnings, re-serialize them on
-the current runtime and re-run targeted tests:
+The 10 bundled sklearn artifacts that previously shipped as `.pickle`
+files (`lexnlp/extract/{de,en}/...`, `lexnlp/extract/en/addresses/`,
+`lexnlp/extract/ml/en/data/`, `lexnlp/nlp/en/segments/`) were re-exported
+as `.skops` siblings on `claude/review-pr-comments-HTZkT`. Loaders use
+`lexnlp.ml.model_io.load_bundled_model(legacy_path)` which prefers the
+`.skops` sibling and falls back to a legacy pickle when present. To
+re-run the migration on a downstream fork (default mode is `--format
+skops`; use `--format pickle` for the legacy joblib re-dump):
 
 ```bash
+# Default: write ``.skops`` siblings (preferred)
 ./.venv/bin/python scripts/reexport_bundled_sklearn_models.py
+
+# Optionally delete the legacy ``.pickle`` after a successful skops export
+./.venv/bin/python scripts/reexport_bundled_sklearn_models.py --remove-legacy
+
+# Legacy mode: re-dump the existing ``.pickle`` via joblib (no format change)
+./.venv/bin/python scripts/reexport_bundled_sklearn_models.py --format pickle
 ```
+
+The script reuses
+`lexnlp.ml.model_io._patched_sklearn_tree_loader` so pre-1.3 tree node
+arrays gain the missing `missing_go_to_left` byte on the fly, and it
+strips stray `pandas.Index` attributes (which carry an unreducible
+`BlockValuesRefs` under pandas 2) before handing the pipeline to
+`skops.io.dump`.
 
 ## 8) Failure Triage
 
 - `LookupError` for NLTK resources:
   - Re-run `scripts/bootstrap_assets.py --nltk`
+  - For `lexnlp.extract.ner`'s default NLTK backend, also run the four
+    corpora downloads listed in §3.
 - Contract tests failing with missing model tag:
   - Re-run `scripts/bootstrap_assets.py --contract-model`
 - Stanford tests failing due missing jars/models:
   - Re-run `scripts/bootstrap_assets.py --stanford`
+- `OSError: [E050] Can't find model 'en_core_web_sm'`:
+  - Either install it (`python -m spacy download en_core_web_sm`) and
+    pass `prefer_spacy=True`, or rely on the default NLTK backend (no
+    spaCy install required).
+- `ValueError: node array from the pickle has an incompatible dtype`:
+  - The bundled `.pickle` artifacts must be replaced by `.skops`
+    siblings. Run
+    `scripts/reexport_bundled_sklearn_models.py --format skops` and
+    confirm `lexnlp/.../*.skops` exists alongside (or replaces) each
+    legacy pickle. See §7 ("Refresh bundled sklearn artifacts").
 - Skip-audit failure:
   - Remove the marker, or add annotation:
     - `# skip-audit: issue=<ticket> expires=YYYY-MM-DD`
