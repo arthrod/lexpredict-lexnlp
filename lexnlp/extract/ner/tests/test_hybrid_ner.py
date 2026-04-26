@@ -105,6 +105,16 @@ class TestPreferSpacyToggle:
         result = extract_entities("Apple announced a product.", prefer_spacy=False)
         assert all(m.backend == "nltk" for m in result)
 
+    @_REQUIRES_NLTK_DATA
+    def test_default_backend_is_nltk(self) -> None:
+        """Default backend is NLTK — explicit substitution for the gated
+        ``en_core_web_sm`` so callers don't need ``python -m spacy download``."""
+        result = extract_entities("John Smith works at Acme Corporation.")
+        # Whether spaCy is installed or not, the default should be NLTK.
+        # The substitution is a documented capability swap; ``prefer_spacy=True``
+        # opts back in.
+        assert all(m.backend == "nltk" for m in result)
+
 
 class TestAugmentRuleMatches:
     def test_drops_hybrid_match_overlapping_rule(self) -> None:

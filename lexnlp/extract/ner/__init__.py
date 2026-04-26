@@ -8,25 +8,37 @@ non-canonical party-name spellings, novel agreement types, OCR-ed proper
 nouns — a small on-device statistical model recovers significant recall
 without rewriting the pipeline.
 
+**Default backend = NLTK.** NLTK's ``averaged_perceptron_tagger_eng`` +
+``maxent_ne_chunker_tab`` provides equivalent capability (PERSON / ORG /
+GPE / LOC labels) to spaCy's ``en_core_web_sm`` without the latter's
+gated install path (spaCy models are not on PyPI; they ship via
+``python -m spacy download <name>`` against a separate model CDN). NLTK
+is already a hard dependency of LexNLP and its data is fetched once via
+``nltk.download(...)`` and then persisted to ``~/nltk_data``, so the
+default extractor works out-of-the-box wherever NLTK already does.
+
+The spaCy backend remains available for callers who want it: install
+the optional ``[ner]`` extra (``spacy>=3.7``), run
+``python -m spacy download en_core_web_sm`` (or override the model name
+via ``LEXNLP_SPACY_MODEL``), then pass ``prefer_spacy=True`` to
+:func:`extract_entities`.
+
 This module provides:
 
 * :func:`spacy_is_available` — boolean probe for the optional ``[ner]``
   extra.
 * :func:`extract_entities` — main entry point. Returns a list of
-  :class:`HybridNERMatch` records produced by spaCy when available, or by
-  an NLTK-only fallback (``averaged_perceptron_tagger`` + ``ne_chunk``)
-  otherwise. Both backends emit the same dataclass so consumers don't
-  branch on the backend.
+  :class:`HybridNERMatch` records produced by NLTK by default (or by
+  spaCy if ``prefer_spacy=True`` and the optional extra is installed).
+  Both backends emit the same dataclass so consumers don't branch on
+  the backend.
 * :func:`augment_rule_matches` — merges hybrid matches with an existing
   iterable of ``(start, end, label)`` annotations from the rule stack,
   dropping spans that overlap a rule annotation by ≥50 % so the rule
   stack remains the source of truth.
 
-The optional ``[ner]`` extra (``spacy>=3.7``) is required for the spaCy
-backend; the NLTK fallback works with the NLTK release that LexNLP
-already pins. Either backend feeds
-``lexnlp.extract.ml`` CRF features through the existing
-``feature_data`` pipeline — no consumer code changes required.
+Either backend feeds ``lexnlp.extract.ml`` CRF features through the
+existing ``feature_data`` pipeline — no consumer code changes required.
 """
 
 from __future__ import annotations
@@ -183,12 +195,21 @@ def _nltk_extract(text: str) -> list[HybridNERMatch]:
     return matches
 
 
-def extract_entities(text: str, *, prefer_spacy: bool = True) -> list[HybridNERMatch]:
-    """Extract entities using spaCy when available, otherwise NLTK.
+def extract_entities(text: str, *, prefer_spacy: bool = False) -> list[HybridNERMatch]:
+    """Extract entities using NLTK by default, optionally upgrading to spaCy.
 
-    ``prefer_spacy=False`` forces the NLTK fallback even when spaCy is
-    importable (useful in tests and benchmark sweeps where you want to
-    measure the rule + on-device baseline without the heavier spaCy load).
+    The default backend is NLTK — a deliberate substitution for spaCy's
+    ``en_core_web_sm`` because the latter is gated behind a separate
+    ``python -m spacy download`` step (spaCy models ship from a CDN, not
+    PyPI). NLTK is already a hard LexNLP dependency and its
+    ``averaged_perceptron_tagger_eng`` + ``maxent_ne_chunker_tab`` data
+    sets emit the same PERSON / ORG / GPE / LOC label namespace, so the
+    swap is a true equivalent for the on-device NER use case.
+
+    ``prefer_spacy=True`` opts into the spaCy backend when it is
+    importable (the ``[ner]`` extra). When spaCy is importable but its
+    model package is not present on disk, the function silently degrades
+    to NLTK rather than raising ``OSError: [E050] Can't find model``.
     """
 
     if not isinstance(text, str):  # pragma: no cover - defensive

@@ -66,6 +66,60 @@ Upper caps retained:
 - `numpy<3` / `pandas<3` — the next majors are known-breaking.
 - `python<3.15` — upcoming 3.15 is unreleased; hold until verified.
 
+### 2.0.1 Optional dependency extras
+
+Capabilities the runtime can light up incrementally. None of these are
+required for the rule-based extractors; install only what the consuming
+project needs.
+
+| Extra | Pin | Powers | Notes |
+| --- | --- | --- | --- |
+| `[arrow]` | `pyarrow>=17` | `lexnlp.utils.pandas_config.read_csv_arrow` (`dtype_backend="pyarrow"`); `lexnlp.extract.batch.annotations_to_dataframe(prefer_arrow=True)` | Falls back to the NumPy-backend `read_csv` when missing |
+| `[hub]` | `huggingface_hub>=0.25` | `lexnlp.ml.catalog.hub.get_path_from_hub` for HF Hub mirror downloads when GitHub releases are unavailable | `hub_is_available()` reports the install status |
+| `[ner]` | `spacy>=3.7` | Optional spaCy backend for `lexnlp.extract.ner.extract_entities(prefer_spacy=True)` and `SpacyTokenSequenceClassifierModel` | The default NER backend is NLTK so this extra is *not* required for `lexnlp.extract.ner` to work — see §2.0.2 |
+| `[tika]` | `tika>=2.6.0` | Apache Tika document-parsing helpers under `scripts/run_tika.sh` | Tika needs a JVM; covered in `scripts/download_tika.sh` |
+| `[stanford]` | _(empty)_ | Hooks for Stanford NER / POS — kept as a flag for callers that ship their own jars locally via `enable_stanford()` | Empty until upstream publishes a pip-installable stanford-corenlp wheel |
+
+### 2.0.2 Substituting the gated `en_core_web_sm` model
+
+`en_core_web_sm` is the spaCy English pipeline our token-sequence
+classifier historically loaded at module-import time. spaCy *models* (as
+opposed to the `spacy` package itself) are not on PyPI; they ship from
+the `explosion/spacy-models` GitHub releases CDN and require a separate
+`python -m spacy download en_core_web_sm` step. That extra step makes
+the model "gated" relative to a normal `pip install` flow — CI workers
+behind firewalls, immutable container builds and air-gapped lab
+environments fail without the manual download.
+
+**Substitution in place** (April 2026,
+`claude/review-pr-comments-HTZkT`): the default backend for
+`lexnlp.extract.ner.extract_entities` is now **NLTK**
+(`averaged_perceptron_tagger_eng` + `maxent_ne_chunker_tab`). NLTK is
+already a hard dependency of LexNLP and exposes the same
+PERSON/ORG/GPE/LOC label namespace as `en_core_web_sm`'s NER head, so
+the substitution is a true equivalent for the rule-stack-augmentation
+use case. Data sets are fetched once via `nltk.download(...)` and
+persisted to `~/nltk_data`, working identically under air-gapped /
+mirror-only setups once they are mirrored alongside the rest of the
+NLTK corpora that LexNLP already requires.
+
+`prefer_spacy=True` opts back into the spaCy backend for callers that
+want it; the ``[ner]`` extra and a separate `python -m spacy download
+en_core_web_sm` (or `LEXNLP_SPACY_MODEL=<package>`) are required in that
+mode. The `spacy_token_sequence_model` module's eager
+`spacy.load("en_core_web_sm")` was replaced with a lazy, cached
+`_load_spacy_pipeline(name)` so the import chain no longer touches the
+gated model unless a caller actually exercises the spaCy code path.
+
+NLTK data needed for the default backend (one-time download):
+
+```python
+import nltk
+for pkg in ("punkt_tab", "averaged_perceptron_tagger_eng",
+            "maxent_ne_chunker_tab", "words"):
+    nltk.download(pkg)
+```
+
 ### 2.1 NumPy 2.x migration notes (April 2026)
 
 The floor moved from **1.26 → 2.1** on branch
@@ -95,13 +149,17 @@ Relevant findings from the earlier 1.26 → 2.1 migration:
   `np.object`, `np.NaN`, `np.product`, `np.cumproduct`, `np.round_`,
   `np.sometrue`, `np.alltrue`, `np.asfarray`, `np.trapz`, `np.in1d`). No
   code fixes required for the runtime.
-- **Bundled sklearn pickles** (11 files under `test_data/**/*.pickle`) fail
-  to unpickle under numpy 2.x with
-  ``ValueError: node array from the pickle has an incompatible dtype``.
-  This is the known sklearn 1.2 → 1.8 + numpy 1.x → 2.x pickle migration
-  issue. Tracked in Tier B.12 ("Re-export bundled sklearn pickles") —
-  still required before the DE court-citation and ML token-sequence
-  tests can collect.
+- **Bundled sklearn pickles** (11 sklearn artifacts that lived as 10
+  ``.pickle`` files under ``lexnlp/`` — the layered-definition zip
+  carried two pickles internally) used to fail to unpickle under
+  numpy 2.x with ``ValueError: node array from the pickle has an
+  incompatible dtype``. ✅ *Resolved on
+  `claude/review-pr-comments-HTZkT` — every artifact has been
+  re-exported via ``scripts/reexport_bundled_sklearn_models.py
+  --format skops`` and the legacy ``.pickle`` files were deleted. The
+  DE court-citation and ML token-sequence tests collect cleanly on
+  sklearn 1.8 + numpy 2.4. See §2.3 for the full per-file table and
+  Tier B.12 for the user-facing description.*
 - **`dateparser` integration**: `dateparser.search` is fine under numpy 2;
   the only parser-level adjustment was in
   `lexnlp/extract/common/dates.py` where ``get_dateparser_dates`` is now
@@ -140,7 +198,7 @@ explicit carry-overs from §2.3:
 | `scripts/reexport_bundled_sklearn_models.py` | rewritten to emit `.skops` siblings via `dump_model`; sanitises stray `pandas.Index` attributes that skops can't reduce; layered-definition zip becomes `definition_model_layered.skops.zip` |
 | `lexnlp/ml/model_io.py` | new `load_bundled_model(legacy_path)` helper that prefers the `.skops` sibling; trusted allow-list extended for NLTK Punkt types, sklearn `ExtraTreesClassifier`, `SelectKBest` and the univariate-selection score functions |
 | 6 loader sites (`lexnlp/extract/{de,en}/...`, `lexnlp/nlp/en/segments/{pages,paragraphs,sections,sentences,titles}.py`, `lexnlp/extract/en/addresses/addresses.py`) | switched from `load_model(...pickle)` to `load_bundled_model(...)` so the safer `.skops` artifacts are picked up automatically |
-| `lexnlp/extract/ner/` | new package: `HybridNERMatch`, `extract_entities(prefer_spacy=...)`, `spacy_is_available()`, `augment_rule_matches`. spaCy backend is opt-in via `[ner]` extra; NLTK fallback uses `ne_chunk` (already a hard dep) |
+| `lexnlp/extract/ner/` | new package: `HybridNERMatch`, `extract_entities(prefer_spacy=False)`, `spacy_is_available()`, `augment_rule_matches`. **NLTK is the default backend** (substitution for the gated `en_core_web_sm` — see §2.0.2); spaCy is opt-in via `[ner]` + `prefer_spacy=True` |
 | `lexnlp/extract/ml/classifier/spacy_token_sequence_model.py` | `import spacy` and `spacy.load("en_core_web_sm")` are now lazy (cached `_load_spacy_pipeline`); model name overridable via `LEXNLP_SPACY_MODEL`. The module imports cleanly without the optional `[ner]` extra |
 | `pyproject.toml` | new `[ner]` optional extra (`spacy>=3.7`) |
 | `lexnlp/extract/pt/regulations.py` | trigger regex now allows `\.(?=\d)` so Brazilian act numbers like `Lei nº 12.527` are not split on the thousands-separator dot; trigger phrases that swallow a formal citation are dropped in `parse()`; new `PARAGRAPH_LEADING_REFERENCE_RE` matches `§ 2º do art. 14`, `inciso II do art. 5º`, `alínea a do art. 12` |
@@ -322,21 +380,24 @@ marked ✅ have since been resolved on
     (`claude/review-pr-comments-HTZkT`) — new ``[ner]`` optional extra
     declaring ``spacy>=3.7`` plus a new ``lexnlp.extract.ner`` module with
     ``HybridNERMatch`` (``slots=True``/``frozen=True``),
-    ``extract_entities(text, prefer_spacy=True)``, ``spacy_is_available()``
+    ``extract_entities(text, prefer_spacy=False)``, ``spacy_is_available()``
     and ``augment_rule_matches(rule_spans, hybrid_matches,
-    overlap_threshold=0.5)``. spaCy is the preferred backend when the
-    extra is installed; otherwise the module falls back to NLTK's
-    ``ne_chunk`` (no extra install cost — NLTK is already a hard dep) and
-    re-maps NLTK chunk types onto spaCy's label namespace so consumers
-    don't branch on the backend. The companion update made the
-    ``en_core_web_sm`` import lazy in
+    overlap_threshold=0.5)``. **NLTK is the default backend** —
+    deliberate substitution for the gated ``en_core_web_sm`` (see
+    §2.0.2); the NLTK ``averaged_perceptron_tagger_eng`` +
+    ``maxent_ne_chunker_tab`` data sets emit the same
+    PERSON/ORG/GPE/LOC label namespace and require no extra install
+    beyond NLTK (already a hard dep) plus a one-time
+    ``nltk.download(...)`` for the corpora. Callers who explicitly want
+    spaCy pass ``prefer_spacy=True`` and install the optional extra. The
+    companion update made the ``en_core_web_sm`` import lazy in
     ``lexnlp.extract.ml.classifier.spacy_token_sequence_model`` (model
     name overridable via ``LEXNLP_SPACY_MODEL``); the module no longer
     imports ``spacy`` at top level so consumers of
     ``lexnlp.extract.ml.classifier`` don't need the heavy install.
-    Coverage: 11 tests under ``lexnlp/extract/ner/tests/test_hybrid_ner.py``;
-    NLTK-data-dependent cases skip cleanly when the corpora aren't
-    downloaded, the dataclass and overlap-merge tests run unconditionally.*
+    Coverage: 12 tests under ``lexnlp/extract/ner/tests/test_hybrid_ner.py``
+    — all 12 pass once the four NLTK corpora are downloaded;
+    spacy-availability and overlap-merge tests run unconditionally.*
 19. **HF Hub publishing / mirror**: ✅ *Done on
     `claude/numpy-upgrade-features-qVF34` — new
     `lexnlp.ml.catalog.hub` module with `get_path_from_hub(tag, *,
