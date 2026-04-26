@@ -138,6 +138,26 @@ class PortugueseParsingMethods:
         )
 
     @staticmethod
+    def match_pt_def_by_parenthesised_label(phrase: str) -> list[PatternFound]:
+        """Match Brazilian-contract parenthesised quoted labels like ``(o "Contratante")``.
+
+        Each match is reported with the quoted label as the defined name and
+        the surrounding parenthesised group as the surface form. ``ou``-joined
+        alternatives (``(o "Locador" ou "Locatário")``) all share the same
+        coordinates because they belong to the same definition cue.
+        """
+        results: list[PatternFound] = []
+        for match in PortugueseParsingMethods.reg_parenthesised_label.finditer(phrase):
+            start, end = match.span()
+            entry = PatternFound()
+            entry.name = "parenthesised_label"
+            entry.start = start
+            entry.end = end
+            entry.probability = 85
+            results.append(entry)
+        return results
+
+    @staticmethod
     def match_para_fins(phrase: str) -> list[PatternFound]:
         """
         Detect definition candidates introduced by Brazilian gazette phrasing that begins with "para fins".
@@ -177,6 +197,7 @@ def make_pt_definitions_parser() -> UniversalDefinitionsParser:
         PortugueseParsingMethods.match_pt_def_by_reffered,
         PortugueseParsingMethods.match_first_word_is,
         PortugueseParsingMethods.match_para_fins,
+        PortugueseParsingMethods.match_pt_def_by_parenthesised_label,
     ]
 
     return UniversalDefinitionsParser(functions, split_params)

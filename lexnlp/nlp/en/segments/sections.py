@@ -25,7 +25,7 @@ from typing import Any, ClassVar
 import pandas
 import regex as re
 
-from lexnlp.ml.model_io import load_model
+from lexnlp.ml.model_io import load_bundled_model
 from lexnlp.nlp.en.segments.heading_heuristics import HeadingHeuristics
 
 # Project imports
@@ -40,7 +40,7 @@ MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 class SectionSegmenterModel:
-    SECTION_SEGMENTER_MODEL = load_model(os.path.join(MODULE_PATH, "./section_segmenter.pickle"))
+    SECTION_SEGMENTER_MODEL = load_bundled_model(os.path.join(MODULE_PATH, "./section_segmenter.pickle"))
     FEATURE_NAMES: ClassVar[list[str]] = []
 
 

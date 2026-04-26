@@ -89,6 +89,19 @@ def align_tokens(tokens, sentence):
 
 
 def load_classifier():
+    """Load the n-gram address classifier, preferring the skops sibling.
+
+    A re-exported ``addresses_clf.skops`` produced by
+    ``scripts/reexport_bundled_sklearn_models.py`` is preferred when it
+    exists, because the legacy pickle still references the pre-1.0
+    ``sklearn.tree.tree`` module path through :class:`RenameUnpickler`.
+    """
+
+    skops_path = os.path.join(os.path.dirname(__file__), "addresses_clf.skops")
+    if os.path.exists(skops_path):
+        from lexnlp.ml.model_io import load_model
+
+        return load_model(skops_path, trusted=True)
     with open(NGRAM_CLASSIFIER_FN, "rb") as f:
         return renamed_load(f)
 

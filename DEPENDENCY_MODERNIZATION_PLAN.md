@@ -23,23 +23,32 @@
 
 ## Action Items
 
-- [ ] Add a **Test Integrity Policy** section to `AGENTS.md` that forbids adding/removing `skip`, `skipif`, or `xfail` to bypass failures, and requires fixing root causes instead.
-- [ ] Define a **100% pass target** as: all collected tests pass on a fully provisioned runner, including Stanford-gated tests when required assets are present.
-- [ ] Add a **skip-audit check** in CI that fails if new skip/xfail markers are introduced without an approved issue link and expiry date.
-- [ ] Consolidate packaging to `pyproject.toml` + lockfile and deprecate conflicting manifests (`Pipfile`, split requirements variants) after parity is captured.
+- [x] Add a **Test Integrity Policy** section to `AGENTS.md` that forbids adding/removing `skip`, `skipif`, or `xfail` to bypass failures, and requires fixing root causes instead.
+- [x] Define a **100% pass target** as: all collected tests pass on a fully provisioned runner, including Stanford-gated tests when required assets are present.
+- [x] Add a **skip-audit check** in CI that fails if new skip/xfail markers are introduced without an approved issue link and expiry date. (`ci/skip_audit.py`)
+- [x] Consolidate packaging to `pyproject.toml` + lockfile and deprecate conflicting manifests (`Pipfile`, split requirements variants) after parity is captured.
 - [x] Standardize runtime on modern Python (default 3.13) and align metadata/docs/CI to that policy.
-- [ ] Replace brittle setup scripts with deterministic bootstrap steps for NLTK corpora, contract pipeline artifacts, Java/Stanford assets, and optional Tika.
-- [ ] Run compatibility validation for serialized ML pipelines against upgraded `scikit-learn`; retrain/re-export artifacts when incompatible, with explicit version tags.
-- [ ] Add a model quality gate: compare old vs new models on fixed evaluation fixtures and accept upgrades only when metrics improve or regressions are within strict tolerance.
-- [ ] Publish a migration runbook in repo docs with exact commands for local setup, full test run, optional component enablement, and failure triage.
+- [x] Replace brittle setup scripts with deterministic bootstrap steps for NLTK corpora, contract pipeline artifacts, Java/Stanford assets, and optional Tika. (`scripts/bootstrap_assets.py`)
+- [x] Run compatibility validation for serialized ML pipelines against upgraded `scikit-learn`; retrain/re-export artifacts when incompatible, with explicit version tags. (10 bundled artifacts re-exported as `.skops` on `claude/review-pr-comments-HTZkT`; legacy `.pickle` files deleted; loaders use `lexnlp.ml.model_io.load_bundled_model`.)
+- [x] Add a model quality gate: compare old vs new models on fixed evaluation fixtures and accept upgrades only when metrics improve or regressions are within strict tolerance. (`scripts/model_quality_gate.py`, `scripts/contract_type_quality_gate.py`)
+- [x] Publish a migration runbook in repo docs with exact commands for local setup, full test run, optional component enablement, and failure triage. (`MIGRATION_RUNBOOK.md`)
 - [ ] Roll out in staged PRs (policy/doc first, packaging second, CI third, model upgrades fourth), each required to stay green end-to-end.
 
 ## Important Changes to Interfaces
 
 - Installation interface becomes `uv` + `pyproject.toml` driven.
-- Dependency groups become explicit extras (`dev`, `test`, `stanford`, `tika`).
-- Model artifact interface becomes versioned and benchmark-gated (new tags for improved models).
-- No intended changes to user-facing extraction function signatures during dependency modernization.
+- Dependency groups become explicit extras (`dev`, `test`, `stanford`, `tika`,
+  `arrow`, `hub`, `ner`).
+- Model artifact interface becomes versioned and benchmark-gated (new tags for
+  improved models).
+- Bundled artifacts canonical format is now `.skops` (sklearn pickles for
+  `lexnlp/extract/{de,en}/...`, `lexnlp/extract/en/addresses/`,
+  `lexnlp/extract/ml/en/data/`, `lexnlp/nlp/en/segments/`); loaders
+  pick up `.skops` siblings via `lexnlp.ml.model_io.load_bundled_model`.
+- New optional `lexnlp.extract.ner` module (NLTK by default, spaCy via
+  `[ner]`) — substitution for the gated `en_core_web_sm` model.
+- No intended changes to user-facing extraction function signatures during
+  dependency modernization.
 
 ## Test Scenarios
 

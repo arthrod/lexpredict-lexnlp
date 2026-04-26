@@ -499,12 +499,18 @@ class TestLoadSkopsAdditional:
             assert t in msg, f"Type '{t}' missing from rejection message: {msg}"
 
     def test_extra_trusted_extends_allow_list(self, tmp_path: Path) -> None:
-        """extra_trusted types not in DEFAULT_TRUSTED_ALLOWLIST must be accepted."""
+        """extra_trusted types not in DEFAULT_TRUSTED_ALLOWLIST must be accepted
+        AND forwarded to ``skops.io.load`` so the artifact actually gets loaded
+        with the augmented trusted set.
+        """
         path = dump_model({"ok": 1}, tmp_path / "m.skops")
         custom_type = "my.domain.SpecialEncoder"
         assert custom_type not in DEFAULT_TRUSTED_ALLOWLIST
 
-        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]  # test stub: simple dict return, typing not needed
+        captured: dict[str, list[str]] = {}
+
+        def fake_skops_load(p, trusted):  # type: ignore[no-untyped-def]  # test stub
+            captured["trusted"] = list(trusted)
             return {"ok": 1}
 
         with (
@@ -516,6 +522,11 @@ class TestLoadSkopsAdditional:
         ):
             result = _load_skops(path, trusted=True, extra_trusted=(custom_type,))
         assert result == {"ok": 1}
+        # The custom type must have actually flowed into skops.io.load — not
+        # just survived the allow-list check.
+        assert custom_type in captured["trusted"], (
+            f"extra_trusted type was filtered before reaching skops: {captured}"
+        )
 
     def test_type_in_default_allowlist_not_rejected(self, tmp_path: Path) -> None:
         """A type already in DEFAULT_TRUSTED_ALLOWLIST must not be rejected."""

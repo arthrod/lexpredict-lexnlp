@@ -26,7 +26,7 @@ from typing import Any
 from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktTrainer
 
 from lexnlp.extract.en.en_language_tokens import EnLanguageTokens
-from lexnlp.ml.model_io import load_model
+from lexnlp.ml.model_io import load_bundled_model
 
 # Setup module path
 
@@ -34,7 +34,7 @@ from lexnlp.ml.model_io import load_model
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load segmenters
-SENTENCE_SEGMENTER_MODEL: PunktSentenceTokenizer = load_model(os.path.join(MODULE_PATH, "./sentence_segmenter.pickle"))
+SENTENCE_SEGMENTER_MODEL: PunktSentenceTokenizer = load_bundled_model(os.path.join(MODULE_PATH, "./sentence_segmenter.pickle"))
 extra_abbreviations = [a.rstrip(".") for a in EnLanguageTokens.abbreviations]
 SENTENCE_SEGMENTER_MODEL._params.abbrev_types.update(extra_abbreviations)
 SENTENCE_SEGMENTER_MODEL._params.abbrev_types.update(["no", "l"])
