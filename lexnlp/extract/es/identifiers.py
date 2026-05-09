@@ -134,12 +134,16 @@ def _cif_is_valid(canonical: str) -> bool:
     if head not in _CIF_HEAD_LETTERS or not body.isdigit():
         return False
     digits = [int(c) for c in body]
-    odd_sum = 0
+    # The CIF mod-10 algorithm walks the body using 1-indexed positions:
+    # odd-position digits (1st, 3rd, 5th, 7th — index 0/2/4/6) are doubled
+    # and their decimal digits summed; even-position digits (2nd, 4th, 6th
+    # — index 1/3/5) are summed as-is.
+    odd_pos_sum = 0
     for d in digits[::2]:
         doubled = d * 2
-        odd_sum += doubled // 10 + doubled % 10
-    even_sum = sum(digits[1::2])
-    total = odd_sum + even_sum
+        odd_pos_sum += doubled // 10 + doubled % 10
+    even_pos_sum = sum(digits[1::2])
+    total = odd_pos_sum + even_pos_sum
     check_digit = (10 - (total % 10)) % 10
     # Letters that *must* use the alpha control character.
     if head in "PQRSNW":
