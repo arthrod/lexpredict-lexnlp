@@ -9,8 +9,9 @@ appellate-court citation forms most commonly seen in legal writing:
   ``EREsp 99.999``, ``HC 88.888``, ``RHC 77.777``.
 - Tribunais Superiores: ``CC 12345`` (conflito de competência),
   ``IUJur 1234`` (incidente de uniformização), ``MI 99``.
-- Justiça do Trabalho: ``RR 1234-56.2020.5.04.0001``,
-  ``AIRR 12345-67.2019.5.10.0009`` (CNJ-format process numbers).
+- Justiça do Trabalho: ``RR 1234567-56.2020.5.04.0001``,
+  ``AIRR 1234567-67.2019.5.10.0009`` (CNJ-format process numbers — the
+  sequencial component is always 7 digits per Resolução CNJ 65/2008).
 
 Each match is reported as a :class:`CitationAnnotation`. The
 ``reporter`` field carries the Brazilian abbreviation (e.g. ``REsp``)

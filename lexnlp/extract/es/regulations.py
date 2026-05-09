@@ -24,8 +24,7 @@ __email__ = "support@contraxsuite.com"
 
 
 import os
-from collections.abc import Generator
-from re import Pattern
+from collections.abc import Iterator
 
 import regex as re
 from pandas import DataFrame, read_csv
@@ -78,11 +77,13 @@ PARAGRAPH_LEADING_REFERENCE_RE = re.compile(
     re.UNICODE | re.IGNORECASE,
 )
 
-# "Constitución Española", "CE/78", "CE 1978"
+# "Constitución Española", "CE/78", "CE 1978" — case-insensitive and
+# word-bounded so ``constitución española`` / ``ce/78`` match while
+# embedded sequences like ``CECA`` or ``ICE`` do not.
 CONSTITUTIONAL_REF_RE = re.compile(
-    r"(?P<full>Constitución\s+Española(?:\s+de\s+\d{4})?|"
-    r"CE(?:[/\s]\d{2,4})?)",
-    re.UNICODE,
+    r"(?<!\w)(?P<full>Constitución\s+Española(?:\s+de\s+\d{4})?|"
+    r"CE(?:[/\s]\d{2,4})?)(?!\w)",
+    re.UNICODE | re.IGNORECASE,
 )
 
 
@@ -104,7 +105,7 @@ class RegulationsParser:
         """Initialise the parser, loading triggers from CSV when needed."""
         self.regulations_dataframe = regulations_dataframe
         self.start_triggers: list[str] = []
-        self.reg_start_triggers: list[Pattern] = []
+        self.reg_start_triggers: list[re.Pattern] = []
         self.load_trigger_words()
         self.setup_regexes()
 
@@ -153,18 +154,18 @@ class RegulationsParser:
             country=country,
         )
 
-    def _parse_trigger_phrases(self, text: str, locale: str) -> Generator[RegulationAnnotation]:
+    def _parse_trigger_phrases(self, text: str, locale: str) -> Iterator[RegulationAnnotation]:
         for reg in self.reg_start_triggers:
             for match in reg.finditer(text):
                 surface = match.group()
                 yield self._annotate(surface, match.span(), surface, locale)
 
-    def _parse_formal_citations(self, text: str, locale: str) -> Generator[RegulationAnnotation]:
+    def _parse_formal_citations(self, text: str, locale: str) -> Iterator[RegulationAnnotation]:
         for match in FORMAL_CITATION_RE.finditer(text):
             surface = match.group("full")
             yield self._annotate(surface, match.span("full"), surface, locale)
 
-    def _parse_article_references(self, text: str, locale: str) -> Generator[RegulationAnnotation]:
+    def _parse_article_references(self, text: str, locale: str) -> Iterator[RegulationAnnotation]:
         # Materialise paragraph-leading spans first so we can suppress
         # ``art. N`` matches that are nested inside an ``apartado N del art. N``
         # span — otherwise the same article number would be emitted twice
@@ -186,7 +187,7 @@ class RegulationsParser:
         for span, surface in para_matches:
             yield self._annotate(surface, span, surface, locale)
 
-    def _parse_constitutional(self, text: str, locale: str) -> Generator[RegulationAnnotation]:
+    def _parse_constitutional(self, text: str, locale: str) -> Iterator[RegulationAnnotation]:
         for match in CONSTITUTIONAL_REF_RE.finditer(text):
             surface = match.group("full")
             yield self._annotate(
@@ -198,7 +199,7 @@ class RegulationsParser:
 
     # --- public API ----------------------------------------------------
 
-    def parse(self, text: str, locale: str = "es") -> Generator[RegulationAnnotation]:
+    def parse(self, text: str, locale: str = "es") -> Iterator[RegulationAnnotation]:
         """Yield all regulation annotations found in *text*.
 
         Trigger-phrase matches whose span fully contains a formal citation
@@ -220,7 +221,7 @@ class RegulationsParser:
 parser = RegulationsParser()
 
 
-def get_regulation_annotations(text: str, language: str = "es") -> Generator[RegulationAnnotation]:
+def get_regulation_annotations(text: str, language: str = "es") -> Iterator[RegulationAnnotation]:
     """Yield :class:`RegulationAnnotation` instances found in *text*."""
     yield from parser.parse(text, language)
 
@@ -230,7 +231,7 @@ def get_regulation_annotation_list(text: str, language: str = "es") -> list[Regu
     return list(parser.parse(text, language))
 
 
-def get_regulations(text: str, language: str = "es") -> Generator[dict]:
+def get_regulations(text: str, language: str = "es") -> Iterator[dict]:
     """Yield regulation annotations as serialisable dictionaries."""
     for reg in parser.parse(text, language):
         yield reg.to_dictionary()

@@ -28,15 +28,18 @@ class TestPtRatios(TestCase):
         self.assertEqual(Decimal("3"), ant.ratio)
         self.assertEqual("pt", ant.locale)
 
-    def test_extracts_para_word(self):
-        text = "Razão de dois para um na composição."
-        # Word-form ("dois para um") not parsed by this module — only
-        # numeric operands. Numeric variant follows.
-        text2 = "Razão de 2 para 1 na composição."
-        ants = get_ratio_annotation_list(text2)
+    def test_extracts_para_word_with_numeric_operands(self):
+        """``para`` connector requires numeric operands (word-form not supported)."""
+        text = "Razão de 2 para 1 na composição."
+        ants = get_ratio_annotation_list(text)
         self.assertEqual(1, len(ants))
         self.assertEqual(Decimal("2"), ants[0].left)
         self.assertEqual(Decimal("1"), ants[0].right)
+
+    def test_word_form_ratios_not_supported(self):
+        """``dois para um`` is intentionally NOT parsed (numeric only)."""
+        text = "Razão de dois para um na composição."
+        self.assertEqual([], get_ratio_annotation_list(text))
 
     def test_extracts_slash(self):
         text = "Margem de 5/4 no contrato."

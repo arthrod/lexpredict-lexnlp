@@ -79,6 +79,10 @@ class TestPtPhones(TestCase):
         text = "Discar 032 11 1234-5678 para atendimento interurbano."
         ants = get_phone_annotation_list(text)
         self.assertEqual(1, len(ants))
+        # Surface must include the operator-code prefix and the body so
+        # the test fails if the regex starts matching only "11 1234-5678".
+        self.assertIn("032", ants[0].text)
+        self.assertIn("1234-5678", ants[0].text)
 
 
 class TestPtEmails(TestCase):

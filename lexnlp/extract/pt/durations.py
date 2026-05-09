@@ -69,13 +69,19 @@ _UNIT_PART = "|".join(sorted(_PT_UNITS.keys(), key=len, reverse=True))
 _PT_NUMBER_PTN = r"\d{1,3}(?:\.\d{3})*(?:,\d+)?|\d+(?:,\d+)?"
 
 # Optional prefix ("aproximadamente", "cerca de", "no mínimo", "no máximo")
+# — note the inner alternation is NOT made optional here: the outer
+# pattern wraps it with ``?`` so an empty prefix never matches while
+# silently consuming the whitespace before the number.
 _PREFIX_PTN = (
     r"(?:aproximadamente|cerca\s+de|no\s+m[ií]nimo|no\s+m[áa]ximo|pelo\s+menos|"
-    r"até|aprox\.|aprox)?"
+    r"até|aprox\.|aprox)"
 )
 
 DURATION_PTN_RE = re.compile(
-    rf"(?P<text>(?:(?P<prefix>{_PREFIX_PTN})\s*)?"
+    # When the optional prefix is present, require ``\s+`` after it so an
+    # empty prefix can't silently consume leading whitespace before the
+    # number (which would push the ``text`` span back by one char).
+    rf"(?P<text>(?:(?P<prefix>{_PREFIX_PTN})\s+)?"
     rf"(?P<num>{_PT_NUMBER_PTN})\s+(?P<unit>{_UNIT_PART}))",
     re.IGNORECASE | re.UNICODE,
 )
@@ -122,14 +128,20 @@ def _is_continuation(prev: DurationAnnotation, curr: DurationAnnotation, text: s
     """Return True when *curr* should be grouped with *prev* into one duration.
 
     Continuation requires the second unit to be strictly shorter than the
-    first and the gap between matches to contain only whitespace,
+    first AND the gap between matches to contain neither a sentence
+    terminator (``.``/``!``/``?``) nor anything beyond whitespace,
     punctuation, or an accepted Portuguese conjunction.
     """
     prev_days = _DURATION_DAYS.get(prev.duration_type_en, Fraction(1))
     curr_days = _DURATION_DAYS.get(curr.duration_type_en, Fraction(1))
     if curr_days >= prev_days:
         return False
-    gap = text[prev.coords[1] : curr.coords[0]].lower()
+    gap = text[prev.coords[1] : curr.coords[0]]
+    # A sentence terminator in the gap means the second match starts a
+    # new clause/sentence, so it must not be merged with the first.
+    if any(ch in gap for ch in ".!?"):
+        return False
+    gap = gap.lower()
     for conj in _INNER_CONJUNCTIONS:
         gap = re.sub(rf"\b{conj}\b", "", gap)
     return _INNER_PUNCT_RE.sub("", gap) == ""

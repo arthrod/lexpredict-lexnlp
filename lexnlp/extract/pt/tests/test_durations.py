@@ -46,7 +46,10 @@ class TestPtDurations(TestCase):
         self.assertEqual(Decimal("910"), ant.duration_days)
 
     def test_separate_durations_not_grouped(self):
-        text = "Reunião em 30 dias. Pagamento em 90 dias."
+        """Sentence terminator ``.`` must break grouping even when the
+        second unit is shorter (descending pair) than the first.
+        """
+        text = "Prazo de 2 anos. Carência de 6 meses."
         ants = get_duration_annotation_list(text)
         self.assertEqual(2, len(ants))
 
@@ -72,13 +75,13 @@ class TestPtDurations(TestCase):
         self.assertEqual(Decimal("28"), ants[0].duration_days)
 
     def test_compound_text_preserves_separators(self):
-        """``2 anos e 6 meses`` keeps the connector ``e`` in ``text``."""
+        """``2 anos e 6 meses`` keeps the full surface (incl. connector ``e``)."""
         text = "Vigência de 2 anos e 6 meses, prorrogável."
         ants = get_duration_annotation_list(text)
         self.assertEqual(1, len(ants))
-        self.assertIn("e", ants[0].text)
-        self.assertIn("anos", ants[0].text)
-        self.assertIn("meses", ants[0].text)
+        # Exact match — would fail if the separator were dropped (e.g.
+        # ``2 anos6 meses``) because of an in-place text concatenation.
+        self.assertEqual("2 anos e 6 meses", ants[0].text)
 
     def test_quarter_unit_does_not_raise(self):
         """``trimestre`` resolves through the Fraction(365, 4) ratio."""

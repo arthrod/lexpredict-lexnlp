@@ -76,10 +76,15 @@ class TestTextToNumber(TestCase):
     def test_leading_fraction_with_multiplier(self):
         """``meio milhão`` / ``meia bilhão`` should consume the trailing
         multiplier rather than apply ``last_mult`` (which is 1 by default).
+        Mixed ``um e meio milhão`` must combine the whole part with the
+        fraction before multiplying.
         """
         self.assertEqual(Decimal(500_000), text_to_number("meio milhão"))
         self.assertEqual(Decimal(500_000_000), text_to_number("meio bilhão"))
         self.assertEqual(Decimal(500_000_000), text_to_number("meia bilhão"))
+        # Whole + fraction + multiplier composition.
+        self.assertEqual(Decimal(1_500_000), text_to_number("um e meio milhão"))
+        self.assertEqual(Decimal(2_500_000_000), text_to_number("dois e meio bilhão"))
 
     def test_bare_fraction_returns_half(self):
         """``meio`` alone (no following multiplier) is just 0.5."""

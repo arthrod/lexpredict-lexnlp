@@ -206,7 +206,13 @@ def text_to_number(text: str) -> Decimal | None:
                 j += 1
             if j < len(tokens) and tokens[j] in _MULTIPLIERS:
                 mult = Decimal(_MULTIPLIERS[tokens[j]])
-                total += frac * mult
+                if current != 0:
+                    # "um e meio milhão" -> (1 + 0.5) * 1_000_000 = 1_500_000
+                    total += (current + frac) * mult
+                    current = Decimal(0)
+                else:
+                    # "meio milhão" -> 0.5 * 1_000_000 = 500_000
+                    total += frac * mult
                 last_mult = mult
                 i = j  # advance past the consumed multiplier
             else:

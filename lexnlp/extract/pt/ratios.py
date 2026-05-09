@@ -1,9 +1,11 @@
 """Ratio extraction for Portuguese (pt-BR).
 
 Mirrors :mod:`lexnlp.extract.en.ratios`, swapping in the canonical pt-BR
-number pattern and accepting Brazilian connector words ``para`` /
-``por`` (``três para um``, ``2 por 1``) alongside the universal ``:`` /
-``/`` / ``-`` separators (``3:1``, ``3/1``, ``3-1``).
+number pattern. The pattern (:data:`RATIO_PTN_RE`) accepts the Brazilian
+connector words ``para`` / ``por`` and the universal separators ``:`` /
+``/`` / ``-`` between **numeric** operands (``2 para 1``, ``2 por 1``,
+``3:1``, ``3/1``, ``3-1``). Word-form numbers (e.g. ``três para um``)
+are NOT matched: only :data:`NUM_PTN`-shaped digit forms are accepted.
 """
 
 __author__ = "ContraxSuite, LLC; LexPredict, LLC"

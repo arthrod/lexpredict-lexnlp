@@ -86,8 +86,12 @@ class TestCnjProcessNumbers(TestCase):
 class TestGetCitationAnnotations(TestCase):
     def test_combined_stream(self):
         text = "REsp 1.000/SP combinado com 9876543-21.2019.8.26.0100."
+        # Each subtype must produce exactly one annotation — guards
+        # against the aggregate test passing while one subtype regresses
+        # to zero matches.
+        self.assertEqual(1, len(list(get_case_citation_annotations(text))))
+        self.assertEqual(1, len(list(get_cnj_process_annotations(text))))
         ants = get_citation_annotation_list(text)
-        # One short-form + one CNJ-format = 2 annotations.
         self.assertEqual(2, len(ants))
 
     def test_no_match_in_plain_text(self):

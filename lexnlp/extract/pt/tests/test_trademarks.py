@@ -30,6 +30,7 @@ class TestPtTrademarks(TestCase):
 
     def test_locale_is_pt(self):
         ants = get_trademark_annotation_list("Foo® bar")
+        self.assertGreaterEqual(len(ants), 1)  # avoid vacuous all() pass on empty list
         self.assertTrue(all(a.locale == "pt" for a in ants))
 
     def test_no_match_in_plain_text(self):

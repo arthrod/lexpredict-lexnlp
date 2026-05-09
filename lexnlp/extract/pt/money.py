@@ -65,9 +65,11 @@ _CURRENCY_SYMBOL_RE_PART = "R\\$|US\\$|\\$|€|£|¥"
 # fraction (e.g. "1.234,56" / "12,5" / "100").
 _PT_NUMBER_PTN = r"\d{1,3}(?:\.\d{3})*(?:,\d+)?|\d+(?:,\d+)?"
 
-# Symbol/code prefix: "R$ 100,00", "USD 1.234,56".
+# Symbol/code prefix: "R$ 100,00", "USD 1.234,56". The leading
+# ``(?<!\w)`` lookbehind prevents matches inside larger tokens like
+# ``XBRL100`` (which would otherwise yield a spurious ``BRL100`` match).
 _MONEY_PREFIX_RE = re.compile(
-    rf"(?P<text>(?P<currency>{_CURRENCY_SYMBOL_RE_PART}|{_CURRENCY_CODE_RE_PART})\s*"
+    rf"(?<!\w)(?P<text>(?P<currency>{_CURRENCY_SYMBOL_RE_PART}|{_CURRENCY_CODE_RE_PART})\s*"
     rf"(?P<num>{_PT_NUMBER_PTN}))(?!\d)",
     re.IGNORECASE | re.UNICODE,
 )
