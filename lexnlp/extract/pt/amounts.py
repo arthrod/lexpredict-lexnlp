@@ -178,8 +178,11 @@ def text_to_number(text: str) -> Decimal | None:
     last_mult = Decimal(1)
     saw_anything = False
 
-    for tok in tokens:
+    i = 0
+    while i < len(tokens):
+        tok = tokens[i]
         if tok == "e":
+            i += 1
             continue
         if tok in _SMALL:
             current += Decimal(_SMALL[tok])
@@ -193,15 +196,29 @@ def text_to_number(text: str) -> Decimal | None:
             last_mult = mult
             saw_anything = True
         elif tok in _FRACTIONS:
-            # "meio milhão" without preceding number = half of the last
-            # multiplier; "e meio" after a multiplier section also adds
-            # half of that scale (e.g. "um milhão e meio" -> 1_500_000).
             frac = _FRACTIONS[tok]
-            total += frac * last_mult
+            # Look ahead one token (skipping a connector "e") for a
+            # multiplier so "meio milhão" / "meia bilhão" resolve to
+            # 500_000 / 500_000_000 instead of 0.5 (which would be the
+            # result of using ``last_mult`` = 1 at that point).
+            j = i + 1
+            if j < len(tokens) and tokens[j] == "e":
+                j += 1
+            if j < len(tokens) and tokens[j] in _MULTIPLIERS:
+                mult = Decimal(_MULTIPLIERS[tokens[j]])
+                total += frac * mult
+                last_mult = mult
+                i = j  # advance past the consumed multiplier
+            else:
+                # "um milhão e meio" -> add half of the most-recent
+                # multiplier scale; bare "meio" with no context falls
+                # back to multiplier = 1 (i.e. the literal value 0.5).
+                total += frac * last_mult
             saw_anything = True
         else:
             # Unknown token; bail and let callers decide what to do.
             return None
+        i += 1
 
     return (total + current) if saw_anything else None
 

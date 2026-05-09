@@ -58,3 +58,10 @@ class TestPtPercents(TestCase):
         self.assertEqual(2, len(ants))
         amounts = sorted(a.amount for a in ants)
         self.assertEqual([Decimal("12.5"), Decimal("25")], amounts)
+
+    def test_float_digits_zero_rounds(self):
+        """``float_digits=0`` is a valid rounding request, not "skip rounding"."""
+        ants = get_percent_annotation_list("12,7%", float_digits=0)
+        self.assertEqual(1, len(ants))
+        # 12.7 * 0.01 = 0.127, rounded to 0 places = 0
+        self.assertEqual(Decimal("0"), ants[0].fraction)

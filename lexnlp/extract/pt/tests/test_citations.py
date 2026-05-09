@@ -58,6 +58,13 @@ class TestBrazilianCaseCitations(TestCase):
         self.assertEqual(1, len(ants))
         self.assertEqual(1985, ants[0].year)
 
+    def test_ungrouped_4_digit_number(self):
+        """``MS 12345`` / ``CC 99999`` (no thousands dot) must match."""
+        text = "Vide MS 12345 e CC 99999/SP do tribunal."
+        ants = list(get_case_citation_annotations(text))
+        reporters = sorted(a.reporter for a in ants)
+        self.assertEqual(["CC", "MS"], reporters)
+
 
 class TestCnjProcessNumbers(TestCase):
     def test_extracts_full_cnj_format(self):

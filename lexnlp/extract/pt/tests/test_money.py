@@ -72,3 +72,17 @@ class TestPtMoney(TestCase):
 
     def test_no_money_in_plain_text(self):
         self.assertEqual([], list(get_money_annotations("Sem valores aqui.")))
+
+    def test_overlapping_prefix_and_suffix_dedupe(self):
+        """``R$ 100 reais`` overlaps without containment; only one annotation."""
+        text = "Pagamento de R$ 100 reais."
+        ants = get_money_annotation_list(text)
+        self.assertEqual(1, len(ants))
+        self.assertEqual(Decimal("100"), ants[0].amount)
+
+    def test_float_digits_zero_rounds_to_integer(self):
+        text = "Valor: R$ 12,7."
+        ants = get_money_annotation_list(text, float_digits=0)
+        self.assertEqual(1, len(ants))
+        # 12.7 rounded to 0 places = 13 (banker's rounding to nearest int)
+        self.assertEqual(Decimal("13"), ants[0].amount)

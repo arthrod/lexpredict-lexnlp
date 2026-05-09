@@ -110,7 +110,7 @@ def get_money_annotations(
             continue
         seen_spans.add(span)
         amount = _parse_pt_number(match.group("num"))
-        if float_digits:
+        if float_digits is not None:
             amount = round(amount, float_digits)
         yield MoneyAnnotation(
             coords=span,
@@ -121,11 +121,14 @@ def get_money_annotations(
         )
     for match in _MONEY_SUFFIX_RE.finditer(text):
         span = match.span("text")
-        if any(s <= span[0] and span[1] <= e for s, e in seen_spans):
-            # Suffix form would double-count an already-yielded prefix match.
+        # Skip a suffix match whose span overlaps any already-yielded
+        # prefix match. ``R$ 100 reais`` would otherwise yield two
+        # annotations: prefix (``R$ 100``) and suffix (``100 reais``)
+        # — overlapping but neither contains the other.
+        if any(not (span[1] <= s or e <= span[0]) for s, e in seen_spans):
             continue
         amount = _parse_pt_number(match.group("num"))
-        if float_digits:
+        if float_digits is not None:
             amount = round(amount, float_digits)
         yield MoneyAnnotation(
             coords=span,

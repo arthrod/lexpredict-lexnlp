@@ -89,12 +89,22 @@ def _parse_pt_number(raw: str) -> Decimal:
     return Decimal(raw.replace(".", "").replace(",", "."))
 
 
+def _fraction_to_decimal(value: Fraction) -> Decimal:
+    """Convert a :class:`Fraction` to :class:`Decimal` exactly.
+
+    ``Decimal(Fraction(...))`` is not supported in Python 3.x — it raises
+    ``TypeError``. We instead build the Decimal as numerator / denominator,
+    which preserves the rational value without going through ``float``.
+    """
+    return Decimal(value.numerator) / Decimal(value.denominator)
+
+
 def _make_simple_annotation(match: "re.Match[str]") -> DurationAnnotation:
     """Build a single-part DurationAnnotation from one regex match."""
     raw_unit = match.group("unit").lower()
     duration_en = _PT_UNITS[raw_unit]
     amount = _parse_pt_number(match.group("num"))
-    duration_days = Decimal(_DURATION_DAYS[duration_en]) * amount
+    duration_days = _fraction_to_decimal(_DURATION_DAYS[duration_en]) * amount
     prefix = (match.group("prefix") or "").strip() or None
     return DurationAnnotation(
         coords=match.span("text"),
@@ -125,15 +135,20 @@ def _is_continuation(prev: DurationAnnotation, curr: DurationAnnotation, text: s
     return _INNER_PUNCT_RE.sub("", gap) == ""
 
 
-def _sum_group(group: list[DurationAnnotation]) -> DurationAnnotation:
-    """Merge a list of contiguous DurationAnnotations into a complex one."""
+def _sum_group(group: list[DurationAnnotation], text: str) -> DurationAnnotation:
+    """Merge a list of contiguous DurationAnnotations into a complex one.
+
+    ``text`` is the original source string; we slice it by the merged
+    coordinates so the surface preserves the gap separators ("e", "mais",
+    whitespace, punctuation) instead of dropping them by concatenation.
+    """
     coords = (group[0].coords[0], group[-1].coords[1])
     merged = DurationAnnotation(coords=coords, locale="pt", is_complex=True)
     merged.duration_days = sum((d.duration_days for d in group), start=Decimal(0))
     merged.amount = merged.duration_days
     merged.duration_type = group[-1].duration_type
     merged.duration_type_en = group[-1].duration_type_en
-    merged.text = "".join(g.text or "" for g in group)
+    merged.text = text[coords[0] : coords[1]]
     value_dict: dict[str, float] = {}
     for ant in group:
         key = ant.duration_type or ""
@@ -165,7 +180,7 @@ def get_duration_annotations(text: str) -> Iterator[DurationAnnotation]:
             group = [ant]
             grouped.append(group)
     for grp in grouped:
-        yield grp[0] if len(grp) == 1 else _sum_group(grp)
+        yield grp[0] if len(grp) == 1 else _sum_group(grp, text)
 
 
 def get_durations(text: str) -> Iterator[dict]:

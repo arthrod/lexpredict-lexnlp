@@ -49,9 +49,10 @@ _REPORTERS = [
 _REPORTERS_SORTED = sorted(_REPORTERS, key=len, reverse=True)
 _REPORTER_PART = "|".join(re.escape(r) for r in _REPORTERS_SORTED)
 
-# Numeric body: ``12.345``, ``123.456``, ``999``, with optional UF
-# suffix ``/SP``, ``/RJ`` etc. and optional year ``/2020``.
-_NUMBER_PART = r"\d{1,3}(?:\.\d{3})*"
+# Numeric body: ``12.345``, ``123.456``, ``999``, ``MS 12345``,
+# ``CC 12345`` — accept either grouped form (with thousands dots) OR
+# ungrouped runs of 4+ digits common in older case-law citations.
+_NUMBER_PART = r"(?:\d{1,3}(?:\.\d{3})*|\d{4,})"
 _UF_LIST = (
     "AC|AL|AM|AP|BA|CE|DF|ES|GO|MA|MG|MS|MT|PA|PB|PE|PI|PR|"
     "RJ|RN|RO|RR|RS|SC|SE|SP|TO"

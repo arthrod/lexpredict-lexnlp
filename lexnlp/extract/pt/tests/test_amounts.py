@@ -73,6 +73,18 @@ class TestTextToNumber(TestCase):
         # "um milhão e meio" should resolve to 1,500,000
         self.assertEqual(Decimal("1500000"), text_to_number("um milhão e meio"))
 
+    def test_leading_fraction_with_multiplier(self):
+        """``meio milhão`` / ``meia bilhão`` should consume the trailing
+        multiplier rather than apply ``last_mult`` (which is 1 by default).
+        """
+        self.assertEqual(Decimal(500_000), text_to_number("meio milhão"))
+        self.assertEqual(Decimal(500_000_000), text_to_number("meio bilhão"))
+        self.assertEqual(Decimal(500_000_000), text_to_number("meia bilhão"))
+
+    def test_bare_fraction_returns_half(self):
+        """``meio`` alone (no following multiplier) is just 0.5."""
+        self.assertEqual(Decimal("0.5"), text_to_number("meio"))
+
     def test_unknown_token_returns_none(self):
         self.assertIsNone(text_to_number("xyzabc não é número"))
 

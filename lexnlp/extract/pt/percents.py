@@ -48,7 +48,7 @@ def get_percent_annotations(
         unit = match.group("unit")
         sign = "%" if unit == "%" else "por cento"
         fraction = amount * Decimal("0.01")
-        if float_digits:
+        if float_digits is not None:
             fraction = round(fraction, float_digits)
         yield PercentAnnotation(
             coords=match.span("text"),

@@ -70,3 +70,20 @@ class TestPtDurations(TestCase):
         self.assertEqual(1, len(ants))
         self.assertEqual("fortnight", ants[0].duration_type_en)
         self.assertEqual(Decimal("28"), ants[0].duration_days)
+
+    def test_compound_text_preserves_separators(self):
+        """``2 anos e 6 meses`` keeps the connector ``e`` in ``text``."""
+        text = "Vigência de 2 anos e 6 meses, prorrogável."
+        ants = get_duration_annotation_list(text)
+        self.assertEqual(1, len(ants))
+        self.assertIn("e", ants[0].text)
+        self.assertIn("anos", ants[0].text)
+        self.assertIn("meses", ants[0].text)
+
+    def test_quarter_unit_does_not_raise(self):
+        """``trimestre`` resolves through the Fraction(365, 4) ratio."""
+        ants = get_duration_annotation_list("Pagamento em 3 trimestres.")
+        self.assertEqual(1, len(ants))
+        self.assertEqual("quarter", ants[0].duration_type_en)
+        # 3 * 365/4 = 273.75
+        self.assertEqual(Decimal("273.75"), ants[0].duration_days)
