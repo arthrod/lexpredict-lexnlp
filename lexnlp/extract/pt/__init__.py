@@ -29,10 +29,14 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
+from lexnlp.extract.pt.amounts import get_amount_annotations, get_amounts
+from lexnlp.extract.pt.citations import get_citation_annotations, get_citations
 from lexnlp.extract.pt.copyrights import get_copyright_annotations, get_copyrights
 from lexnlp.extract.pt.courts import get_court_annotations, get_courts
 from lexnlp.extract.pt.dates import get_date_annotations, get_dates
 from lexnlp.extract.pt.definitions import get_definition_annotations, get_definitions
+from lexnlp.extract.pt.distances import get_distance_annotations, get_distances
+from lexnlp.extract.pt.durations import get_duration_annotations, get_durations
 from lexnlp.extract.pt.identifiers import (
     get_cnpj_annotations,
     get_cpf_annotations,
@@ -40,10 +44,29 @@ from lexnlp.extract.pt.identifiers import (
     get_oab_annotations,
 )
 from lexnlp.extract.pt.language_tokens import PtLanguageTokens
+from lexnlp.extract.pt.money import get_money, get_money_annotations
+from lexnlp.extract.pt.percents import get_percent_annotations, get_percents
+from lexnlp.extract.pt.pii import (
+    get_email_list,
+    get_emails,
+    get_phone_annotations,
+    get_phones,
+)
+from lexnlp.extract.pt.ratios import get_ratio_annotations, get_ratios
 from lexnlp.extract.pt.regulations import get_regulation_annotations, get_regulations
+from lexnlp.extract.pt.trademarks import (
+    get_entity_suffix_annotations,
+    get_trademark_annotations,
+    get_trademarks,
+)
+from lexnlp.extract.pt.urls import get_url_annotations, get_urls
 
 __all__ = [
     "PtLanguageTokens",
+    "get_amount_annotations",
+    "get_amounts",
+    "get_citation_annotations",
+    "get_citations",
     "get_cnpj_annotations",
     "get_copyright_annotations",
     "get_copyrights",
@@ -54,8 +77,27 @@ __all__ = [
     "get_dates",
     "get_definition_annotations",
     "get_definitions",
+    "get_distance_annotations",
+    "get_distances",
+    "get_duration_annotations",
+    "get_durations",
+    "get_email_list",
+    "get_emails",
+    "get_entity_suffix_annotations",
     "get_identifier_annotations",
+    "get_money",
+    "get_money_annotations",
     "get_oab_annotations",
+    "get_percent_annotations",
+    "get_percents",
+    "get_phone_annotations",
+    "get_phones",
+    "get_ratio_annotations",
+    "get_ratios",
     "get_regulation_annotations",
     "get_regulations",
+    "get_trademark_annotations",
+    "get_trademarks",
+    "get_url_annotations",
+    "get_urls",
 ]

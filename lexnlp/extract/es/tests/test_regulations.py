@@ -11,7 +11,16 @@ from unittest import TestCase
 import pandas as pd
 
 from lexnlp.extract.common.annotations.regulation_annotation import RegulationAnnotation
-from lexnlp.extract.es.regulations import RegulationsParser, get_regulation_annotations, get_regulations, parser
+from lexnlp.extract.es.regulations import (
+    ARTICLE_REFERENCE_RE,
+    CONSTITUTIONAL_REF_RE,
+    FORMAL_CITATION_RE,
+    PARAGRAPH_LEADING_REFERENCE_RE,
+    RegulationsParser,
+    get_regulation_annotations,
+    get_regulations,
+    parser,
+)
 from lexnlp.tests.typed_annotations_tests import TypedAnnotationsTester
 from lexnlp.tests.utility_for_testing import annotate_text, load_resource_document, save_test_document
 
@@ -125,6 +134,68 @@ class TestRegulationsParserDataFrameInjection:
         p = RegulationsParser(regulations_dataframe=custom_df)
         assert "ley del" in p.start_triggers
         assert "reglamento" not in p.start_triggers
+
+    def test_formal_citation_ley_organica(self):
+        """``Ley Orgánica 4/2015`` is captured by FORMAL_CITATION_RE."""
+        text = "Conforme a la Ley Orgánica 4/2015, de 30 de marzo, de protección."
+        matches = list(FORMAL_CITATION_RE.finditer(text))
+        assert len(matches) >= 1
+        assert "Ley Orgánica 4/2015" in matches[0].group("full")
+
+    def test_formal_citation_real_decreto(self):
+        """``Real Decreto 123/2020`` is captured."""
+        text = "El Real Decreto 123/2020 establece nuevos plazos."
+        matches = list(FORMAL_CITATION_RE.finditer(text))
+        assert len(matches) == 1
+        assert matches[0].group("number") == "123/2020"
+
+    def test_article_reference_simple(self):
+        text = "Vid. art. 5 de la norma."
+        matches = list(ARTICLE_REFERENCE_RE.finditer(text))
+        assert len(matches) == 1
+        assert matches[0].group("number") == "5"
+
+    def test_paragraph_leading_apartado(self):
+        text = "Aplica el apartado 2 del art. 14 de la ley."
+        matches = list(PARAGRAPH_LEADING_REFERENCE_RE.finditer(text))
+        assert len(matches) == 1
+        assert matches[0].group("full") == "apartado 2 del art. 14"
+
+    def test_parser_suppresses_nested_article_inside_paragraph_leading(self):
+        """``apartado 2 del art. 14`` must NOT also yield a separate ``art. 14``."""
+        text = "Aplica el apartado 2 del art. 14 de la norma."
+        regs = list(parser.parse(text))
+        names = [r.name for r in regs]
+        assert "apartado 2 del art. 14" in names
+        # ``art. 14`` is nested inside the paragraph-leading span, so it must
+        # not be emitted on its own.
+        assert "art. 14" not in names
+
+    def test_constitutional_reference(self):
+        text = "Según la Constitución Española de 1978."
+        matches = list(CONSTITUTIONAL_REF_RE.finditer(text))
+        assert len(matches) >= 1
+
+    def test_parser_emits_constitutional_canonical_name(self):
+        text = "Vid. la Constitución Española."
+        regs = list(parser.parse(text))
+        cfs = [r for r in regs if r.name == "Constitución Española"]
+        assert len(cfs) == 1
+        assert cfs[0].country == "Spain"
+
+    def test_parser_dedupes_trigger_swallowing_formal_citation(self):
+        """A trigger phrase that engulfs a formal citation is suppressed."""
+        text = (
+            "Conforme a la ley de protección Real Decreto 123/2020 vigente,"
+            " los plazos se actualizan."
+        )
+        regs = list(parser.parse(text))
+        # The trigger phrase ("ley de protección Real Decreto 123/2020 vigente")
+        # fully contains the formal citation, so it must be dropped — only the
+        # canonical "Real Decreto 123/2020" should survive.
+        assert len(regs) == 1
+        assert regs[0].name == "Real Decreto 123/2020"
+        assert regs[0].text == "Real Decreto 123/2020"
 
     def test_empty_dataframe_means_no_triggers_no_csv_load(self):
         """
