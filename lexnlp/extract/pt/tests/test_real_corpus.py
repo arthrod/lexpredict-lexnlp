@@ -15,6 +15,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
+import datetime
 from pathlib import Path
 from unittest import TestCase
 
@@ -79,8 +80,10 @@ class TestLeiAcessoInformacao(TestCase):
         dates = list(get_date_annotations(self.text, strict=False))
         self.assertGreater(len(dates), 10)
         years = [d.date.year for d in dates]
-        # LAI is from 2011 and cites laws back to the 80s/90s
-        in_range = [y for y in years if 1980 <= y <= 2025]
+        # LAI is from 2011 and cites laws back to the 80s/90s; cap the upper
+        # bound on the current calendar year so the test doesn't bit-rot.
+        upper_year = datetime.date.today().year + 1
+        in_range = [y for y in years if 1980 <= y <= upper_year]
         # All extracted dates should be in the realistic legislative range.
         self.assertEqual(len(dates), len(in_range))
 

@@ -11,14 +11,14 @@ import os
 from lexnlp.extract.all_locales.languages import Locale
 from lexnlp.extract.de.date_model import DATE_MODEL_CHARS, DE_ALPHA_CHAR_SET
 from lexnlp.extract.de.de_date_parser import DeDateParser
-from lexnlp.ml.model_io import load_model
+from lexnlp.ml.model_io import load_bundled_model
 
 # Setup path
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load model
-MODEL_DATE = load_model(os.path.join(MODULE_PATH, "./date_model.pickle"))
+MODEL_DATE = load_bundled_model(os.path.join(MODULE_PATH, "./date_model.pickle"))
 
 
 parser = DeDateParser(

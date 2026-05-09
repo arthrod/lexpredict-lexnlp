@@ -47,8 +47,7 @@ class TestLookupState:
         assert lookup_state("") is None
 
     def test_strips_trailing_period(self) -> None:
-        assert lookup_state("calif.") is None or lookup_state("calif.") is not None
-        # The important contract is that trailing period doesn't crash.
+        # Trailing period must not crash and "CA." must resolve to California.
         info = lookup_state("CA.")
         assert info is not None
         assert info.abbr == "CA"

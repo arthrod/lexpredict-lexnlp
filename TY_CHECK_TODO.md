@@ -12,6 +12,15 @@ uv run ty check .
 down by fixing the over-indented docstrings and adding PT with clean
 types.
 
+**Update on `claude/review-pr-comments-HTZkT` (April 2026)**: the two
+`unresolved-import` diagnostics for `pyarrow` and `spacy` are resolved
+(now lazy-loaded behind the `[arrow]` and `[ner]` extras respectively).
+PT regulations gained a new `PARAGRAPH_LEADING_REFERENCE_RE` pattern
+and a deduplication step in `RegulationsParser.parse`; PT definitions
+registered the parenthesised-label matcher; DE date parser now
+short-circuits on empty text. None of these introduce new ty
+diagnostics.
+
 Order reflects **blast radius × fix cost**: things that block other fixes
 or ship unsafe behaviour first, bulk typing chores last.
 
@@ -36,12 +45,15 @@ or ship unsafe behaviour first, bulk typing chores last.
       `DateParser.get_date_annotations` signature is
       `(text, locale, strict)`. Fix the dispatcher to invoke the parser
       with keyword arguments so EN/DE/PT/ES share one contract.
-- [ ] **`error[unresolved-import]` (2)** — `pyarrow` in
+- [x] **`error[unresolved-import]` (2)** — `pyarrow` in
       `lexnlp/extract/batch/pandas_output.py` and `spacy` in
       `lexnlp/extract/ml/classifier/spacy_token_sequence_model.py`. Both
-      are optional extras: guard imports with `try/except ImportError` or
-      move under `TYPE_CHECKING` and expose them through extras in
-      `pyproject.toml`.
+      are now exposed as optional extras (`[arrow]` and `[ner]`
+      respectively) and the imports are lazy:
+      `pyarrow` is probed via `import pyarrow  # noqa: F401 — availability probe only`,
+      and `spacy` is loaded inside `_load_spacy_pipeline()` only when a
+      caller exercises the spaCy code path (Apr 2026,
+      `claude/review-pr-comments-HTZkT`).
 - [ ] **`error[invalid-return-type]` (12)** — non-generator functions
       annotated as generators and vice-versa. Walk each and either
       change the annotation or add the missing `yield`.

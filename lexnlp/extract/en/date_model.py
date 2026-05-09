@@ -17,7 +17,7 @@ __email__ = "support@contraxsuite.com"
 import os
 import string
 
-from lexnlp.ml.model_io import load_model
+from lexnlp.ml.model_io import load_bundled_model
 
 # Setup path
 
@@ -25,7 +25,7 @@ from lexnlp.ml.model_io import load_model
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load model
-MODEL_DATE = load_model(os.path.join(MODULE_PATH, "./date_model.pickle"))
+MODEL_DATE = load_bundled_model(os.path.join(MODULE_PATH, "./date_model.pickle"))
 
 ALPHA_CHAR_SET = set(string.ascii_letters)
 DATE_MODEL_CHARS = []

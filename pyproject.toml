@@ -87,6 +87,17 @@ stanford = []
 tika = ["tika>=2.6.0"]
 hub = ["huggingface_hub>=0.25"]
 arrow = ["pyarrow>=17"]
+# Optional spaCy NER backend — ``spacy>=3.7`` adds Python 3.13 wheels and
+# the new ``Language.replace_listeners`` API. The default
+# ``lexnlp.extract.ner.extract_entities`` backend is NLTK (already a hard
+# dep, no separate model download), so installing this extra is only
+# necessary when callers explicitly pass ``prefer_spacy=True`` or use the
+# bundled ``SpacyTokenSequenceClassifierModel`` directly. spaCy's English
+# pipeline package itself (``en_core_web_sm``) ships from a separate CDN
+# rather than PyPI — install it with ``python -m spacy download
+# en_core_web_sm`` after enabling this extra, or override the model name
+# via the ``LEXNLP_SPACY_MODEL`` env var.
+ner = ["spacy>=3.7"]
 
 # PEP 735 dependency groups (uv/pip install --group) mirror the
 # contributor-facing dev/test extras above.

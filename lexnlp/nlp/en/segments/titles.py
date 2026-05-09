@@ -24,7 +24,7 @@ import requests
 import sklearn.ensemble
 
 # Project
-from lexnlp.ml.model_io import load_model
+from lexnlp.ml.model_io import load_bundled_model
 from lexnlp.nlp.en.segments.utils import build_document_line_distribution
 from lexnlp.utils.decorators import safe_failure
 from lexnlp.utils.unicode.unicode_lookup import UNICODE_CHAR_TOP_CATEGORY_MAPPING
@@ -35,7 +35,7 @@ from lexnlp.utils.unicode.unicode_lookup import UNICODE_CHAR_TOP_CATEGORY_MAPPIN
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load segmenters
-SECTION_SEGMENTER_MODEL = load_model(os.path.join(MODULE_PATH, "./title_locator.pickle"))
+SECTION_SEGMENTER_MODEL = load_bundled_model(os.path.join(MODULE_PATH, "./title_locator.pickle"))
 
 
 def build_title_features(

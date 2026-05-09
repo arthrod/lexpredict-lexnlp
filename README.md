@@ -54,6 +54,20 @@ uv pip install --python .venv/bin/python -e ".[dev,test]"
 ./.venv/bin/python scripts/bootstrap_assets.py --nltk --contract-model
 ```
 
+## Optional dependency extras
+
+| Extra | Pin | Powers |
+| --- | --- | --- |
+| `[arrow]` | `pyarrow>=17` | `read_csv_arrow`, PyArrow-backed extraction DataFrames |
+| `[hub]` | `huggingface_hub>=0.25` | `lexnlp.ml.catalog.hub` HF Hub mirror downloads |
+| `[ner]` | `spacy>=3.7` | Optional spaCy backend for `lexnlp.extract.ner` (default backend is NLTK; see below) |
+| `[tika]` | `tika>=2.6.0` | Apache Tika document-parsing helpers |
+| `[stanford]` | _(empty)_ | Hooks for callers that ship their own Stanford CoreNLP jars |
+
+Install one or more via e.g. `uv pip install -e ".[ner,arrow]"`. None
+of them are required for the rule-based extractors — install only what
+your project actually uses.
+
 ## Build system
 The project now uses Astral's native [`uv_build`](https://docs.astral.sh/uv/concepts/build-backends/#uv-build) backend — the `[build-system]` in `pyproject.toml` declares `requires = ["uv_build>=0.9,<0.10"]` and `build-backend = "uv_build"`. This drops setuptools/wheel from the build toolchain and keeps the build, resolve and lint toolchain in a single vendor. Build with:
 
@@ -80,6 +94,54 @@ matches = list(find_fuzzy_dates("Shipped 2O24-01-15", max_edits=1))
 ```
 
 See `MODERNIZATION_ROADMAP.md` §4.0 for the full design.
+
+## New in this branch: `lexnlp.extract.ner` (hybrid NER fallback)
+
+A small statistical NER pass that recovers entities the rule stack
+misses (parties, agreement types, OCR-mangled proper nouns):
+
+```python
+from lexnlp.extract.ner import (
+    HybridNERMatch, augment_rule_matches, extract_entities,
+)
+
+# Default backend is NLTK (already a hard dep) — a deliberate
+# substitution for spaCy's gated ``en_core_web_sm``. spaCy is opt-in:
+matches = extract_entities("Acme Corp. and John Smith signed an NDA.")
+print(matches[0])  # HybridNERMatch(start=..., end=..., text='Acme Corp', label='ORG', backend='nltk', score=None)
+
+# Opt into spaCy when you have ``[ner]`` + ``en_core_web_sm`` installed:
+matches = extract_entities(text, prefer_spacy=True)
+
+# Merge with the rule stack, dropping hybrid matches that overlap >=50%:
+merged = augment_rule_matches(rule_spans, matches)
+```
+
+The default NLTK backend needs four corpora downloaded once via
+`nltk.download(...)`: `punkt_tab`, `averaged_perceptron_tagger_eng`,
+`maxent_ne_chunker_tab`, `words`. See `MODERNIZATION_ROADMAP.md` §2.0.2
+for why NLTK is the default and how the spaCy substitution shipped.
+
+## Migrated bundled artifacts: `.pickle` → `.skops`
+
+The 10 bundled sklearn artifacts that previously shipped as `.pickle`
+files (`lexnlp/extract/{de,en}/...`, `lexnlp/extract/en/addresses/`,
+`lexnlp/extract/ml/en/data/`, `lexnlp/nlp/en/segments/`) have been
+re-exported as `.skops` siblings via
+`scripts/reexport_bundled_sklearn_models.py --format skops`. The legacy
+pickles were deleted; loaders use the new
+`lexnlp.ml.model_io.load_bundled_model(legacy_path)` helper that prefers
+the `.skops` sibling and falls back to the legacy pickle when present.
+Tests that previously ERRORed at collection under sklearn 1.8 + numpy
+2.4 (DE court-citation, ML token-sequence) now collect cleanly.
+
+To reproduce or extend the migration on a downstream fork:
+
+```bash
+.venv/bin/python scripts/reexport_bundled_sklearn_models.py --format skops
+.venv/bin/python scripts/reexport_bundled_sklearn_models.py \
+    --format skops --remove-legacy           # delete .pickle siblings
+```
 
 ## Deprecated Setup Variants
 `python-requirements.txt` and `python-requirements-dev.txt` are deprecated and kept only for legacy reproduction. The `Pipfile` / `Pipfile.lock` pair has been removed — `ci/check_dist_contents.py` continues to ban both from built artifacts. Use `uv` with `pyproject.toml` for all local setup and CI workflows.

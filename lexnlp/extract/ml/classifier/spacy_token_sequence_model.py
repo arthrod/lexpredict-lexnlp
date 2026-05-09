@@ -7,14 +7,65 @@ __email__ = "support@contraxsuite.com"
 
 
 import os
+from functools import lru_cache
 
 import numpy
-import spacy
 
 from lexnlp.extract.ml.classifier.base_token_sequence_classifier_model import BaseTokenSequenceClassifierModel
 
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
-NLP_EN = spacy.load("en_core_web_sm")
+
+# spaCy is shipped under the optional ``[ner]`` extra (``spacy>=3.7``). Older
+# releases of LexNLP required ``en_core_web_sm`` to be present at *import*
+# time, which made any consumer of ``lexnlp.extract.ml.classifier`` break
+# unless the spaCy CDN was reachable during install. The lazy loader below
+# defers both the ``spacy`` import and the model download to first use; the
+# model name is overridable via the ``LEXNLP_SPACY_MODEL`` env var so
+# downstream users can swap in a different non-gated package
+# (e.g. ``en_core_web_md`` or a locally-trained model).
+DEFAULT_SPACY_MODEL = "en_core_web_sm"
+
+
+def _resolve_spacy_model_name() -> str:
+    return os.getenv("LEXNLP_SPACY_MODEL", DEFAULT_SPACY_MODEL)
+
+
+@lru_cache(maxsize=4)
+def _load_spacy_pipeline(model_name: str | None = None):
+    """Return a cached spaCy ``Language`` pipeline.
+
+    Raises ``ImportError`` (with an actionable message) if the optional
+    ``[ner]`` extra is not installed, or ``OSError`` if the pipeline package
+    is installed but the model files were never downloaded.
+    """
+
+    try:
+        import spacy
+    except ImportError as exc:  # pragma: no cover - exercised in env-specific paths
+        raise ImportError(
+            "spaCy is an optional dependency for token-sequence NER. Install "
+            "it via ``uv pip install 'lexnlp[ner]'`` (or "
+            "``pip install lexnlp[ner]``)."
+        ) from exc
+
+    name = model_name or _resolve_spacy_model_name()
+    return spacy.load(name)
+
+
+def _NLP_EN():  # noqa: N802 - matches the previous module-global name
+    """Backwards-compatible accessor for the lazily-loaded English pipeline.
+
+    Existing call sites that referenced ``NLP_EN(text)`` keep working through
+    a thin lambda; new code should call ``_load_spacy_pipeline()`` directly.
+    """
+
+    return _load_spacy_pipeline(DEFAULT_SPACY_MODEL)
+
+
+# Preserve the historical attribute name as a callable proxy. ``NLP_EN(text)``
+# triggers the lazy load on first invocation while ``NLP_EN`` continues to be
+# importable from this module.
+NLP_EN = lambda text: _load_spacy_pipeline(DEFAULT_SPACY_MODEL)(text)  # noqa: E731
 
 
 # TODO: Refactor to support multiple languages

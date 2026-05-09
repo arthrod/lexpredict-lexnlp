@@ -70,9 +70,19 @@ DEFAULT_TRUSTED_ALLOWLIST: frozenset[str] = frozenset(
         "sklearn.linear_model._logistic.LogisticRegression",
         "sklearn.linear_model._logistic.LogisticRegressionCV",
         "sklearn.ensemble._forest.RandomForestClassifier",
+        "sklearn.ensemble._forest.ExtraTreesClassifier",
         "sklearn.ensemble._hist_gradient_boosting.gradient_boosting.HistGradientBoostingClassifier",
         "sklearn.tree._classes.DecisionTreeClassifier",
         "sklearn.svm._classes.LinearSVC",
+        "sklearn.feature_selection._univariate_selection.SelectKBest",
+        "sklearn.feature_selection._univariate_selection.f_classif",
+        "sklearn.feature_selection._univariate_selection.chi2",
+        "sklearn.feature_selection._univariate_selection.f_regression",
+        # NLTK tokenizer types embedded in bundled segmenter artifacts ----
+        "nltk.tokenize.punkt.PunktSentenceTokenizer",
+        "nltk.tokenize.punkt.PunktParameters",
+        "nltk.tokenize.punkt.PunktLanguageVars",
+        "nltk.tokenize.punkt.PunktToken",
     }
 )
 
@@ -81,6 +91,27 @@ def is_skops_path(path: Path) -> bool:
     """Return ``True`` when ``path`` is a skops artifact (by suffix)."""
 
     return path.suffix.lower() == CANONICAL_SUFFIX
+
+
+def load_bundled_model(legacy_path: str | Path, **load_kwargs: Any) -> Any:
+    """Load a bundled artifact, preferring its ``.skops`` sibling.
+
+    LexNLP ships several legacy ``.pickle`` artifacts that have a re-exported
+    ``.skops`` sibling. Loaders that want the safer skops path with no risk
+    of falling through to the pickle ABI break call this helper, which:
+
+    1. checks for ``Path(legacy_path).with_suffix('.skops')`` and loads that
+       (with ``trusted=True`` against :data:`DEFAULT_TRUSTED_ALLOWLIST`);
+    2. otherwise falls back to ``load_model(legacy_path)`` so callers can
+       keep the bundled pickle for development setups that did not run
+       ``scripts/reexport_bundled_sklearn_models.py``.
+    """
+
+    legacy = Path(legacy_path)
+    skops_sibling = legacy.with_suffix(CANONICAL_SUFFIX)
+    if skops_sibling.exists():
+        return load_model(skops_sibling, trusted=True, **load_kwargs)
+    return load_model(legacy, **load_kwargs)
 
 
 def dump_model(obj: Any, path: Path) -> Path:

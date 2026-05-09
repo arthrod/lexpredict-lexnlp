@@ -100,6 +100,66 @@ Modernize dependency and test tooling so LexNLP is reproducible with `uv`, Pytho
   - `lexnlp/nlp/en/segments/section_segmenter.pickle`
   - `lexnlp/nlp/en/segments/title_locator.pickle`
 
+## Follow-up completed (April 2026, `claude/review-pr-comments-HTZkT`)
+
+### Bundled sklearn artifacts: `.pickle` → `.skops`
+
+- `scripts/reexport_bundled_sklearn_models.py` rewritten to support
+  ``--format skops`` (default) and ``--remove-legacy``. The script
+  routes loads through `lexnlp.ml.model_io._patched_sklearn_tree_loader`
+  so pre-1.3 tree node arrays gain the missing `missing_go_to_left`
+  byte, sanitises stray `pandas.Index` attributes that skops can't
+  reduce (`BlockValuesRefs` under pandas 2), and writes via
+  `skops.io.dump`.
+- 10 bundled `.pickle` files replaced with `.skops` siblings (the
+  layered-definition zip is now `definition_model_layered.skops.zip`
+  with two inner `.skops` payloads).
+- Loaders switched to `lexnlp.ml.model_io.load_bundled_model(legacy_path)`
+  which prefers the `.skops` sibling and falls back to the legacy
+  pickle when present.
+- Tests that previously ERRORed at collection on sklearn 1.8 + numpy
+  2.4 (DE court-citation, ML token-sequence) now collect cleanly.
+
+### `lexnlp.extract.ner` hybrid NER fallback (new module)
+
+- New optional `[ner]` extra (`spacy>=3.7`).
+- New `lexnlp/extract/ner/` package: `HybridNERMatch`,
+  `extract_entities(prefer_spacy=False)`, `spacy_is_available()`,
+  `augment_rule_matches(...)`.
+- **Default backend = NLTK** — explicit substitution for the gated
+  `en_core_web_sm` (spaCy models ship from a separate CDN, not PyPI;
+  `python -m spacy download` fails in air-gapped/firewalled CI).
+  NLTK's `averaged_perceptron_tagger_eng` + `maxent_ne_chunker_tab`
+  emits the same PERSON/ORG/GPE/LOC labels and is already a hard
+  dep.
+- `lexnlp.extract.ml.classifier.spacy_token_sequence_model` had its
+  eager `spacy.load("en_core_web_sm")` replaced with a lazy cached
+  `_load_spacy_pipeline(name)`; model name overridable via the
+  `LEXNLP_SPACY_MODEL` env var.
+
+### PR review carry-overs from #19/#21/#22
+
+Per-file punch list addressed; see `MODERNIZATION_ROADMAP.md` §2.3.
+Highlights:
+- `lexnlp/extract/pt/regulations.py`: trigger regex tolerates Brazilian
+  thousands-separator dots; new `PARAGRAPH_LEADING_REFERENCE_RE` for
+  `§ 2º do art. 14` etc.; trigger phrases that fully contain a formal
+  citation are dropped in `parse()`.
+- `lexnlp/extract/pt/definitions.py`: parenthesised-label matcher
+  registered in `make_pt_definitions_parser`.
+- `lexnlp/extract/de/de_date_parser.py`: early-return guard on empty
+  text before `re.sub`.
+- `lexnlp/extract/common/countries.py`: `fuzzy_country` rejects
+  non-int / `bool` `max_results` with `TypeError`.
+- `lexnlp/ml/model_io.py`: trusted allow-list extended for sklearn
+  `ExtraTreesClassifier`, `SelectKBest`, the univariate-selection
+  score functions, and the four NLTK Punkt types embedded in bundled
+  segmenter artifacts.
+- `lexnlp/extract/en/contracts/tests/test_runtime_model_sklearn18.py`:
+  new smoke suite that fits + round-trips a contract-type pipeline on
+  a synthetic 9-doc/3-label corpus, catching sklearn 1.8 deprecations
+  without requiring the GitHub corpus tag.
+
 ## Final CI stabilization (post-migration)
 
 While validating the migrated stack on GitHub Actions, one base-suite run still failed

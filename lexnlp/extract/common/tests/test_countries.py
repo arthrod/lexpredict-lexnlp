@@ -134,6 +134,19 @@ class TestFuzzyCountryMaxResultsBoundary:
         with pytest.raises(ValueError):
             fuzzy_country("United", max_results=-100)
 
+    def test_max_results_non_int_raises_type_error(self) -> None:
+        """Non-int values for max_results must raise TypeError, not silently slice."""
+        import pytest
+
+        with pytest.raises(TypeError, match="max_results must be an int"):
+            fuzzy_country("United", max_results=1.5)  # type: ignore[arg-type]
+        with pytest.raises(TypeError, match="max_results must be an int"):
+            fuzzy_country("United", max_results="1")  # type: ignore[arg-type]
+        with pytest.raises(TypeError, match="max_results must be an int"):
+            # ``bool`` is a subclass of ``int``; reject it explicitly so callers
+            # don't accidentally pass ``True`` and silently slice to 1.
+            fuzzy_country("United", max_results=True)  # type: ignore[arg-type]
+
     def test_returns_tuple_not_list(self) -> None:
         """Return type must be tuple, not list, to satisfy the type signature."""
         result = fuzzy_country("France")
@@ -180,4 +193,6 @@ class TestLookupCountryAdditional:
         info = lookup_country("GB")
         assert info is not None
         with pytest.raises((AttributeError, TypeError)):
-            info.alpha_2 = "XX"  # type: ignore[misc]
+            # setattr() avoids needing a type-checker suppression while still
+            # exercising the runtime FrozenInstanceError path.
+            setattr(info, "alpha_2", "XX")  # noqa: B010 - intentional dynamic set

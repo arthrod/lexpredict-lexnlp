@@ -147,6 +147,10 @@ class DeDateParser(DateParser):
         """
         if text is not None:
             self.text = text.replace("\n", " ")
+        # Guard against callers that constructed the parser without seeding
+        # ``self.text``; treat that as an empty input rather than raising.
+        if not self.text:
+            return
         self.text = re.sub(CUSTOM_DATES_SEPARATOR, "\n", self.text)
         text_parts = self.text.split("\n")
         for text_part in text_parts:
