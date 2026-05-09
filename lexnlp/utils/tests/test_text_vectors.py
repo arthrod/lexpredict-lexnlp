@@ -193,10 +193,10 @@ class TestVectorizedStripStringDType(TestCase):
         below.
         """
         result = vectorized_strip(["\u3000foo\u3000", "bar"])
-        # \u3000 is an ideographic space — strip should handle it
-        # Result may or may not strip non-ASCII whitespace depending on
-        # the NumPy version; just verify no crash and correct length.
+        self.assertIsInstance(result, np.ndarray)
         self.assertEqual(len(result), 2)
+        # Element type stays string-like across NumPy versions.
+        self.assertTrue(all(isinstance(item, (str, np.str_)) for item in result))
 
     def test_mixed_length_strings(self):
         """Strings with very different lengths must all be stripped correctly."""

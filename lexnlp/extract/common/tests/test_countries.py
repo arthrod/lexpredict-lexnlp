@@ -140,13 +140,16 @@ class TestFuzzyCountryMaxResultsBoundary:
         """Non-int values for max_results must raise TypeError, not silently slice."""
         import pytest
 
+        # cast(Any, ...) bypasses the static type checker so we can pass a
+        # non-int and assert the runtime ``TypeError`` is raised.
         with pytest.raises(TypeError, match="max_results must be an int"):
             fuzzy_country("United", max_results=cast(Any, 1.5))
         with pytest.raises(TypeError, match="max_results must be an int"):
             fuzzy_country("United", max_results=cast(Any, "1"))
         with pytest.raises(TypeError, match="max_results must be an int"):
-            # ``bool`` is a subclass of ``int``; reject it explicitly so callers
-            # don't accidentally pass ``True`` and silently slice to 1.
+            # ``bool`` is a subclass of ``int``; cast(Any, ...) lets us pass
+            # ``True`` past the type checker so callers don't accidentally
+            # silently slice to 1.
             fuzzy_country("United", max_results=cast(Any, True))
 
     def test_returns_tuple_not_list(self) -> None:

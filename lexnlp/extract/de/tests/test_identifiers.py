@@ -8,6 +8,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
+import dataclasses
 from unittest import TestCase
 
 from lexnlp.extract.de.identifiers import (
@@ -125,5 +126,23 @@ class TestGetIdentifierAnnotations(TestCase):
         m = DeIdentifierMatch(
             kind="ust_idnr", value=VALID_UST, surface=VALID_UST, coords=(0, 11)
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(dataclasses.FrozenInstanceError):
             setattr(m, "value", "DE000000000")
+
+
+class TestDeIdentifiersPackageReexports(TestCase):
+    """Lock the public surface of ``lexnlp.extract.de`` against drift."""
+
+    def test_reexports_are_identical_objects(self):
+        from lexnlp.extract import de as de_pkg
+        from lexnlp.extract.de import identifiers as identifiers_mod
+
+        for name in (
+            "DeIdentifierMatch",
+            "get_hrb_annotations",
+            "get_identifier_annotations",
+            "get_steuer_idnr_annotations",
+            "get_ust_idnr_annotations",
+        ):
+            self.assertIs(getattr(de_pkg, name), getattr(identifiers_mod, name))
+            self.assertIn(name, de_pkg.__all__)

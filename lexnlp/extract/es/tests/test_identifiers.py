@@ -8,6 +8,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
+import dataclasses
 from unittest import TestCase
 
 from lexnlp.extract.es.identifiers import (
@@ -135,6 +136,24 @@ class TestGetIdentifierAnnotations(TestCase):
         m = EsIdentifierMatch(
             kind="dni", value="12345678Z", surface="12345678Z", coords=(0, 9)
         )
-        with self.assertRaises(Exception):
-            # Frozen dataclass mutation must raise FrozenInstanceError.
+        with self.assertRaises(dataclasses.FrozenInstanceError):
             setattr(m, "value", "00000000T")
+
+
+class TestEsIdentifiersPackageReexports(TestCase):
+    """Lock the public surface of ``lexnlp.extract.es`` against drift."""
+
+    def test_reexports_are_identical_objects(self):
+        from lexnlp.extract import es as es_pkg
+        from lexnlp.extract.es import identifiers as identifiers_mod
+
+        for name in (
+            "EsIdentifierMatch",
+            "get_cif_annotations",
+            "get_dni_annotations",
+            "get_identifier_annotations",
+            "get_nie_annotations",
+            "get_nif_annotations",
+        ):
+            self.assertIs(getattr(es_pkg, name), getattr(identifiers_mod, name))
+            self.assertIn(name, es_pkg.__all__)

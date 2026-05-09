@@ -33,6 +33,7 @@ from lexnlp.extract.pt.copyrights import get_copyright_annotations, get_copyrigh
 from lexnlp.extract.pt.courts import get_court_annotations, get_courts
 from lexnlp.extract.pt.dates import get_date_annotations, get_dates
 from lexnlp.extract.pt.definitions import get_definition_annotations, get_definitions
+from lexnlp.extract.pt.durations import get_duration_annotations, get_durations
 from lexnlp.extract.pt.identifiers import (
     get_cnpj_annotations,
     get_cpf_annotations,
@@ -40,6 +41,8 @@ from lexnlp.extract.pt.identifiers import (
     get_oab_annotations,
 )
 from lexnlp.extract.pt.language_tokens import PtLanguageTokens
+from lexnlp.extract.pt.money import get_money, get_money_annotations
+from lexnlp.extract.pt.percents import get_percent_annotations, get_percents
 from lexnlp.extract.pt.regulations import get_regulation_annotations, get_regulations
 
 __all__ = [
@@ -54,8 +57,14 @@ __all__ = [
     "get_dates",
     "get_definition_annotations",
     "get_definitions",
+    "get_duration_annotations",
+    "get_durations",
     "get_identifier_annotations",
+    "get_money",
+    "get_money_annotations",
     "get_oab_annotations",
+    "get_percent_annotations",
+    "get_percents",
     "get_regulation_annotations",
     "get_regulations",
 ]

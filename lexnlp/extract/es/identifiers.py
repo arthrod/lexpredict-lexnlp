@@ -25,7 +25,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from dataclasses import dataclass
 
 import regex as re
@@ -58,6 +58,9 @@ _CIF_RE = re.compile(
 
 _DNI_CHECK_LETTERS = "TRWAGMYFPDXBNJZSQVHLCKE"
 _NIE_PREFIX_TO_DIGIT = {"X": "0", "Y": "1", "Z": "2"}
+# Legal CIF leading letters per Real Decreto 1065/2007. Excludes "I", "O",
+# "T" (never assigned), and "X"/"Y"/"Z" (reserved for the NIE namespace).
+_CIF_HEAD_LETTERS = frozenset("ABCDEFGHJKLMNPQRSUVW")
 
 
 @dataclass(slots=True, frozen=True)
@@ -128,7 +131,7 @@ def _cif_is_valid(canonical: str) -> bool:
     if len(canonical) != 9:
         return False
     head, body, control = canonical[0], canonical[1:8], canonical[8]
-    if not body.isdigit():
+    if head not in _CIF_HEAD_LETTERS or not body.isdigit():
         return False
     digits = [int(c) for c in body]
     odd_sum = 0
@@ -153,7 +156,7 @@ def _cif_is_valid(canonical: str) -> bool:
 # ---------- public API ----------
 
 
-def get_dni_annotations(text: str) -> Generator[EsIdentifierMatch]:
+def get_dni_annotations(text: str) -> Iterator[EsIdentifierMatch]:
     """Yield validated DNIs found in *text*."""
     for match in _DNI_RE.finditer(text):
         canonical = _strip_seps(match.group("dni"))
@@ -166,7 +169,7 @@ def get_dni_annotations(text: str) -> Generator[EsIdentifierMatch]:
             )
 
 
-def get_nie_annotations(text: str) -> Generator[EsIdentifierMatch]:
+def get_nie_annotations(text: str) -> Iterator[EsIdentifierMatch]:
     """Yield validated NIEs found in *text*."""
     for match in _NIE_RE.finditer(text):
         canonical = _strip_seps(match.group("nie"))
@@ -179,7 +182,7 @@ def get_nie_annotations(text: str) -> Generator[EsIdentifierMatch]:
             )
 
 
-def get_nif_annotations(text: str) -> Generator[EsIdentifierMatch]:
+def get_nif_annotations(text: str) -> Iterator[EsIdentifierMatch]:
     """Yield validated natural-person NIFs (DNIs ∪ NIEs)."""
     for match in get_dni_annotations(text):
         yield EsIdentifierMatch(
@@ -197,7 +200,7 @@ def get_nif_annotations(text: str) -> Generator[EsIdentifierMatch]:
         )
 
 
-def get_cif_annotations(text: str) -> Generator[EsIdentifierMatch]:
+def get_cif_annotations(text: str) -> Iterator[EsIdentifierMatch]:
     """Yield validated legacy CIFs found in *text*."""
     for match in _CIF_RE.finditer(text):
         canonical = _strip_seps(match.group("cif"))
@@ -210,7 +213,7 @@ def get_cif_annotations(text: str) -> Generator[EsIdentifierMatch]:
             )
 
 
-def get_identifier_annotations(text: str) -> Generator[EsIdentifierMatch]:
+def get_identifier_annotations(text: str) -> Iterator[EsIdentifierMatch]:
     """Yield every Spanish identifier (DNI, NIE, CIF) found in *text*.
 
     NIFs are not separately yielded because every DNI and every NIE is

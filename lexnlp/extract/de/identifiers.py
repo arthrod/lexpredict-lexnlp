@@ -23,7 +23,7 @@ __maintainer__ = "LexPredict, LLC"
 __email__ = "support@contraxsuite.com"
 
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from dataclasses import dataclass
 
 import regex as re
@@ -147,7 +147,7 @@ def _ust_idnr_is_valid(digits: str) -> bool:
 # ---------- public API ----------
 
 
-def get_steuer_idnr_annotations(text: str) -> Generator[DeIdentifierMatch]:
+def get_steuer_idnr_annotations(text: str) -> Iterator[DeIdentifierMatch]:
     """Yield validated Steuer-IdNr matches found in *text*."""
     for match in _STEUER_IDNR_RE.finditer(text):
         digits = _digits(match.group("idnr"))
@@ -160,11 +160,12 @@ def get_steuer_idnr_annotations(text: str) -> Generator[DeIdentifierMatch]:
             )
 
 
-def get_ust_idnr_annotations(text: str) -> Generator[DeIdentifierMatch]:
+def get_ust_idnr_annotations(text: str) -> Iterator[DeIdentifierMatch]:
     """Yield validated USt-IdNr matches found in *text*."""
     for match in _UST_IDNR_RE.finditer(text):
-        ust = match.group("ust").upper().replace(" ", "").replace(".", "")
-        digits = ust[2:] if ust.startswith("DE") else ust
+        # ``_digits`` collapses any \s (tabs, newlines) plus ``.`` so an ID
+        # split across a line break still validates correctly.
+        digits = _digits(match.group("ust"))
         if _ust_idnr_is_valid(digits):
             yield DeIdentifierMatch(
                 kind="ust_idnr",
@@ -174,7 +175,7 @@ def get_ust_idnr_annotations(text: str) -> Generator[DeIdentifierMatch]:
             )
 
 
-def get_hrb_annotations(text: str) -> Generator[DeIdentifierMatch]:
+def get_hrb_annotations(text: str) -> Iterator[DeIdentifierMatch]:
     """Yield Handelsregisternummer (``HRB`` / ``HRA``) candidates.
 
     No check-digit algorithm exists for the Handelsregister, so matches
@@ -191,7 +192,7 @@ def get_hrb_annotations(text: str) -> Generator[DeIdentifierMatch]:
         )
 
 
-def get_identifier_annotations(text: str) -> Generator[DeIdentifierMatch]:
+def get_identifier_annotations(text: str) -> Iterator[DeIdentifierMatch]:
     """Yield every German identifier we know how to extract.
 
     Order: Steuer-IdNr, USt-IdNr, then Handelsregister numbers.

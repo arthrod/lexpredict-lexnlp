@@ -125,9 +125,7 @@ class TestWriteModelCard(TestCase):
 class TestModelCardMetadataValidation(TestCase):
     def test_required_description(self) -> None:
         with self.assertRaises((TypeError, ValueError)):
-            # type: ignore[call-arg] — intentionally omitting the required
-            # ``description`` field to assert the runtime constructor fails.
-            ModelCardMetadata()  # type: ignore[call-arg]
+            ModelCardMetadata()  # type: ignore[call-arg] -- intentionally omitting required ``description`` to assert runtime constructor fails
 
     def test_frozen(self) -> None:
         import dataclasses
